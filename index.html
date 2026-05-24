@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Arina &amp; Elnur — Wedding Invitation</title>
+
+  <!-- Canonical -->
+  <link rel="canonical" href="https://arinaelnur.de/" />
+
+  <!-- Open Graph / WhatsApp -->
+  <meta property="og:title" content="Arina &amp; Elnur — Invitation to the Wedding Ceremony" />
+  <meta property="og:description" content="We would be honoured to have you witness our special day and join us for our wedding ceremony on 16 October 2026 at 13:30 at the Schlosskirche Düsseldorf." />
+  <meta property="og:image" content="https://arinaelnur.de/us2.jpg" />
+  <meta property="og:image:secure_url" content="https://arinaelnur.de/us2.jpg" />
+  <meta property="og:image:type" content="image/jpeg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:url" content="https://arinaelnur.de/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Arina &amp; Elnur Wedding" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Arina &amp; Elnur — Wedding Invitation" />
+  <meta name="twitter:description" content="Join us as we celebrate our wedding." />
+  <meta name="twitter:image" content="https://arinaelnur.de/photo2.jpg" />
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css?v=9" />
+
+  <!-- Cloudflare -->
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
+          data-cf-beacon='{"token":"40223123959b40ce8820f84cd8bbae11"}'></script>
+  <style>
+    /* ── Consistent serif font on RSVP form elements only ──────
+       Browsers don't inherit font into inputs/selects by default. */
+    .rsvp-form input,
+    .rsvp-form select,
+    .rsvp-form textarea,
+    .rsvp-form input::placeholder,
+    .rsvp-form textarea::placeholder,
+    .rsvp-form label > span,
+    .check-row span,
+    .kids-cell {
+      font-family: WeddingSerif, Georgia, serif;
+    }
+    .rsvp-form input::placeholder,
+    .rsvp-form textarea::placeholder {
+      opacity: .45;
+      font-style: normal;
+    }
+
+    /* Personalised RSVP greeting */
+    .rsvp-greeting {
+      display: block;
+      margin: -6px 0 12px;
+      padding: 8px 12px;
+      background: rgba(49,39,28,.06);
+      border-left: 2px solid #624E38;
+      font-family: WeddingSerif, Georgia, serif;
+      font-size: 11px;
+      font-style: normal;
+      color: #624E38;
+      line-height: 1.5;
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* Arrival notice one-liner */
+    .arrival-notice {
+      display: block !important;
+      padding: 10px 14px !important;
+      margin-bottom: 16px !important;
+    }
+    .arrival-notice strong {
+      display: block;
+      font-family: WeddingSerif, Georgia, serif;
+      font-size: clamp(11px,.92vw,13px);
+      font-weight: 600;
+      color: var(--ink, #31271C);
+      letter-spacing: .01em;
+    }
+  </style>
+</head>
+<body>
+
+  <img src="couple-logo.png" class="logo" alt="Arina and Elnur logo" />
+
+  <main class="layout">
+
+    <!-- ── Left: invitation image ───────────────────────── -->
+    <section class="left">
+      <img src="invitation-original.png" class="invitation" alt="Wedding invitation" />
+    </section>
+
+    <!-- ── Right: 3×2 card grid ─────────────────────────── -->
+    <section class="right">
+
+      <!-- 01 RSVP ─────────────────────────────────────────── -->
+      <article class="card rsvp-card">
+        <div class="topline">
+          <span class="number">01</span>
+          <span class="label">Kindly Reply</span>
+        </div>
+        <h2>RSVP</h2>
+
+        <form id="rsvpForm" class="rsvp-form">
+          <div class="name-row">
+            <label>
+              <span>First name</span>
+              <input required name="first_name" type="text" placeholder="First name" />
+            </label>
+            <label>
+              <span>Last name</span>
+              <input required name="last_name" type="text" placeholder="Last name" />
+            </label>
+          </div>
+
+          <div class="contact-row">
+            <label>
+              <span>Email</span>
+              <input required name="email" type="email" inputmode="email"
+                     autocomplete="email" placeholder="Email address" />
+            </label>
+            <label>
+              <span>Phone</span>
+              <input name="phone" type="tel" inputmode="tel"
+                     autocomplete="tel" placeholder="Optional" />
+            </label>
+          </div>
+
+          <label>
+            <span>Will you attend?</span>
+            <select name="attendance" id="attendanceSelect">
+              <option value="Yes">Yes, I will be there</option>
+              <option value="No">Sadly, I can't make it</option>
+            </select>
+          </label>
+
+          <p class="decline-note" id="declineNote">
+            We are sorry you cannot make it — thank you for letting us know. Feel free to leave a note below.
+          </p>
+
+          <div class="yes-only is-hidden" id="yesOnlyFields">
+            <div class="checkbox-list">
+              <div class="check-row kids-row seats-row">
+                <span>Seats needed (incl. kids)</span>
+                <div class="kids-stepper" id="kidsStepper" aria-label="Number of seats">
+                  <button type="button" class="kids-cell kids-minus" id="kidsMinus" aria-label="Decrease">−</button>
+                  <span class="kids-cell kids-number" id="kidsCountDisplay" aria-live="polite">1</span>
+                  <button type="button" class="kids-cell kids-plus" id="kidsPlus" aria-label="Increase">+</button>
+                  <input type="hidden" name="seats_count" id="kidsCount" value="1" />
+                </div>
+              </div>
+              <label class="check-row">
+                <input type="checkbox" name="bring_share" value="Yes" id="bringShareCheckbox" />
+                <span>I'll join the Bring &amp; Share</span>
+              </label>
+            </div>
+          </div>
+
+          <button type="submit">Send RSVP</button>
+          <p class="rsvp-status" id="rsvpStatus" aria-live="polite"></p>
+        </form>
+
+        <div class="rsvp-success" id="rsvpSuccess" aria-live="polite">
+          <div class="success-kicker" id="successKicker">THANK YOU</div>
+          <h3 id="successTitle">We cannot wait to celebrate with you.</h3>
+          <p id="successMessage">Your RSVP has been received. We are so grateful you took the time to reply.</p>
+          <div class="success-actions" id="successActions">
+            <a class="sa-btn sa-btn--black" id="giftLink" href="#" target="_blank" rel="noreferrer">Gift List</a>
+            <a class="sa-btn sa-btn--warm" id="bsNudgeBtn" href="https://forms.gle/4C6RUZfEKunpWGoc8" target="_blank" rel="noreferrer">Bring &amp; Share</a>
+            <a class="sa-btn sa-btn--outline" id="newRsvpBtn" href="#">New RSVP</a>
+          </div>
+        </div>
+      </article>
+
+      <!-- 02 Love Story ────────────────────────────────────── -->
+      <article class="card story-card">
+        <div class="story-inner">
+          <div class="topline">
+            <span class="number">02</span>
+            <span class="label">Our Story</span>
+          </div>
+          <h2>Our Story</h2>
+          <div class="story-copy" id="story-paragraphs">
+            <!-- Populated by script.js -->
+          </div>
+          <div class="story-mark">— ♡ —</div>
+        </div>
+
+        <div class="story-photos">
+          <div class="story-photo-grid">
+            <div class="story-photo-box" data-slot="1">
+              <img id="storyPhoto1" src="us.jpg" alt="Our moment" />
+            </div>
+            <div class="story-photo-box" data-slot="2">
+              <img id="storyPhoto2" src="photo2.jpg" alt="The proposal" />
+            </div>
+            <div class="story-photo-box" data-slot="3">
+              <img id="storyPhoto3" src="photo3.jpg" alt="Our moment" />
+            </div>
+            <div class="story-photo-box" data-slot="4">
+              <img id="storyPhoto4" src="photo4.jpg" alt="Golden hour" />
+            </div>
+            <div class="story-photo-box" data-slot="5">
+              <img id="storyPhoto5" src="photo5.jpg" alt="Family" />
+            </div>
+            <a class="story-photo-box story-photo-gallery" href="#" target="_blank" rel="noreferrer" id="galleryLink">
+              <span class="gallery-icon">&#10132;</span>
+              <span class="gallery-label">Gallery</span>
+            </a>
+          </div>
+        </div>
+      </article>
+
+      <!-- 03 Planning Crew ─────────────────────────────────── -->
+      <article class="card contact-card wedding-party-card">
+        <div class="party-topline">
+          <span class="number">03</span>
+          <span class="label">Planning Crew</span>
+        </div>
+        <h2 class="party-title">The Crew</h2>
+
+        <div class="party-grid">
+          <section class="party-person">
+            <div class="party-role">Groom's Side</div>
+            <div id="crew-groom" class="crew-side"></div>
+          </section>
+          <section class="party-person">
+            <div class="party-role">Bride's Side</div>
+            <div id="crew-bride" class="crew-side"></div>
+          </section>
+          <section class="party-person">
+            <div class="party-role">Pastor &amp; Worship</div>
+            <div id="crew-other" class="crew-side"></div>
+          </section>
+        </div>
+      </article>
+
+      <!-- 04 Ceremony ──────────────────────────────────────── -->
+      <article class="card ceremony-card">
+        <div class="topline">
+          <span class="number">04</span>
+          <span class="label">The Moment</span>
+        </div>
+        <h2>The Day</h2>
+
+        <!-- 30-min arrival notice -->
+        <div class="arrival-notice">
+          <strong>Please arrive 30 minutes early.</strong>
+        </div>
+
+        <div class="ceremony-agenda" id="ceremony-agenda">
+          <!-- Populated by script.js -->
+        </div>
+      </article>
+
+      <!-- 05 Dress Code ───────────────────────────────────── -->
+      <article class="card dress-code-card">
+        <div class="topline">
+          <span class="number">05</span>
+          <span class="label">Dress Code</span>
+        </div>
+        <h2>Dress Code</h2>
+        <p class="dress-intro" id="dress-intro"></p>
+        <div class="dress-palette" id="dress-palette" aria-label="Dress code color palette"></div>
+        <p class="dress-note" id="dress-note"></p>
+      </article>
+
+      <!-- 06 FAQ ──────────────────────────────────────────── -->
+      <article class="card faq-card">
+        <div class="topline">
+          <span class="number">06</span>
+          <span class="label">FAQ</span>
+        </div>
+        <h2>FAQ</h2>
+        <div class="faq-list" id="faq-list">
+          <!-- Populated by script.js -->
+        </div>
+      </article>
+
+    </section><!-- /.right -->
+  </main>
+
+  <!-- ── Bring & Share Modal ──────────────────────────────── -->
+  <div class="bs-overlay" id="bsOverlay" aria-modal="true" role="dialog">
+    <div class="bs-modal">
+
+      <button class="bs-close" id="bsClose" aria-label="Close">×</button>
+
+      <div class="bs-step" id="bsStep1">
+        <div class="bs-kicker">Bring &amp; Share</div>
+        <h3 class="bs-title">What are you bringing?</h3>
+        <p class="bs-hint">Let us know what you plan to bring so we can plan ahead. You're not expected to bring for 140 people! 🙂</p>
+
+        <label class="bs-label">
+          <span>What will you bring? *</span>
+          <input id="bs_what" type="text" placeholder="e.g. apple pie, finger sandwiches…" />
+        </label>
+
+        <label class="bs-label">
+          <span>How many portions? *</span>
+          <input id="bs_portions" type="number" min="1" placeholder="e.g. 12" />
+          <small>We are planning for ~140 guests incl. kids. Every contribution helps!</small>
+        </label>
+
+        <button class="bs-next" id="bsNext1">Next →</button>
+      </div>
+
+      <div class="bs-step is-hidden" id="bsStep2">
+        <div class="bs-kicker">Bring &amp; Share</div>
+        <h3 class="bs-title">About your food</h3>
+
+        <div class="bs-label"><span>What type of food? *</span>
+          <div class="bs-checks">
+            <label class="bs-check"><input type="checkbox" name="food_type" value="Vegan" /><span>Vegan</span></label>
+            <label class="bs-check"><input type="checkbox" name="food_type" value="Vegetarian" /><span>Vegetarian</span></label>
+            <label class="bs-check"><input type="checkbox" name="food_type" value="Gluten-free" /><span>Gluten-free</span></label>
+            <label class="bs-check"><input type="checkbox" name="food_type" value="Contains meat" /><span>Contains meat</span></label>
+          </div>
+        </div>
+
+        <div class="bs-label"><span>Does your food include allergens?</span>
+          <div class="bs-checks">
+            <label class="bs-check"><input type="checkbox" name="allergen" value="Nuts" /><span>Nuts</span></label>
+            <label class="bs-check"><input type="checkbox" name="allergen" value="Honey" /><span>Honey</span></label>
+            <label class="bs-check"><input type="checkbox" name="allergen" value="Cow Milk" /><span>Cow Milk</span></label>
+            <label class="bs-check"><input type="checkbox" name="allergen" value="Eggs" /><span>Eggs</span></label>
+            <label class="bs-check"><input type="checkbox" name="allergen" value="Gluten" /><span>Gluten</span></label>
+          </div>
+        </div>
+
+        <div class="bs-nav">
+          <button class="bs-back" id="bsBack2">← Back</button>
+          <button class="bs-next" id="bsNext2">Next →</button>
+        </div>
+      </div>
+
+      <div class="bs-step is-hidden" id="bsStep3">
+        <div class="bs-kicker">Bring &amp; Share</div>
+        <h3 class="bs-title">Your contact details</h3>
+        <p class="bs-hint">So we can reach you about logistics.</p>
+
+        <label class="bs-label">
+          <span>Full Name *</span>
+          <input id="bs_name" type="text" placeholder="Your full name" />
+        </label>
+
+        <label class="bs-label">
+          <span>Phone or Email *</span>
+          <input id="bs_phone" type="text" placeholder="+49 123 456 or email@..." />
+        </label>
+
+        <div class="bs-nav">
+          <button class="bs-back" id="bsBack3">← Back</button>
+          <button class="bs-submit" id="bsSubmit">Send ✓</button>
+        </div>
+        <p class="bs-status" id="bsStatus"></p>
+      </div>
+
+      <div class="bs-step is-hidden" id="bsStepDone">
+        <div class="bs-kicker">You're amazing 🧁</div>
+        <h3 class="bs-title">Thank you so much for your contribution!</h3>
+        <p class="bs-hint">We've noted what you're bringing and will be in touch if needed.</p>
+        <div class="bs-arrival-reminder" id="bsArrivalReminder">
+          <span class="bs-arrival-icon">⏰</span>
+          <p id="bsArrivalText">Please arrive by <strong>13:30</strong> and hand your contribution to <strong id="bsSpocName">our team</strong> at the entrance.</p>
+        </div>
+        <p class="bs-hint bs-hint--warm">We can't wait to celebrate with you. ♡</p>
+        <button class="bs-next" id="bsDone">Close</button>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+GOOGLE SHEETS RSVP SETUP
+
+Sheet headers:
+Timestamp | Guest Code | First Name | Last Name | Full Name | Email | Phone | Attendance | With Partner | With Kids | Number of Kids | Message
+
+First name, last name, and email are mandatory.
+Phone is optional.
+
+Use unique invite links to know which invitee opened/responded:
+index.html?guest=invite-001
+index.html?guest=arina-family
+
+Paste google-apps-script.js into Google Sheets > Extensions > Apps Script, deploy as a Web App, then paste the Web App URL into script.js.
