@@ -134,7 +134,7 @@ function loadContent() {
     "analyticsToken": "40223123959b40ce8820f84cd8bbae11"
   },
   "rsvp": {
-    "googleScriptUrl": "https://script.google.com/macros/s/AKfycbywYNtXJj8X_gVWnVOwen1YsC26331emv7QVmPC3RozcH9-JhEKPIWaCYhXmaSd5iuTJA/exec",
+    "googleScriptUrl": "https://script.google.com/macros/s/AKfycbxIghwo-9tkQNRFR9FUnPSfsG4rTMPYh1Z9CD-NOLST7pIv1D1OoQkOG5mDsJNlViiGtw/exec",
     "giftListUrl": "#",
     "bringAndShareFormUrl": "https://forms.gle/4C6RUZfEKunpWGoc8",
     "bringAndShareSpoc": ""
@@ -310,12 +310,11 @@ var form             = document.getElementById("rsvpForm");
 var attendanceSelect = document.getElementById("attendanceSelect");
 var yesOnlyFields    = document.getElementById("yesOnlyFields");
 var declineNote      = document.getElementById("declineNote");
-var kidsCheckbox     = document.getElementById("kidsCheckbox");
-var kidsCount        = document.getElementById("kidsCount");
+var kidsCount        = document.getElementById("kidsCount");      // children hidden input
 var kidsCountDisplay = document.getElementById("kidsCountDisplay");
 var kidsMinus        = document.getElementById("kidsMinus");
 var kidsPlus         = document.getElementById("kidsPlus");
-var bringShareRow      = document.getElementById("bringShareRow");
+var totalSeatsInput  = document.getElementById("totalSeats");
 var bringShareCheckbox = document.getElementById("bringShareCheckbox");
 var rsvpSuccess        = document.getElementById("rsvpSuccess");
 var newRsvpBtn       = document.getElementById("newRsvpBtn");
@@ -323,44 +322,120 @@ var successKicker    = document.getElementById("successKicker");
 var successTitle     = document.getElementById("successTitle");
 var successMessage   = document.getElementById("successMessage");
 var giftLink         = document.getElementById("giftLink");
-var bringShareLink   = document.getElementById("bringShareLink");
 var rsvpStatus       = document.getElementById("rsvpStatus");
 var rsvpCard         = document.querySelector(".rsvp-card");
+var guestChecksEl    = document.getElementById("guestChecks");
+
+/* Guest names from URL — set during personalization, read here */
+var __guests = [];       /* e.g. ["Elnur", "Arina"] or ["Elnur"] */
+var __inviteParty = false; /* true when ?party=1 in URL */
+var __partyRsvp = {};      /* collected party answers from wizard step 2 */
 
 function getGuestCode() {
   var p = new URLSearchParams(window.location.search);
   return p.get("guest") || p.get("invite") || "";
 }
 
-function setKidsCount(next) {
-  if (!kidsCount) return;
-  var v = Math.min(10, Math.max(1, Number(next) || 1));
-  kidsCount.value = String(v);
+/* ── Children stepper ─────────────────────────────────────── */
+function getChildrenCount() {
+  return Math.max(0, Number((kidsCount && kidsCount.value) || 0));
+}
+
+function setChildrenCount(next) {
+  var v = Math.min(10, Math.max(0, Number(next) || 0));
+  if (kidsCount) kidsCount.value = String(v);
   if (kidsCountDisplay) kidsCountDisplay.textContent = String(v);
-  // Swap attendance option text based on party size — value stays "Yes" for the sheet
-  var yesOption = document.querySelector('#attendanceSelect option[value="Yes"]');
-  if (yesOption) {
-    yesOption.textContent = v > 1 ? 'Yes, we will be there' : 'Yes, I will be there';
+  recalcSeats();
+}
+
+/* ── Guest checkboxes ─────────────────────────────────────── */
+function fillNameFromGuests() {
+  var firstField = form && form.querySelector('[name="first_name"]');
+  var lastField  = form && form.querySelector('[name="last_name"]');
+  if (!firstField) return;
+
+  var checked = [];
+  if (guestChecksEl) {
+    guestChecksEl.querySelectorAll('input[type="checkbox"]').forEach(function(cb) {
+      if (cb.checked) checked.push(cb.value);
+    });
+  }
+
+  if (checked.length === 0) {
+    /* nobody checked — clear */
+    firstField.value = '';
+    if (lastField) lastField.value = '';
+  } else if (checked.length === 1) {
+    /* single person — split on space into first / last */
+    var parts = checked[0].split(/\s+/);
+    firstField.value = parts[0] || '';
+    if (lastField) lastField.value = parts.slice(1).join(' ');
+  } else {
+    /* multiple people — join as "Anna & Lars" in first name, blank last */
+    firstField.value = checked.join(' & ');
+    if (lastField) lastField.value = '';
   }
 }
 
+function buildGuestChecks(guests) {
+  if (!guestChecksEl || !guests || !guests.length) return;
+  guestChecksEl.innerHTML = '';
+  guests.forEach(function(name, i) {
+    var label = document.createElement('label');
+    label.className = 'check-row guest-check-row';
+    var cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.name = 'guest_' + i;
+    cb.value = name;
+    cb.checked = true;
+    cb.addEventListener('change', function() {
+      recalcSeats();
+      updateAttendanceLabel();
+      fillNameFromGuests();
+    });
+    var span = document.createElement('span');
+    span.textContent = name;
+    label.appendChild(cb);
+    label.appendChild(span);
+    guestChecksEl.appendChild(label);
+  });
+}
+
+function checkedGuestCount() {
+  if (!guestChecksEl) return 1;
+  var boxes = guestChecksEl.querySelectorAll('input[type="checkbox"]');
+  if (!boxes.length) return 1; /* no named guests — single seat */
+  var count = 0;
+  boxes.forEach(function(b) { if (b.checked) count++; });
+  return count;
+}
+
+function recalcSeats() {
+  var adults   = checkedGuestCount();
+  var children = getChildrenCount();
+  var total    = adults + children;
+  if (totalSeatsInput) totalSeatsInput.value = String(total);
+  return total;
+}
+
+function updateAttendanceLabel() {
+  var adults = checkedGuestCount();
+  /* label is now just "Attending" — no swap needed */
+}
+
 function updateConditionalFields() {
-  if (!form || !attendanceSelect) return;
-  var attending = attendanceSelect.value === "Yes";
+  if (!form) return;
+  var attendInput = document.getElementById("attendanceSelect");
+  var attending = (attendInput ? attendInput.value : "Yes") === "Yes";
   if (yesOnlyFields) yesOnlyFields.classList.toggle("is-hidden", !attending);
   if (declineNote)   declineNote.classList.toggle("is-visible", !attending);
   if (!attending) {
-    var kids = form.querySelector('[name="with_kids"]');
-    if (kids) kids.checked = false;
     if (bringShareCheckbox) bringShareCheckbox.checked = false;
-    if (bringShareRow) bringShareRow.classList.add("is-hidden");
-    setKidsCount(0);
+    setChildrenCount(0);
   }
-  /* bring&share field follows its own checkbox, not attendance */
-  // seats stepper: always show when attending, always visible (no checkbox needed)
   var seatsRow = document.querySelector(".seats-row");
   if (seatsRow) seatsRow.classList.toggle("kids-active", attending);
-  if (attending && kidsCount && Number(kidsCount.value) < 1) setKidsCount(1);
+  recalcSeats();
 }
 
 function showSuccessScreen(attending, fd) {
@@ -379,36 +454,71 @@ function showSuccessScreen(attending, fd) {
     giftLink.href = window.__GIFT_LIST_URL || "#";
     giftLink.classList.toggle("is-visible", attending);
   }
+
+  /* Add to Calendar — Google Calendar link */
+  var calBtn = document.getElementById("addToCalBtn");
+  if (calBtn && attending) {
+    var calUrl = [
+      "https://www.google.com/calendar/render?action=TEMPLATE",
+      "&text=Arina+%26+Elnur+Wedding",
+      "&dates=20261016T113000Z/20261016T163000Z",
+      "&details=Wedding+ceremony+at+Schlosskirche+D%C3%BCsseldorf",
+      "&location=Schlo%C3%9Fallee+6%2C+40229+D%C3%BCsseldorf%2C+Germany",
+      "&sf=true&output=xml"
+    ].join("");
+    calBtn.href = calUrl;
+    calBtn.style.display = "";
+  } else if (calBtn) {
+    calBtn.style.display = "none";
+  }
   var joinedBringShare = attending && fd && fd.has("bring_share");
 
-  /* show/hide whole action row */
+  /* show/hide attending-only actions */
   var successActions = document.getElementById("successActions");
-  if (successActions) successActions.classList.toggle("is-hidden", !attending);
+  if (successActions) successActions.style.display = attending ? "" : "none";
 
   /* gift list */
   var giftLinkEl = document.getElementById("giftLink");
   if (giftLinkEl) giftLinkEl.classList.toggle("is-visible", attending);
 
-  /* bring button: always show when attending; sub-line handles fallback */
+  /* bring button: only show when attending */
   var nudgeBtn = document.getElementById("bsNudgeBtn");
   if (nudgeBtn) nudgeBtn.style.display = attending ? "" : "none";
+
+  /* New RSVP button: ALWAYS visible regardless of attendance */
+  var newRsvp = document.getElementById("newRsvpBtn");
+  if (newRsvp) { newRsvp.style.display = "inline-flex"; newRsvp.style.removeProperty && newRsvp.style.removeProperty("visibility"); }
 }
 
 function resetForm() {
   if (form) form.reset();
-  setKidsCount(1);
-  updateConditionalFields();
+  /* Re-check all guest checkboxes */
+  if (guestChecksEl) {
+    guestChecksEl.querySelectorAll('input[type="checkbox"]').forEach(function(cb) { cb.checked = true; });
+  }
+  setChildrenCount(0);
+  setAttendance("Yes");
   if (rsvpSuccess) rsvpSuccess.classList.remove("is-visible");
   if (form)        form.classList.remove("is-hidden");
   if (rsvpCard)    rsvpCard.classList.remove("success-attending", "success-declined");
 }
 
-if (attendanceSelect)    attendanceSelect.addEventListener("change", updateConditionalFields);
-if (bringShareCheckbox)  bringShareCheckbox.addEventListener("change", function() {
-  if (bringShareRow) bringShareRow.classList.toggle("is-hidden", !bringShareCheckbox.checked);
-});
-if (kidsMinus)        kidsMinus.addEventListener("click", function() { setKidsCount(Number(kidsCount.value) - 1); });
-if (kidsPlus)         kidsPlus.addEventListener("click",  function() { setKidsCount(Number(kidsCount.value) + 1); });
+/* Attend buttons — replace dropdown */
+var attendYesBtn = document.getElementById("attendYes");
+var attendNoBtn  = document.getElementById("attendNo");
+var attendInput  = document.getElementById("attendanceSelect");
+
+function setAttendance(val) {
+  if (attendInput) attendInput.value = val;
+  if (attendYesBtn) attendYesBtn.classList.toggle("is-active", val === "Yes");
+  if (attendNoBtn)  attendNoBtn.classList.toggle("is-active",  val === "No");
+  updateConditionalFields();
+}
+
+if (attendYesBtn) attendYesBtn.addEventListener("click", function() { setAttendance("Yes"); });
+if (attendNoBtn)  attendNoBtn.addEventListener("click",  function() { setAttendance("No");  });
+if (kidsMinus) kidsMinus.addEventListener("click", function() { setChildrenCount(getChildrenCount() - 1); });
+if (kidsPlus)  kidsPlus.addEventListener("click",  function() { setChildrenCount(getChildrenCount() + 1); });
 if (newRsvpBtn) newRsvpBtn.addEventListener("click", function(e) { e.preventDefault(); resetForm(); });
 
 updateConditionalFields();
@@ -418,9 +528,10 @@ if (form) {
     e.preventDefault();
     var fd      = new FormData(form);
     var data    = Object.fromEntries(fd.entries());
-    var attending = data.attendance === "Yes";
+    var attending = (document.getElementById("attendanceSelect") || {value:"Yes"}).value === "Yes";
+    data.attendance = attending ? "Yes" : "No";
 
-    var selectedSeats = attending ? Math.max(1, Number(data.seats_count || 1)) : 0;
+    var selectedSeats = attending ? Math.max(1, recalcSeats()) : 0;
 
     var emailField = form.querySelector('[name="email"]');
     if (emailField && !emailField.checkValidity()) {
@@ -437,19 +548,30 @@ if (form) {
 
     if (rsvpStatus) rsvpStatus.textContent = "Sending…";
 
+    /* Build guest names string for sheet */
+    var guestNames = __guests.length
+      ? __guests.filter(function(_, i) {
+          var cb = guestChecksEl && guestChecksEl.querySelector('input[name="guest_' + i + '"]');
+          return !cb || cb.checked;
+        }).join(", ")
+      : ((data.first_name || "") + " " + (data.last_name || "")).trim();
+
     var payload = {
-      timestamp:       new Date().toISOString(),
-      guest_code:      getGuestCode(),
-      first_name:      data.first_name      || "",
-      last_name:       data.last_name       || "",
-      name:            ((data.first_name || "") + " " + (data.last_name || "")).trim(),
-      email:           data.email           || "",
-      phone:           data.phone           || "",
-      attendance:      data.attendance      || "",
+      timestamp:        new Date().toISOString(),
+      guest_code:       getGuestCode(),
+      first_name:       data.first_name      || "",
+      last_name:        data.last_name        || "",
+      name:             ((data.first_name || "") + " " + (data.last_name || "")).trim(),
+      guests_attending: guestNames,
+      email:            data.email           || "",
+      phone:            data.phone           || "",
+      attendance:       data.attendance      || "",
       join_bring_share: attending && fd.has("bring_share") ? "Yes" : "No",
-      seats:           attending ? String(selectedSeats) : "0",
-      bring_and_share: attending ? (data.bring_and_share || "") : "",
-      message:         data.message         || ""
+      children:         attending ? String(getChildrenCount()) : "0",
+      seats:            attending ? String(selectedSeats) : "0",
+      message:          data.message         || "",
+      /* Party details go to PartyRSVPs sheet separately — just flag here */
+      invited_to_party: __inviteParty ? "Yes" : "No"
     };
 
     try {
@@ -460,16 +582,24 @@ if (form) {
       });
       if (rsvpStatus) rsvpStatus.textContent = "";
       var wantsBringShare = attending && bringShareCheckbox && bringShareCheckbox.checked;
-      /* Capture name BEFORE reset so modal can pre-fill it */
-      var rsvpFirstName = (form.querySelector('[name="first_name"]') || {}).value || "";
-      var rsvpLastName  = (form.querySelector('[name="last_name"]')  || {}).value || "";
+      /* Capture name BEFORE reset so modals can pre-fill it */
+      var rsvpFirstName = (form.querySelector("[name='first_name']") || {}).value || "";
+      var rsvpLastName  = (form.querySelector("[name='last_name']")  || {}).value || "";
+      var rsvpFullName  = (rsvpFirstName + " " + rsvpLastName).trim();
+      /* Store globally — party wizard and B&S both need it AFTER form reset */
+      window.__lastRsvpName = rsvpFullName;
       form.reset();
-      setKidsCount(0);
+      setChildrenCount(0);
       updateConditionalFields();
       showSuccessScreen(attending, fd);
-      if (wantsBringShare) {
-        var prefill = (rsvpFirstName + " " + rsvpLastName).trim();
-        setTimeout(function() { openBringShare(prefill); }, 500);
+      /* Store B&S prefill globally so party wizard can chain to it after closing */
+      window.__pendingBringShare = wantsBringShare ? rsvpFullName : null;
+
+      if (__inviteParty && attending) {
+        /* Open party wizard first; B&S opens after party wizard closes if needed */
+        setTimeout(function() { openPartyWizard(); }, 600);
+      } else if (wantsBringShare) {
+        setTimeout(function() { openBringShare(rsvpFullName); }, 500);
       }
     } catch(err) {
       if (rsvpStatus) rsvpStatus.textContent = "Something went wrong. Please try again.";
@@ -524,7 +654,15 @@ if (bringShareCheckbox) {
   });
 }
 
-/* bsNudgeBtn is now a direct <a> link to Google Form - no JS needed */
+/* bsNudgeBtn opens the Bring & Share modal */
+var bsNudgeBtnEl = document.getElementById("bsNudgeBtn");
+if (bsNudgeBtnEl) {
+  bsNudgeBtnEl.addEventListener("click", function(e) {
+    e.preventDefault();
+    var prefill = window.__lastRsvpName || "";
+    openBringShare(prefill);
+  });
+}
 
 if (bsClose)  bsClose.addEventListener("click", closeBringShare);
 if (bsDone)   bsDone.addEventListener("click", closeBringShare);
@@ -568,10 +706,10 @@ if (bsSubmit) bsSubmit.addEventListener("click", async function() {
     .map(function(el) { return el.value; }).join(", ");
 
   var payload = {
-    sheet:          "BringShare",
-    full_name:      name.value.trim(),
-    phone:          phone.value.trim(),
-    what_bringing:  document.getElementById("bs_what").value.trim(),
+    type:           "bring_share",
+    name:           name.value.trim(),
+    contact:        phone.value.trim(),
+    what:           document.getElementById("bs_what").value.trim(),
     portions:       document.getElementById("bs_portions").value,
     allergens:      allergens,
     food_type:      foodTypes
@@ -604,59 +742,127 @@ if (bsSubmit) bsSubmit.addEventListener("click", async function() {
 
 
 /* ── PERSONALIZED RSVP ───────────────────────────────────────
-   Single:  ?name=Anna           or  ?p1=Anna
-   Couple:  ?p1=Anna&p2=Lars     (seat default: 2)
-   Family:  ?name=The+Müllers&seats=4
+   Single ceremony:       ?p1=Elnur
+   Couple ceremony:       ?p1=Elnur&p2=Arina
+   Single + party:        ?p1=Elnur&party=1
+   Couple + party:        ?p1=Elnur&p2=Arina&party=1
    ─────────────────────────────────────────────────────────── */
 (function() {
   var params = new URLSearchParams(window.location.search);
-  var p1     = (params.get('p1')    || '').trim();
-  var p2     = (params.get('p2')    || '').trim();
-  var name   = (params.get('name')  || '').trim();
-  var seats  = parseInt(params.get('seats') || '0', 10);
+  var p1     = (params.get('p1')   || '').trim();
+  var p2     = (params.get('p2')   || '').trim();
+  var name   = (params.get('name') || '').trim();
+  var party  = params.get('party') === '1';
 
-  var displayName = '';
+  /* Store globally so RSVP wizard and submit handler can read it */
+  __inviteParty = party;
+
+  var displayName  = '';
   var prefillFirst = '';
   var prefillLast  = '';
+  var guests       = [];
+  var isCouple     = false;
 
   if (p1 && p2) {
-    // Couple via ?p1=Anna&p2=Lars
+    guests       = [p1, p2];
     displayName  = p1 + ' & ' + p2;
     prefillFirst = p1;
-    if (!seats) seats = 2;
+    isCouple     = true;
   } else if (p1) {
-    // Single via ?p1=Anna
+    guests       = [p1];
     displayName  = p1;
     prefillFirst = p1;
-    if (!seats) seats = 1;
   } else if (name) {
-    // Generic via ?name=Anna+Müller
-    var parts = name.split(/\s+/);
+    var parts    = name.split(/\s+/);
     prefillFirst = parts[0] || '';
     prefillLast  = parts.slice(1).join(' ');
     displayName  = name;
-    if (!seats) seats = 1;
   }
 
   if (!displayName) return;
 
-  // Pre-fill name fields
+  /* ── Tab title ─────────────────────────────────────────── */
+  var tabName = (p1 && p2) ? (p1 + ' & ' + p2) : (p1 || displayName);
+  document.title = tabName + ' \u2014 You\u2019re invited \u2665';
+
+  /* ── Store globally for submit handler ─────────────────── */
+  __guests = guests;
+
+  /* ── Pre-fill name fields ──────────────────────────────── */
   var firstField = document.querySelector('[name="first_name"]');
   var lastField  = document.querySelector('[name="last_name"]');
   if (firstField && prefillFirst) firstField.value = prefillFirst;
   if (lastField  && prefillLast)  lastField.value  = prefillLast;
 
-  // Default seat count
-  if (seats >= 1) setKidsCount(seats);
+  /* ── Guest checkboxes (couples only) ───────────────────── */
+  if (guests.length >= 2) {
+    buildGuestChecks(guests);
+    recalcSeats();
+    updateAttendanceLabel();
+    fillNameFromGuests();
+  }
 
-  // Insert greeting box
+  /* ── Greeting box (rich version) ───────────────────────── */
   var rsvpH2 = document.querySelector('.rsvp-card h2');
   if (rsvpH2 && !document.getElementById('rsvp-greeting')) {
-    var greeting = document.createElement('p');
-    greeting.id = 'rsvp-greeting';
+
+    /* Countdown to wedding day */
+    var weddingDate = new Date('2026-10-16T00:00:00');
+    var today       = new Date();
+    today.setHours(0,0,0,0);
+    var daysLeft    = Math.ceil((weddingDate - today) / (1000 * 60 * 60 * 24));
+    var countdownText = daysLeft > 0
+      ? daysLeft + ' days until the big day'
+      : daysLeft === 0 ? 'Today is the day!' : '';
+
+    /* Context-aware sub-line based on invite type */
+    var hasParty = __inviteParty;
+    var subText = hasParty
+      ? 'We would love to have you with us \u2014 at the church as we tie our knot, and with us as we celebrate into the night.'
+      : 'We would love to have you witness our special day as we tie our knot at the church ceremony.';
+
+    /* Build the greeting element */
+    var greeting = document.createElement('div');
+    greeting.id  = 'rsvp-greeting';
     greeting.className = 'rsvp-greeting';
-    greeting.textContent = 'Dear ' + displayName + ', we\u2019d love to have you there.';
+
+    var nameSpan = document.createElement('span');
+    nameSpan.className = 'rsvp-greeting-name';
+    nameSpan.textContent = 'Dear ' + displayName + ',';
+
+    var subSpan = document.createElement('span');
+    subSpan.className = 'rsvp-greeting-sub';
+    subSpan.textContent = subText;
+
+    greeting.appendChild(nameSpan);
+    greeting.appendChild(subSpan);
     rsvpH2.insertAdjacentElement('afterend', greeting);
+
+    /* Deadline + countdown — sits below the greeting */
+    var deadlineDate = new Date('2026-09-04T00:00:00');
+    var daysToDeadline = Math.ceil((deadlineDate - today) / (1000 * 60 * 60 * 24));
+
+    var deadlineText = '';
+    if (daysToDeadline > 0) {
+      deadlineText = 'Please reply by 4 September — ' + daysToDeadline + ' days left';
+    } else if (daysToDeadline === 0) {
+      deadlineText = 'Today is the last day to RSVP!';
+    } else {
+      deadlineText = 'RSVP deadline has passed — please reach out directly';
+    }
+
+    /* Insert deadline first, then countdown below it */
+    var deadline = document.createElement('span');
+    deadline.className = 'rsvp-deadline';
+    deadline.textContent = deadlineText;
+    greeting.insertAdjacentElement('afterend', deadline);
+
+    if (countdownText) {
+      var countdown = document.createElement('span');
+      countdown.className = 'rsvp-countdown';
+      countdown.textContent = countdownText;
+      deadline.insertAdjacentElement('afterend', countdown);
+    }
   }
 })();
 
@@ -768,4 +974,127 @@ if (bsSubmit) bsSubmit.addEventListener("click", async function() {
 
   // Initial state — small delay so success screen has time to render on reload
   setTimeout(updateBanner, 100);
+})();
+
+
+/* ── PARTY RSVP WIZARD ───────────────────────────────────────
+   Opens automatically after ceremony RSVP submitted (if ?party=1)
+   Collects party attendance + dietary needs, sends to same sheet.
+   ─────────────────────────────────────────────────────────── */
+(function() {
+  var overlay      = document.getElementById('partyOverlay');
+  var partyClose   = document.getElementById('partyClose');
+  var partyYesBtn  = document.getElementById('partyYes');
+  var partyNoBtn   = document.getElementById('partyNo');
+  var partyAttendVal = document.getElementById('partyAttendValue');
+  var partyNext1   = document.getElementById('partyNext1');
+  var partyBack2   = document.getElementById('partyBack2');
+  var partyNext2   = document.getElementById('partyNext2');
+  var partyDone    = document.getElementById('partyDone');
+  var partyDoneD   = document.getElementById('partyDoneDeclined');
+  var partyStatus  = document.getElementById('partyStatus');
+
+  var step1 = document.getElementById('partyStep1');
+  var step2 = document.getElementById('partyStep2');
+  var stepDone = document.getElementById('partyStepDone');
+  var stepDeclined = document.getElementById('partyStepDeclined');
+
+  function partyShow(el) {
+    [step1, step2, stepDone, stepDeclined].forEach(function(s) {
+      if (s) s.classList.add('is-hidden');
+    });
+    if (el) el.classList.remove('is-hidden');
+  }
+
+  function closeParty() {
+    if (overlay) overlay.style.display = 'none';
+    document.body.style.overflow = '';
+    /* Chain to Bring & Share if the checkbox was ticked */
+    if (window.__pendingBringShare) {
+      var prefill = window.__pendingBringShare;
+      window.__pendingBringShare = null;
+      setTimeout(function() { openBringShare(prefill); }, 350);
+    }
+  }
+
+  window.openPartyWizard = function() {
+    if (!overlay) return;
+    partyShow(step1);
+    overlay.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    /* Reset */
+    if (partyAttendVal) partyAttendVal.value = 'Yes';
+    if (partyYesBtn) partyYesBtn.classList.add('is-active');
+    if (partyNoBtn)  partyNoBtn.classList.remove('is-active');
+  };
+
+  /* Attend toggle */
+  if (partyYesBtn) partyYesBtn.addEventListener('click', function() {
+    if (partyAttendVal) partyAttendVal.value = 'Yes';
+    partyYesBtn.classList.add('is-active');
+    if (partyNoBtn) partyNoBtn.classList.remove('is-active');
+  });
+  if (partyNoBtn) partyNoBtn.addEventListener('click', function() {
+    if (partyAttendVal) partyAttendVal.value = 'No';
+    partyNoBtn.classList.add('is-active');
+    if (partyYesBtn) partyYesBtn.classList.remove('is-active');
+  });
+
+  /* Step 1 → next */
+  if (partyNext1) partyNext1.addEventListener('click', function() {
+    var attending = (partyAttendVal && partyAttendVal.value) === 'Yes';
+    if (attending) {
+      partyShow(step2);
+    } else {
+      /* Not attending party — store and close */
+      __partyRsvp = { attending: 'No', dietary: '', notes: '' };
+      partyShow(stepDeclined);
+    }
+  });
+
+  /* Step 2 back */
+  if (partyBack2) partyBack2.addEventListener('click', function() { partyShow(step1); });
+
+  /* Step 2 submit */
+  if (partyNext2) partyNext2.addEventListener('click', async function() {
+    var dietary = Array.from(
+      document.querySelectorAll('input[name="party_diet"]:checked')
+    ).map(function(cb) { return cb.value; }).join(', ');
+
+    var notes = (document.getElementById('partyNotes') || {}).value || '';
+
+    __partyRsvp = { attending: 'Yes', dietary: dietary, notes: notes };
+
+    /* Send party data as a separate row / update to the sheet */
+    var scriptUrl = window.__GOOGLE_SCRIPT_URL;
+    if (scriptUrl) {
+      if (partyStatus) partyStatus.textContent = 'Saving…';
+      var partyPayload = {
+        type:            'party_rsvp',
+        timestamp:       new Date().toISOString(),
+        name:            window.__lastRsvpName || '',
+        party_attending: 'Yes',
+        party_dietary:   dietary,
+        party_notes:     notes
+      };
+      try {
+        await fetch(scriptUrl, {
+          method: 'POST', mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(partyPayload)
+        });
+      } catch(e) { /* silent — main RSVP already saved */ }
+      if (partyStatus) partyStatus.textContent = '';
+    }
+
+    partyShow(stepDone);
+  });
+
+  /* Close buttons */
+  if (partyClose)  partyClose.addEventListener('click', closeParty);
+  if (partyDone)   partyDone.addEventListener('click', closeParty);
+  if (partyDoneD)  partyDoneD.addEventListener('click', closeParty);
+  if (overlay) overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) closeParty();
+  });
 })();

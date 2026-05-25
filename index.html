@@ -11,7 +11,7 @@
 
   <!-- Open Graph / WhatsApp -->
   <meta property="og:title" content="Arina &amp; Elnur — Invitation to the Wedding Ceremony" />
-  <meta property="og:description" content="We would be honoured to have you witness our special day and join us for our wedding ceremony on 16 October 2026 at 13:30 at the Schlosskirche Düsseldorf." />
+  <meta property="og:description" content="We would love to witness our big day with you — join us for our wedding ceremony on 16 October 2026 at 13:30 at the Schlosskirche Düsseldorf." />
   <meta property="og:image" content="https://arinaelnur.de/us2.jpg" />
   <meta property="og:image:secure_url" content="https://arinaelnur.de/us2.jpg" />
   <meta property="og:image:type" content="image/jpeg" />
@@ -52,20 +52,63 @@
       font-style: normal;
     }
 
-    /* Personalised RSVP greeting */
+    /* Personalised RSVP greeting box */
     .rsvp-greeting {
       display: block;
-      margin: -6px 0 12px;
-      padding: 8px 12px;
-      background: rgba(49,39,28,.06);
+      margin: -6px 0 6px;
+      padding: 10px 12px;
+      background: rgba(49,39,28,.05);
       border-left: 2px solid #624E38;
       font-family: WeddingSerif, Georgia, serif;
       font-size: 11px;
       font-style: normal;
-      color: #624E38;
-      line-height: 1.5;
+      color: #31271C;
+      line-height: 1.6;
       max-width: 100%;
       box-sizing: border-box;
+    }
+    .rsvp-greeting-name {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: .04em;
+      color: #31271C;
+      margin-bottom: 2px;
+    }
+    .rsvp-greeting-sub {
+      display: block;
+      font-size: 10.5px;
+      color: #624E38;
+      letter-spacing: .02em;
+    }
+    .rsvp-seats-saved {
+      display: block;
+      margin: 0 0 10px;
+      font-family: WeddingSerif, Georgia, serif;
+      font-size: 10px;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      color: #624E38;
+      opacity: .8;
+    }
+    .rsvp-countdown {
+      display: block;
+      margin: 0 0 10px;
+      font-family: WeddingSerif, Georgia, serif;
+      font-size: 10px;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: rgba(49,39,28,.45);
+    }
+    .rsvp-deadline {
+      display: block;
+      margin: 0 0 10px;
+      font-family: WeddingSerif, Georgia, serif;
+      font-size: 10px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: #7a5133;
+      opacity: .9;
     }
 
     /* Arrival notice one-liner */
@@ -81,6 +124,91 @@
       font-weight: 600;
       color: var(--ink, #31271C);
       letter-spacing: .01em;
+    }
+
+    /* Guest attendance checkboxes */
+    .guest-checks {
+      display: flex;
+      flex-direction: row;
+      gap: 20px;
+      margin-bottom: 6px;
+      flex-wrap: wrap;
+    }
+    .guest-check-row {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 7px;
+      font-family: WeddingSerif, Georgia, serif;
+      font-size: clamp(9.5px, .85vw, 12px);
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      color: var(--ink, #31271C);
+      cursor: pointer;
+    }
+    .guest-check-row input[type="checkbox"] {
+      width: 13px;
+      height: 13px;
+      margin: 0;
+      accent-color: #31271C;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    /* Children row */
+    #childrenRow {
+      padding-top: 2px;
+      margin-top: 0;
+    }
+
+    /* Attend buttons — replace dropdown */
+    .attend-field {
+      display: grid;
+      gap: 6px;
+    }
+    .attend-label {
+      font-family: WeddingSerif, Georgia, serif;
+      font-size: 7.5px;
+      letter-spacing: .30em;
+      text-transform: uppercase;
+      color: #624E38;
+      line-height: 1;
+    }
+    .attend-btns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+    .attend-btn {
+      height: 32px;
+      border: 1px solid rgba(49,39,28,.22);
+      background: transparent;
+      font-family: WeddingSerif, Georgia, serif;
+      font-size: 9px;
+      letter-spacing: .20em;
+      text-transform: uppercase;
+      color: rgba(49,39,28,.45);
+      cursor: pointer;
+      transition: background .15s, color .15s, border-color .15s;
+      border-radius: 0;
+    }
+    .attend-btn.is-active {
+      background: #7a5133;
+      color: #EBE2DA;
+      border-color: #7a5133;
+    }
+    .attend-btn:not(.is-active):hover {
+      border-color: #7a5133;
+      color: #31271C;
+    }
+
+    /* Label below the input line */
+    .label-below {
+      display: flex !important;
+      flex-direction: column-reverse !important;
+      gap: 3px !important;
+    }
+    .label-below span {
+      margin-top: 2px;
     }
   </style>
 </head>
@@ -107,37 +235,42 @@
         <h2>RSVP</h2>
 
         <form id="rsvpForm" class="rsvp-form">
+
+          <!-- Guest checkboxes (couples only) — populated by JS when p1+p2 present -->
+          <div id="guestChecks" class="guest-checks"></div>
+
           <div class="name-row">
-            <label>
-              <span>First name</span>
+            <label class="label-below">
               <input required name="first_name" type="text" placeholder="First name" />
+              <span>First name</span>
             </label>
-            <label>
-              <span>Last name</span>
+            <label class="label-below">
               <input required name="last_name" type="text" placeholder="Last name" />
+              <span>Last name</span>
             </label>
           </div>
 
           <div class="contact-row">
-            <label>
-              <span>Email</span>
+            <label class="label-below">
               <input required name="email" type="email" inputmode="email"
                      autocomplete="email" placeholder="Email address" />
+              <span>Email</span>
             </label>
-            <label>
-              <span>Phone</span>
+            <label class="label-below">
               <input name="phone" type="tel" inputmode="tel"
                      autocomplete="tel" placeholder="Optional" />
+              <span>Phone</span>
             </label>
           </div>
 
-          <label>
-            <span>Will you attend?</span>
-            <select name="attendance" id="attendanceSelect">
-              <option value="Yes">Yes, I will be there</option>
-              <option value="No">Sadly, I can't make it</option>
-            </select>
-          </label>
+          <div class="attend-field">
+            <span class="attend-label">Will you attend?</span>
+            <div class="attend-btns">
+              <button type="button" class="attend-btn attend-btn--yes is-active" id="attendYes">Attending</button>
+              <button type="button" class="attend-btn attend-btn--no" id="attendNo">Not Attending</button>
+            </div>
+            <input type="hidden" name="attendance" id="attendanceSelect" value="Yes" />
+          </div>
 
           <p class="decline-note" id="declineNote">
             We are sorry you cannot make it — thank you for letting us know. Feel free to leave a note below.
@@ -145,15 +278,21 @@
 
           <div class="yes-only is-hidden" id="yesOnlyFields">
             <div class="checkbox-list">
-              <div class="check-row kids-row seats-row">
-                <span>Seats needed (incl. kids)</span>
-                <div class="kids-stepper" id="kidsStepper" aria-label="Number of seats">
+
+              <!-- Children counter -->
+              <div class="check-row kids-row seats-row" id="childrenRow">
+                <span id="childrenLabel">Children attending</span>
+                <div class="kids-stepper" id="kidsStepper" aria-label="Number of children">
                   <button type="button" class="kids-cell kids-minus" id="kidsMinus" aria-label="Decrease">−</button>
-                  <span class="kids-cell kids-number" id="kidsCountDisplay" aria-live="polite">1</span>
+                  <span class="kids-cell kids-number" id="kidsCountDisplay" aria-live="polite">0</span>
                   <button type="button" class="kids-cell kids-plus" id="kidsPlus" aria-label="Increase">+</button>
-                  <input type="hidden" name="seats_count" id="kidsCount" value="1" />
+                  <input type="hidden" name="children_count" id="kidsCount" value="0" />
                 </div>
               </div>
+
+              <!-- Hidden total seats sent to sheet -->
+              <input type="hidden" name="seats_count" id="totalSeats" value="1" />
+
               <label class="check-row">
                 <input type="checkbox" name="bring_share" value="Yes" id="bringShareCheckbox" />
                 <span>I'll join the Bring &amp; Share</span>
@@ -171,9 +310,11 @@
           <p id="successMessage">Your RSVP has been received. We are so grateful you took the time to reply.</p>
           <div class="success-actions" id="successActions">
             <a class="sa-btn sa-btn--black" id="giftLink" href="#" target="_blank" rel="noreferrer">Gift List</a>
-            <a class="sa-btn sa-btn--warm" id="bsNudgeBtn" href="https://forms.gle/4C6RUZfEKunpWGoc8" target="_blank" rel="noreferrer">Bring &amp; Share</a>
-            <a class="sa-btn sa-btn--outline" id="newRsvpBtn" href="#">New RSVP</a>
+            <button class="sa-btn sa-btn--warm" id="bsNudgeBtn" type="button">Bring &amp; Share 🧁</button>
+            <a class="sa-btn sa-btn--outline" id="addToCalBtn" href="#" target="_blank" rel="noreferrer">Add to Calendar</a>
           </div>
+          <!-- Always shown regardless of attendance -->
+          <a class="sa-btn sa-btn--outline" id="newRsvpBtn" href="#" style="margin-top:8px;display:inline-flex;">Submit another RSVP</a>
         </div>
       </article>
 
@@ -371,6 +512,73 @@
         </div>
         <p class="bs-hint bs-hint--warm">We can't wait to celebrate with you. ♡</p>
         <button class="bs-next" id="bsDone">Close</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Party RSVP Wizard ────────────────────────────────── -->
+  <div class="bs-overlay" id="partyOverlay" aria-modal="true" role="dialog" style="display:none">
+    <div class="bs-modal">
+      <button class="bs-close" id="partyClose" aria-label="Close">×</button>
+
+      <!-- Step 1: Party attendance -->
+      <div class="bs-step" id="partyStep1">
+        <div class="bs-kicker">One more thing</div>
+        <h3 class="bs-title">Will you join us at the celebration?</h3>
+        <p class="bs-hint">After the ceremony, we're celebrating into the night. We'd love to have you there too.</p>
+
+        <div class="attend-btns" style="margin: 14px 0 18px;">
+          <button type="button" class="attend-btn attend-btn--yes is-active" id="partyYes">Yes, I'll be there</button>
+          <button type="button" class="attend-btn attend-btn--no" id="partyNo">I can't make the party</button>
+        </div>
+        <input type="hidden" id="partyAttendValue" value="Yes" />
+
+        <button class="bs-next" id="partyNext1">Next →</button>
+      </div>
+
+      <!-- Step 2: Dietary (only if attending party) -->
+      <div class="bs-step is-hidden" id="partyStep2">
+        <div class="bs-kicker">Almost done</div>
+        <h3 class="bs-title">Any dietary needs?</h3>
+        <p class="bs-hint">Let us know so we can make sure there's something for everyone.</p>
+
+        <div class="bs-label">
+          <div class="bs-checks">
+            <label class="bs-check"><input type="checkbox" name="party_diet" value="Vegan" /><span>Vegan</span></label>
+            <label class="bs-check"><input type="checkbox" name="party_diet" value="Vegetarian" /><span>Vegetarian</span></label>
+            <label class="bs-check"><input type="checkbox" name="party_diet" value="Gluten-free" /><span>Gluten-free</span></label>
+            <label class="bs-check"><input type="checkbox" name="party_diet" value="Halal" /><span>Halal</span></label>
+            <label class="bs-check"><input type="checkbox" name="party_diet" value="No restrictions" /><span>No restrictions</span></label>
+          </div>
+        </div>
+
+        <label class="bs-label" style="margin-top:10px;">
+          <span>Anything else we should know?</span>
+          <input id="partyNotes" type="text" placeholder="Allergies, needs, questions…" />
+        </label>
+
+        <div class="bs-nav">
+          <button class="bs-back" id="partyBack2">← Back</button>
+          <button class="bs-next" id="partyNext2">Send ✓</button>
+        </div>
+        <p class="bs-status" id="partyStatus"></p>
+      </div>
+
+      <!-- Done -->
+      <div class="bs-step is-hidden" id="partyStepDone">
+        <div class="bs-kicker">Can't wait ♡</div>
+        <h3 class="bs-title">See you at the party too!</h3>
+        <p class="bs-hint">We've noted everything. More details about the venue will follow closer to the date.</p>
+        <button class="bs-next" id="partyDone">Close</button>
+      </div>
+
+      <!-- Declined -->
+      <div class="bs-step is-hidden" id="partyStepDeclined">
+        <div class="bs-kicker">Understood</div>
+        <h3 class="bs-title">We're glad you'll be at the ceremony.</h3>
+        <p class="bs-hint">Thank you for letting us know — we'll miss you at the party.</p>
+        <button class="bs-next" id="partyDoneDeclined">Close</button>
       </div>
 
     </div>
