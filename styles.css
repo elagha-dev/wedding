@@ -1349,8 +1349,18 @@ p {
 }
 .sa-btn--outline:hover { background: var(--ink); color: var(--paper); }
 
-#giftLink { display: none; }
-#giftLink.is-visible { display: flex; }
+/* Ensure <button> elements fill grid cell identically to <a> elements */
+button.sa-btn {
+  width: 100%;
+  align-self: stretch;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Keep giftLink in grid flow even when hidden so the 3-col layout stays balanced.
+   visibility:hidden hides it visually but preserves its grid slot. */
+#giftLink { visibility: hidden; pointer-events: none; display: flex; }
+#giftLink.is-visible { visibility: visible; pointer-events: auto; }
 .success-actions.is-hidden { display: none; }
 
 /* ── Story photo strip — flush sides+bottom ─────────────── */

@@ -134,7 +134,7 @@ function loadContent() {
     "analyticsToken": "40223123959b40ce8820f84cd8bbae11"
   },
   "rsvp": {
-    "googleScriptUrl": "https://script.google.com/macros/s/AKfycbxIghwo-9tkQNRFR9FUnPSfsG4rTMPYh1Z9CD-NOLST7pIv1D1OoQkOG5mDsJNlViiGtw/exec",
+    "googleScriptUrl": "https://script.google.com/macros/s/AKfycbxzWAVPETA_bU1fI2h0DXW9f3GjV0S4oLwK-DKhWAUfDaM4x9bwvxqxsQQfzDMtBMfAjw/exec",
     "giftListUrl": "#",
     "bringAndShareFormUrl": "https://forms.gle/4C6RUZfEKunpWGoc8",
     "bringAndShareSpoc": ""
@@ -595,8 +595,9 @@ if (form) {
       /* Store B&S prefill globally so party wizard can chain to it after closing */
       window.__pendingBringShare = wantsBringShare ? rsvpFullName : null;
 
-      if (__inviteParty && attending) {
-        /* Open party wizard first; B&S opens after party wizard closes if needed */
+      if (__inviteParty) {
+        /* Open party wizard regardless of ceremony attendance —
+           someone who can't make the ceremony may still come to the evening party */
         setTimeout(function() { openPartyWizard(); }, 600);
       } else if (wantsBringShare) {
         setTimeout(function() { openBringShare(rsvpFullName); }, 500);
@@ -1041,13 +1042,31 @@ if (bsSubmit) bsSubmit.addEventListener("click", async function() {
   });
 
   /* Step 1 → next */
-  if (partyNext1) partyNext1.addEventListener('click', function() {
+  if (partyNext1) partyNext1.addEventListener('click', async function() {
     var attending = (partyAttendVal && partyAttendVal.value) === 'Yes';
     if (attending) {
       partyShow(step2);
     } else {
-      /* Not attending party — store and close */
+      /* Not attending party — record "No" to sheet, then show declined screen */
       __partyRsvp = { attending: 'No', dietary: '', notes: '' };
+      var scriptUrl = window.__GOOGLE_SCRIPT_URL;
+      if (scriptUrl) {
+        var partyPayload = {
+          type:            'party_rsvp',
+          timestamp:       new Date().toISOString(),
+          name:            window.__lastRsvpName || '',
+          party_attending: 'No',
+          party_dietary:   '',
+          party_notes:     ''
+        };
+        try {
+          await fetch(scriptUrl, {
+            method: 'POST', mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(partyPayload)
+          });
+        } catch(e) { /* silent */ }
+      }
       partyShow(stepDeclined);
     }
   });
@@ -1077,14 +1096,22 @@ if (bsSubmit) bsSubmit.addEventListener("click", async function() {
         party_dietary:   dietary,
         party_notes:     notes
       };
+      console.log('[PartyRSVP] Sending payload:', JSON.stringify(partyPayload));
+      console.log('[PartyRSVP] To URL:', scriptUrl);
       try {
         await fetch(scriptUrl, {
           method: 'POST', mode: 'no-cors',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(partyPayload)
         });
-      } catch(e) { /* silent — main RSVP already saved */ }
+        console.log('[PartyRSVP] Fetch sent (no-cors — check sheet for result)');
+      } catch(e) {
+        console.error('[PartyRSVP] Fetch error:', e);
+        if (partyStatus) partyStatus.textContent = 'Network error — check console.';
+      }
       if (partyStatus) partyStatus.textContent = '';
+    } else {
+      console.warn('[PartyRSVP] No script URL — check content.json');
     }
 
     partyShow(stepDone);

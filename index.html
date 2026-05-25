@@ -525,8 +525,8 @@
       <!-- Step 1: Party attendance -->
       <div class="bs-step" id="partyStep1">
         <div class="bs-kicker">One more thing</div>
-        <h3 class="bs-title">Will you join us at the celebration?</h3>
-        <p class="bs-hint">After the ceremony, we're celebrating into the night. We'd love to have you there too.</p>
+        <h3 class="bs-title">Will you join us at the evening celebration?</h3>
+        <p class="bs-hint">Even if you can't make the ceremony, you're warmly welcome to join us in the evening. We'd love to have you there too.</p>
 
         <div class="attend-btns" style="margin: 14px 0 18px;">
           <button type="button" class="attend-btn attend-btn--yes is-active" id="partyYes">Yes, I'll be there</button>
@@ -568,16 +568,27 @@
       <!-- Done -->
       <div class="bs-step is-hidden" id="partyStepDone">
         <div class="bs-kicker">Can't wait ♡</div>
-        <h3 class="bs-title">See you at the party too!</h3>
-        <p class="bs-hint">We've noted everything. More details about the venue will follow closer to the date.</p>
+        <h3 class="bs-title">See you at the party!</h3>
+        <p class="bs-hint">We've noted everything. Here are the details:</p>
+        <div style="background:rgba(255,255,255,0.07);border-radius:8px;padding:16px 18px;margin:14px 0 18px;text-align:left;line-height:1.7;">
+          <div style="font-weight:600;font-size:1.05em;margin-bottom:4px;">🎉 Evening Celebration</div>
+          <div>📍 <strong>Rheinliebe am Deich</strong></div>
+          <div>🕔 Doors open at <strong>17:00</strong></div>
+          <div style="margin-top:10px;">
+            <a href="https://maps.google.com/?q=Rheinliebe+am+Deich+Düsseldorf" target="_blank" rel="noreferrer"
+               style="display:inline-flex;align-items:center;gap:6px;background:#EBE2DA;color:#31271C;padding:8px 16px;border-radius:4px;font-weight:600;font-size:0.9em;text-decoration:none;">
+              📍 View on Google Maps ↗
+            </a>
+          </div>
+        </div>
         <button class="bs-next" id="partyDone">Close</button>
       </div>
 
       <!-- Declined -->
       <div class="bs-step is-hidden" id="partyStepDeclined">
         <div class="bs-kicker">Understood</div>
-        <h3 class="bs-title">We're glad you'll be at the ceremony.</h3>
-        <p class="bs-hint">Thank you for letting us know — we'll miss you at the party.</p>
+        <h3 class="bs-title">Thank you for letting us know.</h3>
+        <p class="bs-hint">We'll miss you at the party — but hope to celebrate together another time. ♡</p>
         <button class="bs-next" id="partyDoneDeclined">Close</button>
       </div>
 
