@@ -47,9 +47,8 @@
       font-family: WeddingSerif, Georgia, serif;
     }
     .rsvp-form input::placeholder,
-    .field-label input::placeholder,
     .rsvp-form textarea::placeholder {
-      opacity: .18;
+      opacity: .45;
       font-style: normal;
     }
 
@@ -202,177 +201,14 @@
       color: #31271C;
     }
 
-    /* ── RSVP Wizard ──────────────────────────────────────── */
-    .rsvp-wizard {
-      position: relative;
-    }
-    .rsvp-wizard.is-hidden { display: none !important; }
-    .wizard-dots {
-      display: flex;
-      gap: 6px;
-      margin-bottom: 14px;
-    }
-    .wizard-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: rgba(49,39,28,.18);
-      transition: background .2s, transform .2s;
-    }
-    .wizard-dot.is-active {
-      background: #7a5133;
-      transform: scale(1.25);
-    }
-    .wizard-dot.is-done {
-      background: rgba(122,81,51,.45);
-    }
-    .wizard-step {
-      display: none;
-      animation: wizardIn .22s ease;
-    }
-    .wizard-step.is-active {
-      display: block;
-    }
-    @keyframes wizardIn {
-      from { opacity: 0; transform: translateX(10px); }
-      to   { opacity: 1; transform: translateX(0); }
-    }
-    .wizard-step-label {
-      font-family: WeddingSerif, Georgia, serif;
-      font-size: 7.5px;
-      letter-spacing: .28em;
-      text-transform: uppercase;
-      color: #624E38;
-      margin-bottom: 12px;
-    }
-    .wizard-nav {
-      display: flex;
-      gap: 8px;
-      margin-top: 12px;
-    }
-    .wizard-next-btn,
-    .wizard-back-btn {
-      font-family: WeddingSerif, Georgia, serif;
-      font-size: 9px;
-      letter-spacing: .22em;
-      text-transform: uppercase;
-      cursor: pointer;
-      border-radius: 0;
-      transition: background .15s, color .15s, border-color .15s;
-    }
-    .wizard-next-btn {
-      flex: 1;
-      height: 34px;
-      background: #31271C;
-      color: #EBE2DA;
-      border: 1px solid #31271C;
-    }
-    .wizard-next-btn:hover {
-      background: #7a5133;
-      border-color: #7a5133;
-    }
-    .wizard-back-btn {
-      height: 34px;
-      padding: 0 14px;
-      background: transparent;
-      color: rgba(49,39,28,.5);
-      border: 1px solid rgba(49,39,28,.2);
-    }
-    .wizard-back-btn:hover {
-      color: #31271C;
-      border-color: rgba(49,39,28,.5);
-    }
-    /* hide decline note by default — JS reveals it */
-    .decline-note { display: none; }
-
-    /* ── Gift banner ─────────────────────────────────────── */
-    .gift-banner {
-      margin: 14px 0 10px;
-      padding: 14px 16px;
-      border: 1px solid rgba(122,81,51,.25);
-      background: rgba(122,81,51,.05);
-      text-align: center;
-    }
-    .gift-banner-icon {
-      font-size: 20px;
-      color: #7a5133;
-      margin-bottom: 6px;
-    }
-    .gift-banner-title {
-      font-family: WeddingSerif, Georgia, serif;
-      font-size: clamp(11px,.95vw,13px);
-      font-weight: 600;
-      letter-spacing: .02em;
-      color: #31271C;
-      margin: 0 0 6px;
-    }
-    .gift-banner-body {
-      font-family: WeddingSerif, Georgia, serif;
-      font-size: clamp(10px,.85vw,11.5px);
-      color: rgba(49,39,28,.75);
-      line-height: 1.6;
-      margin: 0 0 10px;
-    }
-    .gift-banner-paypal {
-      display: inline-block;
-      padding: 7px 18px;
-      background: #31271C;
-      color: #EBE2DA;
-      font-family: WeddingSerif, Georgia, serif;
-      font-size: 9px;
-      letter-spacing: .20em;
-      text-transform: uppercase;
-      text-decoration: none;
-      margin-bottom: 10px;
-      transition: background .15s;
-    }
-    .gift-banner-paypal:hover { background: #7a5133; }
-    .gift-banner-note {
-      font-family: WeddingSerif, Georgia, serif;
-      font-size: 10px;
-      color: rgba(49,39,28,.5);
-      letter-spacing: .03em;
-      margin: 0;
-    }
-
-    /* ── Seat confirm (step 3) ───────────────────────────── */
-    .seat-confirm {
-      padding: 14px 0 4px;
-    }
-    .seat-confirm-label {
-      font-family: WeddingSerif, Georgia, serif;
-      font-size: 7.5px;
-      letter-spacing: .28em;
-      text-transform: uppercase;
-      color: #624E38;
-      margin: 0 0 12px;
-      display: block;
-    }
-    .seat-summary {
-      font-family: WeddingSerif, Georgia, serif;
-      font-size: 10px;
-      color: rgba(49,39,28,.45);
-      letter-spacing: .06em;
-      text-transform: uppercase;
-      margin-bottom: 10px;
-      min-height: 14px;
-    }
-    .seat-stepper {
-      margin: 0 0 10px;
-    }
-    .seat-confirm-hint {
-      font-family: WeddingSerif, Georgia, serif;
-      font-size: 10px;
-      color: rgba(49,39,28,.45);
-      letter-spacing: .03em;
-      margin: 0 0 4px;
-    }
-    /* field-label: label above, underline-only input */
-    .field-label {
+    /* Label below the input line */
+    .label-below {
       display: flex !important;
-      flex-direction: column !important;
-      gap: 0 !important;
-      min-width: 0;
+      flex-direction: column-reverse !important;
+      gap: 3px !important;
+    }
+    .label-below span {
+      margin-top: 2px;
     }
   </style>
 </head>
@@ -385,31 +221,6 @@
     <!-- ── Left: invitation image ───────────────────────── -->
     <section class="left">
       <img src="invitation-original.png" class="invitation" alt="Wedding invitation" />
-      <div class="countdown-overlay" id="weddingCountdown">
-        <div class="countdown-label">Until the big day</div>
-        <div class="countdown-units">
-          <div class="countdown-unit">
-            <span class="countdown-num" id="cd-days">—</span>
-            <span class="countdown-unit-label">days</span>
-          </div>
-          <div class="countdown-sep">:</div>
-          <div class="countdown-unit">
-            <span class="countdown-num" id="cd-hours">—</span>
-            <span class="countdown-unit-label">hrs</span>
-          </div>
-          <div class="countdown-sep">:</div>
-          <div class="countdown-unit">
-            <span class="countdown-num" id="cd-mins">—</span>
-            <span class="countdown-unit-label">min</span>
-          </div>
-          <div class="countdown-sep">:</div>
-          <div class="countdown-unit">
-            <span class="countdown-num" id="cd-secs">—</span>
-            <span class="countdown-unit-label">sec</span>
-          </div>
-        </div>
-        <div class="countdown-date">16 · 10 · 2026</div>
-      </div>
     </section>
 
     <!-- ── Right: 3×2 card grid ─────────────────────────── -->
@@ -423,136 +234,88 @@
         </div>
         <h2>RSVP</h2>
 
-        <!-- RSVP Wizard -->
-        <div class="rsvp-wizard" id="rsvpWizard">
+        <form id="rsvpForm" class="rsvp-form">
 
-          <!-- Step dots -->
-          <div class="wizard-dots" id="wizardDots">
-            <span class="wizard-dot is-active" data-step="1"></span>
-            <span class="wizard-dot" data-step="2"></span>
-            <span class="wizard-dot" data-step="3"></span>
-          </div>
+          <!-- Guest checkboxes (couples only) — populated by JS when p1+p2 present -->
+          <div id="guestChecks" class="guest-checks"></div>
 
-          <!-- Hidden fields -->
-          <input type="hidden" name="attendance"       id="attendanceSelect"  value="" />
-          <input type="hidden" name="party_attendance" id="partyAttendSelect"  value=""  />
-          <input type="hidden" name="children_count"   id="kidsCount"         value="0"   />
-          <input type="hidden" name="seats_count"      id="totalSeats"        value="1"   />
-
-          <!-- ── Step 1: Personal details ── -->
-          <div class="wizard-step is-active" id="wStep1">
-            <div class="wizard-step-label">Step 1 of 3 — Your Details</div>
-
-            <!-- Guest checkboxes for couples — populated by JS -->
-            <div id="guestChecks" class="guest-checks"></div>
-
-            <div class="name-row">
-              <label class="field-label">
-                <span>First name</span>
-                <input required name="first_name" type="text" placeholder="First name" />
-              </label>
-              <label class="field-label">
-                <span>Last name</span>
-                <input required name="last_name" type="text" placeholder="Last name" />
-              </label>
-            </div>
-
-            <div class="contact-row">
-              <label class="field-label">
-                <span>Email</span>
-                <input required name="email" type="email" inputmode="email"
-                       autocomplete="email" placeholder="Email address" />
-              </label>
-              <label class="field-label">
-                <span>Phone</span>
-                <input name="phone" type="tel" inputmode="tel"
-                       autocomplete="tel" placeholder="Optional" />
-              </label>
-            </div>
-
-            <button type="button" class="wizard-next-btn" id="wNext1" style="margin-top:14px;">Next →</button>
-          </div>
-
-          <!-- ── Step 2: Attendance ── -->
-          <div class="wizard-step" id="wStep2">
-            <div class="wizard-step-label">Step 2 of 3 — Attendance</div>
-
-            <!-- Church ceremony row — always shown -->
-            <div class="attend-field">
-              <span class="attend-label">💒 Church Ceremony · 16 Oct, 14:00</span>
-              <div class="attend-btns">
-                <button type="button" class="attend-btn attend-btn--yes" id="attendYes">Attending</button>
-                <button type="button" class="attend-btn attend-btn--no"            id="attendNo">Not Attending</button>
-              </div>
-            </div>
-
-            <!-- Evening reception row — only shown for party invites (JS toggles) -->
-            <div class="attend-field" id="eveningAttendField" style="display:none; margin-top:12px;">
-              <span class="attend-label">🥂 Evening Reception · 16 Oct, 17:00</span>
-              <div class="attend-btns">
-                <button type="button" class="attend-btn attend-btn--yes" id="partyYesBtn">Attending</button>
-                <button type="button" class="attend-btn attend-btn--no" id="partyNoBtn">Not Attending</button>
-              </div>
-            </div>
-
-            <!-- Kids stepper — shown when attending church OR evening -->
-            <div class="check-row kids-row seats-row" id="childrenRow" style="margin-top:14px;">
-              <span id="childrenLabel">Children attending</span>
-              <div class="kids-stepper" id="kidsStepper" aria-label="Number of children">
-                <button type="button" class="kids-cell kids-minus" id="kidsMinus" aria-label="Decrease">−</button>
-                <span class="kids-cell kids-number" id="kidsCountDisplay" aria-live="polite">0</span>
-                <button type="button" class="kids-cell kids-plus" id="kidsPlus" aria-label="Increase">+</button>
-              </div>
-            </div>
-
-            <!-- Bring & Share checkbox — shown when attending church -->
-            <label class="check-row" id="bringShareRow" style="margin-top:10px; display:none;">
-              <input type="checkbox" name="bring_share" value="Yes" id="bringShareCheckbox" />
-              <span>I'll join the Bring &amp; Share</span>
+          <div class="name-row">
+            <label class="label-below">
+              <input required name="first_name" type="text" placeholder="First name" />
+              <span>First name</span>
             </label>
-
-            <div class="wizard-nav" style="margin-top:16px;">
-              <button type="button" class="wizard-back-btn" id="wBack2">← Back</button>
-              <button type="button" class="wizard-next-btn" id="wNext2">Next →</button>
-            </div>
+            <label class="label-below">
+              <input required name="last_name" type="text" placeholder="Last name" />
+              <span>Last name</span>
+            </label>
           </div>
 
-          <!-- ── Step 3: Seat confirmation ── -->
-          <div class="wizard-step" id="wStep3">
-            <div class="wizard-step-label">Step 3 of 3 — Confirm Seats</div>
+          <div class="contact-row">
+            <label class="label-below">
+              <input required name="email" type="email" inputmode="email"
+                     autocomplete="email" placeholder="Email address" />
+              <span>Email</span>
+            </label>
+            <label class="label-below">
+              <input name="phone" type="tel" inputmode="tel"
+                     autocomplete="tel" placeholder="Optional" />
+              <span>Phone</span>
+            </label>
+          </div>
 
-            <div class="seat-confirm" id="seatConfirm">
-              <p class="seat-confirm-label">Total seats reserved for you</p>
-              <div class="kids-stepper seat-stepper" id="seatStepper" aria-label="Total seats">
-                <button type="button" class="kids-cell kids-minus" id="seatMinus" aria-label="Decrease">−</button>
-                <span class="kids-cell kids-number" id="seatDisplay" aria-live="polite">1</span>
-                <button type="button" class="kids-cell kids-plus" id="seatPlus" aria-label="Increase">+</button>
+          <div class="attend-field">
+            <span class="attend-label">Will you attend?</span>
+            <div class="attend-btns">
+              <button type="button" class="attend-btn attend-btn--yes is-active" id="attendYes">Attending</button>
+              <button type="button" class="attend-btn attend-btn--no" id="attendNo">Not Attending</button>
+            </div>
+            <input type="hidden" name="attendance" id="attendanceSelect" value="Yes" />
+          </div>
+
+          <p class="decline-note" id="declineNote">
+            We are sorry you cannot make it — thank you for letting us know. Feel free to leave a note below.
+          </p>
+
+          <div class="yes-only is-hidden" id="yesOnlyFields">
+            <div class="checkbox-list">
+
+              <!-- Children counter -->
+              <div class="check-row kids-row seats-row" id="childrenRow">
+                <span id="childrenLabel">Children attending</span>
+                <div class="kids-stepper" id="kidsStepper" aria-label="Number of children">
+                  <button type="button" class="kids-cell kids-minus" id="kidsMinus" aria-label="Decrease">−</button>
+                  <span class="kids-cell kids-number" id="kidsCountDisplay" aria-live="polite">0</span>
+                  <button type="button" class="kids-cell kids-plus" id="kidsPlus" aria-label="Increase">+</button>
+                  <input type="hidden" name="children_count" id="kidsCount" value="0" />
+                </div>
               </div>
-              <div class="seat-summary" id="seatSummary"><!-- filled by JS --></div>
-              <p class="seat-confirm-hint">Adjust if needed — every seat helps us plan. 🙏</p>
-            </div>
 
-            <!-- Decline: optional note -->
-            <div id="declineBlock" style="display:none;">
-              <p class="wizard-step-label" style="margin-bottom:6px;">Leave us a note (optional)</p>
-              <textarea id="declineMessage" name="decline_message" placeholder="We'll miss you — feel free to say something 💛" style="width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid rgba(49,39,28,.18);background:transparent;font-family:WeddingSerif,Georgia,serif;font-size:12px;color:#31271C;resize:vertical;min-height:60px;"></textarea>
-            </div>
+              <!-- Hidden total seats sent to sheet -->
+              <input type="hidden" name="seats_count" id="totalSeats" value="1" />
 
-            <div class="wizard-nav" style="margin-top:16px;">
-              <button type="button" class="wizard-back-btn" id="wBack3">← Back</button>
-              <button type="button" class="wizard-next-btn" id="wSubmit">Send RSVP ✓</button>
+              <label class="check-row">
+                <input type="checkbox" name="bring_share" value="Yes" id="bringShareCheckbox" />
+                <span>I'll join the Bring &amp; Share</span>
+              </label>
             </div>
-            <p class="rsvp-status" id="rsvpStatus" aria-live="polite"></p>
           </div>
 
-        </div><!-- /.rsvp-wizard -->
+          <button type="submit">Send RSVP</button>
+          <p class="rsvp-status" id="rsvpStatus" aria-live="polite"></p>
+        </form>
 
-        <!-- ── In-card thank you (shown after submit, overlay is closeable) ── -->
-        <div class="rsvp-card-thanks" id="rsvpCardThanks">
-          <button class="rsvp-submitted-btn" id="rsvpSubmittedBtn" type="button">RSVP Submitted ✓</button>
-          <a class="new-rsvp-link" id="newRsvpBtn2" href="#" style="margin-top:14px;">Submit another RSVP</a>
+        <div class="rsvp-success" id="rsvpSuccess" aria-live="polite">
+          <div class="success-kicker" id="successKicker">THANK YOU</div>
+          <h3 id="successTitle">We cannot wait to celebrate with you.</h3>
+          <p id="successMessage">Your RSVP has been received. We are so grateful you took the time to reply.</p>
+          <div class="success-actions" id="successActions">
+            <a class="sa-btn sa-btn--black" id="giftLink" href="#" target="_blank" rel="noreferrer">Gift List</a>
+            <button class="sa-btn sa-btn--warm" id="bsNudgeBtn" type="button">Bring &amp; Share 🧁</button>
+            <a class="sa-btn sa-btn--outline" id="addToCalBtn" href="#" target="_blank" rel="noreferrer">Add to Calendar</a>
+          </div>
+          <!-- Always shown regardless of attendance -->
+          <a class="sa-btn sa-btn--outline" id="newRsvpBtn" href="#" style="margin-top:8px;display:inline-flex;">Submit another RSVP</a>
         </div>
-
       </article>
 
       <!-- 02 Love Story ────────────────────────────────────── -->
@@ -622,28 +385,13 @@
       <article class="card ceremony-card">
         <div class="topline">
           <span class="number">04</span>
-          <span class="label" id="card04Label">Church Ceremony</span>
+          <span class="label">The Moment</span>
         </div>
-        <h2 id="card04Title">Church Ceremony</h2>
+        <h2>The Day</h2>
 
-        <!-- 30-min arrival notice with tooltip -->
+        <!-- 30-min arrival notice -->
         <div class="arrival-notice">
-          <span class="arrival-tip-wrap">
-            <strong>Please arrive 30 minutes early.</strong>
-            <button type="button" class="arrival-tip-btn" aria-label="More info">ℹ</button>
-            <span class="arrival-tip-body" role="tooltip">
-              Arriving by <strong>13:30</strong> gives us time to welcome everyone,
-              collect and sort the bring &amp; share items, and ensure the ceremony
-              can start on time at <strong>14:00</strong>.
-              Your punctuality is a gift to the couple! 🎁
-            </span>
-          </span>
-        </div>
-
-        <!-- Scroll anchors: only shown when party invite is active -->
-        <div class="timeline-nav" id="timelineNav" style="display:none">
-          <a href="#anchor-ceremony" class="timeline-nav-btn">💒 Wedding Ceremony</a>
-          <a href="#anchor-party"    class="timeline-nav-btn timeline-nav-btn--party" id="partyNavBtn">🥂 Evening Reception</a>
+          <strong>Please arrive 30 minutes early.</strong>
         </div>
 
         <div class="ceremony-agenda" id="ceremony-agenda">
@@ -676,28 +424,6 @@
       </article>
 
     </section><!-- /.right -->
-
-  <!-- ── RSVP Success Overlay (full-page) ────────────────── -->
-  <div class="rsvp-success" id="rsvpSuccess" aria-live="polite" role="dialog">
-    <button class="rsvp-success-close" id="rsvpSuccessClose" aria-label="Close and return to site">×</button>
-    <div class="rsvp-success-inner">
-      <div class="success-kicker" id="successKicker">Thank You</div>
-      <h3 id="successTitle">We cannot wait to celebrate with you.</h3>
-      <p id="successMessage">Your RSVP has been received. Thank you for being part of this special day.</p>
-
-      <div class="gift-banner" id="giftBanner">
-        <div class="gift-banner-icon">♡</div>
-        <p class="gift-banner-title">Your presence is already our greatest gift</p>
-        <p class="gift-banner-body">If you would like to honour our new home with something from your heart, we gratefully welcome a monetary gift — cash at the venue or via PayPal:</p>
-        <a class="gift-banner-paypal" id="giftPaypalLink" href="#" target="_blank" rel="noreferrer">Pay via PayPal ↗</a>
-        <p class="gift-banner-note" id="giftBannerNote">A gift box will be at the church entrance and at the reception venue. Thank you so much. ♡</p>
-      </div>
-
-      <a class="new-rsvp-link" id="bsNudgeBtn" href="#" style="display:none;">Bring &amp; Share 🧁</a>
-      <a class="new-rsvp-link" id="newRsvpBtn" href="#">Submit another RSVP</a>
-    </div>
-  </div>
-
   </main>
 
   <!-- ── Bring & Share Modal ──────────────────────────────── -->
