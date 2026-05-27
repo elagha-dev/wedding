@@ -32,6 +32,7 @@ window.I18N = {
     card05Title : "Dress Code",
     card06Label : "FAQ",
     card06Title : "FAQ",
+    langLabel   : "Language",
 
     /* ── Crew role labels ── */
     roleGroomSide    : "Groom's Side",
@@ -70,7 +71,19 @@ window.I18N = {
       "<p>It only takes a minute to let us know you'll be there. If you can make it to both — wonderful. If you can only join us for the evening — we'll take it, gladly. Just let us know below.</p>" +
       "<p class=\"deadline\">Please let us know your RSVP by <strong>18 September</strong>.</p>",
 
+    greetingLetterPartySingle:
+      "<p>Arina and I are so excited to have you with us on our wedding day — truly one of the most important days of our lives, and we wouldn't want to share it without you.</p>" +
+      "<p>We're getting married at the <strong>church ceremony</strong> on <strong>16 October at 14:00</strong>, and afterwards we'll celebrate well into the evening at our <strong>reception starting at 17:00</strong> — dinner, dancing, and all the good things.</p>" +
+      "<p>It only takes a minute to let us know you'll be there. If you can make it to both — wonderful. If you can only join us for the evening — we'll take it, gladly. Just let us know below.</p>" +
+      "<p class=\"deadline\">Please let us know your RSVP by <strong>18 September</strong>.</p>",
+
     greetingLetterCeremony:
+      "<p>Arina and I are so happy to invite you to witness one of the most meaningful moments of our lives — our wedding ceremony.</p>" +
+      "<p>We're tying the knot at the <strong>church on 16 October at 14:00</strong>, and we would be truly honoured to have you there with us as we say our vows.</p>" +
+      "<p>It only takes a minute — just let us know you'll be coming, and we'll take care of the rest.</p>" +
+      "<p class=\"deadline\">Please let us know your RSVP by <strong>18 September</strong>.</p>",
+
+    greetingLetterCeremonySingle:
       "<p>Arina and I are so happy to invite you to witness one of the most meaningful moments of our lives — our wedding ceremony.</p>" +
       "<p>We're tying the knot at the <strong>church on 16 October at 14:00</strong>, and we would be truly honoured to have you there with us as we say our vows.</p>" +
       "<p>It only takes a minute — just let us know you'll be coming, and we'll take care of the rest.</p>" +
@@ -278,6 +291,7 @@ window.I18N = {
     card05Title : "Dresscode",
     card06Label : "FAQ",
     card06Title : "FAQ",
+    langLabel   : "Sprache",
 
     roleGroomSide    : "Bräutigamsseite",
     roleBrideSide    : "Brautseite",
@@ -310,11 +324,23 @@ window.I18N = {
       "<p>Es dauert nur eine Minute — gebt uns einfach Bescheid, dass ihr kommt. Wir kümmern uns um den Rest.</p>" +
       "<p class=\"deadline\">Bitte gebt uns bis zum <strong>18. September</strong> Rückmeldung.</p>",
 
+    greetingLetterPartySingle:
+      "<p>Arina und ich freuen uns so sehr, dich an unserem Hochzeitstag bei uns zu haben — einem der wichtigsten Tage unseres Lebens. Wir möchten ihn nicht ohne dich erleben.</p>" +
+      "<p>Wir heiraten bei der <strong>kirchlichen Trauung</strong> am <strong>16. Oktober um 14:00 Uhr</strong>, und danach feiern wir bis in den Abend bei unserem <strong>Empfang ab 17:00 Uhr</strong> — mit Essen, Tanzen und allem, was dazugehört.</p>" +
+      "<p>Es dauert nur eine Minute — gib uns einfach Bescheid, dass du kommst. Wir kümmern uns um den Rest.</p>" +
+      "<p class=\"deadline\">Bitte gib uns bis zum <strong>18. September</strong> Rückmeldung.</p>",
+
     greetingLetterCeremony:
       "<p>Arina und ich laden euch herzlich ein, einen der bedeutsamsten Momente unseres Lebens mitzuerleben — unsere Hochzeitszeremonie.</p>" +
       "<p>Wir geben uns das Jawort in der <strong>Kirche am 16. Oktober um 14:00 Uhr</strong>, und wir wären sehr geehrt, euch dabei zu haben.</p>" +
       "<p>Es dauert nur eine Minute — gebt uns einfach Bescheid, dass ihr kommt.</p>" +
       "<p class=\"deadline\">Bitte gebt uns bis zum <strong>18. September</strong> Rückmeldung.</p>",
+
+    greetingLetterCeremonySingle:
+      "<p>Arina und ich laden dich herzlich ein, einen der bedeutsamsten Momente unseres Lebens mitzuerleben — unsere Hochzeitszeremonie.</p>" +
+      "<p>Wir geben uns das Jawort in der <strong>Kirche am 16. Oktober um 14:00 Uhr</strong>, und wir wären sehr geehrt, dich dabei zu haben.</p>" +
+      "<p>Es dauert nur eine Minute — gib uns einfach Bescheid, dass du kommst.</p>" +
+      "<p class=\"deadline\">Bitte gib uns bis zum <strong>18. September</strong> Rückmeldung.</p>",
 
     step1Label    : "Schritt 1 von 3 — Eure Daten",
     step2Label    : "Schritt 2 von 3 — Teilnahme",
@@ -505,6 +531,7 @@ window.I18N = {
     card05Title : "Дресс-код",
     card06Label : "FAQ",
     card06Title : "FAQ",
+    langLabel   : "Язык",
 
     roleGroomSide    : "Со стороны жениха",
     roleBrideSide    : "Со стороны невесты",
@@ -537,11 +564,23 @@ window.I18N = {
       "<p>Это займёт всего минуту — просто дайте нам знать, что придёте, а мы позаботимся об остальном.</p>" +
       "<p class=\"deadline\">Пожалуйста, ответьте до <strong>18 сентября</strong>.</p>",
 
+    greetingLetterPartySingle:
+      "<p>Мы так рады пригласить тебя разделить с нами наш свадебный день — один из самых важных дней в нашей жизни. Мы не хотим отмечать его без тебя.</p>" +
+      "<p>Венчание состоится в <strong>церкви 16 октября в 14:00</strong>, а после мы будем праздновать до вечера на <strong>банкете, начиная с 17:00</strong> — ужин, танцы и всё самое хорошее.</p>" +
+      "<p>Это займёт всего минуту — просто дай нам знать, что придёшь, а мы позаботимся об остальном.</p>" +
+      "<p class=\"deadline\">Пожалуйста, ответь до <strong>18 сентября</strong>.</p>",
+
     greetingLetterCeremony:
       "<p>Мы с радостью приглашаем вас стать свидетелями одного из самых важных моментов нашей жизни — нашего венчания.</p>" +
       "<p>Мы заключим брак в <strong>церкви 16 октября в 14:00</strong>, и нам будет очень дорого видеть вас рядом, когда мы произносим клятвы.</p>" +
       "<p>Это займёт всего минуту — просто дайте нам знать, что придёте.</p>" +
       "<p class=\"deadline\">Пожалуйста, ответьте до <strong>18 сентября</strong>.</p>",
+
+    greetingLetterCeremonySingle:
+      "<p>Мы с радостью приглашаем тебя стать свидетелем одного из самых важных моментов нашей жизни — нашего венчания.</p>" +
+      "<p>Мы заключим брак в <strong>церкви 16 октября в 14:00</strong>, и нам будет очень дорого видеть тебя рядом, когда мы произносим клятвы.</p>" +
+      "<p>Это займёт всего минуту — просто дай нам знать, что придёшь.</p>" +
+      "<p class=\"deadline\">Пожалуйста, ответь до <strong>18 сентября</strong>.</p>",
 
     step1Label    : "Шаг 1 из 3 — Ваши данные",
     step2Label    : "Шаг 2 из 3 — Посещение",

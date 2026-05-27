@@ -488,70 +488,57 @@
   </style>
 
   <style id="lang-switcher-css">
-    /* ── Language switcher — fixed bottom-centre pill ── */
+    /* ── Language switcher ── */
     .lang-bar {
-      position: fixed;
-      bottom: 18px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 9998;
+      position: absolute;
+      bottom: clamp(14px, 2vw, 24px);
+      right: clamp(20px, 2.4vw, 36px);
       display: flex;
       align-items: center;
-      gap: 4px;
-      padding: 6px 14px;
-      background: rgba(49,39,28,0.90);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border-radius: 999px;
-      box-shadow: 0 2px 16px rgba(0,0,0,0.28);
-      white-space: nowrap;
-    }
-    /* On mobile: shift up above the RSVP banner (60px tall) */
-    @media (max-width: 920px) {
-      .lang-bar {
-        bottom: 74px;
-      }
-    }
-    /* When RSVP banner is hidden (submitted), drop back to default */
-    .lang-bar {
-      transition: bottom .3s;
+      gap: 8px;
+      z-index: 10;
     }
     .lang-bar-label {
       font-family: WeddingSerif, Georgia, serif;
       font-size: 8px;
-      letter-spacing: .20em;
+      letter-spacing: .18em;
       text-transform: uppercase;
-      color: rgba(235,226,218,0.45);
+      color: rgba(49,39,28,0.30);
       margin-right: 4px;
     }
     .lang-btn {
-      font-family: WeddingSerif, Georgia, serif;
-      font-size: 9px;
-      letter-spacing: .16em;
-      text-transform: uppercase;
-      color: rgba(235,226,218,0.55);
       background: transparent;
-      border: 1px solid rgba(235,226,218,0.18);
-      padding: 4px 10px;
+      border: none;
+      padding: 2px;
       cursor: pointer;
-      transition: all .15s;
-      line-height: 1;
-      border-radius: 999px;
+      border-radius: 2px;
+      opacity: 0.35;
+      transition: opacity .18s, transform .18s, box-shadow .18s;
+      line-height: 0;
     }
-    .lang-btn:hover  { color: #EBE2DA; border-color: rgba(235,226,218,0.5); }
-    .lang-btn.is-active { color: #EBE2DA; border-color: #EBE2DA; background: rgba(235,226,218,0.15); }
+    .lang-btn img, .lang-btn svg {
+      display: block;
+      border-radius: 1px;
+      width: 14px;
+      height: 10px;
+    }
+    .lang-btn:hover { opacity: 0.75; transform: scale(1.15); }
+    .lang-btn.is-active {
+      opacity: 1;
+      transform: scale(1.2);
+      box-shadow: 0 1px 5px rgba(49,39,28,.20);
+    }
+    /* Mobile: static, centered, above the RSVP banner */
+    @media (max-width: 920px) {
+      .lang-bar {
+        position: static;
+        justify-content: center;
+        padding: 14px 0 90px;
+      }
+    }
   </style>
 </head>
 <body>
-  <!-- ── Language switcher ── -->
-  <div class="lang-bar" id="langBar">
-    <span class="lang-bar-label">Lang</span>
-    <button class="lang-btn" data-lang="en">EN</button>
-    <button class="lang-btn" data-lang="de">DE</button>
-    <button class="lang-btn" data-lang="ru">RU</button>
-  </div>
-
-
   <img src="couple-logo.png" class="logo" alt="Arina and Elnur logo" />
 
   <main class="layout">
@@ -854,6 +841,23 @@
         <h2><span data-i18n="card06Title">FAQ</span></h2>
         <div class="faq-list" id="faq-list">
           <!-- Populated by script.js -->
+        </div>
+        <!-- ── Language switcher ── -->
+        <div class="lang-bar" id="langBar">
+          <span class="lang-bar-label"><span data-i18n="langLabel">Language</span></span>
+          <button class="lang-btn" data-lang="en" aria-label="English" title="English">
+            <img src="https://flagcdn.com/w40/gb.png" width="28" height="20" alt="English" draggable="false">
+          </button>
+          <button class="lang-btn" data-lang="de" aria-label="Deutsch" title="Deutsch">
+            <img src="https://flagcdn.com/w40/de.png" width="28" height="20" alt="Deutsch" draggable="false">
+          </button>
+          <button class="lang-btn" data-lang="ru" aria-label="Русский" title="Русский">
+            <svg width="14" height="10" viewBox="0 0 3 2" xmlns="http://www.w3.org/2000/svg" style="display:block;border-radius:1px;">
+              <rect width="3" height="0.667" y="0" fill="#FFFFFF"/>
+              <rect width="3" height="0.667" y="0.667" fill="#4A90D9"/>
+              <rect width="3" height="0.667" y="1.333" fill="#FFFFFF"/>
+            </svg>
+          </button>
         </div>
       </article>
 

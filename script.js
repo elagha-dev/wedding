@@ -425,6 +425,7 @@ var partyNoBtn    = document.getElementById("partyNoBtn");
 
 /* ── Global state ─────────────────────────────────────────── */
 var __guests    = [];
+var __isCouple  = false;
 var __partyRsvp = {};
 var __manualSeatOverride = false; /* true once user touches seat stepper */
 var __seatCount = 1;
@@ -1013,7 +1014,8 @@ if (bsSubmit) bsSubmit.addEventListener("click", async function() {
   })();
 
   /* ── Store globally for submit handler ─────────────────── */
-  __guests = guests;
+  __guests   = guests;
+  __isCouple = isCouple;
 
   /* ── Pre-fill name fields ──────────────────────────────── */
   var firstField = document.querySelector('[name="first_name"]');
@@ -1053,9 +1055,9 @@ if (bsSubmit) bsSubmit.addEventListener("click", async function() {
     var letterDiv = document.createElement('div');
     letterDiv.className = 'rsvp-greeting-letter';
     if (hasParty) {
-      letterDiv.innerHTML = t('greetingLetterParty');
+      letterDiv.innerHTML = __isCouple ? t('greetingLetterParty') : t('greetingLetterPartySingle');
     } else {
-      letterDiv.innerHTML = t('greetingLetterCeremony');
+      letterDiv.innerHTML = __isCouple ? t('greetingLetterCeremony') : t('greetingLetterCeremonySingle');
     }
     nameEl.appendChild(letterDiv);
     rsvpIntroEl.insertAdjacentElement('afterbegin', nameEl);
@@ -1484,7 +1486,9 @@ if (newRsvpBtn2) {
 
   /* 01 — RSVP */
   function buildRsvp(cardEl) {
-    var letter = window.__inviteParty ? t('greetingLetterParty') : t('greetingLetterCeremony');
+    var letter = window.__inviteParty
+      ? (__isCouple ? t('greetingLetterParty') : t('greetingLetterPartySingle'))
+      : (__isCouple ? t('greetingLetterCeremony') : t('greetingLetterCeremonySingle'));
     return kicker(cardEl) +
       h2(cardEl) +
       '<div class="overlay-rsvp-note">' + letter + '</div>' +
