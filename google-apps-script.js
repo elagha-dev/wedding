@@ -73,11 +73,11 @@ function doPost(e) {
     } else {
       // Standard ceremony RSVP
       var invitedToParty = data.invited_to_party || "No";
-      
+
       // Clean data logic for Evening Attendance
-      var eveningAttendance = data.party_attendance || ""; 
+      var eveningAttendance = data.party_attendance || "";
       if (invitedToParty === "No") {
-        eveningAttendance = ""; 
+        eveningAttendance = "";
       }
 
       rsvpSheet.appendRow([
@@ -111,13 +111,13 @@ function doPost(e) {
 // ── SETUP: Run this manually once to force-generate your new clean headers ──
 function setupSheets() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
-  
+
   var sheets = [
     { name: RSVP_SHEET_NAME, headers: ["Date & Time","First Name","Last Name","Full Name","Email","Phone","Invited to Party","Ceremony Attendance","Evening Attendance","Guests Attending","Children","Total Seats","Join Bring & Share"] },
     { name: PARTY_SHEET_NAME, headers: ["Date & Time","Name","Party Attending","Dietary","Notes"] },
     { name: BRING_SHARE_SHEET_NAME, headers: ["Date & Time","Name","Contact","What","Portions","Food Type","Allergens"] }
   ];
-  
+
   sheets.forEach(function(s) {
     var sheet = ss.getSheetByName(s.name);
     if (sheet) {

@@ -155,6 +155,8 @@ p {
 
 .rsvp-card h2 { margin-bottom: 14px; }
 
+.rsvp-wizard.is-hidden { display: none !important; }
+
 .rsvp-form {
   width: 100%;
   max-width: 100%;
@@ -1829,30 +1831,52 @@ button.sa-btn {
   left: 0;
   top: calc(100% + 8px);
   z-index: 40;
-  width: 240px;
-  background: var(--ink, #2a201a);
-  color: #f5eee6;
+  width: 230px;
+  background: #f5ede5;
+  color: #31271C;
+  border: 1px solid rgba(49,39,28,.15);
   font-family: var(--serif, serif);
-  font-size: 12px;
-  line-height: 1.6;
+  font-size: 11px;
+  line-height: 1.65;
   padding: 10px 13px;
-  border-radius: 4px;
-  box-shadow: 0 4px 20px rgba(0,0,0,.25);
+  border-radius: 0;
+  box-shadow: 0 4px 14px rgba(0,0,0,.08);
   pointer-events: none;
 }
 .arrival-tip-body::before {
   content: '';
   position: absolute;
-  top: -5px;
-  left: 14px;
+  top: -6px;
+  left: 12px;
   border-left: 5px solid transparent;
   border-right: 5px solid transparent;
-  border-bottom: 5px solid var(--ink, #2a201a);
+  border-bottom: 5px solid rgba(49,39,28,.15);
+}
+.arrival-tip-body::after {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: 12px;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 5px solid #f5ede5;
 }
 .arrival-tip-wrap:hover .arrival-tip-body,
 .arrival-tip-wrap:focus-within .arrival-tip-body {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
+.tip-line {
+  display: block;
+  font-family: var(--serif, serif);
+  font-size: 11px;
+  line-height: 1.5;
+  color: #31271C;
+}
+.tip-line strong { font-weight: 600; color: #31271C; }
+.tip-body-text { color: rgba(49,39,28,.75); font-size: 10.5px; }
+.tip-note { font-style: italic; color: rgba(49,39,28,.55); font-size: 10px; }
 
 /* ── Timeline nav buttons ────────────────────────────────── */
 .timeline-nav {

@@ -36,6 +36,14 @@ function renderCrewOther(containerId, people) {
 }
 
 function renderContent(c) {
+  /* ── Merge in translations for the active language ── */
+  if (window.__LANG && window.__LANG !== 'en' && window.CONTENT_TRANSLATIONS && window.CONTENT_TRANSLATIONS[window.__LANG]) {
+    var tr = window.CONTENT_TRANSLATIONS[window.__LANG];
+    if (tr.loveStory)  c = Object.assign({}, c, { loveStory:  tr.loveStory  });
+    if (tr.dressCode)  c = Object.assign({}, c, { dressCode:  tr.dressCode  });
+    if (tr.faq)        c = Object.assign({}, c, { faq:        tr.faq        });
+    if (tr.ceremony)   c = Object.assign({}, c, { ceremony:   Object.assign({}, c.ceremony, { agenda: tr.ceremony.agenda }) });
+  }
   /* Love story */
   const storyEl = document.getElementById("story-paragraphs");
   if (storyEl && c.loveStory && c.loveStory.paragraphs) {
@@ -61,12 +69,12 @@ function renderContent(c) {
         locationHtml = '<div class="agenda-location">' +
           '<span class="agenda-location-name">' + item.location + '</span>' +
           (item.address ? '<span class="agenda-address">' + item.address + '</span>' : '') +
-          (item.mapUrl ? '<a class="agenda-map-link" href="' + item.mapUrl + '" target="_blank" rel="noreferrer">View on Map ↗</a>' : '') +
+          (item.mapUrl ? '<a class="agenda-map-link" href="' + item.mapUrl + '" target="_blank" rel="noreferrer">' + (window.t ? window.t('viewOnMap') : 'View on Map ↗') + '</a>' : '') +
           '</div>';
       }
       var bringShareHtml = "";
       if (item.bringAndShare && item.bringAndShareFormUrl) {
-        bringShareHtml = '<a class="agenda-hint-btn" href="' + item.bringAndShareFormUrl + '" target="_blank" rel="noreferrer">🧁 Let us know what you\'ll bring</a>';
+        bringShareHtml = '<a class="agenda-hint-btn" href="' + item.bringAndShareFormUrl + '" target="_blank" rel="noreferrer">🧁 ' + (window.t ? window.t('bringShareLabel') : "Let us know what you'll bring") + '</a>';
       }
 
       return '<div class="agenda-step' + (isLast ? ' agenda-step--last' : '') + '">' +
@@ -89,8 +97,9 @@ function renderContent(c) {
 
     /* Inject scroll anchors into timeline items */
     var steps = agendaEl.querySelectorAll('.agenda-step');
+    var ceremonyLabels = ['CEREMONY','GET TOGETHER','ZEREMONIE','ANKOMMEN','ЦЕРЕМОНИЯ','ВСТРЕЧА'];
     visibleAgenda.forEach(function(item, idx) {
-      if (item.label === 'CEREMONY' || item.label === 'GET TOGETHER') {
+      if (ceremonyLabels.indexOf(item.label) !== -1) {
         if (steps[idx]) steps[idx].id = 'anchor-ceremony';
       }
       if (item.partyOnly) {
@@ -107,8 +116,8 @@ function renderContent(c) {
     if (__inviteParty) {
       var card04Label = document.getElementById('card04Label');
       var card04Title = document.getElementById('card04Title');
-      if (card04Label) card04Label.textContent = 'The Moment';
-      if (card04Title) card04Title.textContent = 'The Day';
+      if (card04Label) card04Label.textContent = window.t ? window.t('card04LabelParty') : 'The Moment';
+      if (card04Title) card04Title.textContent = window.t ? window.t('card04TitleParty') : 'The Day';
     }
 
   }
@@ -163,7 +172,7 @@ function loadContent() {
     "analyticsToken": "40223123959b40ce8820f84cd8bbae11"
   },
   "rsvp": {
-    "googleScriptUrl": "https://script.google.com/macros/s/AKfycbz1GU95z1Q1Y82SttUAEnZXBNN5SLYERl5sT8GHcNwy75ZeD_eugMvra8ebh9MR6eGiEw/exec",
+    "googleScriptUrl": "https://script.google.com/macros/s/AKfycbywYNtXJj8X_gVWnVOwen1YsC26331emv7QVmPC3RozcH9-JhEKPIWaCYhXmaSd5iuTJA/exec",
     "giftListUrl": "#",
     "bringAndShareFormUrl": "https://forms.gle/4C6RUZfEKunpWGoc8",
     "bringAndShareSpoc": ""
@@ -485,17 +494,46 @@ function fillNameFromGuests() {
 function buildGuestChecks(guests) {
   if (!guestChecksEl || !guests || !guests.length) return;
   guestChecksEl.innerHTML = '';
+  var isMultiple = guests.length > 1;
+
+  /* Update field labels based on guest count */
+  var firstLabel = document.querySelector('[name="first_name"]');
+  var lastLabel  = document.querySelector('[name="last_name"]');
+  if (firstLabel) {
+    var fl = firstLabel.closest('.field-label');
+    if (fl) fl.querySelector('span').textContent = isMultiple ? 'Your names' : 'First name';
+    firstLabel.placeholder = isMultiple ? 'Your names' : 'First name';
+  }
+  if (lastLabel) {
+    var ll = lastLabel.closest('.field-label');
+    if (ll) ll.querySelector('span').textContent = isMultiple ? 'Family name' : 'Last name';
+    lastLabel.placeholder = isMultiple ? 'Family name' : 'Last name';
+  }
+
+  /* Build toggle buttons (no visible checkboxes) */
+  var wrap = document.createElement('div');
+  wrap.className = 'guest-toggle-wrap';
   guests.forEach(function(name, i) {
-    var label = document.createElement('label');
-    label.className = 'check-row guest-check-row';
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'attend-btn guest-toggle-btn is-active';
+    btn.dataset.guestIndex = i;
+    btn.dataset.guestName  = name;
+    btn.textContent = name;
+    /* Hidden checkbox behind the button for form data */
     var cb = document.createElement('input');
     cb.type = 'checkbox'; cb.name = 'guest_' + i; cb.value = name; cb.checked = true;
-    cb.addEventListener('change', function() { recalcSeats(); fillNameFromGuests(); });
-    var span = document.createElement('span');
-    span.textContent = name;
-    label.appendChild(cb); label.appendChild(span);
-    guestChecksEl.appendChild(label);
+    cb.style.display = 'none';
+    cb.id = 'guestCb_' + i;
+    btn.addEventListener('click', function() {
+      var active = btn.classList.toggle('is-active');
+      cb.checked = active;
+      recalcSeats(); fillNameFromGuests();
+    });
+    wrap.appendChild(btn);
+    wrap.appendChild(cb);
   });
+  guestChecksEl.appendChild(wrap);
 }
 
 function checkedGuestCount() {
@@ -547,8 +585,8 @@ function showSuccessScreen(attending) {
   if (cardThanks) {
     cardThanks.classList.add("is-visible");
     if (cardThanksMsg) cardThanksMsg.textContent = attending
-      ? "We cannot wait to celebrate with you."
-      : "We are sorry you cannot make it. Thank you for letting us know.";
+      ? (window.t ? window.t('successCardAttending') : "We cannot wait to celebrate with you.")
+      : (window.t ? window.t('successCardDecline') : "We are sorry you cannot make it. Thank you for letting us know.");
   }
   /* Show full-screen overlay with gift info */
   if (rsvpSuccess) {
@@ -556,13 +594,13 @@ function showSuccessScreen(attending) {
     rsvpSuccess.scrollTop = 0;
     document.body.style.overflow = "hidden";
   }
-  if (successKicker) successKicker.textContent = "THANK YOU";
+  if (successKicker) successKicker.textContent = window.t ? window.t('successKicker') : "THANK YOU";
   if (successTitle)  successTitle.textContent  = attending
-    ? "We cannot wait to celebrate with you."
-    : "We are sorry you cannot make it.";
+    ? (window.t ? window.t('successTitleAttending') : "We cannot wait to celebrate with you.")
+    : (window.t ? window.t('successTitleDecline') : "We are sorry you cannot make it.");
   if (successMessage) successMessage.textContent = attending
-    ? "Your RSVP has been received. Thank you for being part of this special day."
-    : "Thank you for letting us know. You will be missed, and we hope to celebrate together another time.";
+    ? (window.t ? window.t('successMsgAttending') : "Your RSVP has been received. Thank you for being part of this special day.")
+    : (window.t ? window.t('successMsgDecline') : "Thank you for letting us know. You will be missed, and we hope to celebrate together another time.");
 
   /* Gift banner: show when attending anything; note text depends on party */
   if (giftBanner) {
@@ -597,6 +635,7 @@ function resetWizard() {
   }
   if (guestChecksEl) {
     guestChecksEl.querySelectorAll('input[type="checkbox"]').forEach(function(cb) { cb.checked = true; });
+    guestChecksEl.querySelectorAll('.guest-toggle-btn').forEach(function(btn) { btn.classList.add('is-active'); });
   }
   if (bringShareCheckbox) bringShareCheckbox.checked = false;
   if (declineMessage) declineMessage.value = "";
@@ -604,10 +643,16 @@ function resetWizard() {
   setAttendance("Yes");
   setPartyAttendance("No");
   if (rsvpSuccess) rsvpSuccess.classList.remove("is-visible");
-  if (rsvpWizard)  rsvpWizard.classList.remove("is-hidden");
+  /* On reset: go back to intro, hide wizard */
+  var introEl = document.getElementById("rsvpIntro");
+  if (introEl)    introEl.classList.remove("is-hidden");
+  if (rsvpWizard) rsvpWizard.classList.add("is-hidden");
   var cardThanks = document.getElementById("rsvpCardThanks");
   if (cardThanks) cardThanks.classList.remove("is-visible");
   document.body.style.overflow = "";
+  /* Also fix pre-selection state */
+  if (attendanceSelect)  attendanceSelect.value = "";
+  if (partyAttendSelect) partyAttendSelect.value = "";
   setWizardStep(1);
 }
 
@@ -697,21 +742,19 @@ if (wSubmit) wSubmit.addEventListener("click", async function() {
   if (wSubmit) wSubmit.disabled = true;
 
   var payload = {
-    timestamp:           new Date().toISOString(),
-    guest_code:          getGuestCode(),
+    type:                "rsvp",
     first_name:          fn,
     last_name:           ln,
     name:                (fn + " " + ln).trim(),
-    guests_attending:    guestNames,
     email:               em,
     phone:               ph,
+    invited_to_party:    __inviteParty  ? "Yes" : "No",
     attendance:          attending      ? "Yes" : "No",
     party_attendance:    partyAttending ? "Yes" : "No",
-    join_bring_share:    attending && bringShareCheckbox && bringShareCheckbox.checked ? "Yes" : "No",
+    guests_attending:    guestNames,
     children:            anyAttending   ? String(getChildrenCount()) : "0",
     seats:               anyAttending   ? String(__seatCount) : "0",
-    message:             msg,
-    invited_to_party:    __inviteParty  ? "Yes" : "No"
+    join_bring_share:    attending && bringShareCheckbox && bringShareCheckbox.checked ? "Yes" : "No"
   };
 
   try {
@@ -911,7 +954,23 @@ if (bsSubmit) bsSubmit.addEventListener("click", async function() {
     displayName  = name;
   }
 
-  if (!displayName) return;
+  /* ── Always hide wizard and show intro, even with no name ─ */
+  var rsvpWizardEl0 = document.getElementById('rsvpWizard');
+  if (rsvpWizardEl0) rsvpWizardEl0.classList.add('is-hidden');
+
+  if (!displayName) {
+    /* No guest name — show generic intro with Begin button wired */
+    var rsvpBeginBtnGeneric = document.getElementById('rsvpBeginBtn');
+    var rsvpIntroGeneric    = document.getElementById('rsvpIntro');
+    if (rsvpBeginBtnGeneric) {
+      rsvpBeginBtnGeneric.addEventListener('click', function() {
+        if (rsvpIntroGeneric)  rsvpIntroGeneric.classList.add('is-hidden');
+        if (rsvpWizardEl0)     rsvpWizardEl0.classList.remove('is-hidden');
+        setWizardStep(1);
+      });
+    }
+    return;
+  }
 
   /* ── Tab title ─────────────────────────────────────────── */
   var tabName = (p1 && p2) ? (p1 + ' & ' + p2) : (p1 || displayName);
@@ -934,40 +993,53 @@ if (bsSubmit) bsSubmit.addEventListener("click", async function() {
     fillNameFromGuests();
   }
 
-  /* ── Greeting box (rich version) ───────────────────────── */
-  var rsvpH2 = document.querySelector('.rsvp-card h2');
-  if (rsvpH2 && !document.getElementById('rsvp-greeting')) {
+  /* ── Hide wizard until Begin is clicked ───────────────── */
+  var rsvpWizardEl = document.getElementById('rsvpWizard');
+  if (rsvpWizardEl) rsvpWizardEl.classList.add('is-hidden');
 
-    /* Countdown to wedding day */
-    var weddingDate = new Date('2026-10-16T00:00:00');
-    var today       = new Date();
-    today.setHours(0,0,0,0);
-    var daysLeft    = Math.ceil((weddingDate - today) / (1000 * 60 * 60 * 24));
-    var countdownText = daysLeft > 0
-      ? daysLeft + ' days until the big day'
-      : daysLeft === 0 ? 'Today is the day!' : '';
-
-    /* Build the greeting element — name + sub-text with deadline baked in */
+  /* ── Build warm personal letter in intro ───────────────── */
+  var rsvpIntroEl = document.getElementById('rsvpIntro');
+  var instrEl     = document.getElementById('rsvpIntroInstructions');
+  if (rsvpIntroEl && !document.getElementById('rsvp-greeting')) {
     var hasParty = __inviteParty;
-    var subText = hasParty
-      ? 'We would love to have you with us — at the church as we tie our knot, and with us as we celebrate into the night. Please reply by 04.09.'
-      : 'We would love to have you witness our special day as we tie our knot at the church ceremony. Please reply by 04.09.';
 
-    var greeting = document.createElement('div');
-    greeting.id  = 'rsvp-greeting';
-    greeting.className = 'rsvp-greeting';
+    /* ── Greeting box: name + full letter together ── */
+    var nameEl = document.createElement('div');
+    nameEl.id        = 'rsvp-greeting';
+    nameEl.className = 'rsvp-greeting';
 
     var nameSpan = document.createElement('span');
-    nameSpan.className = 'rsvp-greeting-name';
-    nameSpan.textContent = 'Dear ' + displayName + ',';
+    nameSpan.className   = 'rsvp-greeting-name';
+    nameSpan.textContent = (window.t ? window.t('greetingDear') : 'Dear') + ' ' + displayName + ',';
+    nameEl.appendChild(nameSpan);
 
-    var subSpan = document.createElement('span');
-    subSpan.className = 'rsvp-greeting-sub';
-    subSpan.textContent = subText;
+    /* Letter paragraphs sit inside the greeting box */
+    var letterDiv = document.createElement('div');
+    letterDiv.className = 'rsvp-greeting-letter';
+    if (hasParty) {
+      letterDiv.innerHTML = window.t ? window.t('greetingLetterParty') :
+        "<p>Arina and I are so excited to have you with us on our wedding day.</p>" +
+        "<p class=\"deadline\">Please let us know your RSVP by <strong>18 September</strong>.</p>";
+    } else {
+      letterDiv.innerHTML = window.t ? window.t('greetingLetterCeremony') :
+        "<p>Arina and I are so happy to invite you to witness our wedding ceremony.</p>" +
+        "<p class=\"deadline\">Please let us know your RSVP by <strong>18 September</strong>.</p>";
+    }
+    nameEl.appendChild(letterDiv);
+    rsvpIntroEl.insertAdjacentElement('afterbegin', nameEl);
 
-    greeting.appendChild(nameSpan);
-    greeting.appendChild(subSpan);
-    rsvpH2.insertAdjacentElement('afterend', greeting);
+    /* Clear the old instructions container */
+    if (instrEl) instrEl.innerHTML = "<p class=\"rsvp-intro-note\">" + (window.t ? window.t('crewNote') : "Any questions? Reach out to anyone in the crew.") + "</p>";
+  }
+
+  /* ── "Begin your RSVP" button ───────────────────────────── */
+  var rsvpBeginBtn = document.getElementById('rsvpBeginBtn');
+  if (rsvpBeginBtn) {
+    rsvpBeginBtn.addEventListener('click', function() {
+      if (rsvpIntroEl)   rsvpIntroEl.classList.add('is-hidden');
+      if (rsvpWizardEl)  rsvpWizardEl.classList.remove('is-hidden');
+      setWizardStep(1);
+    });
   }
 })();
 
@@ -982,8 +1054,8 @@ if (bsSubmit) bsSubmit.addEventListener("click", async function() {
   var banner = document.createElement('div');
   banner.id = 'rsvpBanner';
   banner.innerHTML =
-    '<span id="rsvpBannerText">📋 Please complete your RSVP</span>' +
-    '<button id="rsvpBannerBtn">RSVP now \u2193</button>';
+    '<span id="rsvpBannerText">' + (window.t ? window.t('bannerText') : '📋 Please complete your RSVP') + '</span>' +
+    '<button id="rsvpBannerBtn">' + (window.t ? window.t('bannerBtn') : 'RSVP now ↓') + '</button>';
   document.body.appendChild(banner);
 
   // Inject minimal banner styles (no changes to styles.css)

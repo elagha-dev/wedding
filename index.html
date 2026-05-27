@@ -30,6 +30,9 @@
   <!-- Styles -->
   <link rel="stylesheet" href="styles.css?v=9" />
 
+  <!-- i18n: must load before script.js -->
+  <script src="i18n.js"></script>
+
   <!-- Cloudflare -->
   <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
           data-cf-beacon='{"token":"40223123959b40ce8820f84cd8bbae11"}'></script>
@@ -37,6 +40,7 @@
     /* ── Consistent serif font on RSVP form elements only ──────
        Browsers don't inherit font into inputs/selects by default. */
     .rsvp-form input,
+    .field-label input,
     .rsvp-form select,
     .rsvp-form textarea,
     .rsvp-form input::placeholder,
@@ -45,6 +49,13 @@
     .check-row span,
     .kids-cell {
       font-family: WeddingSerif, Georgia, serif;
+    }
+    /* Force typed text to be clearly legible */
+    .rsvp-form input,
+    .field-label input,
+    .rsvp-form select,
+    .rsvp-form textarea {
+      color: #1a1210 !important;
     }
     .rsvp-form input::placeholder,
     .field-label input::placeholder,
@@ -56,8 +67,8 @@
     /* Personalised RSVP greeting box */
     .rsvp-greeting {
       display: block;
-      margin: -6px 0 6px;
-      padding: 10px 12px;
+      margin: -6px 0 0;
+      padding: 12px 14px;
       background: rgba(49,39,28,.05);
       border-left: 2px solid #624E38;
       font-family: WeddingSerif, Georgia, serif;
@@ -74,7 +85,7 @@
       font-weight: 600;
       letter-spacing: .04em;
       color: #31271C;
-      margin-bottom: 2px;
+      margin-bottom: 6px;
     }
     .rsvp-greeting-sub {
       display: block;
@@ -155,11 +166,7 @@
       cursor: pointer;
       flex-shrink: 0;
     }
-    /* Children row */
-    #childrenRow {
-      padding-top: 2px;
-      margin-top: 0;
-    }
+
 
     /* Attend buttons — replace dropdown */
     .attend-field {
@@ -174,13 +181,30 @@
       color: #624E38;
       line-height: 1;
     }
+    /* Guest name toggle buttons */
+    .guest-toggle-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+    .guest-toggle-btn {
+      min-width: 80px;
+      padding: 0 14px;
+      flex: 0 0 auto;
+    }
+
     .attend-btns {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
+      display: flex;
+      flex-wrap: wrap;
       gap: 6px;
     }
     .attend-btn {
+      flex: 1 1 auto;
+      min-width: 100px;
+      max-width: 160px;
       height: 32px;
+      padding: 0 10px;
       border: 1px solid rgba(49,39,28,.22);
       background: transparent;
       font-family: WeddingSerif, Georgia, serif;
@@ -200,6 +224,88 @@
     .attend-btn:not(.is-active):hover {
       border-color: #7a5133;
       color: #31271C;
+    }
+
+    /* ── RSVP Intro (Step 0) ──────────────────────────────── */
+    .rsvp-intro {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    #rsvpIntroInstructions { margin-top: 0; }
+    .rsvp-intro.is-hidden { display: none; }
+
+    .rsvp-intro-instructions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    /* Letter inside greeting box */
+    .rsvp-greeting-letter {
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .rsvp-greeting-letter p {
+      font-family: WeddingSerif, Georgia, serif;
+      font-size: 11.5px;
+      color: rgba(49,39,28,.80);
+      line-height: 1.70;
+      margin: 0 0 8px;
+      letter-spacing: .01em;
+    }
+    .rsvp-greeting-letter p strong {
+      color: #31271C;
+      font-weight: 600;
+    }
+    .rsvp-greeting-letter p.deadline {
+      margin-top: 4px;
+      font-size: 10.5px;
+      color: #624E38;
+      letter-spacing: .02em;
+    }
+
+    /* Letter paragraphs */
+    .rsvp-intro-letter {
+      font-family: WeddingSerif, Georgia, serif;
+      font-size: 12px;
+      color: rgba(49,39,28,.82);
+      line-height: 1.7;
+      margin: 0 0 10px;
+      letter-spacing: .01em;
+    }
+    .rsvp-intro-letter strong {
+      color: #31271C;
+      font-weight: 600;
+    }
+    .rsvp-intro-note {
+      font-family: WeddingSerif, Georgia, serif;
+      font-size: 10px;
+      color: rgba(49,39,28,.42);
+      line-height: 1.6;
+      margin: 6px 0 0;
+      font-style: italic;
+    }
+    .rsvp-begin-btn {
+      align-self: flex-start;
+      height: 34px;
+      padding: 0 20px;
+      background: #31271C;
+      color: #EBE2DA;
+      border: 1px solid #31271C;
+      border-radius: 0;
+      font-family: WeddingSerif, Georgia, serif;
+      font-size: 9px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      cursor: pointer;
+      margin-top: 4px;
+      transition: background .15s, border-color .15s;
+    }
+    .rsvp-begin-btn:hover {
+      background: #7a5133;
+      border-color: #7a5133;
     }
 
     /* ── RSVP Wizard ──────────────────────────────────────── */
@@ -261,8 +367,9 @@
       transition: background .15s, color .15s, border-color .15s;
     }
     .wizard-next-btn {
-      flex: 1;
+      flex: 0 0 auto;
       height: 34px;
+      padding: 0 24px;
       background: #31271C;
       color: #EBE2DA;
       border: 1px solid #31271C;
@@ -338,6 +445,10 @@
     /* ── Seat confirm (step 3) ───────────────────────────── */
     .seat-confirm {
       padding: 14px 0 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
     }
     .seat-confirm-label {
       font-family: WeddingSerif, Georgia, serif;
@@ -345,8 +456,11 @@
       letter-spacing: .28em;
       text-transform: uppercase;
       color: #624E38;
-      margin: 0 0 12px;
+      margin: 0;
       display: block;
+    }
+    .seat-stepper {
+      margin: 0;
     }
     .seat-summary {
       font-family: WeddingSerif, Georgia, serif;
@@ -354,18 +468,15 @@
       color: rgba(49,39,28,.45);
       letter-spacing: .06em;
       text-transform: uppercase;
-      margin-bottom: 10px;
+      margin: 0;
       min-height: 14px;
-    }
-    .seat-stepper {
-      margin: 0 0 10px;
     }
     .seat-confirm-hint {
       font-family: WeddingSerif, Georgia, serif;
       font-size: 10px;
       color: rgba(49,39,28,.45);
       letter-spacing: .03em;
-      margin: 0 0 4px;
+      margin: 0;
     }
     /* field-label: label above, underline-only input */
     .field-label {
@@ -375,8 +486,56 @@
       min-width: 0;
     }
   </style>
+
+  <style>
+    /* ── Language switcher bar ── */
+    .lang-bar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 9999;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 6px 16px;
+      background: rgba(49,39,28,0.92);
+      backdrop-filter: blur(6px);
+      gap: 4px;
+    }
+    .lang-bar-label {
+      font-family: WeddingSerif, Georgia, serif;
+      font-size: 9px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: rgba(235,226,218,0.55);
+      margin-right: 6px;
+    }
+    .lang-btn {
+      font-family: WeddingSerif, Georgia, serif;
+      font-size: 9px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: rgba(235,226,218,0.6);
+      background: transparent;
+      border: 1px solid rgba(235,226,218,0.2);
+      padding: 3px 10px;
+      cursor: pointer;
+      transition: all .15s;
+      border-radius: 0;
+    }
+    .lang-btn:hover { color: #EBE2DA; border-color: rgba(235,226,218,0.5); }
+    .lang-btn.is-active { color: #EBE2DA; border-color: #EBE2DA; background: rgba(235,226,218,0.1); }
+    /* Push body down so content isn't hidden under the bar */
+    body { padding-top: 32px; }
+  </style>
 </head>
 <body>
+  <div class="lang-bar" id="langBar">
+    <span class="lang-bar-label">Language</span>
+    <button class="lang-btn" data-lang="en">EN</button>
+    <button class="lang-btn" data-lang="de">DE</button>
+    <button class="lang-btn" data-lang="ru">RU</button>
+  </div>
+
 
   <img src="couple-logo.png" class="logo" alt="Arina and Elnur logo" />
 
@@ -422,6 +581,15 @@
           <span class="label">Kindly Reply</span>
         </div>
         <h2>RSVP</h2>
+
+        <!-- RSVP Intro (Step 0) -->
+        <div class="rsvp-intro" id="rsvpIntro">
+          <!-- greeting injected here by JS -->
+          <div class="rsvp-intro-instructions" id="rsvpIntroInstructions">
+            <!-- filled by JS based on guest invite type -->
+          </div>
+          <button class="rsvp-begin-btn" id="rsvpBeginBtn" type="button">Begin your RSVP →</button>
+        </div>
 
         <!-- RSVP Wizard -->
         <div class="rsvp-wizard" id="rsvpWizard">
@@ -496,8 +664,8 @@
             </div>
 
             <!-- Kids stepper — shown when attending church OR evening -->
-            <div class="check-row kids-row seats-row" id="childrenRow" style="margin-top:14px;">
-              <span id="childrenLabel">Children attending</span>
+            <div class="attend-field" id="childrenRow" style="margin-top:14px;">
+              <span class="attend-label" id="childrenLabel">Children attending</span>
               <div class="kids-stepper" id="kidsStepper" aria-label="Number of children">
                 <button type="button" class="kids-cell kids-minus" id="kidsMinus" aria-label="Decrease">−</button>
                 <span class="kids-cell kids-number" id="kidsCountDisplay" aria-live="polite">0</span>
@@ -632,10 +800,9 @@
             <strong>Please arrive 30 minutes early.</strong>
             <button type="button" class="arrival-tip-btn" aria-label="More info">ℹ</button>
             <span class="arrival-tip-body" role="tooltip">
-              Arriving by <strong>13:30</strong> gives us time to welcome everyone,
-              collect and sort the bring &amp; share items, and ensure the ceremony
-              can start on time at <strong>14:00</strong>.
-              Your punctuality is a gift to the couple! 🎁
+              <span class="tip-line">Arrive by <strong>13:30</strong></span>
+              <span class="tip-line tip-body-text">This gives us time to welcome everyone, collect the Bring &amp; Share items, and start the ceremony on time at <strong>14:00</strong></span>
+              <span class="tip-line tip-note">Your punctuality is a gift to us. 🎁</span>
             </span>
           </span>
         </div>
@@ -870,5 +1037,6 @@
   </div>
 
   <script src="script.js"></script>
+  <script src="lang-apply.js"></script>
 </body>
 </html>
