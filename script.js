@@ -31,8 +31,8 @@ function buildPersonCard(person) {
       <button type="button" class="mini-popover-close" aria-label="Close">×</button>
       <div class="contact-role">${translateRole(person.role)}</div>
       <h3>${person.name}</h3>
-      <p><span>Email</span><a href="mailto:${person.email}">${person.email}</a></p>
-      <p><span>Phone</span><a href="tel:${person.phone.replace(/\s+/g, "")}">${person.phone}</a></p>
+      <p><span>${t('emailLabel')}</span><a href="mailto:${person.email}">${person.email}</a></p>
+      <p><span>${t('phoneLabel')}</span><a href="tel:${person.phone.replace(/\s+/g, "")}">${person.phone}</a></p>
     </div>`;
   return wrap;
 }
@@ -988,6 +988,29 @@ if (bsSubmit) bsSubmit.addEventListener("click", async function() {
   /* ── Tab title ─────────────────────────────────────────── */
   var tabName = (p1 && p2) ? (p1 + ' & ' + p2) : (p1 || displayName);
   document.title = tabName + ' \u2014 You\u2019re invited \u2665';
+
+  /* ── OG / social meta — swap title & description for party invites ── */
+  (function() {
+    var ogTitle = document.querySelector('meta[property="og:title"]');
+    var ogDesc  = document.querySelector('meta[property="og:description"]');
+    var twTitle = document.querySelector('meta[name="twitter:title"]');
+    var twDesc  = document.querySelector('meta[name="twitter:description"]');
+    if (party) {
+      var pTitle = 'Arina & Elnur \u2014 Wedding Celebration';
+      var pDesc  = 'We\u2019re so happy to have you with us \u2014 join us for our wedding ceremony on 16 October 2026 at 14:00 and the evening reception at 17:00 at Rheinliebe D\u00fcsseldorf.';
+      if (ogTitle) ogTitle.setAttribute('content', pTitle);
+      if (ogDesc)  ogDesc.setAttribute('content',  pDesc);
+      if (twTitle) twTitle.setAttribute('content', pTitle);
+      if (twDesc)  twDesc.setAttribute('content',  pDesc);
+    } else {
+      var cTitle = 'Arina & Elnur \u2014 Invitation to the Wedding Ceremony';
+      var cDesc  = 'We would love to have you witness our big day with us \u2014 join us for our wedding ceremony on 16 October 2026 at 14:00 at the Schlosskirche D\u00fcsseldorf.';
+      if (ogTitle) ogTitle.setAttribute('content', cTitle);
+      if (ogDesc)  ogDesc.setAttribute('content',  cDesc);
+      if (twTitle) twTitle.setAttribute('content', cTitle);
+      if (twDesc)  twDesc.setAttribute('content',  cDesc);
+    }
+  })();
 
   /* ── Store globally for submit handler ─────────────────── */
   __guests = guests;

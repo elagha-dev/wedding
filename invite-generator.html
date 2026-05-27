@@ -476,7 +476,7 @@
   // ── State ───────────────────────────────────────────────
   var selectedType = 'ceremony-single';
   var selectedLang = 'en';
-  var history = [];
+  var linkHistory = [];
 
   // ── Language button toggle ─────────────────────────────────
   document.querySelectorAll('.lang-btn').forEach(function(btn) {
@@ -560,9 +560,9 @@
     outputCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
     // Add to history (avoid duplicates)
-    var existing = history.findIndex(function(h) { return h.url === url; });
+    var existing = linkHistory.findIndex(function(h) { return h.url === url; });
     if (existing === -1) {
-      history.unshift({ name: tagName, type: selectedType, url: url, hasParty: hasParty, isCouple: isCouple, lang: selectedLang, langLabel: langLabel });
+      linkHistory.unshift({ name: tagName, type: selectedType, url: url, hasParty: hasParty, isCouple: isCouple, lang: selectedLang, langLabel: langLabel });
       renderHistory();
     }
   });
@@ -588,11 +588,11 @@
   // ── History ─────────────────────────────────────────────
   function renderHistory() {
     var list = document.getElementById('historyList');
-    if (history.length === 0) {
+    if (linkHistory.length === 0) {
       list.innerHTML = '<li class="empty-history">No links generated yet — create your first above ↑</li>';
       return;
     }
-    list.innerHTML = history.map(function(h, i) {
+    list.innerHTML = linkHistory.map(function(h, i) {
       return '<li class="history-item">' +
         '<span class="history-name">' + h.name + '</span>' +
         '<span class="history-badges">' +
@@ -607,7 +607,7 @@
     list.querySelectorAll('.history-copy').forEach(function(btn) {
       btn.addEventListener('click', function() {
         var idx = parseInt(this.dataset.idx);
-        copyToClipboard(history[idx].url, this);
+        copyToClipboard(linkHistory[idx].url, this);
       });
     });
   }
