@@ -36,14 +36,6 @@ function renderCrewOther(containerId, people) {
 }
 
 function renderContent(c) {
-  /* ── Merge in translations for the active language ── */
-  if (window.__LANG && window.__LANG !== 'en' && window.CONTENT_TRANSLATIONS && window.CONTENT_TRANSLATIONS[window.__LANG]) {
-    var tr = window.CONTENT_TRANSLATIONS[window.__LANG];
-    if (tr.loveStory)  c = Object.assign({}, c, { loveStory:  tr.loveStory  });
-    if (tr.dressCode)  c = Object.assign({}, c, { dressCode:  tr.dressCode  });
-    if (tr.faq)        c = Object.assign({}, c, { faq:        tr.faq        });
-    if (tr.ceremony)   c = Object.assign({}, c, { ceremony:   Object.assign({}, c.ceremony, { agenda: tr.ceremony.agenda }) });
-  }
   /* Love story */
   const storyEl = document.getElementById("story-paragraphs");
   if (storyEl && c.loveStory && c.loveStory.paragraphs) {
@@ -69,12 +61,12 @@ function renderContent(c) {
         locationHtml = '<div class="agenda-location">' +
           '<span class="agenda-location-name">' + item.location + '</span>' +
           (item.address ? '<span class="agenda-address">' + item.address + '</span>' : '') +
-          (item.mapUrl ? '<a class="agenda-map-link" href="' + item.mapUrl + '" target="_blank" rel="noreferrer">' + (window.t ? window.t('viewOnMap') : 'View on Map ↗') + '</a>' : '') +
+          (item.mapUrl ? '<a class="agenda-map-link" href="' + item.mapUrl + '" target="_blank" rel="noreferrer">View on Map ↗</a>' : '') +
           '</div>';
       }
       var bringShareHtml = "";
       if (item.bringAndShare && item.bringAndShareFormUrl) {
-        bringShareHtml = '<a class="agenda-hint-btn" href="' + item.bringAndShareFormUrl + '" target="_blank" rel="noreferrer">🧁 ' + (window.t ? window.t('bringShareLabel') : "Let us know what you'll bring") + '</a>';
+        bringShareHtml = '<a class="agenda-hint-btn" href="' + item.bringAndShareFormUrl + '" target="_blank" rel="noreferrer">🧁 Let us know what you\'ll bring</a>';
       }
 
       return '<div class="agenda-step' + (isLast ? ' agenda-step--last' : '') + '">' +
@@ -97,9 +89,8 @@ function renderContent(c) {
 
     /* Inject scroll anchors into timeline items */
     var steps = agendaEl.querySelectorAll('.agenda-step');
-    var ceremonyLabels = ['CEREMONY','GET TOGETHER','ZEREMONIE','ANKOMMEN','ЦЕРЕМОНИЯ','ВСТРЕЧА'];
     visibleAgenda.forEach(function(item, idx) {
-      if (ceremonyLabels.indexOf(item.label) !== -1) {
+      if (item.label === 'CEREMONY' || item.label === 'GET TOGETHER') {
         if (steps[idx]) steps[idx].id = 'anchor-ceremony';
       }
       if (item.partyOnly) {
@@ -116,8 +107,8 @@ function renderContent(c) {
     if (__inviteParty) {
       var card04Label = document.getElementById('card04Label');
       var card04Title = document.getElementById('card04Title');
-      if (card04Label) card04Label.textContent = window.t ? window.t('card04LabelParty') : 'The Moment';
-      if (card04Title) card04Title.textContent = window.t ? window.t('card04TitleParty') : 'The Day';
+      if (card04Label) card04Label.textContent = 'The Moment';
+      if (card04Title) card04Title.textContent = 'The Day';
     }
 
   }
@@ -585,8 +576,8 @@ function showSuccessScreen(attending) {
   if (cardThanks) {
     cardThanks.classList.add("is-visible");
     if (cardThanksMsg) cardThanksMsg.textContent = attending
-      ? (window.t ? window.t('successCardAttending') : "We cannot wait to celebrate with you.")
-      : (window.t ? window.t('successCardDecline') : "We are sorry you cannot make it. Thank you for letting us know.");
+      ? "We cannot wait to celebrate with you."
+      : "We are sorry you cannot make it. Thank you for letting us know.";
   }
   /* Show full-screen overlay with gift info */
   if (rsvpSuccess) {
@@ -594,13 +585,13 @@ function showSuccessScreen(attending) {
     rsvpSuccess.scrollTop = 0;
     document.body.style.overflow = "hidden";
   }
-  if (successKicker) successKicker.textContent = window.t ? window.t('successKicker') : "THANK YOU";
+  if (successKicker) successKicker.textContent = "THANK YOU";
   if (successTitle)  successTitle.textContent  = attending
-    ? (window.t ? window.t('successTitleAttending') : "We cannot wait to celebrate with you.")
-    : (window.t ? window.t('successTitleDecline') : "We are sorry you cannot make it.");
+    ? "We cannot wait to celebrate with you."
+    : "We are sorry you cannot make it.";
   if (successMessage) successMessage.textContent = attending
-    ? (window.t ? window.t('successMsgAttending') : "Your RSVP has been received. Thank you for being part of this special day.")
-    : (window.t ? window.t('successMsgDecline') : "Thank you for letting us know. You will be missed, and we hope to celebrate together another time.");
+    ? "Your RSVP has been received. Thank you for being part of this special day."
+    : "Thank you for letting us know. You will be missed, and we hope to celebrate together another time.";
 
   /* Gift banner: show when attending anything; note text depends on party */
   if (giftBanner) {
@@ -1010,26 +1001,30 @@ if (bsSubmit) bsSubmit.addEventListener("click", async function() {
 
     var nameSpan = document.createElement('span');
     nameSpan.className   = 'rsvp-greeting-name';
-    nameSpan.textContent = (window.t ? window.t('greetingDear') : 'Dear') + ' ' + displayName + ',';
+    nameSpan.textContent = 'Dear ' + displayName + ',';
     nameEl.appendChild(nameSpan);
 
     /* Letter paragraphs sit inside the greeting box */
     var letterDiv = document.createElement('div');
     letterDiv.className = 'rsvp-greeting-letter';
     if (hasParty) {
-      letterDiv.innerHTML = window.t ? window.t('greetingLetterParty') :
-        "<p>Arina and I are so excited to have you with us on our wedding day.</p>" +
+      letterDiv.innerHTML =
+        "<p>Arina and I are so excited to have you with us on our wedding day \u2014 truly one of the most important days of our lives, and we wouldn\u2019t want to share it without you.</p>" +
+        "<p>We\u2019re getting married at the <strong>church ceremony</strong> on <strong>16 October at 14:00</strong>, and afterwards we\u2019ll celebrate well into the evening at our <strong>reception starting at 17:00</strong> \u2014 dinner, dancing, and all the good things.</p>" +
+        "<p>It only takes a minute to let us know you\u2019ll be there. If you can make it to both \u2014 wonderful. If you can only join us for the evening \u2014 we\u2019ll take it, gladly. Just let us know below.</p>" +
         "<p class=\"deadline\">Please let us know your RSVP by <strong>18 September</strong>.</p>";
     } else {
-      letterDiv.innerHTML = window.t ? window.t('greetingLetterCeremony') :
-        "<p>Arina and I are so happy to invite you to witness our wedding ceremony.</p>" +
+      letterDiv.innerHTML =
+        "<p>Arina and I are so happy to invite you to witness one of the most meaningful moments of our lives \u2014 our wedding ceremony.</p>" +
+        "<p>We\u2019re tying the knot at the <strong>church on 16 October at 14:00</strong>, and we would be truly honoured to have you there with us as we say our vows.</p>" +
+        "<p>It only takes a minute \u2014 just let us know you\u2019ll be coming, and we\u2019ll take care of the rest.</p>" +
         "<p class=\"deadline\">Please let us know your RSVP by <strong>18 September</strong>.</p>";
     }
     nameEl.appendChild(letterDiv);
     rsvpIntroEl.insertAdjacentElement('afterbegin', nameEl);
 
     /* Clear the old instructions container */
-    if (instrEl) instrEl.innerHTML = "<p class=\"rsvp-intro-note\">" + (window.t ? window.t('crewNote') : "Any questions? Reach out to anyone in the crew.") + "</p>";
+    if (instrEl) instrEl.innerHTML = "<p class=\"rsvp-intro-note\">Any questions? Reach out to anyone in the crew \u2014 they\u2019re wonderful and happy to help.</p>";
   }
 
   /* ── "Begin your RSVP" button ───────────────────────────── */
@@ -1054,8 +1049,8 @@ if (bsSubmit) bsSubmit.addEventListener("click", async function() {
   var banner = document.createElement('div');
   banner.id = 'rsvpBanner';
   banner.innerHTML =
-    '<span id="rsvpBannerText">' + (window.t ? window.t('bannerText') : '📋 Please complete your RSVP') + '</span>' +
-    '<button id="rsvpBannerBtn">' + (window.t ? window.t('bannerBtn') : 'RSVP now ↓') + '</button>';
+    '<span id="rsvpBannerText">📋 Please complete your RSVP</span>' +
+    '<button id="rsvpBannerBtn">RSVP now \u2193</button>';
   document.body.appendChild(banner);
 
   // Inject minimal banner styles (no changes to styles.css)

@@ -36,39 +36,6 @@
     padding: 40px 16px 80px;
   }
 
-  /* ── Language Switcher ── */
-  .lang-switcher {
-    display: flex;
-    gap: 6px;
-    margin-bottom: 32px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 30px;
-    padding: 4px;
-  }
-  .lang-btn {
-    padding: 7px 18px;
-    border: none;
-    border-radius: 24px;
-    background: transparent;
-    font-family: var(--sans);
-    font-size: 12px;
-    font-weight: 500;
-    letter-spacing: .1em;
-    color: var(--muted);
-    cursor: pointer;
-    transition: all .18s;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-  .lang-btn:hover { color: var(--accent); }
-  .lang-btn.is-active {
-    background: var(--accent);
-    color: #FBF6F0;
-  }
-  .lang-flag { font-size: 15px; }
-
   /* ── Header ── */
   header {
     text-align: center;
@@ -234,7 +201,9 @@
   .generate-btn:active { transform: scale(.99); }
 
   /* ── Output area ── */
-  .output-card { display: none; }
+  .output-card {
+    display: none;
+  }
   .output-card.is-visible { display: block; }
 
   .guest-tag {
@@ -333,7 +302,6 @@
   .history-badges {
     display: flex;
     gap: 4px;
-    align-items: center;
   }
   .badge {
     font-size: 10px;
@@ -347,9 +315,6 @@
   }
   .badge.party { background: var(--tag-party); color: var(--accent); }
   .badge.couple { background: #E6EEF0; color: #3A6070; }
-  .badge.lang-de { background: #E8EAF0; color: #3A4070; }
-  .badge.lang-ru { background: #F0E8EA; color: #703A40; }
-  .badge.lang-en { background: #E8F0EA; color: #3A7040; }
 
   .history-copy {
     background: none;
@@ -386,55 +351,48 @@
 </head>
 <body>
 
-<!-- Language Switcher -->
-<div class="lang-switcher">
-  <button class="lang-btn" data-lang="de"><span class="lang-flag">🇩🇪</span> Deutsch</button>
-  <button class="lang-btn is-active" data-lang="en"><span class="lang-flag">🇬🇧</span> English</button>
-  <button class="lang-btn" data-lang="ru"><span class="lang-flag">🇷🇺</span> Русский</button>
-</div>
-
 <header>
   <div class="monogram">A & E</div>
   <div class="header-rule"></div>
-  <h1 id="headerTitle">Wedding Invite Link Generator</h1>
+  <h1>Wedding Invite Link Generator</h1>
 </header>
 
 <!-- Generator card -->
 <div class="card">
-  <div class="section-label" id="labelGuestDetails">Guest Details</div>
+  <div class="section-label">Guest Details</div>
 
   <div class="name-row">
     <div class="field-group">
-      <label for="p1" id="labelP1">First Guest Name</label>
+      <label for="p1">First Guest Name</label>
       <input type="text" id="p1" placeholder="e.g. Sarah" />
     </div>
     <div class="field-group" id="p2Group">
-      <label for="p2" id="labelP2">Second Guest (optional)</label>
+      <label for="p2">Second Guest (optional)</label>
       <input type="text" id="p2" placeholder="e.g. Michael" />
     </div>
   </div>
 
-  <span class="type-label" id="labelInviteType">Invite Type</span>
+  <span class="type-label">Invite Type</span>
   <div class="invite-types">
     <button class="type-btn is-active" data-type="ceremony-single">
       <span class="type-btn-icon">💒</span>
-      <span class="type-btn-title" data-i18n="type.ceremonySingle.title">Single — Ceremony</span>
-      <span class="type-btn-desc" data-i18n="type.ceremonySingle.desc">One guest, ceremony only</span>
+      <span class="type-btn-title">Single — Ceremony</span>
+      <span class="type-btn-desc">One guest, ceremony only</span>
     </button>
     <button class="type-btn" data-type="couple-ceremony">
       <span class="type-btn-icon">👫</span>
-      <span class="type-btn-title" data-i18n="type.coupleСeremony.title">Couple — Ceremony</span>
-      <span class="type-btn-desc" data-i18n="type.coupleСeremony.desc">Two guests, ceremony only</span>
+      <span class="type-btn-title">Couple — Ceremony</span>
+      <span class="type-btn-desc">Two guests, ceremony only</span>
     </button>
     <button class="type-btn" data-type="ceremony-party-single">
       <span class="type-btn-icon">🎉</span>
-      <span class="type-btn-title" data-i18n="type.singleParty.title">Single — Ceremony + Party</span>
-      <span class="type-btn-desc" data-i18n="type.singleParty.desc">One guest, full day</span>
+      <span class="type-btn-title">Single — Ceremony + Party</span>
+      <span class="type-btn-desc">One guest, full day</span>
     </button>
     <button class="type-btn" data-type="couple-party">
       <span class="type-btn-icon">✨</span>
-      <span class="type-btn-title" data-i18n="type.coupleParty.title">Couple — Ceremony + Party</span>
-      <span class="type-btn-desc" data-i18n="type.coupleParty.desc">Two guests, full day</span>
+      <span class="type-btn-title">Couple — Ceremony + Party</span>
+      <span class="type-btn-desc">Two guests, full day</span>
     </button>
   </div>
 
@@ -443,167 +401,35 @@
 
 <!-- Output card -->
 <div class="card output-card" id="outputCard">
-  <div class="section-label" id="labelYourLink">Your Link</div>
+  <div class="section-label">Your Link</div>
   <div id="guestTagWrap"></div>
   <div class="url-box">
     <div class="url-text" id="urlDisplay"></div>
     <button class="copy-btn" id="copyBtn">Copy</button>
   </div>
   <a class="open-btn" id="openBtn" href="#" target="_blank" rel="noreferrer">
-    ↗ <span id="previewLabel">Preview invite</span>
+    ↗ Preview invite
   </a>
 </div>
 
 <!-- History card -->
 <div class="card" style="margin-top:20px">
-  <div class="section-label" id="labelHistory">Generated Links</div>
+  <div class="section-label">Generated Links</div>
   <ul class="history-list" id="historyList">
-    <li class="empty-history" id="emptyHistory">No links generated yet — create your first above ↑</li>
+    <li class="empty-history">No links generated yet — create your first above ↑</li>
   </ul>
 </div>
 
 <script>
-  // ── Config ──────────────────────────────────────────────
+  // ── Config ─────────────────────────────────────────────
+  // Change this to your actual wedding site URL when deployed!
   var BASE_URL = 'https://www.arinaelnur.de/';
-  var GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwTXSvlokP2p8Htn2K4BuuxpfEix2xJckTKjp068hjSkpk0mTut9DNs130KfofyZcM9QA/exec';
 
-  // ── i18n strings ────────────────────────────────────────
-  var i18n = {
-    en: {
-      headerTitle: 'Wedding Invite Link Generator',
-      labelGuestDetails: 'Guest Details',
-      labelP1: 'First Guest Name',
-      labelP2: 'Second Guest (optional)',
-      labelInviteType: 'Invite Type',
-      labelYourLink: 'Your Link',
-      labelHistory: 'Generated Links',
-      generateBtn: 'Generate Invite Link →',
-      copyBtn: 'Copy',
-      copiedBtn: '✓ Copied',
-      previewLabel: 'Preview invite',
-      emptyHistory: 'No links generated yet — create your first above ↑',
-      ceremonyOnly: 'Ceremony only',
-      ceremonyParty: 'Ceremony + Party',
-      p1Placeholder: 'e.g. Sarah',
-      p2Placeholder: 'e.g. Michael',
-      p2PlaceholderOptional: 'optional',
-      'type.ceremonySingle.title': 'Single — Ceremony',
-      'type.ceremonySingle.desc': 'One guest, ceremony only',
-      'type.coupleСeremony.title': 'Couple — Ceremony',
-      'type.coupleСeremony.desc': 'Two guests, ceremony only',
-      'type.singleParty.title': 'Single — Ceremony + Party',
-      'type.singleParty.desc': 'One guest, full day',
-      'type.coupleParty.title': 'Couple — Ceremony + Party',
-      'type.coupleParty.desc': 'Two guests, full day',
-      langLabel: 'EN'
-    },
-    de: {
-      headerTitle: 'Einladungslink-Generator',
-      labelGuestDetails: 'Gast-Details',
-      labelP1: 'Name (1. Gast)',
-      labelP2: '2. Gast (optional)',
-      labelInviteType: 'Einladungsart',
-      labelYourLink: 'Dein Link',
-      labelHistory: 'Erstellte Links',
-      generateBtn: 'Einladungslink erstellen →',
-      copyBtn: 'Kopieren',
-      copiedBtn: '✓ Kopiert',
-      previewLabel: 'Einladung ansehen',
-      emptyHistory: 'Noch keine Links erstellt — oben beginnen ↑',
-      ceremonyOnly: 'Nur Zeremonie',
-      ceremonyParty: 'Zeremonie + Feier',
-      p1Placeholder: 'z.B. Sarah',
-      p2Placeholder: 'z.B. Michael',
-      p2PlaceholderOptional: 'optional',
-      'type.ceremonySingle.title': 'Einzeln — Zeremonie',
-      'type.ceremonySingle.desc': 'Ein Gast, nur Zeremonie',
-      'type.coupleСeremony.title': 'Paar — Zeremonie',
-      'type.coupleСeremony.desc': 'Zwei Gäste, nur Zeremonie',
-      'type.singleParty.title': 'Einzeln — Zeremonie + Feier',
-      'type.singleParty.desc': 'Ein Gast, ganzer Tag',
-      'type.coupleParty.title': 'Paar — Zeremonie + Feier',
-      'type.coupleParty.desc': 'Zwei Gäste, ganzer Tag',
-      langLabel: 'DE'
-    },
-    ru: {
-      headerTitle: 'Генератор Пригласительных Ссылок',
-      labelGuestDetails: 'Данные Гостя',
-      labelP1: 'Имя (1-й гость)',
-      labelP2: '2-й гость (необязательно)',
-      labelInviteType: 'Тип Приглашения',
-      labelYourLink: 'Ваша Ссылка',
-      labelHistory: 'Созданные Ссылки',
-      generateBtn: 'Создать Ссылку →',
-      copyBtn: 'Копировать',
-      copiedBtn: '✓ Скопировано',
-      previewLabel: 'Открыть приглашение',
-      emptyHistory: 'Ссылок пока нет — создайте первую выше ↑',
-      ceremonyOnly: 'Только церемония',
-      ceremonyParty: 'Церемония + Вечеринка',
-      p1Placeholder: 'напр. Анна',
-      p2Placeholder: 'напр. Михаил',
-      p2PlaceholderOptional: 'необязательно',
-      'type.ceremonySingle.title': 'Один — Церемония',
-      'type.ceremonySingle.desc': 'Один гость, только церемония',
-      'type.coupleСeremony.title': 'Пара — Церемония',
-      'type.coupleСeremony.desc': 'Два гостя, только церемония',
-      'type.singleParty.title': 'Один — Церемония + Вечер',
-      'type.singleParty.desc': 'Один гость, весь день',
-      'type.coupleParty.title': 'Пара — Церемония + Вечер',
-      'type.coupleParty.desc': 'Два гостя, весь день',
-      langLabel: 'RU'
-    }
-  };
-
-  // ── State ────────────────────────────────────────────────
+  // ── State ───────────────────────────────────────────────
   var selectedType = 'ceremony-single';
-  var currentLang = 'en';
   var history = [];
 
-  // ── Apply language ───────────────────────────────────────
-  function applyLang(lang) {
-    currentLang = lang;
-    var t = i18n[lang];
-
-    document.getElementById('headerTitle').textContent = t.headerTitle;
-    document.getElementById('labelGuestDetails').textContent = t.labelGuestDetails;
-    document.getElementById('labelP1').textContent = t.labelP1;
-    document.getElementById('labelP2').textContent = t.labelP2;
-    document.getElementById('labelInviteType').textContent = t.labelInviteType;
-    document.getElementById('labelYourLink').textContent = t.labelYourLink;
-    document.getElementById('labelHistory').textContent = t.labelHistory;
-    document.getElementById('generateBtn').textContent = t.generateBtn;
-    document.getElementById('copyBtn').textContent = t.copyBtn;
-    document.getElementById('previewLabel').textContent = t.previewLabel;
-    document.getElementById('emptyHistory').textContent = t.emptyHistory;
-    document.getElementById('p1').placeholder = t.p1Placeholder;
-
-    var needsP2 = selectedType === 'couple-ceremony' || selectedType === 'couple-party';
-    document.getElementById('p2').placeholder = needsP2 ? t.p2Placeholder : t.p2PlaceholderOptional;
-
-    // Update type button labels
-    document.querySelectorAll('[data-i18n]').forEach(function(el) {
-      var key = el.dataset.i18n;
-      if (t[key]) el.textContent = t[key];
-    });
-
-    // Active lang button
-    document.querySelectorAll('.lang-btn').forEach(function(b) {
-      b.classList.toggle('is-active', b.dataset.lang === lang);
-    });
-
-    // Re-render history with new lang labels
-    renderHistory();
-  }
-
-  // ── Language button toggle ───────────────────────────────
-  document.querySelectorAll('.lang-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      applyLang(btn.dataset.lang);
-    });
-  });
-
-  // ── Type button toggle ───────────────────────────────────
+  // ── Type button toggle ──────────────────────────────────
   document.querySelectorAll('.type-btn').forEach(function(btn) {
     btn.addEventListener('click', function() {
       document.querySelectorAll('.type-btn').forEach(function(b) {
@@ -612,14 +438,14 @@
       btn.classList.add('is-active');
       selectedType = btn.dataset.type;
 
-      var t = i18n[currentLang];
+      // Show/hide second name field
       var needsP2 = selectedType === 'couple-ceremony' || selectedType === 'couple-party';
-      document.getElementById('p2').placeholder = needsP2 ? t.p2Placeholder : t.p2PlaceholderOptional;
+      document.getElementById('p2').placeholder = needsP2 ? 'e.g. Michael' : 'optional';
     });
   });
 
-  // ── Build URL ────────────────────────────────────────────
-  function buildUrl(p1, p2, type, lang) {
+  // ── Build URL ───────────────────────────────────────────
+  function buildUrl(p1, p2, type) {
     var params = new URLSearchParams();
     if (p1) params.set('p1', p1);
     if (p2 && (type === 'couple-ceremony' || type === 'couple-party')) {
@@ -628,18 +454,13 @@
     if (type === 'ceremony-party-single' || type === 'couple-party') {
       params.set('party', '1');
     }
-    // Add language parameter so the website can display in chosen language
-    if (lang && lang !== 'en') {
-      params.set('lang', lang);
-    }
     return BASE_URL + '?' + params.toString();
   }
 
-  // ── Generate ─────────────────────────────────────────────
+  // ── Generate ────────────────────────────────────────────
   document.getElementById('generateBtn').addEventListener('click', function() {
     var p1 = document.getElementById('p1').value.trim();
     var p2 = document.getElementById('p2').value.trim();
-    var t = i18n[currentLang];
 
     if (!p1) {
       document.getElementById('p1').focus();
@@ -650,7 +471,7 @@
       return;
     }
 
-    var url = buildUrl(p1, p2, selectedType, currentLang);
+    var url = buildUrl(p1, p2, selectedType);
 
     // Show output
     var outputCard = document.getElementById('outputCard');
@@ -658,22 +479,20 @@
 
     document.getElementById('urlDisplay').textContent = url;
     document.getElementById('openBtn').href = url;
-    document.getElementById('previewLabel').textContent = t.previewLabel;
 
     // Guest tag
     var isCouple = selectedType === 'couple-ceremony' || selectedType === 'couple-party';
     var hasParty = selectedType === 'ceremony-party-single' || selectedType === 'couple-party';
     var guestTagWrap = document.getElementById('guestTagWrap');
     var tagName = isCouple && p2 ? (p1 + ' & ' + p2) : p1;
-    var eventLabel = hasParty ? t.ceremonyParty : t.ceremonyOnly;
     guestTagWrap.innerHTML = '<span class="guest-tag' + (hasParty ? ' has-party' : '') + '">' +
       (isCouple ? '👫' : '👤') + ' ' + tagName +
-      ' · ' + eventLabel +
+      (hasParty ? ' · Ceremony + Party' : ' · Ceremony only') +
       '</span>';
 
     // Reset copy button
     var copyBtn = document.getElementById('copyBtn');
-    copyBtn.textContent = t.copyBtn;
+    copyBtn.textContent = 'Copy';
     copyBtn.classList.remove('copied');
 
     // Scroll to output
@@ -682,66 +501,51 @@
     // Add to history (avoid duplicates)
     var existing = history.findIndex(function(h) { return h.url === url; });
     if (existing === -1) {
-      history.unshift({
-        name: tagName,
-        type: selectedType,
-        url: url,
-        hasParty: hasParty,
-        isCouple: isCouple,
-        lang: currentLang
-      });
+      history.unshift({ name: tagName, type: selectedType, url: url, hasParty: hasParty, isCouple: isCouple });
       renderHistory();
     }
   });
 
-  // ── Copy ─────────────────────────────────────────────────
+  // ── Copy ────────────────────────────────────────────────
   document.getElementById('copyBtn').addEventListener('click', function() {
     var url = document.getElementById('urlDisplay').textContent;
-    copyToClipboard(url, this, true);
+    copyToClipboard(url, this);
   });
 
-  function copyToClipboard(text, btn, isMainBtn) {
-    var t = i18n[currentLang];
+  function copyToClipboard(text, btn) {
     navigator.clipboard.writeText(text).then(function() {
       var orig = btn.textContent;
-      btn.textContent = t.copiedBtn;
+      btn.textContent = '✓ Copied';
       btn.classList.add('copied');
       setTimeout(function() {
-        btn.textContent = isMainBtn ? t.copyBtn : t.copyBtn;
+        btn.textContent = orig === '✓ Copied' ? 'Copy' : orig;
         btn.classList.remove('copied');
       }, 2000);
     });
   }
 
-  // ── History ──────────────────────────────────────────────
-  var langBadgeLabels = { de: 'DE', en: 'EN', ru: 'RU' };
-
+  // ── History ─────────────────────────────────────────────
   function renderHistory() {
     var list = document.getElementById('historyList');
-    var t = i18n[currentLang];
     if (history.length === 0) {
-      list.innerHTML = '<li class="empty-history">' + t.emptyHistory + '</li>';
+      list.innerHTML = '<li class="empty-history">No links generated yet — create your first above ↑</li>';
       return;
     }
     list.innerHTML = history.map(function(h, i) {
-      var langBadge = h.lang !== 'en'
-        ? '<span class="badge lang-' + h.lang + '">' + langBadgeLabels[h.lang] + '</span>'
-        : '<span class="badge lang-en">EN</span>';
       return '<li class="history-item">' +
         '<span class="history-name">' + h.name + '</span>' +
         '<span class="history-badges">' +
-          langBadge +
           (h.isCouple ? '<span class="badge couple">Couple</span>' : '') +
           (h.hasParty ? '<span class="badge party">+ Party</span>' : '') +
         '</span>' +
-        '<button class="history-copy" data-idx="' + i + '">' + t.copyBtn + '</button>' +
+        '<button class="history-copy" data-idx="' + i + '">Copy</button>' +
       '</li>';
     }).join('');
 
     list.querySelectorAll('.history-copy').forEach(function(btn) {
       btn.addEventListener('click', function() {
         var idx = parseInt(this.dataset.idx);
-        copyToClipboard(history[idx].url, this, false);
+        copyToClipboard(history[idx].url, this);
       });
     });
   }

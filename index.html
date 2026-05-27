@@ -30,9 +30,6 @@
   <!-- Styles -->
   <link rel="stylesheet" href="styles.css?v=9" />
 
-  <!-- i18n: must load before script.js -->
-  <script src="i18n.js"></script>
-
   <!-- Cloudflare -->
   <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
           data-cf-beacon='{"token":"40223123959b40ce8820f84cd8bbae11"}'></script>
@@ -486,56 +483,8 @@
       min-width: 0;
     }
   </style>
-
-  <style>
-    /* ── Language switcher bar ── */
-    .lang-bar {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 9999;
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      padding: 6px 16px;
-      background: rgba(49,39,28,0.92);
-      backdrop-filter: blur(6px);
-      gap: 4px;
-    }
-    .lang-bar-label {
-      font-family: WeddingSerif, Georgia, serif;
-      font-size: 9px;
-      letter-spacing: .18em;
-      text-transform: uppercase;
-      color: rgba(235,226,218,0.55);
-      margin-right: 6px;
-    }
-    .lang-btn {
-      font-family: WeddingSerif, Georgia, serif;
-      font-size: 9px;
-      letter-spacing: .18em;
-      text-transform: uppercase;
-      color: rgba(235,226,218,0.6);
-      background: transparent;
-      border: 1px solid rgba(235,226,218,0.2);
-      padding: 3px 10px;
-      cursor: pointer;
-      transition: all .15s;
-      border-radius: 0;
-    }
-    .lang-btn:hover { color: #EBE2DA; border-color: rgba(235,226,218,0.5); }
-    .lang-btn.is-active { color: #EBE2DA; border-color: #EBE2DA; background: rgba(235,226,218,0.1); }
-    /* Push body down so content isn't hidden under the bar */
-    body { padding-top: 32px; }
-  </style>
 </head>
 <body>
-  <div class="lang-bar" id="langBar">
-    <span class="lang-bar-label">Language</span>
-    <button class="lang-btn" data-lang="en">EN</button>
-    <button class="lang-btn" data-lang="de">DE</button>
-    <button class="lang-btn" data-lang="ru">RU</button>
-  </div>
-
 
   <img src="couple-logo.png" class="logo" alt="Arina and Elnur logo" />
 
@@ -1037,6 +986,5 @@
   </div>
 
   <script src="script.js"></script>
-  <script src="lang-apply.js"></script>
 </body>
 </html>
