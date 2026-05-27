@@ -462,7 +462,10 @@
 
 <!-- History card -->
 <div class="card" style="margin-top:20px">
-  <div class="section-label">Generated Links</div>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+    <div class="section-label" style="margin-bottom:0">Generated Links</div>
+    <button id="clearHistoryBtn" style="font-size:11px;color:#999;background:none;border:none;cursor:pointer;padding:2px 0;letter-spacing:.03em">Clear all</button>
+  </div>
   <ul class="history-list" id="historyList">
     <li class="empty-history">No links generated yet — create your first above ↑</li>
   </ul>
@@ -476,7 +479,9 @@
   // ── State ───────────────────────────────────────────────
   var selectedType = 'ceremony-single';
   var selectedLang = 'en';
-  var linkHistory = [];
+  var linkHistory = (function() {
+    try { return JSON.parse(localStorage.getItem('weddingLinkHistory') || '[]'); } catch(e) { return []; }
+  })();
 
   // ── Language button toggle ─────────────────────────────────
   document.querySelectorAll('.lang-btn').forEach(function(btn) {
@@ -563,6 +568,7 @@
     var existing = linkHistory.findIndex(function(h) { return h.url === url; });
     if (existing === -1) {
       linkHistory.unshift({ name: tagName, type: selectedType, url: url, hasParty: hasParty, isCouple: isCouple, lang: selectedLang, langLabel: langLabel });
+      try { localStorage.setItem('weddingLinkHistory', JSON.stringify(linkHistory)); } catch(e) {}
       renderHistory();
     }
   });
@@ -613,6 +619,15 @@
   }
 
   renderHistory();
+
+  document.getElementById('clearHistoryBtn').addEventListener('click', function() {
+    if (linkHistory.length === 0) return;
+    if (confirm('Clear all saved links?')) {
+      linkHistory = [];
+      try { localStorage.removeItem('weddingLinkHistory'); } catch(e) {}
+      renderHistory();
+    }
+  });
 </script>
 </body>
 </html>
