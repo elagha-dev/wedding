@@ -1,3 +1,17 @@
+/* ── Role translation map ── */
+function translateRole(role) {
+  var map = {
+    "Best Man"     : "crewRoleBestMan",
+    "Groom's Man"  : "crewRoleGroomsMan",
+    "Maid of Honor": "crewRoleMaidOfHonor",
+    "Bride's Maid" : "crewRoleBridesMaid",
+    "Pastor"       : "crewRolePastor",
+    "Worship Team" : "crewRoleWorshipTeam"
+  };
+  var key = map[role];
+  return key ? t(key) : role;
+}
+
 /* ============================================================
    WEDDING SITE — script.js
    Loads content.json → renders DOM, then handles RSVP form.
@@ -15,7 +29,7 @@ function buildPersonCard(person) {
     </button>
     <div class="mini-popover">
       <button type="button" class="mini-popover-close" aria-label="Close">×</button>
-      <div class="contact-role">${person.role}</div>
+      <div class="contact-role">${translateRole(person.role)}</div>
       <h3>${person.name}</h3>
       <p><span>Email</span><a href="mailto:${person.email}">${person.email}</a></p>
       <p><span>Phone</span><a href="tel:${person.phone.replace(/\s+/g, "")}">${person.phone}</a></p>
@@ -36,12 +50,26 @@ function renderCrewOther(containerId, people) {
 }
 
 function renderContent(c) {
-  /* Love story */
+  /* ── Use translated story paragraphs ── */
   const storyEl = document.getElementById("story-paragraphs");
-  if (storyEl && c.loveStory && c.loveStory.paragraphs) {
-    storyEl.innerHTML = c.loveStory.paragraphs
-      .map(t => `<p class="story-text">${t}</p>`).join("");
+  var storyParas = t('storyParagraphs');
+  if (storyEl && Array.isArray(storyParas)) {
+    storyEl.innerHTML = storyParas.map(function(p) { return '<p class="story-text">' + p + '</p>'; }).join('');
+  } else if (storyEl && c.loveStory && c.loveStory.paragraphs) {
+    storyEl.innerHTML = c.loveStory.paragraphs.map(function(p) { return '<p class="story-text">' + p + '</p>'; }).join('');
   }
+  /* ── Swap CONTENT agenda/dressCode/faq with translations ── */
+  var tAgenda = t('agenda');
+  if (Array.isArray(tAgenda) && c.ceremony) c.ceremony.agenda = tAgenda;
+  var tDressIntro = t('dressIntro'); if (typeof tDressIntro === 'string' && c.dressCode) c.dressCode.intro = tDressIntro;
+  var tDressNote  = t('dressNote');  if (typeof tDressNote  === 'string' && c.dressCode) c.dressCode.note  = tDressNote;
+  var tDressColors = t('dressColors'); if (Array.isArray(tDressColors) && c.dressCode) {
+    c.dressCode.colors = tDressColors.map(function(x) { return { name: x.name, class: x.cls }; });
+  }
+  var tFaq = t('faq'); if (Array.isArray(tFaq)) {
+    c.faq = tFaq.map(function(x) { return { question: x.q, answer: x.a }; });
+  }
+  /* story already rendered above with translations — do not overwrite */
 
   /* Crew */
   renderCrewSide("crew-groom", c.crew && c.crew.groomSide);
@@ -61,12 +89,12 @@ function renderContent(c) {
         locationHtml = '<div class="agenda-location">' +
           '<span class="agenda-location-name">' + item.location + '</span>' +
           (item.address ? '<span class="agenda-address">' + item.address + '</span>' : '') +
-          (item.mapUrl ? '<a class="agenda-map-link" href="' + item.mapUrl + '" target="_blank" rel="noreferrer">View on Map ↗</a>' : '') +
+          (item.mapUrl ? '<a class="agenda-map-link" href="' + item.mapUrl + '" target="_blank" rel="noreferrer">' + t('viewOnMap') + '</a>' : '') +
           '</div>';
       }
       var bringShareHtml = "";
       if (item.bringAndShare && item.bringAndShareFormUrl) {
-        bringShareHtml = '<a class="agenda-hint-btn" href="' + item.bringAndShareFormUrl + '" target="_blank" rel="noreferrer">🧁 Let us know what you\'ll bring</a>';
+        bringShareHtml = '<a class="agenda-hint-btn" href="' + item.bringAndShareFormUrl + '" target="_blank" rel="noreferrer">' + t('bringShareAgendaBtn') + '</a>';
       }
 
       return '<div class="agenda-step' + (isLast ? ' agenda-step--last' : '') + '">' +
@@ -90,7 +118,7 @@ function renderContent(c) {
     /* Inject scroll anchors into timeline items */
     var steps = agendaEl.querySelectorAll('.agenda-step');
     visibleAgenda.forEach(function(item, idx) {
-      if (item.label === 'CEREMONY' || item.label === 'GET TOGETHER') {
+      if (['CEREMONY','GET TOGETHER','ZEREMONIE','ANKOMMEN','ЦЕРЕМОНИЯ','ВСТРЕЧА'].indexOf(item.label) !== -1) {
         if (steps[idx]) steps[idx].id = 'anchor-ceremony';
       }
       if (item.partyOnly) {
@@ -107,8 +135,8 @@ function renderContent(c) {
     if (__inviteParty) {
       var card04Label = document.getElementById('card04Label');
       var card04Title = document.getElementById('card04Title');
-      if (card04Label) card04Label.textContent = 'The Moment';
-      if (card04Title) card04Title.textContent = 'The Day';
+      if (card04Label) card04Label.textContent = t('card04LabelParty');
+      if (card04Title) card04Title.textContent = t('card04TitleParty');
     }
 
   }
@@ -163,7 +191,7 @@ function loadContent() {
     "analyticsToken": "40223123959b40ce8820f84cd8bbae11"
   },
   "rsvp": {
-    "googleScriptUrl": "https://script.google.com/macros/s/AKfycbywYNtXJj8X_gVWnVOwen1YsC26331emv7QVmPC3RozcH9-JhEKPIWaCYhXmaSd5iuTJA/exec",
+    "googleScriptUrl": "https://script.google.com/macros/s/AKfycbwTXSvlokP2p8Htn2K4BuuxpfEix2xJckTKjp068hjSkpk0mTut9DNs130KfofyZcM9QA/exec",
     "giftListUrl": "#",
     "bringAndShareFormUrl": "https://forms.gle/4C6RUZfEKunpWGoc8",
     "bringAndShareSpoc": ""
@@ -554,8 +582,8 @@ function updateSeatDisplay() {
     var adults   = isAttending() ? checkedGuestCount() : (isPartyAttending() ? checkedGuestCount() : 0);
     var children = getChildrenCount();
     var parts = [];
-    if (adults > 0)   parts.push(adults   + (adults   === 1 ? " adult"  : " adults"));
-    if (children > 0) parts.push(children + (children === 1 ? " child"  : " children"));
+    if (adults > 0)   parts.push(adults   + ' ' + t(adults   === 1 ? 'adultSingular'  : 'adultPlural'));
+    if (children > 0) parts.push(children + ' ' + t(children === 1 ? 'childSingular' : 'childPlural'));
     seatSummary.textContent = parts.length ? "(" + parts.join(" + ") + ")" : "";
   }
   if (seatConfirm) seatConfirm.style.display = (__seatCount > 0) ? "" : "none";
@@ -575,9 +603,7 @@ function showSuccessScreen(attending) {
   var cardThanksMsg = document.getElementById("rsvpCardThanksMsg");
   if (cardThanks) {
     cardThanks.classList.add("is-visible");
-    if (cardThanksMsg) cardThanksMsg.textContent = attending
-      ? "We cannot wait to celebrate with you."
-      : "We are sorry you cannot make it. Thank you for letting us know.";
+    if (cardThanksMsg) cardThanksMsg.textContent = attending ? t('successCardAttending') : t('successCardDecline');
   }
   /* Show full-screen overlay with gift info */
   if (rsvpSuccess) {
@@ -585,13 +611,9 @@ function showSuccessScreen(attending) {
     rsvpSuccess.scrollTop = 0;
     document.body.style.overflow = "hidden";
   }
-  if (successKicker) successKicker.textContent = "THANK YOU";
-  if (successTitle)  successTitle.textContent  = attending
-    ? "We cannot wait to celebrate with you."
-    : "We are sorry you cannot make it.";
-  if (successMessage) successMessage.textContent = attending
-    ? "Your RSVP has been received. Thank you for being part of this special day."
-    : "Thank you for letting us know. You will be missed, and we hope to celebrate together another time.";
+  if (successKicker) successKicker.textContent = t('successKicker');
+  if (successTitle)  successTitle.textContent  = attending ? t('successTitleAttending') : t('successTitleDecline');
+  if (successMessage) successMessage.textContent = attending ? t('successMsgAttending') : t('successMsgDecline');
 
   /* Gift banner: show when attending anything; note text depends on party */
   if (giftBanner) {
@@ -602,8 +624,8 @@ function showSuccessScreen(attending) {
     if (giftNote) {
       var partyAttending = isPartyAttending();
       giftNote.textContent = partyAttending
-        ? "A gift box will be at the church entrance and at the reception venue. Thank you so much. ♡"
-        : "A gift box will be at the church entrance. Thank you so much. ♡";
+        ? t('giftNoteParty')
+        : t('giftNoteCeremony');
     }
   }
 
@@ -685,7 +707,7 @@ if (wNext2) wNext2.addEventListener("click", function() {
     var errMsg = document.createElement("p");
     errMsg.style.cssText = "color:#7a5133;font-size:10px;letter-spacing:.05em;margin:6px 0 0;font-family:WeddingSerif,Georgia,serif;";
     errMsg.id = "attendErr";
-    errMsg.textContent = "Please select your attendance for the ceremony.";
+    errMsg.textContent = t('selectAttendanceErr');
     var existing = document.getElementById("attendErr");
     if (existing) existing.remove();
     var attendField = document.querySelector(".attend-field");
@@ -1001,30 +1023,22 @@ if (bsSubmit) bsSubmit.addEventListener("click", async function() {
 
     var nameSpan = document.createElement('span');
     nameSpan.className   = 'rsvp-greeting-name';
-    nameSpan.textContent = 'Dear ' + displayName + ',';
+    nameSpan.textContent = t('greetingDear') + ' ' + displayName + ',';
     nameEl.appendChild(nameSpan);
 
     /* Letter paragraphs sit inside the greeting box */
     var letterDiv = document.createElement('div');
     letterDiv.className = 'rsvp-greeting-letter';
     if (hasParty) {
-      letterDiv.innerHTML =
-        "<p>Arina and I are so excited to have you with us on our wedding day \u2014 truly one of the most important days of our lives, and we wouldn\u2019t want to share it without you.</p>" +
-        "<p>We\u2019re getting married at the <strong>church ceremony</strong> on <strong>16 October at 14:00</strong>, and afterwards we\u2019ll celebrate well into the evening at our <strong>reception starting at 17:00</strong> \u2014 dinner, dancing, and all the good things.</p>" +
-        "<p>It only takes a minute to let us know you\u2019ll be there. If you can make it to both \u2014 wonderful. If you can only join us for the evening \u2014 we\u2019ll take it, gladly. Just let us know below.</p>" +
-        "<p class=\"deadline\">Please let us know your RSVP by <strong>18 September</strong>.</p>";
+      letterDiv.innerHTML = t('greetingLetterParty');
     } else {
-      letterDiv.innerHTML =
-        "<p>Arina and I are so happy to invite you to witness one of the most meaningful moments of our lives \u2014 our wedding ceremony.</p>" +
-        "<p>We\u2019re tying the knot at the <strong>church on 16 October at 14:00</strong>, and we would be truly honoured to have you there with us as we say our vows.</p>" +
-        "<p>It only takes a minute \u2014 just let us know you\u2019ll be coming, and we\u2019ll take care of the rest.</p>" +
-        "<p class=\"deadline\">Please let us know your RSVP by <strong>18 September</strong>.</p>";
+      letterDiv.innerHTML = t('greetingLetterCeremony');
     }
     nameEl.appendChild(letterDiv);
     rsvpIntroEl.insertAdjacentElement('afterbegin', nameEl);
 
     /* Clear the old instructions container */
-    if (instrEl) instrEl.innerHTML = "<p class=\"rsvp-intro-note\">Any questions? Reach out to anyone in the crew \u2014 they\u2019re wonderful and happy to help.</p>";
+    if (instrEl) instrEl.innerHTML = '<p class="rsvp-intro-note">' + t('crewNote') + '</p>';
   }
 
   /* ── "Begin your RSVP" button ───────────────────────────── */
@@ -1049,8 +1063,8 @@ if (bsSubmit) bsSubmit.addEventListener("click", async function() {
   var banner = document.createElement('div');
   banner.id = 'rsvpBanner';
   banner.innerHTML =
-    '<span id="rsvpBannerText">📋 Please complete your RSVP</span>' +
-    '<button id="rsvpBannerBtn">RSVP now \u2193</button>';
+    '<span id="rsvpBannerText">' + t('bannerText') + '</span>' +
+    '<button id="rsvpBannerBtn">' + t('bannerBtn') + '</button>';
   document.body.appendChild(banner);
 
   // Inject minimal banner styles (no changes to styles.css)
@@ -1364,3 +1378,218 @@ if (newRsvpBtn2) {
     resetWizard();
   });
 }
+
+
+/* ============================================================
+   CARD ZOOM OVERLAY — Desktop only (≥ 921px)
+   Each card gets a small zoom icon (top-right).
+   Clicking opens a focused overlay with the full card content.
+   ============================================================ */
+(function () {
+  if (window.innerWidth <= 920) return;
+
+  /* ── SVG icons ── */
+  /* Four-corner "open / expand" icon — elegant, not search-like */
+  var zoomSVG =
+    '<svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+    '<path d="M1 4.5V1.5A.5.5 0 011.5 1H4.5" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path d="M9.5 1H12.5A.5.5 0 0113 1.5V4.5" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path d="M13 9.5V12.5a.5.5 0 01-.5.5H9.5" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path d="M4.5 13H1.5A.5.5 0 011 12.5V9.5" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '</svg>';
+
+  /* ── Overlay backdrop (single, reused) ── */
+  var backdrop = document.createElement('div');
+  backdrop.className = 'card-overlay-backdrop';
+  backdrop.innerHTML =
+    '<div class="card-overlay-panel" role="dialog" aria-modal="true">' +
+    '  <button class="card-overlay-close" aria-label="Close">×</button>' +
+    '  <div class="card-overlay-body"></div>' +
+    '</div>';
+  document.body.appendChild(backdrop);
+
+  var panel = backdrop.querySelector('.card-overlay-panel');
+  var body  = backdrop.querySelector('.card-overlay-body');
+  var closeBtn = backdrop.querySelector('.card-overlay-close');
+
+  function openOverlay(cardEl, cardKey) {
+    body.innerHTML = buildOverlayContent(cardEl, cardKey);
+    backdrop.setAttribute('data-card', cardKey);
+    backdrop.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+    panel.scrollTop = 0;
+    /* Re-init popovers inside overlay if crew card */
+    if (cardKey === 'crew') initPopovers();
+  }
+
+  function closeOverlay() {
+    backdrop.classList.remove('is-open');
+    document.body.style.overflow = '';
+    setTimeout(function () { body.innerHTML = ''; backdrop.removeAttribute('data-card'); }, 220);
+  }
+
+  closeBtn.addEventListener('click', closeOverlay);
+  backdrop.addEventListener('click', function (e) { if (e.target === backdrop) closeOverlay(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeOverlay(); });
+
+  /* ── Content builders per card ── */
+  function buildOverlayContent(cardEl, cardKey) {
+    switch (cardKey) {
+      case 'rsvp':     return buildRsvp(cardEl);
+      case 'story':    return buildStory(cardEl);
+      case 'crew':     return buildCrew(cardEl);
+      case 'ceremony': return buildCeremony(cardEl);
+      case 'dress':    return buildDress(cardEl);
+      case 'faq':      return buildFaq(cardEl);
+      default:         return '';
+    }
+  }
+
+  function kicker(cardEl) {
+    var label = cardEl.querySelector('.label, .party-topline .label');
+    var num   = cardEl.querySelector('.number');
+    return '<span class="overlay-kicker">' +
+      (num ? num.textContent + ' · ' : '') +
+      (label ? label.textContent.trim() : '') +
+      '</span>';
+  }
+
+  function h2(cardEl, idOverride) {
+    var el = idOverride ? document.getElementById(idOverride) : cardEl.querySelector('h2');
+    return el ? '<h2>' + el.innerHTML + '</h2>' : '';
+  }
+
+  /* 01 — RSVP */
+  function buildRsvp(cardEl) {
+    var letter = window.__inviteParty ? t('greetingLetterParty') : t('greetingLetterCeremony');
+    return kicker(cardEl) +
+      h2(cardEl) +
+      '<div class="overlay-rsvp-note">' + letter + '</div>' +
+      '<a href="#" class="overlay-rsvp-scroll-btn" id="overlayRsvpCta">' + t('rsvpBeginBtn') + '</a>';
+  }
+
+  /* 02 — Love Story */
+  function buildStory(cardEl) {
+    var parasEl = document.getElementById('story-paragraphs');
+    var parasHtml = parasEl ? parasEl.innerHTML : '';
+    /* Collect photos */
+    var photos = [];
+    for (var i = 1; i <= 5; i++) {
+      var img = document.getElementById('storyPhoto' + i);
+      if (img) photos.push('<img src="' + img.src + '" alt="' + (img.alt || '') + '" loading="lazy">');
+    }
+    return kicker(cardEl) +
+      h2(cardEl) +
+      '<div>' + parasHtml + '</div>' +
+      (photos.length ? '<div class="overlay-photo-grid">' + photos.join('') + '</div>' : '');
+  }
+
+  /* 03 — Crew */
+  function buildCrew(cardEl) {
+    var groomEl  = document.getElementById('crew-groom');
+    var brideEl  = document.getElementById('crew-bride');
+    var otherEl  = document.getElementById('crew-other');
+    function sectionHtml(labelKey, el) {
+      if (!el || !el.children.length) return '';
+      return '<div class="overlay-crew-section">' +
+        '<span class="overlay-crew-role-label">' + t(labelKey) + '</span>' +
+        '<div class="crew-side" style="display:flex;gap:10px;flex-wrap:wrap;">' + el.innerHTML + '</div>' +
+        '</div>';
+    }
+    return kicker(cardEl) +
+      h2(cardEl) +
+      sectionHtml('roleGroomSide', groomEl) +
+      sectionHtml('roleBrideSide', brideEl) +
+      sectionHtml('rolePastorWorship', otherEl);
+  }
+
+  /* 04 — Ceremony */
+  function buildCeremony(cardEl) {
+    var agendaEl = document.getElementById('ceremony-agenda');
+    var card04TitleEl = document.getElementById('card04Title');
+    var titleHtml = card04TitleEl
+      ? '<h2>' + card04TitleEl.innerHTML + '</h2>'
+      : h2(cardEl);
+    var noticeEl = cardEl.querySelector('.arrival-notice');
+    return kicker(cardEl) +
+      titleHtml +
+      (noticeEl ? '<div style="margin-bottom:20px;">' + noticeEl.innerHTML + '</div>' : '') +
+      '<div class="overlay-agenda">' + (agendaEl ? agendaEl.innerHTML : '') + '</div>';
+  }
+
+  /* 05 — Dress Code */
+  function buildDress(cardEl) {
+    var introEl   = document.getElementById('dress-intro');
+    var paletteEl = document.getElementById('dress-palette');
+    var noteEl    = document.getElementById('dress-note');
+    return kicker(cardEl) +
+      h2(cardEl) +
+      (introEl   ? '<p>' + introEl.textContent + '</p>' : '') +
+      (paletteEl ? '<div class="overlay-dress-palette dress-palette">' + paletteEl.innerHTML + '</div>' : '') +
+      (noteEl    ? '<p style="font-size:12px;opacity:.7;">' + noteEl.textContent + '</p>' : '');
+  }
+
+  /* 06 — FAQ */
+  function buildFaq(cardEl) {
+    var faqEl = document.getElementById('faq-list');
+    return kicker(cardEl) +
+      h2(cardEl) +
+      '<div class="overlay-faq">' + (faqEl ? faqEl.innerHTML : '') + '</div>';
+  }
+
+  /* ── Inject zoom buttons into each card ── */
+  var cardMap = [
+    { sel: '.rsvp-card',        key: 'rsvp'     },
+    { sel: '.story-card',       key: 'story'    },
+    { sel: '.wedding-party-card', key: 'crew'   },
+    { sel: '.ceremony-card',    key: 'ceremony' },
+    { sel: '.dress-code-card',  key: 'dress'    },
+    { sel: '.faq-card',         key: 'faq'      }
+  ];
+
+  cardMap.forEach(function (def) {
+    var card = document.querySelector(def.sel);
+    if (!card) return;
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'card-zoom-btn';
+    btn.setAttribute('aria-label', 'Zoom — open expanded view');
+    btn.innerHTML = zoomSVG;
+
+    /* Place inside the topline row so it aligns with the label */
+    var topline = card.querySelector('.topline, .party-topline');
+    if (topline) {
+      topline.style.display = 'flex';
+      topline.style.alignItems = 'center';
+      topline.appendChild(btn);
+    } else {
+      card.appendChild(btn);
+    }
+
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      openOverlay(card, def.key);
+    });
+  });
+
+  /* ── RSVP CTA in overlay: scroll to card and close ── */
+  backdrop.addEventListener('click', function (e) {
+    if (e.target && e.target.id === 'overlayRsvpCta') {
+      e.preventDefault();
+      closeOverlay();
+      setTimeout(function () {
+        var rsvpCard = document.querySelector('.rsvp-card');
+        if (rsvpCard) rsvpCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        var beginBtn = document.getElementById('rsvpBeginBtn');
+        if (beginBtn) beginBtn.click();
+      }, 260);
+    }
+  });
+
+  /* Hide on resize to mobile */
+  window.addEventListener('resize', function () {
+    if (window.innerWidth <= 920) closeOverlay();
+  });
+
+})();

@@ -1,0 +1,189 @@
+{
+  "meta": {
+    "siteTitle": "Your Digital Invitation to Arina & Elnur's Wedding Ceremony",
+    "siteUrl": "https://www.arinaelnur.de",
+    "description": "You are warmly invited to Arina & Elnur's wedding ceremony at the Schlosskirche in Eller Düsseldorf, Germany. Join us for a special celebration of love and unity.",
+    "ogTitle": "Arina & Elnur Wedding Ceremony Invitation",
+    "ogDescription": "You are warmly invited to Arina & Elnur's wedding ceremony at the Schlosskirche in Eller Düsseldorf, Germany. Join us for a special celebration of love and unity.",
+    "ogImage": "https://www.arinaelnur.de/us.jpg",
+    "twitterTitle": "Arina & Elnur Wedding Invitation",
+    "twitterDescription": "You are warmly invited to Arina & Elnur's wedding ceremony.",
+    "analyticsToken": "40223123959b40ce8820f84cd8bbae11"
+  },
+  "rsvp": {
+    "googleScriptUrl": "https://script.google.com/macros/s/AKfycbwTXSvlokP2p8Htn2K4BuuxpfEix2xJckTKjp068hjSkpk0mTut9DNs130KfofyZcM9QA/exec",
+    "giftListUrl": "#",
+    "bringAndShareFormUrl": "https://forms.gle/4C6RUZfEKunpWGoc8",
+    "bringAndShareSpoc": ""
+  },
+  "loveStory": {
+    "paragraphs": [
+      "We met at church, became friends, and somewhere along the way friendship quietly turned into love.",
+      "On 02.03, we got engaged — a promise we now carry toward 2026, when we will celebrate our marriage with out loved ones.",
+      "Above all, we are grateful for the life God is building in us, and for the joy of serving our Lord together."
+    ]
+  },
+  "crew": {
+    "groomSide": [
+      {
+        "name": "Islam",
+        "displayName": "Islam",
+        "photo": "isi.jpg",
+        "role": "Best Man",
+        "email": "islam@example.com",
+        "phone": "+49 123 4567892"
+      },
+      {
+        "name": "Lars",
+        "displayName": "Lars",
+        "photo": "lars.png",
+        "role": "Groom's Man",
+        "email": "lars@example.com",
+        "phone": "+49 123 4567890"
+      },
+      {
+        "name": "Lucas",
+        "displayName": "Lucas",
+        "photo": "lucas.png",
+        "role": "Groom's Man",
+        "email": "lucas@example.com",
+        "phone": "+49 123 4567892"
+      }
+    ],
+    "brideSide": [
+      {
+        "name": "Alicja",
+        "displayName": "Alicja",
+        "photo": "alicja.jpg",
+        "role": "Maid of Honor",
+        "email": "alicja@example.com",
+        "phone": "+49 123 4567893"
+      },
+      {
+        "name": "Kris",
+        "displayName": "Kris",
+        "photo": "kris.png",
+        "role": "Bride's Maid",
+        "email": "kris@example.com",
+        "phone": "+49 123 4567891"
+      },
+      {
+        "name": "Valerie",
+        "displayName": "Valerie",
+        "photo": "valerie.png",
+        "role": "Bride's Maid",
+        "email": "valerie@example.com",
+        "phone": "+49 123 4567893"
+      }
+    ],
+    "pastorAndBand": [
+      {
+        "name": "Felipe",
+        "displayName": "Felipe",
+        "photo": "felipe.jpg",
+        "role": "Pastor",
+        "email": "felipe@example.com",
+        "phone": "+49 123 4567891"
+      },
+      {
+        "name": "Jonas&Jenny",
+        "displayName": "Rockhoffs",
+        "photo": "jonasnjenny.jpg",
+        "role": "Worship Team",
+        "email": "jonas@example.com",
+        "phone": "+49 123 4567893"
+      },
+      {
+        "name": "David",
+        "displayName": "David",
+        "photo": "plivi.jpg",
+        "role": "Worship Team",
+        "email": "jenny@example.com",
+        "phone": "+49 123 4567893"
+      }
+    ]
+  },
+  "ceremony": {
+    "agenda": [
+      {
+        "time": "13:30",
+        "label": "GET TOGETHER",
+        "title": "Get Together",
+        "location": "Schlosskirche Eller",
+        "address": "Schlossallee 10, 40229 Düsseldorf",
+        "mapUrl": "https://maps.google.com/?q=Schlosskirche+Eller+Düsseldorf",
+        "description": "Arrive, meet familiar faces, and settle in before the ceremony begins."
+      },
+      {
+        "time": "14:00",
+        "label": "CEREMONY",
+        "title": "Ceremony Start",
+        "description": "Please <strong>take your seat before 14:00</strong> so we can start on time. We kindly ask you to <strong>put your phones away</strong> and enjoy the moment with us. Our photographer and videographer will take care of capturing the ceremony."
+      },
+      {
+        "time": "15:00–16:00",
+        "label": "RECEPTION",
+        "title": "Bring & Share Reception",
+        "bringAndShare": true,
+        "bringAndShareFormUrl": "https://forms.gle/4C6RUZfEKunpWGoc8",
+        "description": "We would love a bring & share with our dear ones! Let us know if you'd like to bring a pie, cake, bakery, finger foods, or anything for a little snack. ❤️"
+      }
+    ]
+  },
+  "dressCode": {
+    "intro": "Elegant evening attire in soft neutrals and deep classic tones.",
+    "colors": [
+      {
+        "name": "White",
+        "class": "champagne"
+      },
+      {
+        "name": "Ivory",
+        "class": "ivory"
+      },
+      {
+        "name": "Taupe",
+        "class": "taupe"
+      },
+      {
+        "name": "Cocoa",
+        "class": "cocoa"
+      },
+      {
+        "name": "Brown",
+        "class": "charcoal"
+      },
+      {
+        "name": "Black",
+        "class": "black"
+      }
+    ],
+    "note": "Please avoid neon tones and very bright patterns."
+  },
+  "faq": [
+    {
+      "question": "Can I bring a plus one?",
+      "answer": "Please follow your invite. We would love to have our dear ones but have a limited number of seats in the church."
+    },
+    {
+      "question": "Are there any parking spots?",
+      "answer": "Yes! There are some directly at the church, as well as near the houses around it, and a bigger parking area within walking distance."
+    },
+    {
+      "question": "Is there a wish list?",
+      "answer": "No wish list — but if you'd like to gift us something, we would be so grateful for a financial contribution toward starting our new home together and celebrating our honeymoon."
+    },
+    {
+      "question": "Is there any place for kids?",
+      "answer": "Kids are more than welcome! We would kindly ask that they sit or play in the kids' space at the back of the church during the ceremony. Thank you ❤️"
+    },
+    {
+      "question": "When should I arrive?",
+      "answer": "Please arrive by 13:30 to find your seat and settle in before the ceremony begins at 14:00."
+    },
+    {
+      "question": "Who can I contact?",
+      "answer": "The best man or maid of honor are your go-to contacts — find them in the Crew section."
+    }
+  ]
+}

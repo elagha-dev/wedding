@@ -30,6 +30,9 @@
   <!-- Styles -->
   <link rel="stylesheet" href="styles.css?v=9" />
 
+  <!-- i18n: must load before script.js -->
+  <script src="i18n.js"></script>
+
   <!-- Cloudflare -->
   <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
           data-cf-beacon='{"token":"40223123959b40ce8820f84cd8bbae11"}'></script>
@@ -483,8 +486,71 @@
       min-width: 0;
     }
   </style>
+
+  <style id="lang-switcher-css">
+    /* ── Language switcher — fixed bottom-centre pill ── */
+    .lang-bar {
+      position: fixed;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9998;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 14px;
+      background: rgba(49,39,28,0.90);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 999px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.28);
+      white-space: nowrap;
+    }
+    /* On mobile: shift up above the RSVP banner (60px tall) */
+    @media (max-width: 920px) {
+      .lang-bar {
+        bottom: 74px;
+      }
+    }
+    /* When RSVP banner is hidden (submitted), drop back to default */
+    .lang-bar {
+      transition: bottom .3s;
+    }
+    .lang-bar-label {
+      font-family: WeddingSerif, Georgia, serif;
+      font-size: 8px;
+      letter-spacing: .20em;
+      text-transform: uppercase;
+      color: rgba(235,226,218,0.45);
+      margin-right: 4px;
+    }
+    .lang-btn {
+      font-family: WeddingSerif, Georgia, serif;
+      font-size: 9px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: rgba(235,226,218,0.55);
+      background: transparent;
+      border: 1px solid rgba(235,226,218,0.18);
+      padding: 4px 10px;
+      cursor: pointer;
+      transition: all .15s;
+      line-height: 1;
+      border-radius: 999px;
+    }
+    .lang-btn:hover  { color: #EBE2DA; border-color: rgba(235,226,218,0.5); }
+    .lang-btn.is-active { color: #EBE2DA; border-color: #EBE2DA; background: rgba(235,226,218,0.15); }
+  </style>
 </head>
 <body>
+  <!-- ── Language switcher ── -->
+  <div class="lang-bar" id="langBar">
+    <span class="lang-bar-label">Lang</span>
+    <button class="lang-btn" data-lang="en">EN</button>
+    <button class="lang-btn" data-lang="de">DE</button>
+    <button class="lang-btn" data-lang="ru">RU</button>
+  </div>
+
 
   <img src="couple-logo.png" class="logo" alt="Arina and Elnur logo" />
 
@@ -494,26 +560,26 @@
     <section class="left">
       <img src="invitation-original.png" class="invitation" alt="Wedding invitation" />
       <div class="countdown-overlay" id="weddingCountdown">
-        <div class="countdown-label">Until the big day</div>
+        <div class="countdown-label"><span data-i18n="countdownLabel">Until the big day</span></div>
         <div class="countdown-units">
           <div class="countdown-unit">
             <span class="countdown-num" id="cd-days">—</span>
-            <span class="countdown-unit-label">days</span>
+            <span class="countdown-unit-label"><span data-i18n="countdownDays">days</span></span>
           </div>
           <div class="countdown-sep">:</div>
           <div class="countdown-unit">
             <span class="countdown-num" id="cd-hours">—</span>
-            <span class="countdown-unit-label">hrs</span>
+            <span class="countdown-unit-label"><span data-i18n="countdownHrs">hrs</span></span>
           </div>
           <div class="countdown-sep">:</div>
           <div class="countdown-unit">
             <span class="countdown-num" id="cd-mins">—</span>
-            <span class="countdown-unit-label">min</span>
+            <span class="countdown-unit-label"><span data-i18n="countdownMin">min</span></span>
           </div>
           <div class="countdown-sep">:</div>
           <div class="countdown-unit">
             <span class="countdown-num" id="cd-secs">—</span>
-            <span class="countdown-unit-label">sec</span>
+            <span class="countdown-unit-label"><span data-i18n="countdownSec">sec</span></span>
           </div>
         </div>
         <div class="countdown-date">16 · 10 · 2026</div>
@@ -527,9 +593,9 @@
       <article class="card rsvp-card">
         <div class="topline">
           <span class="number">01</span>
-          <span class="label">Kindly Reply</span>
+          <span class="label"><span data-i18n="card01Label">Kindly Reply</span></span>
         </div>
-        <h2>RSVP</h2>
+        <h2><span data-i18n="card01Title">RSVP</span></h2>
 
         <!-- RSVP Intro (Step 0) -->
         <div class="rsvp-intro" id="rsvpIntro">
@@ -537,7 +603,7 @@
           <div class="rsvp-intro-instructions" id="rsvpIntroInstructions">
             <!-- filled by JS based on guest invite type -->
           </div>
-          <button class="rsvp-begin-btn" id="rsvpBeginBtn" type="button">Begin your RSVP →</button>
+          <button class="rsvp-begin-btn" id="rsvpBeginBtn" type="button"><span data-i18n="rsvpBeginBtn">Begin your RSVP →</span></button>
         </div>
 
         <!-- RSVP Wizard -->
@@ -558,63 +624,63 @@
 
           <!-- ── Step 1: Personal details ── -->
           <div class="wizard-step is-active" id="wStep1">
-            <div class="wizard-step-label">Step 1 of 3 — Your Details</div>
+            <div class="wizard-step-label"><span data-i18n="step1Label">Step 1 of 3 — Your Details</span></div>
 
             <!-- Guest checkboxes for couples — populated by JS -->
             <div id="guestChecks" class="guest-checks"></div>
 
             <div class="name-row">
               <label class="field-label">
-                <span>First name</span>
-                <input required name="first_name" type="text" placeholder="First name" />
+                <span data-i18n="firstNameLabel">First name</span>
+                <input required name="first_name" type="text" placeholder="First name" data-i18n-ph="firstNamePlaceholder" />
               </label>
               <label class="field-label">
-                <span>Last name</span>
-                <input required name="last_name" type="text" placeholder="Last name" />
+                <span data-i18n="lastNameLabel">Last name</span>
+                <input required name="last_name" type="text" placeholder="Last name" data-i18n-ph="lastNamePlaceholder" />
               </label>
             </div>
 
             <div class="contact-row">
               <label class="field-label">
-                <span>Email</span>
+                <span data-i18n="emailLabel">Email</span>
                 <input required name="email" type="email" inputmode="email"
-                       autocomplete="email" placeholder="Email address" />
+                       autocomplete="email" placeholder="Email address" data-i18n-ph="emailPlaceholder" />
               </label>
               <label class="field-label">
-                <span>Phone</span>
+                <span data-i18n="phoneLabel">Phone</span>
                 <input name="phone" type="tel" inputmode="tel"
-                       autocomplete="tel" placeholder="Optional" />
+                       autocomplete="tel" placeholder="Optional" data-i18n-ph="phonePlaceholder" />
               </label>
             </div>
 
-            <button type="button" class="wizard-next-btn" id="wNext1" style="margin-top:14px;">Next →</button>
+            <button type="button" class="wizard-next-btn" id="wNext1" style="margin-top:14px;"><span data-i18n="nextBtn">Next →</span></button>
           </div>
 
           <!-- ── Step 2: Attendance ── -->
           <div class="wizard-step" id="wStep2">
-            <div class="wizard-step-label">Step 2 of 3 — Attendance</div>
+            <div class="wizard-step-label"><span data-i18n="step2Label">Step 2 of 3 — Attendance</span></div>
 
             <!-- Church ceremony row — always shown -->
             <div class="attend-field">
-              <span class="attend-label">💒 Church Ceremony · 16 Oct, 14:00</span>
+              <span class="attend-label"><span data-i18n="ceremonyAttendLabel">💒 Church Ceremony · 16 Oct, 14:00</span></span>
               <div class="attend-btns">
-                <button type="button" class="attend-btn attend-btn--yes" id="attendYes">Attending</button>
-                <button type="button" class="attend-btn attend-btn--no"            id="attendNo">Not Attending</button>
+                <button type="button" class="attend-btn attend-btn--yes" id="attendYes"><span data-i18n="attendingBtn">Attending</span></button>
+                <button type="button" class="attend-btn attend-btn--no"            id="attendNo"><span data-i18n="notAttendingBtn">Not Attending</span></button>
               </div>
             </div>
 
             <!-- Evening reception row — only shown for party invites (JS toggles) -->
             <div class="attend-field" id="eveningAttendField" style="display:none; margin-top:12px;">
-              <span class="attend-label">🥂 Evening Reception · 16 Oct, 17:00</span>
+              <span class="attend-label"><span data-i18n="eveningAttendLabel">🥂 Evening Reception · 16 Oct, 17:00</span></span>
               <div class="attend-btns">
-                <button type="button" class="attend-btn attend-btn--yes" id="partyYesBtn">Attending</button>
-                <button type="button" class="attend-btn attend-btn--no" id="partyNoBtn">Not Attending</button>
+                <button type="button" class="attend-btn attend-btn--yes" id="partyYesBtn"><span data-i18n="attendingBtn">Attending</span></button>
+                <button type="button" class="attend-btn attend-btn--no" id="partyNoBtn"><span data-i18n="notAttendingBtn">Not Attending</span></button>
               </div>
             </div>
 
             <!-- Kids stepper — shown when attending church OR evening -->
             <div class="attend-field" id="childrenRow" style="margin-top:14px;">
-              <span class="attend-label" id="childrenLabel">Children attending</span>
+              <span class="attend-label" id="childrenLabel"><span data-i18n="childrenLabel">Children attending</span></span>
               <div class="kids-stepper" id="kidsStepper" aria-label="Number of children">
                 <button type="button" class="kids-cell kids-minus" id="kidsMinus" aria-label="Decrease">−</button>
                 <span class="kids-cell kids-number" id="kidsCountDisplay" aria-live="polite">0</span>
@@ -625,39 +691,39 @@
             <!-- Bring & Share checkbox — shown when attending church -->
             <label class="check-row" id="bringShareRow" style="margin-top:10px; display:none;">
               <input type="checkbox" name="bring_share" value="Yes" id="bringShareCheckbox" />
-              <span>I'll join the Bring &amp; Share</span>
+              <span><span data-i18n="bringShareLabel">I'll join the Bring &amp; Share</span></span>
             </label>
 
             <div class="wizard-nav" style="margin-top:16px;">
-              <button type="button" class="wizard-back-btn" id="wBack2">← Back</button>
-              <button type="button" class="wizard-next-btn" id="wNext2">Next →</button>
+              <button type="button" class="wizard-back-btn" id="wBack2"><span data-i18n="backBtn">← Back</span></button>
+              <button type="button" class="wizard-next-btn" id="wNext2"><span data-i18n="nextBtn">Next →</span></button>
             </div>
           </div>
 
           <!-- ── Step 3: Seat confirmation ── -->
           <div class="wizard-step" id="wStep3">
-            <div class="wizard-step-label">Step 3 of 3 — Confirm Seats</div>
+            <div class="wizard-step-label"><span data-i18n="step3Label">Step 3 of 3 — Confirm Seats</span></div>
 
             <div class="seat-confirm" id="seatConfirm">
-              <p class="seat-confirm-label">Total seats reserved for you</p>
+              <p class="seat-confirm-label"><span data-i18n="seatConfirmLabel">Total seats reserved for you</span></p>
               <div class="kids-stepper seat-stepper" id="seatStepper" aria-label="Total seats">
                 <button type="button" class="kids-cell kids-minus" id="seatMinus" aria-label="Decrease">−</button>
                 <span class="kids-cell kids-number" id="seatDisplay" aria-live="polite">1</span>
                 <button type="button" class="kids-cell kids-plus" id="seatPlus" aria-label="Increase">+</button>
               </div>
               <div class="seat-summary" id="seatSummary"><!-- filled by JS --></div>
-              <p class="seat-confirm-hint">Adjust if needed — every seat helps us plan. 🙏</p>
+              <p class="seat-confirm-hint"><span data-i18n="seatHint">Adjust if needed — every seat helps us plan. 🙏</span></p>
             </div>
 
             <!-- Decline: optional note -->
             <div id="declineBlock" style="display:none;">
-              <p class="wizard-step-label" style="margin-bottom:6px;">Leave us a note (optional)</p>
-              <textarea id="declineMessage" name="decline_message" placeholder="We'll miss you — feel free to say something 💛" style="width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid rgba(49,39,28,.18);background:transparent;font-family:WeddingSerif,Georgia,serif;font-size:12px;color:#31271C;resize:vertical;min-height:60px;"></textarea>
+              <p class="wizard-step-label" style="margin-bottom:6px;"><span data-i18n="declineLabel">Leave us a note (optional)</span></p>
+              <textarea id="declineMessage" name="decline_message" placeholder="We'll miss you — feel free to say something 💛" data-i18n-ph="declinePlaceholder" style="width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid rgba(49,39,28,.18);background:transparent;font-family:WeddingSerif,Georgia,serif;font-size:12px;color:#31271C;resize:vertical;min-height:60px;"></textarea>
             </div>
 
             <div class="wizard-nav" style="margin-top:16px;">
-              <button type="button" class="wizard-back-btn" id="wBack3">← Back</button>
-              <button type="button" class="wizard-next-btn" id="wSubmit">Send RSVP ✓</button>
+              <button type="button" class="wizard-back-btn" id="wBack3"><span data-i18n="backBtn">← Back</span></button>
+              <button type="button" class="wizard-next-btn" id="wSubmit"><span data-i18n="sendRsvpBtn">Send RSVP ✓</span></button>
             </div>
             <p class="rsvp-status" id="rsvpStatus" aria-live="polite"></p>
           </div>
@@ -666,8 +732,8 @@
 
         <!-- ── In-card thank you (shown after submit, overlay is closeable) ── -->
         <div class="rsvp-card-thanks" id="rsvpCardThanks">
-          <button class="rsvp-submitted-btn" id="rsvpSubmittedBtn" type="button">RSVP Submitted ✓</button>
-          <a class="new-rsvp-link" id="newRsvpBtn2" href="#" style="margin-top:14px;">Submit another RSVP</a>
+          <button class="rsvp-submitted-btn" id="rsvpSubmittedBtn" type="button"><span data-i18n="rsvpSubmittedBtn">RSVP Submitted ✓</span></button>
+          <a class="new-rsvp-link" id="newRsvpBtn2" href="#" style="margin-top:14px;"><span data-i18n="submitAnotherRsvp">Submit another RSVP</span></a>
         </div>
 
       </article>
@@ -677,9 +743,9 @@
         <div class="story-inner">
           <div class="topline">
             <span class="number">02</span>
-            <span class="label">Our Story</span>
+            <span class="label"><span data-i18n="card02Label">Our Story</span></span>
           </div>
-          <h2>Our Story</h2>
+          <h2><span data-i18n="card02Title">Our Story</span></h2>
           <div class="story-copy" id="story-paragraphs">
             <!-- Populated by script.js -->
           </div>
@@ -715,21 +781,21 @@
       <article class="card contact-card wedding-party-card">
         <div class="party-topline">
           <span class="number">03</span>
-          <span class="label">Planning Crew</span>
+          <span class="label"><span data-i18n="card03Label">Planning Crew</span></span>
         </div>
-        <h2 class="party-title">The Crew</h2>
+        <h2 class="party-title"><span data-i18n="card03Title">The Crew</span></h2>
 
         <div class="party-grid">
           <section class="party-person">
-            <div class="party-role">Groom's Side</div>
+            <div class="party-role"><span data-i18n="roleGroomSide">Groom's Side</span></div>
             <div id="crew-groom" class="crew-side"></div>
           </section>
           <section class="party-person">
-            <div class="party-role">Bride's Side</div>
+            <div class="party-role"><span data-i18n="roleBrideSide">Bride's Side</span></div>
             <div id="crew-bride" class="crew-side"></div>
           </section>
           <section class="party-person">
-            <div class="party-role">Pastor &amp; Worship</div>
+            <div class="party-role"><span data-i18n="rolePastorWorship">Pastor &amp; Worship</span></div>
             <div id="crew-other" class="crew-side"></div>
           </section>
         </div>
@@ -739,27 +805,27 @@
       <article class="card ceremony-card">
         <div class="topline">
           <span class="number">04</span>
-          <span class="label" id="card04Label">Church Ceremony</span>
+          <span class="label" id="card04Label"><span data-i18n="card04Label"><span data-i18n="card04Title">Church Ceremony</span></span></span>
         </div>
-        <h2 id="card04Title">Church Ceremony</h2>
+        <h2 id="card04Title"><span data-i18n="card04Label"><span data-i18n="card04Title">Church Ceremony</span></span></h2>
 
         <!-- 30-min arrival notice with tooltip -->
         <div class="arrival-notice">
           <span class="arrival-tip-wrap">
-            <strong>Please arrive 30 minutes early.</strong>
+            <strong data-i18n="arrivalNotice">Please arrive 30 minutes early.</strong>
             <button type="button" class="arrival-tip-btn" aria-label="More info">ℹ</button>
             <span class="arrival-tip-body" role="tooltip">
-              <span class="tip-line">Arrive by <strong>13:30</strong></span>
-              <span class="tip-line tip-body-text">This gives us time to welcome everyone, collect the Bring &amp; Share items, and start the ceremony on time at <strong>14:00</strong></span>
-              <span class="tip-line tip-note">Your punctuality is a gift to us. 🎁</span>
+              <span class="tip-line"><span data-i18n="arrivalTip">Arrive by</span> <strong>13:30</strong></span>
+              <span class="tip-line tip-body-text"><span data-i18n="arrivalTipBody">This gives us time to welcome everyone, collect the Bring &amp; Share items, and start the ceremony on time at</span> <strong>14:00</strong></span>
+              <span class="tip-line tip-note"><span data-i18n="arrivalTipNote">Your punctuality is a gift to us. 🎁</span></span>
             </span>
           </span>
         </div>
 
         <!-- Scroll anchors: only shown when party invite is active -->
         <div class="timeline-nav" id="timelineNav" style="display:none">
-          <a href="#anchor-ceremony" class="timeline-nav-btn">💒 Wedding Ceremony</a>
-          <a href="#anchor-party"    class="timeline-nav-btn timeline-nav-btn--party" id="partyNavBtn">🥂 Evening Reception</a>
+          <a href="#anchor-ceremony" class="timeline-nav-btn"><span data-i18n="navCeremony">💒 Wedding Ceremony</span></a>
+          <a href="#anchor-party"    class="timeline-nav-btn timeline-nav-btn--party" id="partyNavBtn"><span data-i18n="navParty">🥂 Evening Reception</span></a>
         </div>
 
         <div class="ceremony-agenda" id="ceremony-agenda">
@@ -771,9 +837,9 @@
       <article class="card dress-code-card">
         <div class="topline">
           <span class="number">05</span>
-          <span class="label">Dress Code</span>
+          <span class="label"><span data-i18n="card05Label">Dress Code</span></span>
         </div>
-        <h2>Dress Code</h2>
+        <h2><span data-i18n="card05Title">Dress Code</span></h2>
         <p class="dress-intro" id="dress-intro"></p>
         <div class="dress-palette" id="dress-palette" aria-label="Dress code color palette"></div>
         <p class="dress-note" id="dress-note"></p>
@@ -783,9 +849,9 @@
       <article class="card faq-card">
         <div class="topline">
           <span class="number">06</span>
-          <span class="label">FAQ</span>
+          <span class="label"><span data-i18n="card06Label">FAQ</span></span>
         </div>
-        <h2>FAQ</h2>
+        <h2><span data-i18n="card06Title">FAQ</span></h2>
         <div class="faq-list" id="faq-list">
           <!-- Populated by script.js -->
         </div>
@@ -797,20 +863,20 @@
   <div class="rsvp-success" id="rsvpSuccess" aria-live="polite" role="dialog">
     <button class="rsvp-success-close" id="rsvpSuccessClose" aria-label="Close and return to site">×</button>
     <div class="rsvp-success-inner">
-      <div class="success-kicker" id="successKicker">Thank You</div>
-      <h3 id="successTitle">We cannot wait to celebrate with you.</h3>
-      <p id="successMessage">Your RSVP has been received. Thank you for being part of this special day.</p>
+      <div class="success-kicker" id="successKicker"><span data-i18n="successKicker">Thank You</span></div>
+      <h3 id="successTitle"><span data-i18n="successTitleAttending">We cannot wait to celebrate with you.</span></h3>
+      <p id="successMessage"><span data-i18n="successMsgAttending">Your RSVP has been received. Thank you for being part of this special day.</span></p>
 
       <div class="gift-banner" id="giftBanner">
         <div class="gift-banner-icon">♡</div>
-        <p class="gift-banner-title">Your presence is already our greatest gift</p>
-        <p class="gift-banner-body">If you would like to honour our new home with something from your heart, we gratefully welcome a monetary gift — cash at the venue or via PayPal:</p>
-        <a class="gift-banner-paypal" id="giftPaypalLink" href="#" target="_blank" rel="noreferrer">Pay via PayPal ↗</a>
+        <p class="gift-banner-title"><span data-i18n="giftBannerTitle">Your presence is already our greatest gift</span></p>
+        <p class="gift-banner-body"><span data-i18n="giftBannerBody">If you would like to honour our new home with something from your heart, we gratefully welcome a monetary gift — cash at the venue or via PayPal:</span></p>
+        <a class="gift-banner-paypal" id="giftPaypalLink" href="#" target="_blank" rel="noreferrer"><span data-i18n="giftPaypalBtn">Pay via PayPal ↗</span></a>
         <p class="gift-banner-note" id="giftBannerNote">A gift box will be at the church entrance and at the reception venue. Thank you so much. ♡</p>
       </div>
 
-      <a class="new-rsvp-link" id="bsNudgeBtn" href="#" style="display:none;">Bring &amp; Share 🧁</a>
-      <a class="new-rsvp-link" id="newRsvpBtn" href="#">Submit another RSVP</a>
+      <a class="new-rsvp-link" id="bsNudgeBtn" href="#" style="display:none;"><span data-i18n="bringShareNudge">Bring &amp; Share 🧁</span></a>
+      <a class="new-rsvp-link" id="newRsvpBtn" href="#"><span data-i18n="submitAnotherRsvp">Submit another RSVP</span></a>
     </div>
   </div>
 
@@ -824,69 +890,69 @@
 
       <div class="bs-step" id="bsStep1">
         <div class="bs-kicker">Bring &amp; Share</div>
-        <h3 class="bs-title">What are you bringing?</h3>
-        <p class="bs-hint">Let us know what you plan to bring so we can plan ahead. You're not expected to bring for 140 people! 🙂</p>
+        <h3 class="bs-title"><span data-i18n="bsStep1Title">What are you bringing?</span></h3>
+        <p class="bs-hint"><span data-i18n="bsStep1Hint">Let us know what you plan to bring so we can plan ahead. You're not expected to bring for 140 people! 🙂</span></p>
 
         <label class="bs-label">
-          <span>What will you bring? *</span>
-          <input id="bs_what" type="text" placeholder="e.g. apple pie, finger sandwiches…" />
+          <span><span data-i18n="bsWhatLabel">What will you bring? *</span></span>
+          <input id="bs_what" type="text" placeholder="e.g. apple pie, finger sandwiches…" data-i18n-ph="bsWhatPlaceholder" />
         </label>
 
         <label class="bs-label">
-          <span>How many portions? *</span>
-          <input id="bs_portions" type="number" min="1" placeholder="e.g. 12" />
-          <small>We are planning for ~140 guests incl. kids. Every contribution helps!</small>
+          <span><span data-i18n="bsPortionsLabel">How many portions? *</span></span>
+          <input id="bs_portions" type="number" min="1" placeholder="e.g. 12" data-i18n-ph="bsPortionsPlaceholder" />
+          <small><span data-i18n="bsPortionsSmall">We are planning for ~140 guests incl. kids. Every contribution helps!</span></small>
         </label>
 
-        <button class="bs-next" id="bsNext1">Next →</button>
+        <button class="bs-next" id="bsNext1"><span data-i18n="nextBtn">Next →</span></button>
       </div>
 
       <div class="bs-step is-hidden" id="bsStep2">
         <div class="bs-kicker">Bring &amp; Share</div>
-        <h3 class="bs-title">About your food</h3>
+        <h3 class="bs-title"><span data-i18n="bsStep2Title">About your food</span></h3>
 
-        <div class="bs-label"><span>What type of food? *</span>
+        <div class="bs-label"><span><span data-i18n="bsFoodTypeLabel">What type of food? *</span></span>
           <div class="bs-checks">
-            <label class="bs-check"><input type="checkbox" name="food_type" value="Vegan" /><span>Vegan</span></label>
-            <label class="bs-check"><input type="checkbox" name="food_type" value="Vegetarian" /><span>Vegetarian</span></label>
-            <label class="bs-check"><input type="checkbox" name="food_type" value="Gluten-free" /><span>Gluten-free</span></label>
-            <label class="bs-check"><input type="checkbox" name="food_type" value="Contains meat" /><span>Contains meat</span></label>
+            <label class="bs-check"><input type="checkbox" name="food_type" value="Vegan" /><span data-i18n="bsFoodVegan">Vegan</span></label>
+            <label class="bs-check"><input type="checkbox" name="food_type" value="Vegetarian" /><span data-i18n="bsFoodVeg">Vegetarian</span></label>
+            <label class="bs-check"><input type="checkbox" name="food_type" value="Gluten-free" /><span data-i18n="bsFoodGF">Gluten-free</span></label>
+            <label class="bs-check"><input type="checkbox" name="food_type" value="Contains meat" /><span data-i18n="bsFoodMeat">Contains meat</span></label>
           </div>
         </div>
 
-        <div class="bs-label"><span>Does your food include allergens?</span>
+        <div class="bs-label"><span><span data-i18n="bsAllergenLabel">Does your food include allergens?</span></span>
           <div class="bs-checks">
-            <label class="bs-check"><input type="checkbox" name="allergen" value="Nuts" /><span>Nuts</span></label>
-            <label class="bs-check"><input type="checkbox" name="allergen" value="Honey" /><span>Honey</span></label>
-            <label class="bs-check"><input type="checkbox" name="allergen" value="Cow Milk" /><span>Cow Milk</span></label>
-            <label class="bs-check"><input type="checkbox" name="allergen" value="Eggs" /><span>Eggs</span></label>
-            <label class="bs-check"><input type="checkbox" name="allergen" value="Gluten" /><span>Gluten</span></label>
+            <label class="bs-check"><input type="checkbox" name="allergen" value="Nuts" /><span data-i18n="bsAllergenNuts">Nuts</span></label>
+            <label class="bs-check"><input type="checkbox" name="allergen" value="Honey" /><span data-i18n="bsAllergenHoney">Honey</span></label>
+            <label class="bs-check"><input type="checkbox" name="allergen" value="Cow Milk" /><span data-i18n="bsAllergenMilk">Cow Milk</span></label>
+            <label class="bs-check"><input type="checkbox" name="allergen" value="Eggs" /><span data-i18n="bsAllergenEggs">Eggs</span></label>
+            <label class="bs-check"><input type="checkbox" name="allergen" value="Gluten" /><span data-i18n="bsAllergenGluten">Gluten</span></label>
           </div>
         </div>
 
         <div class="bs-nav">
-          <button class="bs-back" id="bsBack2">← Back</button>
-          <button class="bs-next" id="bsNext2">Next →</button>
+          <button class="bs-back" id="bsBack2"><span data-i18n="backBtn">← Back</span></button>
+          <button class="bs-next" id="bsNext2"><span data-i18n="nextBtn">Next →</span></button>
         </div>
       </div>
 
       <div class="bs-step is-hidden" id="bsStep3">
         <div class="bs-kicker">Bring &amp; Share</div>
-        <h3 class="bs-title">Your contact details</h3>
-        <p class="bs-hint">So we can reach you about logistics.</p>
+        <h3 class="bs-title"><span data-i18n="bsStep3Title">Your contact details</span></h3>
+        <p class="bs-hint"><span data-i18n="bsStep3Hint">So we can reach you about logistics.</span></p>
 
         <label class="bs-label">
-          <span>Full Name *</span>
-          <input id="bs_name" type="text" placeholder="Your full name" />
+          <span><span data-i18n="bsNameLabel">Full Name *</span></span>
+          <input id="bs_name" type="text" placeholder="Your full name" data-i18n-ph="bsNamePlaceholder" />
         </label>
 
         <label class="bs-label">
-          <span>Phone or Email *</span>
-          <input id="bs_phone" type="text" placeholder="+49 123 456 or email@..." />
+          <span><span data-i18n="bsPhoneLabel">Phone or Email *</span></span>
+          <input id="bs_phone" type="text" placeholder="+49 123 456 or email@..." data-i18n-ph="bsPhonePlaceholder" />
         </label>
 
         <div class="bs-nav">
-          <button class="bs-back" id="bsBack3">← Back</button>
+          <button class="bs-back" id="bsBack3"><span data-i18n="backBtn">← Back</span></button>
           <button class="bs-submit" id="bsSubmit">Send ✓</button>
         </div>
         <p class="bs-status" id="bsStatus"></p>
@@ -894,14 +960,14 @@
 
       <div class="bs-step is-hidden" id="bsStepDone">
         <div class="bs-kicker">You're amazing 🧁</div>
-        <h3 class="bs-title">Thank you so much for your contribution!</h3>
-        <p class="bs-hint">We've noted what you're bringing and will be in touch if needed.</p>
+        <h3 class="bs-title"><span data-i18n="bsDoneTitle">Thank you so much for your contribution!</span></h3>
+        <p class="bs-hint"><span data-i18n="bsDoneHint">We've noted what you're bringing and will be in touch if needed.</span></p>
         <div class="bs-arrival-reminder" id="bsArrivalReminder">
           <span class="bs-arrival-icon">⏰</span>
           <p id="bsArrivalText">Please arrive by <strong>13:30</strong> and hand your contribution to <strong id="bsSpocName">our team</strong> at the entrance.</p>
         </div>
-        <p class="bs-hint bs-hint--warm">We can't wait to celebrate with you. ♡</p>
-        <button class="bs-next" id="bsDone">Close</button>
+        <p class="bs-hint bs-hint--warm"><span data-i18n="bsWarmHint">We can't wait to celebrate with you. ♡</span></p>
+        <button class="bs-next" id="bsDone"><span data-i18n="bsClose">Close</span></button>
       </div>
 
     </div>
@@ -915,41 +981,41 @@
       <!-- Step 1: Party attendance -->
       <div class="bs-step" id="partyStep1">
         <div class="bs-kicker">One more thing</div>
-        <h3 class="bs-title">Will you join us at the evening celebration?</h3>
-        <p class="bs-hint">Even if you can't make the ceremony, you're warmly welcome to join us in the evening. We'd love to have you there too.</p>
+        <h3 class="bs-title"><span data-i18n="partyTitle">Will you join us at the evening celebration?</span></h3>
+        <p class="bs-hint"><span data-i18n="partyHint">Even if you can't make the ceremony, you're warmly welcome to join us in the evening. We'd love to have you there too.</span></p>
 
         <div class="attend-btns" style="margin: 14px 0 18px;">
-          <button type="button" class="attend-btn attend-btn--yes is-active" id="partyYes">Yes, I'll be there</button>
-          <button type="button" class="attend-btn attend-btn--no" id="partyNo">I can't make the party</button>
+          <button type="button" class="attend-btn attend-btn--yes is-active" id="partyYes"><span data-i18n="partyYesBtn">Yes, I'll be there</span></button>
+          <button type="button" class="attend-btn attend-btn--no" id="partyNo"><span data-i18n="partyNoBtn">I can't make the party</span></button>
         </div>
         <input type="hidden" id="partyAttendValue" value="Yes" />
 
-        <button class="bs-next" id="partyNext1">Next →</button>
+        <button class="bs-next" id="partyNext1"><span data-i18n="nextBtn">Next →</span></button>
       </div>
 
       <!-- Step 2: Dietary (only if attending party) -->
       <div class="bs-step is-hidden" id="partyStep2">
         <div class="bs-kicker">Almost done</div>
-        <h3 class="bs-title">Any dietary needs?</h3>
-        <p class="bs-hint">Let us know so we can make sure there's something for everyone.</p>
+        <h3 class="bs-title"><span data-i18n="partyStep2Title">Any dietary needs?</span></h3>
+        <p class="bs-hint"><span data-i18n="partyStep2Hint">Let us know so we can make sure there's something for everyone.</span></p>
 
         <div class="bs-label">
           <div class="bs-checks">
-            <label class="bs-check"><input type="checkbox" name="party_diet" value="Vegan" /><span>Vegan</span></label>
-            <label class="bs-check"><input type="checkbox" name="party_diet" value="Vegetarian" /><span>Vegetarian</span></label>
-            <label class="bs-check"><input type="checkbox" name="party_diet" value="Gluten-free" /><span>Gluten-free</span></label>
-            <label class="bs-check"><input type="checkbox" name="party_diet" value="Halal" /><span>Halal</span></label>
-            <label class="bs-check"><input type="checkbox" name="party_diet" value="No restrictions" /><span>No restrictions</span></label>
+            <label class="bs-check"><input type="checkbox" name="party_diet" value="Vegan" /><span data-i18n="partyDietVegan">Vegan</span></label>
+            <label class="bs-check"><input type="checkbox" name="party_diet" value="Vegetarian" /><span data-i18n="partyDietVeg">Vegetarian</span></label>
+            <label class="bs-check"><input type="checkbox" name="party_diet" value="Gluten-free" /><span data-i18n="partyDietGF">Gluten-free</span></label>
+            <label class="bs-check"><input type="checkbox" name="party_diet" value="Halal" /><span data-i18n="partyDietHalal">Halal</span></label>
+            <label class="bs-check"><input type="checkbox" name="party_diet" value="No restrictions" /><span data-i18n="partyDietNone">No restrictions</span></label>
           </div>
         </div>
 
         <label class="bs-label" style="margin-top:10px;">
-          <span>Anything else we should know?</span>
-          <input id="partyNotes" type="text" placeholder="Allergies, needs, questions…" />
+          <span><span data-i18n="partyNotesLabel">Anything else we should know?</span></span>
+          <input id="partyNotes" type="text" placeholder="Allergies, needs, questions…" data-i18n-ph="partyNotesPlaceholder" />
         </label>
 
         <div class="bs-nav">
-          <button class="bs-back" id="partyBack2">← Back</button>
+          <button class="bs-back" id="partyBack2"><span data-i18n="backBtn">← Back</span></button>
           <button class="bs-next" id="partyNext2">Send ✓</button>
         </div>
         <p class="bs-status" id="partyStatus"></p>
@@ -958,10 +1024,10 @@
       <!-- Done -->
       <div class="bs-step is-hidden" id="partyStepDone">
         <div class="bs-kicker">Can't wait ♡</div>
-        <h3 class="bs-title">See you at the party!</h3>
-        <p class="bs-hint">We've noted everything. Here are the details:</p>
+        <h3 class="bs-title"><span data-i18n="partyDoneTitle">See you at the party!</span></h3>
+        <p class="bs-hint"><span data-i18n="partyDoneHint">We've noted everything. Here are the details:</span></p>
         <div style="background:rgba(255,255,255,0.07);border-radius:8px;padding:16px 18px;margin:14px 0 18px;text-align:left;line-height:1.7;">
-          <div style="font-weight:600;font-size:1.05em;margin-bottom:4px;">🎉 Evening Celebration</div>
+          <div style="font-weight:600;font-size:1.05em;margin-bottom:4px;"><span data-i18n="partyVenueName">🎉 Evening Celebration</span></div>
           <div>📍 <strong>Rheinliebe am Deich</strong></div>
           <div>🕔 Doors open at <strong>17:00</strong></div>
           <div style="margin-top:10px;">
@@ -971,20 +1037,21 @@
             </a>
           </div>
         </div>
-        <button class="bs-next" id="partyDone">Close</button>
+        <button class="bs-next" id="partyDone"><span data-i18n="bsClose">Close</span></button>
       </div>
 
       <!-- Declined -->
       <div class="bs-step is-hidden" id="partyStepDeclined">
         <div class="bs-kicker">Understood</div>
-        <h3 class="bs-title">Thank you for letting us know.</h3>
-        <p class="bs-hint">We'll miss you at the party — but hope to celebrate together another time. ♡</p>
-        <button class="bs-next" id="partyDoneDeclined">Close</button>
+        <h3 class="bs-title"><span data-i18n="partyDeclinedTitle">Thank you for letting us know.</span></h3>
+        <p class="bs-hint"><span data-i18n="partyDeclinedHint">We'll miss you at the party — but hope to celebrate together another time. ♡</span></p>
+        <button class="bs-next" id="partyDoneDeclined"><span data-i18n="bsClose">Close</span></button>
       </div>
 
     </div>
   </div>
 
   <script src="script.js"></script>
+  <script src="lang-apply.js"></script>
 </body>
 </html>

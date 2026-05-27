@@ -1915,3 +1915,249 @@ button.sa-btn {
   background: var(--accent, #7a5236);
   color: #fff;
 }
+
+
+/* ============================================================
+   CARD ZOOM OVERLAY — Desktop only (≥ 921px)
+   ============================================================ */
+
+/* ── Zoom button on each card ── */
+@media (min-width: 921px) {
+
+  .card-zoom-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    margin-left: auto;
+    flex-shrink: 0;
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: rgba(98,78,56,0.38);
+    transition: color .15s;
+  }
+
+  .card-zoom-btn:hover {
+    color: var(--accent, #624E38);
+  }
+
+  .card-zoom-btn svg {
+    width: 13px;
+    height: 13px;
+    display: block;
+  }
+}
+
+@media (max-width: 920px) {
+  .card-zoom-btn { display: none !important; }
+}
+
+/* ── Overlay backdrop ── */
+.card-overlay-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(49,39,28,0.55);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.card-overlay-backdrop.is-open {
+  display: flex;
+  animation: overlayFadeIn .2s ease;
+}
+
+@keyframes overlayFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Overlay panel ── */
+.card-overlay-panel {
+  position: relative;
+  background: var(--bg, #fff);
+  width: min(720px, 90vw);
+  max-height: 82vh;
+  overflow-y: auto;
+  border-radius: 2px;
+  padding: 44px 52px 48px;
+  box-shadow: 0 24px 80px rgba(49,39,28,0.22), 0 4px 16px rgba(49,39,28,0.10);
+  animation: overlaySlideUp .25s ease;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(98,78,56,0.2) transparent;
+}
+
+@keyframes overlaySlideUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+/* ── Overlay close button ── */
+.card-overlay-close {
+  position: sticky;
+  top: 0;
+  float: right;
+  margin: -10px -14px 0 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid rgba(98,78,56,0.18);
+  border-radius: 50%;
+  cursor: pointer;
+  color: rgba(98,78,56,0.55);
+  font-size: 16px;
+  line-height: 1;
+  transition: color .15s, border-color .15s, background .15s;
+  z-index: 2;
+}
+
+.card-overlay-close:hover {
+  color: var(--ink);
+  border-color: rgba(98,78,56,0.45);
+  background: rgba(98,78,56,0.06);
+}
+
+/* ── Overlay typography ── */
+.card-overlay-panel .overlay-kicker {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .34em;
+  text-transform: uppercase;
+  color: var(--accent, #624E38);
+  margin: 0 0 16px;
+  display: block;
+}
+
+.card-overlay-panel h2 {
+  font-size: clamp(34px, 3.2vw, 52px);
+  font-weight: 400;
+  line-height: .95;
+  letter-spacing: -.045em;
+  margin: 0 0 28px;
+  color: var(--ink);
+}
+
+.card-overlay-panel p {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--muted);
+  max-width: 100%;
+  margin: 0 0 14px;
+}
+
+/* ── Special card backgrounds ── */
+.card-overlay-backdrop[data-card="rsvp"]  .card-overlay-panel { background: #EBE2DA; }
+.card-overlay-backdrop[data-card="story"] .card-overlay-panel { background: #d9eef5; }
+
+/* ── Overlay: story photos grid ── */
+.overlay-photo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.overlay-photo-grid img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 2px;
+  display: block;
+}
+
+/* ── Overlay: crew grid ── */
+.overlay-crew-section { margin-bottom: 28px; }
+.overlay-crew-section:last-child { margin-bottom: 0; }
+.overlay-crew-role-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 14px;
+  display: block;
+}
+
+/* ── Overlay: agenda ── */
+.overlay-agenda { margin-top: 8px; }
+.overlay-agenda .agenda-step { padding-bottom: 20px; }
+
+/* ── Overlay: dress palette ── */
+.overlay-dress-palette {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 20px 0 14px;
+}
+
+/* ── Overlay: FAQ ── */
+.overlay-faq { margin-top: 8px; }
+.overlay-faq details {
+  border-bottom: 1px solid rgba(49,39,28,.1);
+  padding: 12px 0;
+}
+.overlay-faq summary {
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--ink);
+  list-style: none;
+  padding-right: 20px;
+  position: relative;
+}
+.overlay-faq summary::after {
+  content: '+';
+  position: absolute;
+  right: 0;
+  top: 0;
+  color: var(--accent);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1;
+}
+.overlay-faq details[open] summary::after { content: '−'; }
+.overlay-faq details p {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* ── Overlay RSVP: just a nudge, not duplicate form ── */
+.overlay-rsvp-note {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--muted);
+  max-width: 480px;
+}
+.overlay-rsvp-note .deadline {
+  margin-top: 20px;
+  font-size: 13px;
+  color: rgba(98,78,56,0.7);
+}
+.overlay-rsvp-scroll-btn {
+  display: inline-block;
+  margin-top: 28px;
+  padding: 12px 28px;
+  background: var(--ink, #31271C);
+  color: #EBE2DA;
+  font-family: var(--serif);
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: opacity .15s;
+  text-decoration: none;
+}
+.overlay-rsvp-scroll-btn:hover { opacity: .82; }
