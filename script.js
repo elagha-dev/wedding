@@ -212,8 +212,8 @@ function loadContent() {
     ],
     "brideSide": [
       { "name": "Alicja", "displayName": "Alicja", "photo": "alicja.jpg",  "role": "Maid of Honor","email": "alicjabialkowski@gmail.com","phone": "+49 176 23191761" },
-      { "name": "Kris",   "displayName": "Kris",   "photo": "kris.png",    "role": "Bride's Maid", "email": "Kristinenaal@gmail.com",   "phone": "+47 456 66 148" },
-      { "name": "Valerie","displayName": "Valerie","photo": "valerie.png", "role": "Bride's Maid", "email": "Valneuhausen@gmail.com","phone": "+31 6 10970211" }
+      { "name": "Kris",   "displayName": "Kris",   "photo": "kris.png",    "role": "Bride's Maid", "email": "kristinenaal@gmail.com",   "phone": "+47 456 66 148" },
+      { "name": "Valerie","displayName": "Valerie","photo": "valerie.png", "role": "Bride's Maid", "email": "valneuhausen@gmail.com","phone": "+31 6 10970211" }
     ],
     "pastorAndBand": [
       { "name": "Felipe", "displayName": "Felipe", "photo": "felipe.jpg", "role": "Pastor", "email": "felipe.schuerch@hillsong.de", "phone": "+49 175 2894775" },
