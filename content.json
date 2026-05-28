@@ -82,24 +82,24 @@
         "displayName": "Felipe",
         "photo": "felipe.jpg",
         "role": "Pastor",
-        "email": "felipe@example.com",
-        "phone": "+49 123 4567891"
+        "email": "felipe.schuerch@hillsong.de",
+        "phone": "+49 175 2894775"
       },
       {
         "name": "Jonas&Jenny",
         "displayName": "Rockhoffs",
         "photo": "jonasnjenny.jpg",
         "role": "Worship Team",
-        "email": "jonas@example.com",
-        "phone": "+49 123 4567893"
+        "email": "jonas.rockhoff@hillsong.de",
+        "phone": "+49 176 56900741"
       },
       {
         "name": "David",
         "displayName": "David",
         "photo": "plivi.jpg",
         "role": "Worship Team",
-        "email": "jenny@example.com",
-        "phone": "+49 123 4567893"
+        "email": "david.pliev@me.com",
+        "phone": "+49 174 6910946"
       }
     ]
   },
