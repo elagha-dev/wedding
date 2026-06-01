@@ -54,7 +54,7 @@ window.I18N = {
     arrivalNotice  : "Please arrive 30 minutes early.",
     arrivalTip     : "Arrive by",
     arrivalTipBody : "This gives us time to welcome everyone, collect the Bring & Share items, and start the ceremony on time at",
-    arrivalTipNote : "Your punctuality is a gift to us. 🎁",
+    arrivalTipNote : "Thank you ❤️",
 
     /* ── Timeline nav ── */
     navCeremony: "💒 Wedding Ceremony",
@@ -113,8 +113,8 @@ window.I18N = {
     bringShareLabel: "I'll join the Bring & Share",
     seatConfirmLabel: "Total seats reserved for you",
     seatHint       : "Adjust if needed — every seat helps us plan. 🙏",
-    declineLabel   : "Leave us a note (optional)",
-    declinePlaceholder: "We'll miss you — feel free to say something 💛",
+    declineLabel   : "",
+    declinePlaceholder: "We'll miss you 💛",
     sendRsvpBtn    : "Send RSVP ✓",
     selectAttendanceErr: "Please select your attendance for the ceremony.",
     rsvpSubmittedBtn   : "RSVP Submitted ✓",
@@ -151,7 +151,7 @@ window.I18N = {
     viewOnMap: "View on Map ↗",
 
     /* ── Bring & Share modal ── */
-    bsStep1Title    : "What are you bringing?",
+    bsStep1Title    : "What would you like to bring?",
     bsStep1Hint     : "Let us know what you plan to bring so we can plan ahead. You're not expected to bring for 140 people! 🙂",
     bsWhatLabel     : "What will you bring? *",
     bsWhatPlaceholder: "e.g. apple pie, finger sandwiches…",
@@ -179,7 +179,7 @@ window.I18N = {
     bsDoneKicker    : "You're amazing 🧁",
     bsDoneTitle     : "Thank you so much for your contribution!",
     bsDoneHint      : "We've noted what you're bringing and will be in touch if needed.",
-    bsArrivalText   : "Please arrive by <strong>13:30</strong> and hand your contribution to <strong id=\"bsSpocName\">our team</strong> at the entrance.",
+    bsArrivalText   : "Please arrive by <strong>13:30</strong> and hand your contribution to <strong id=\"bsSpocName\">Kathi | +49 162 62 47 906</strong> at the entrance.",
     bsWarmHint      : "We can't wait to celebrate with you. ♡",
     bsClose         : "Close",
 
