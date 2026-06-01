@@ -46,6 +46,7 @@ window.I18N = {
     crewRoleBridesMaid  : "Bride's Maid",
     crewRolePastor      : "Pastor",
     crewRoleWorshipTeam : "Worship Team",
+    crewRoleBringShare  : "Bring & Share",
 
     /* ── Bring & Share button in agenda ── */
     bringShareAgendaBtn : "🧁 Let us know what you'll bring",
@@ -54,7 +55,7 @@ window.I18N = {
     arrivalNotice  : "Please arrive 30 minutes early.",
     arrivalTip     : "Arrive by",
     arrivalTipBody : "This gives us time to welcome everyone, collect the Bring & Share items, and start the ceremony on time at",
-    arrivalTipNote : "Thank you ❤️",
+    arrivalTipNote : "Your punctuality is a gift to us. 🎁",
 
     /* ── Timeline nav ── */
     navCeremony: "💒 Wedding Ceremony",
@@ -66,26 +67,26 @@ window.I18N = {
     crewNote       : "Any questions? Reach out to anyone in the crew — they're wonderful and happy to help.",
 
     greetingLetterParty:
-      "<p>Arina and I are so excited to have you with us on our wedding day — truly one of the most important days of our lives, and we wouldn't want to share it without you.</p>" +
-      "<p>We're getting married at the <strong>church ceremony</strong> on <strong>16 October at 14:00</strong>, and afterwards we'll celebrate well into the evening at our <strong>reception starting at 17:00</strong> — dinner, dancing, and all the good things.</p>" +
+      "<p>We are so excited to have you with us on our wedding day — truly one of the most important days of our lives, and we wouldn't want to share it without you.</p>" +
+      "<p>We're getting married at the <strong>church</strong> on <strong>16 October at 14:00</strong>, and afterwards we'll celebrate well into the evening at our <strong>reception starting at 17:00</strong> — dinner, dancing, and all the good things.</p>" +
       "<p>It only takes a minute to let us know you'll be there. If you can make it to both — wonderful. If you can only join us for the evening — we'll take it, gladly. Just let us know below.</p>" +
       "<p class=\"deadline\">Please let us know your RSVP by <strong>18 September</strong>.</p>",
 
     greetingLetterPartySingle:
-      "<p>Arina and I are so excited to have you with us on our wedding day — truly one of the most important days of our lives, and we wouldn't want to share it without you.</p>" +
-      "<p>We're getting married at the <strong>church ceremony</strong> on <strong>16 October at 14:00</strong>, and afterwards we'll celebrate well into the evening at our <strong>reception starting at 17:00</strong> — dinner, dancing, and all the good things.</p>" +
+      "<p>We are so excited to have you with us on our wedding day — truly one of the most important days of our lives, and we wouldn't want to share it without you.</p>" +
+      "<p>We're getting married at the <strong>church</strong> on <strong>16 October at 14:00</strong>, and afterwards we'll celebrate well into the evening at our <strong>reception starting at 17:00</strong> — dinner, dancing, and all the good things.</p>" +
       "<p>It only takes a minute to let us know you'll be there. If you can make it to both — wonderful. If you can only join us for the evening — we'll take it, gladly. Just let us know below.</p>" +
       "<p class=\"deadline\">Please let us know your RSVP by <strong>18 September</strong>.</p>",
 
     greetingLetterCeremony:
-      "<p>Arina and I are so happy to invite you to witness one of the most meaningful moments of our lives — our wedding ceremony.</p>" +
-      "<p>We're tying the knot at the <strong>church on 16 October at 14:00</strong>, and we would be truly honoured to have you there with us as we say our vows.</p>" +
+      "<p>We are so happy to invite you to witness one of the most meaningful moments of our lives — our wedding ceremony.</p>" +
+      "<p>We're getting married on <strong>16 October at 14:00 in Düsseldorf, Germany</strong>, and we would be truly honoured to have you there with us as we say our vows.</p>" +
       "<p>It only takes a minute — just let us know you'll be coming, and we'll take care of the rest.</p>" +
       "<p class=\"deadline\">Please let us know your RSVP by <strong>18 September</strong>.</p>",
 
     greetingLetterCeremonySingle:
-      "<p>Arina and I are so happy to invite you to witness one of the most meaningful moments of our lives — our wedding ceremony.</p>" +
-      "<p>We're tying the knot at the <strong>church on 16 October at 14:00</strong>, and we would be truly honoured to have you there with us as we say our vows.</p>" +
+      "<p>We are so happy to invite you to witness one of the most meaningful moments of our lives — our wedding ceremony.</p>" +
+      "<p>We're getting married on <strong>16 October at 14:00 in Düsseldorf, Germany</strong>, and we would be truly honoured to have you there with us as we say our vows.</p>" +
       "<p>It only takes a minute — just let us know you'll be coming, and we'll take care of the rest.</p>" +
       "<p class=\"deadline\">Please let us know your RSVP by <strong>18 September</strong>.</p>",
 
@@ -113,8 +114,8 @@ window.I18N = {
     bringShareLabel: "I'll join the Bring & Share",
     seatConfirmLabel: "Total seats reserved for you",
     seatHint       : "Adjust if needed — every seat helps us plan. 🙏",
-    declineLabel   : "",
-    declinePlaceholder: "We'll miss you 💛",
+    declineLabel   : "Leave us a note (optional)",
+    declinePlaceholder: "We'll miss you — feel free to say something 💛",
     sendRsvpBtn    : "Send RSVP ✓",
     selectAttendanceErr: "Please select your attendance for the ceremony.",
     rsvpSubmittedBtn   : "RSVP Submitted ✓",
@@ -151,7 +152,7 @@ window.I18N = {
     viewOnMap: "View on Map ↗",
 
     /* ── Bring & Share modal ── */
-    bsStep1Title    : "What would you like to bring?",
+    bsStep1Title    : "What are you bringing?",
     bsStep1Hint     : "Let us know what you plan to bring so we can plan ahead. You're not expected to bring for 140 people! 🙂",
     bsWhatLabel     : "What will you bring? *",
     bsWhatPlaceholder: "e.g. apple pie, finger sandwiches…",
@@ -179,7 +180,8 @@ window.I18N = {
     bsDoneKicker    : "You're amazing 🧁",
     bsDoneTitle     : "Thank you so much for your contribution!",
     bsDoneHint      : "We've noted what you're bringing and will be in touch if needed.",
-    bsArrivalText   : "Please arrive by <strong>13:30</strong> and hand your contribution to <strong id=\"bsSpocName\">Kathi | +49 162 62 47 906</strong> at the entrance.",
+    bsArrivalText   : "Please arrive by <strong>13:30</strong> and place your contribution on the <strong>Bring &amp; Share table</strong> set up outside the church entrance — it will be clearly labelled. Our team will take care of the rest.",
+    bsContactHint   : "Any questions? Reach out to <strong>Kathi Meyer</strong> — <a href=\"tel:+491626247906\">+49 162 6247906</a>.",
     bsWarmHint      : "We can't wait to celebrate with you. ♡",
     bsClose         : "Close",
 
@@ -212,9 +214,9 @@ window.I18N = {
 
     /* ── Content: Love Story ── */
     storyParagraphs: [
-      "We met at church, became friends, and somewhere along the way friendship quietly turned into love.",
-      "On 02.03, we got engaged — a promise we now carry toward 2026, when we will celebrate our marriage with our loved ones.",
-      "Above all, we are grateful for the life God is building in us, and for the joy of serving our Lord together."
+      "Our journey began as friends sharing the same calling, serving at our church and investing into our own community which after began to develop into something more foundational.",
+      "As we became more familiar with each other's ambition in life, future goals and values we could not just stay friends anymore. Fast forward to 02.03, while we visited our family in Norway, on a small island we got engaged and decided to spend the rest of our lives together.",
+      "This decision brings us to this day, 16.10, where we enter into a covenant of lifetime. ❤️"
     ],
 
     /* ── Content: Ceremony agenda ── */
@@ -303,6 +305,7 @@ window.I18N = {
     crewRoleBridesMaid  : "Brautjungfer",
     crewRolePastor      : "Pastor",
     crewRoleWorshipTeam : "Worship-Team",
+    crewRoleBringShare  : "Bring & Share",
 
     bringShareAgendaBtn : "🧁 Sagt uns, was ihr mitbringt",
 
@@ -319,27 +322,27 @@ window.I18N = {
     crewNote       : "Fragen? Wendet euch an jemanden aus dem Team — sie helfen euch gerne weiter.",
 
     greetingLetterParty:
-      "<p>Arina und ich freuen uns so sehr, euch an unserem Hochzeitstag bei uns zu haben — einem der wichtigsten Tage unseres Lebens. Wir möchten ihn nicht ohne euch erleben.</p>" +
-      "<p>Wir heiraten bei der <strong>kirchlichen Trauung</strong> am <strong>16. Oktober um 14:00 Uhr</strong>, und danach feiern wir bis in den Abend bei unserem <strong>Empfang ab 17:00 Uhr</strong> — mit Essen, Tanzen und allem, was dazugehört.</p>" +
+      "<p>Wir freuen uns so sehr, euch an unserem Hochzeitstag bei uns zu haben — einem der wichtigsten Tage unseres Lebens. Wir möchten ihn nicht ohne euch erleben.</p>" +
+      "<p>Wir heiraten in der <strong>Kirche</strong> am <strong>16. Oktober um 14:00 Uhr</strong>, und danach feiern wir bis in den Abend bei unserem <strong>Empfang ab 17:00 Uhr</strong> — mit Essen, Tanzen und allem, was dazugehört.</p>" +
       "<p>Es dauert nur eine Minute — gebt uns einfach Bescheid, dass ihr kommt. Wir kümmern uns um den Rest.</p>" +
       "<p class=\"deadline\">Bitte gebt uns bis zum <strong>18. September</strong> Rückmeldung.</p>",
 
     greetingLetterPartySingle:
-      "<p>Arina und ich freuen uns so sehr, dich an unserem Hochzeitstag bei uns zu haben — einem der wichtigsten Tage unseres Lebens. Wir möchten ihn nicht ohne dich erleben.</p>" +
-      "<p>Wir heiraten bei der <strong>kirchlichen Trauung</strong> am <strong>16. Oktober um 14:00 Uhr</strong>, und danach feiern wir bis in den Abend bei unserem <strong>Empfang ab 17:00 Uhr</strong> — mit Essen, Tanzen und allem, was dazugehört.</p>" +
+      "<p>Wir freuen uns so sehr, dich an unserem Hochzeitstag bei uns zu haben — einem der wichtigsten Tage unseres Lebens. Wir möchten ihn nicht ohne dich erleben.</p>" +
+      "<p>Wir heiraten in der <strong>Kirche</strong> am <strong>16. Oktober um 14:00 Uhr</strong>, und danach feiern wir bis in den Abend bei unserem <strong>Empfang ab 17:00 Uhr</strong> — mit Essen, Tanzen und allem, was dazugehört.</p>" +
       "<p>Es dauert nur eine Minute — gib uns einfach Bescheid, dass du kommst. Wir kümmern uns um den Rest.</p>" +
       "<p class=\"deadline\">Bitte gib uns bis zum <strong>18. September</strong> Rückmeldung.</p>",
 
     greetingLetterCeremony:
-      "<p>Arina und ich laden euch herzlich ein, einen der bedeutsamsten Momente unseres Lebens mitzuerleben — unsere Hochzeitszeremonie.</p>" +
-      "<p>Wir geben uns das Jawort in der <strong>Kirche am 16. Oktober um 14:00 Uhr</strong>, und wir wären sehr geehrt, euch dabei zu haben.</p>" +
-      "<p>Es dauert nur eine Minute — gebt uns einfach Bescheid, dass ihr kommt.</p>" +
+      "<p>Wir laden euch herzlich ein, einen der bedeutsamsten Momente unseres Lebens mitzuerleben — unsere Hochzeitszeremonie.</p>" +
+      "<p>Wir heiraten am <strong>16. Oktober um 14:00 Uhr in Düsseldorf</strong>, und wir wären sehr geehrt, euch dabei zu haben, wenn wir unser Ja-Wort geben.</p>" +
+      "<p>Es dauert nur eine Minute — gebt uns einfach Bescheid, dass ihr kommt, und wir kümmern uns um den Rest.</p>" +
       "<p class=\"deadline\">Bitte gebt uns bis zum <strong>18. September</strong> Rückmeldung.</p>",
 
     greetingLetterCeremonySingle:
-      "<p>Arina und ich laden dich herzlich ein, einen der bedeutsamsten Momente unseres Lebens mitzuerleben — unsere Hochzeitszeremonie.</p>" +
-      "<p>Wir geben uns das Jawort in der <strong>Kirche am 16. Oktober um 14:00 Uhr</strong>, und wir wären sehr geehrt, dich dabei zu haben.</p>" +
-      "<p>Es dauert nur eine Minute — gib uns einfach Bescheid, dass du kommst.</p>" +
+      "<p>Wir laden dich herzlich ein, einen der bedeutsamsten Momente unseres Lebens mitzuerleben — unsere Hochzeitszeremonie.</p>" +
+      "<p>Wir heiraten am <strong>16. Oktober um 14:00 Uhr in Düsseldorf</strong>, und wir wären sehr geehrt, dich dabei zu haben, wenn wir unser Ja-Wort geben.</p>" +
+      "<p>Es dauert nur eine Minute — gib uns einfach Bescheid, dass du kommst, und wir kümmern uns um den Rest.</p>" +
       "<p class=\"deadline\">Bitte gib uns bis zum <strong>18. September</strong> Rückmeldung.</p>",
 
     step1Label    : "Schritt 1 von 3 — Eure Daten",
@@ -424,7 +427,8 @@ window.I18N = {
     bsDoneKicker    : "Ihr seid großartig 🧁",
     bsDoneTitle     : "Vielen herzlichen Dank für euren Beitrag!",
     bsDoneHint      : "Wir haben notiert, was ihr mitbringt, und melden uns bei Bedarf.",
-    bsArrivalText   : "Bitte kommt bis <strong>13:30 Uhr</strong> und gebt euren Beitrag bei <strong id=\"bsSpocName\">unserem Team</strong> am Eingang ab.",
+    bsArrivalText   : "Bitte kommt bis <strong>13:30 Uhr</strong> und stellt euren Beitrag auf den <strong>Bring &amp; Share Tisch</strong> vor dem Kircheneingang — er ist deutlich gekennzeichnet. Unser Team kümmert sich um den Rest.",
+    bsContactHint   : "Fragen? Meldet euch bei <strong>Kathi Meyer</strong> — <a href=\"tel:+491626247906\">+49 162 6247906</a>.",
     bsWarmHint      : "Wir freuen uns riesig auf euch. ♡",
     bsClose         : "Schließen",
 
@@ -455,9 +459,9 @@ window.I18N = {
     partyDeclinedHint  : "Ihr werdet bei der Party fehlen — aber wir hoffen, bald wieder zusammen zu feiern. ♡",
 
     storyParagraphs: [
-      "Wir haben uns in der Kirche kennengelernt, wurden Freunde — und irgendwann wurde aus Freundschaft ganz leise Liebe.",
-      "Am 02.03. haben wir uns verlobt — ein Versprechen, das wir nun mit uns tragen bis 2026, wenn wir unsere Hochzeit mit unseren Liebsten feiern.",
-      "Vor allem sind wir dankbar für das Leben, das Gott in uns aufbaut, und für die Freude, gemeinsam unserem Herrn zu dienen."
+      "Unsere gemeinsame Reise begann als Freunde, die dieselbe Berufung teilten — wir dienten in unserer Gemeinde und waren in der Community aktiv, woraus sich nach und nach etwas Seriöses entwickelte.",
+      "Je vertrauter wir mit den Ambitionen, Lebenszielen und Werten des anderen wurden, desto klarer war: Wir konnten nicht einfach nur Freunde bleiben. Monate später, am 02.03 — während wir unsere Familie in Norwegen besuchten, machten wir auf einer kleinen Insel unsere Verlobung und beschlossen, den Rest unseres Lebens miteinander zu verbringen.",
+      "Diese Entscheidung führt uns zu diesem Tag, dem 16.10, an dem wir einen Bund fürs Leben schließen. ❤️"
     ],
 
     agenda: [
@@ -543,6 +547,7 @@ window.I18N = {
     crewRoleBridesMaid  : "Подружка невесты",
     crewRolePastor      : "Пастор",
     crewRoleWorshipTeam : "Группа прославления",
+    crewRoleBringShare  : "Bring & Share",
 
     bringShareAgendaBtn : "🧁 Сообщите, что вы принесёте",
 
@@ -664,7 +669,8 @@ window.I18N = {
     bsDoneKicker    : "Вы замечательные 🧁",
     bsDoneTitle     : "Большое спасибо за ваш вклад!",
     bsDoneHint      : "Мы отметили, что вы принесёте, и свяжемся при необходимости.",
-    bsArrivalText   : "Пожалуйста, приходите до <strong>13:30</strong> и передайте ваш вклад <strong id=\"bsSpocName\">нашей команде</strong> у входа.",
+    bsArrivalText   : "Пожалуйста, приходите до <strong>13:30</strong> и поставьте ваш вклад на стол <strong>Bring &amp; Share</strong> у входа в церковь — он будет хорошо обозначен. Наша команда позаботится об остальном.",
+    bsContactHint   : "Есть вопросы? Обратитесь к <strong>Kathi Meyer</strong> — <a href=\"tel:+491626247906\">+49 162 6247906</a>.",
     bsWarmHint      : "Мы с нетерпением ждём встречи с вами. ♡",
     bsClose         : "Закрыть",
 
@@ -695,9 +701,9 @@ window.I18N = {
     partyDeclinedHint  : "Вы нам будете не хватать — надеемся отпраздновать вместе в другой раз. ♡",
 
     storyParagraphs: [
-      "Мы познакомились в церкви, стали друзьями — и где-то по дороге дружба тихо переросла в любовь.",
-      "02.03 мы обручились — обещание, которое несём в 2026 год, когда отпразднуем наш брак с близкими.",
-      "Прежде всего, мы благодарны за жизнь, которую Бог строит в нас, и за радость служить нашему Господу вместе."
+      "Наш путь начался с дружбы, объединённой одним призванием — служением в нашей церкви и вкладом в нашу общину, что со временем переросло во что-то более глубокое и серьезное.",
+      "Узнавая больше об амбициях, жизненных целях и ценностях друг друга, мы не могли оставаться просто друзьями. Месяцы спустя, 02.03 — во время визита к нашим родным в Норвегии, на небольшом острове, мы обручились и приняли решение провести остаток жизни вместе.",
+      "Это решение привело нас к сегодняшнему дню, 16.10, когда мы вступаем в союз на всю жизнь. ❤️"
     ],
 
     agenda: [

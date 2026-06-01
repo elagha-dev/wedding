@@ -86,20 +86,20 @@
         "phone": "+49 175 2894775"
       },
       {
-        "name": "Jonas&Jenny",
-        "displayName": "Rockhoffs",
+        "name": "Rockhoffs & David",
+        "displayName": "Worship Team",
         "photo": "jonasnjenny.jpg",
         "role": "Worship Team",
         "email": "jonas.rockhoff@hillsong.de",
         "phone": "+49 176 56900741"
       },
       {
-        "name": "David",
-        "displayName": "David",
-        "photo": "plivi.jpg",
-        "role": "Worship Team",
-        "email": "david.pliev@me.com",
-        "phone": "+49 174 6910946"
+        "name": "Bring & Share Crew",
+        "displayName": "B&S Crew",
+        "photo": "kathi.jpg",
+        "role": "Bring & Share",
+        "email": "",
+        "phone": "+49 162 6247906"
       }
     ]
   },

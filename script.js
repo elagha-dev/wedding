@@ -6,7 +6,8 @@ function translateRole(role) {
     "Maid of Honor": "crewRoleMaidOfHonor",
     "Bride's Maid" : "crewRoleBridesMaid",
     "Pastor"       : "crewRolePastor",
-    "Worship Team" : "crewRoleWorshipTeam"
+    "Worship Team" : "crewRoleWorshipTeam",
+    "Bring & Share": "crewRoleBringShare"
   };
   var key = map[role];
   return key ? t(key) : role;
@@ -22,16 +23,23 @@ function translateRole(role) {
 function buildPersonCard(person) {
   const wrap = document.createElement("div");
   wrap.className = "mini-contact-wrap";
+  const photoSrc = person.photo || '';
+  const photoHtml = photoSrc
+    ? `<span class="mini-photo"><img src="${photoSrc}" alt="${person.name}" loading="lazy" /></span>`
+    : `<span class="mini-photo mini-photo--placeholder"></span>`;
+  const emailHtml = person.email
+    ? `<p><span>${t('emailLabel')}</span><a href="mailto:${person.email}">${person.email}</a></p>`
+    : '';
   wrap.innerHTML = `
     <button type="button" class="party-mini-contact" aria-label="Open ${person.name} contact card">
-      <span class="mini-photo"><img src="${person.photo}" alt="${person.name}" loading="lazy" /></span>
+      ${photoHtml}
       <span class="mini-name">${person.displayName || person.name}</span>
     </button>
     <div class="mini-popover">
       <button type="button" class="mini-popover-close" aria-label="Close">×</button>
       <div class="contact-role">${translateRole(person.role)}</div>
       <h3>${person.name}</h3>
-      <p><span>${t('emailLabel')}</span><a href="mailto:${person.email}">${person.email}</a></p>
+      ${emailHtml}
       <p><span>${t('phoneLabel')}</span><a href="tel:${person.phone.replace(/\s+/g, "")}">${person.phone}</a></p>
     </div>`;
   return wrap;
@@ -1618,5 +1626,454 @@ if (newRsvpBtn2) {
   window.addEventListener('resize', function () {
     if (window.innerWidth <= 920) closeOverlay();
   });
+
+})();
+
+
+/* ══════════════════════════════════════════════════════════════
+   RSVP ENGAGEMENT SYSTEM
+   Phase 1 — Soft Gate (full-screen welcome on load)
+   Phase 2 — Floating Seat Card (persistent after gate dismissed)
+   Phase 3 — Scroll Lock (nudge if they scroll past RSVP card)
+   ══════════════════════════════════════════════════════════════ */
+(function() {
+
+  /* ── Read guest params ── */
+  var params      = new URLSearchParams(window.location.search);
+  var p1          = (params.get('p1')   || '').trim();
+  var p2          = (params.get('p2')   || '').trim();
+  var hasParty    = params.get('party') === '1';
+  var isCouple    = !!(p1 && p2);
+  var displayName = p1 && p2 ? p1 + ' & ' + p2 : (p1 || '');
+
+  /* No named guest → skip the whole system */
+  if (!displayName) return;
+
+  /* ── RSVP success detection (shared across all phases) ── */
+  var rsvpDone = false;
+  function checkRsvpDone() {
+    var s = document.getElementById('rsvpSuccess');
+    return s && (s.classList.contains('is-visible') || getComputedStyle(s).display !== 'none');
+  }
+  var successEl = document.getElementById('rsvpSuccess');
+  if (successEl) {
+    new MutationObserver(function() {
+      if (checkRsvpDone()) {
+        rsvpDone = true;
+        dismissAll();
+      }
+    }).observe(successEl, { attributes: true, attributeFilter: ['class','style'] });
+  }
+
+  function dismissAll() {
+    hideGate();
+    hideSeatCard();
+    hideScrollLock();
+    var deadlineEl = document.getElementById('weRsvpDeadline');
+    if (deadlineEl) deadlineEl.style.display = 'none';
+  }
+
+  /* ── Inject styles ── */
+  var css = document.createElement('style');
+  css.textContent = `
+    /* ── Soft Gate ─────────────────────────────── */
+    #weGate {
+      position: fixed; inset: 0; z-index: 8000;
+      display: flex; align-items: center; justify-content: center;
+      transition: opacity .7s ease, visibility .7s ease;
+    }
+    #weGate.we-hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+    #weGateBackdrop {
+      position: absolute; inset: 0;
+      background: rgba(42,32,26,.52);
+      backdrop-filter: blur(10px) saturate(.75);
+      -webkit-backdrop-filter: blur(10px) saturate(.75);
+    }
+    #weGateCard {
+      position: relative;
+      background: #FDFAF7;
+      border: 1px solid #E2D8CF;
+      max-width: 400px; width: 90%;
+      padding: 44px 36px 36px;
+      text-align: center;
+      box-shadow: 0 32px 72px rgba(42,32,26,.18), 0 0 0 1px rgba(122,82,54,.12);
+      animation: weCardRise .85s cubic-bezier(.16,1,.3,1) both;
+    }
+    @keyframes weCardRise {
+      from { opacity:0; transform: translateY(28px) scale(.97); }
+      to   { opacity:1; transform: translateY(0)     scale(1);   }
+    }
+    #weGateCard .we-mono {
+      font-family: WeddingSerif, Georgia, serif;
+      font-size: 10px; letter-spacing: .35em; text-transform: uppercase;
+      color: #7a5133; margin-bottom: 18px;
+    }
+    #weGateCard .we-rule {
+      width: 32px; height: 1px; background: #C4956A; margin: 0 auto 18px;
+    }
+    #weGateCard .we-salut {
+      font-family: WeddingSerif, Georgia, serif;
+      font-style: italic; font-size: 13px; color: #8a7464; margin-bottom: 4px;
+    }
+    #weGateCard .we-guestname {
+      font-family: WeddingSerif, Georgia, serif;
+      font-size: 36px; font-weight: 300; color: #2A201A;
+      line-height: 1.1; margin-bottom: 18px; letter-spacing: -.01em;
+    }
+    #weGateCard .we-seat-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(122,82,54,.08); border: 1px solid rgba(122,82,54,.2);
+      padding: 7px 14px; font-family: WeddingSerif,Georgia,serif;
+      font-size: 11px; color: #7a5133; letter-spacing: .06em;
+      margin-bottom: 20px;
+    }
+    #weGateCard .we-body {
+      font-family: WeddingSerif, Georgia, serif;
+      font-size: 12.5px; font-weight: 400; color: #8a7464;
+      line-height: 1.75; margin-bottom: 28px; letter-spacing: .01em;
+    }
+    #weGateCard .we-body strong { color: #2A201A; font-weight: 600; }
+    #weGateCta {
+      display: block; width: 100%;
+      background: #31271C; color: #EBE2DA; border: none;
+      padding: 14px 20px;
+      font-family: WeddingSerif, Georgia, serif;
+      font-size: 10px; letter-spacing: .22em; text-transform: uppercase;
+      cursor: pointer; transition: background .2s, transform .15s;
+      margin-bottom: 10px;
+    }
+    #weGateCta:hover { background: #7a5133; transform: translateY(-1px); }
+    #weGateSkip {
+      background: none; border: none;
+      font-family: WeddingSerif, Georgia, serif;
+      font-size: 10px; font-weight: 400; color: #aaa098;
+      letter-spacing: .14em; text-transform: uppercase;
+      cursor: pointer; padding: 6px; transition: color .2s;
+    }
+    #weGateSkip:hover { color: #2A201A; }
+
+    /* ── Deadline ribbon ────────────────────────── */
+    #weRsvpDeadline {
+      position: fixed; top: 0; left: 50%; z-index: 7000;
+      transform: translateX(-50%) translateY(-56px);
+      background: rgba(42,32,26,.92);
+      border-bottom: 1px solid rgba(196,149,106,.3);
+      padding: 8px 22px;
+      display: flex; align-items: center; gap: 10px;
+      font-family: WeddingSerif, Georgia, serif;
+      font-size: 11px; color: #C4956A; letter-spacing: .08em;
+      backdrop-filter: blur(8px);
+      transition: transform .5s cubic-bezier(.16,1,.3,1);
+      white-space: nowrap; pointer-events: none;
+    }
+    #weRsvpDeadline.we-visible { transform: translateX(-50%) translateY(0); }
+    #weRsvpDeadline .we-dot {
+      width: 6px; height: 6px; background: #C4956A; border-radius: 50%;
+      animation: weBlink 1.6s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+    @keyframes weBlink {
+      0%,100% { opacity:1; } 50% { opacity:.2; }
+    }
+
+    /* ── Floating seat card ─────────────────────── */
+    #weSeatCard {
+      position: fixed; bottom: 24px; right: 24px; z-index: 7500;
+      transform: translateY(100px); opacity: 0;
+      transition: transform .55s cubic-bezier(.16,1,.3,1), opacity .55s ease;
+      pointer-events: none;
+    }
+    #weSeatCard.we-visible { transform: translateY(0); opacity: 1; pointer-events: all; }
+    #weSeatCard.we-pulse .we-seat-inner {
+      animation: wePulse 2.8s ease-in-out infinite;
+    }
+    @keyframes wePulse {
+      0%,100% { box-shadow: 0 8px 28px rgba(42,32,26,.18), 0 0 0 0 rgba(196,149,106,.45); }
+      50%      { box-shadow: 0 8px 28px rgba(42,32,26,.22), 0 0 0 8px rgba(196,149,106,0); }
+    }
+    .we-seat-inner {
+      background: #31271C; border: 1px solid rgba(196,149,106,.28);
+      padding: 14px 18px 14px 14px;
+      display: flex; align-items: center; gap: 12px;
+      cursor: pointer; transition: transform .2s, background .2s;
+      box-shadow: 0 8px 28px rgba(42,32,26,.2);
+      max-width: 240px;
+    }
+    .we-seat-inner:hover { transform: translateY(-2px); background: #3d3026; }
+    .we-seat-icon {
+      width: 34px; height: 34px; flex-shrink: 0;
+      background: rgba(196,149,106,.12); border: 1px solid rgba(196,149,106,.25);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px;
+    }
+    .we-seat-text { flex: 1; min-width: 0; }
+    .we-seat-lbl {
+      font-family: WeddingSerif, Georgia, serif;
+      font-size: 9px; letter-spacing: .22em; text-transform: uppercase;
+      color: #C4956A; margin-bottom: 2px;
+    }
+    .we-seat-name {
+      font-family: WeddingSerif, Georgia, serif;
+      font-size: 16px; color: #FDFAF7; font-weight: 300;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .we-seat-arr { color: #C4956A; font-size: 13px; flex-shrink: 0; transition: transform .2s; }
+    .we-seat-inner:hover .we-seat-arr { transform: translateX(3px); }
+    #weSeatDismiss {
+      position: absolute; top: -8px; right: -8px;
+      width: 20px; height: 20px;
+      background: #8a7464; border: none; color: #FDFAF7;
+      font-size: 10px; border-radius: 50%; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .2s; line-height: 1;
+    }
+    #weSeatDismiss:hover { background: #31271C; }
+
+    /* ── Scroll lock overlay ────────────────────── */
+    #weScrollLock {
+      position: fixed; inset: 0; z-index: 7800;
+      background: rgba(42,32,26,0);
+      display: flex; align-items: center; justify-content: center;
+      pointer-events: none;
+      transition: background .5s ease;
+    }
+    #weScrollLock.we-locked {
+      background: rgba(42,32,26,.78);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      pointer-events: all;
+    }
+    #weScrollLockContent {
+      text-align: center; padding: 40px 32px; max-width: 360px; width: 90%;
+      opacity: 0; transform: scale(.95);
+      transition: opacity .45s ease, transform .45s ease;
+      pointer-events: none;
+    }
+    #weScrollLock.we-locked #weScrollLockContent {
+      opacity: 1; transform: scale(1); pointer-events: all;
+    }
+    .we-lock-icon { font-size: 28px; margin-bottom: 14px; display: block;
+      animation: weLockWiggle 3.5s ease-in-out infinite; }
+    @keyframes weLockWiggle {
+      0%,88%,100% { transform: rotate(0deg); }
+      91% { transform: rotate(-9deg); }
+      95% { transform: rotate(9deg); }
+    }
+    .we-lock-title {
+      font-family: WeddingSerif, Georgia, serif;
+      font-size: 26px; font-weight: 300; color: #FDFAF7;
+      margin-bottom: 10px; letter-spacing: -.01em;
+    }
+    .we-lock-body {
+      font-family: WeddingSerif, Georgia, serif;
+      font-size: 13px; color: rgba(253,250,247,.55);
+      line-height: 1.75; margin-bottom: 26px; letter-spacing: .01em;
+    }
+    #weScrollLockCta {
+      display: inline-block;
+      background: #C4956A; color: #2A201A; border: none;
+      padding: 13px 30px;
+      font-family: WeddingSerif, Georgia, serif;
+      font-size: 10px; letter-spacing: .22em; text-transform: uppercase;
+      cursor: pointer; transition: background .2s, transform .15s;
+      margin-bottom: 10px;
+    }
+    #weScrollLockCta:hover { background: #d4a87d; transform: translateY(-1px); }
+    #weScrollLockSkip {
+      display: block; background: none; border: none;
+      font-family: WeddingSerif, Georgia, serif;
+      font-size: 10px; color: rgba(253,250,247,.3);
+      letter-spacing: .14em; text-transform: uppercase;
+      cursor: pointer; padding: 8px; transition: color .2s;
+    }
+    #weScrollLockSkip:hover { color: rgba(253,250,247,.65); }
+
+    @media (max-width: 480px) {
+      #weGateCard { padding: 32px 22px 26px; }
+      #weGateCard .we-guestname { font-size: 30px; }
+      #weSeatCard { bottom: 72px; right: 14px; }
+    }
+  `;
+  document.head.appendChild(css);
+
+  /* ── Build deadline text ── */
+  function daysUntilDeadline() {
+    var now = new Date();
+    var d   = new Date('2026-09-18T23:59:59');
+    var diff = Math.ceil((d - now) / 86400000);
+    return diff > 0 ? diff : 0;
+  }
+
+  /* ── Greeting text ── */
+  var salutation = isCouple ? 'You are invited,' : 'You are invited,';
+  var eventDesc  = hasParty
+    ? 'Church Ceremony <strong>16 Oct 14:00</strong> &amp; Evening Reception <strong>17:00</strong>'
+    : 'Church Ceremony <strong>16 October at 14:00</strong> in Düsseldorf';
+  var seatsText  = isCouple ? '2 seats have been reserved for you' : 'A seat has been reserved for you';
+
+  /* ── SOFT GATE HTML ── */
+  var gate = document.createElement('div');
+  gate.id = 'weGate';
+  gate.innerHTML =
+    '<div id="weGateBackdrop"></div>' +
+    '<div id="weGateCard">' +
+      '<div class="we-mono">Jonas &amp; Arina · 16.10.2026</div>' +
+      '<div class="we-rule"></div>' +
+      '<div class="we-salut">' + salutation + '</div>' +
+      '<div class="we-guestname">' + displayName + '</div>' +
+      '<div class="we-seat-badge">🪑 ' + seatsText + '</div>' +
+      '<div class="we-body">Before you explore — it only takes <strong>60 seconds</strong> to confirm your attendance.<br>RSVP deadline: <strong>18 September</strong>.</div>' +
+      '<button id="weGateCta">Confirm My Attendance →</button>' +
+      '<button id="weGateSkip">I\'ll explore first</button>' +
+    '</div>';
+  document.body.appendChild(gate);
+
+  /* ── DEADLINE RIBBON ── */
+  var days = daysUntilDeadline();
+  if (days > 0) {
+    var ribbon = document.createElement('div');
+    ribbon.id = 'weRsvpDeadline';
+    ribbon.innerHTML = '<span class="we-dot"></span> RSVP closes 18 September &nbsp;·&nbsp; <strong style="color:#EBE2DA;margin-left:2px;">' + days + ' day' + (days !== 1 ? 's' : '') + ' left</strong>';
+    document.body.appendChild(ribbon);
+  }
+
+  /* ── FLOATING SEAT CARD ── */
+  var seatCard = document.createElement('div');
+  seatCard.id = 'weSeatCard';
+  seatCard.innerHTML =
+    '<button id="weSeatDismiss" title="Dismiss">×</button>' +
+    '<div class="we-seat-inner" id="weSeatInner">' +
+      '<div class="we-seat-icon">🪑</div>' +
+      '<div class="we-seat-text">' +
+        '<div class="we-seat-lbl">Your seat · Reserved</div>' +
+        '<div class="we-seat-name">' + displayName + '</div>' +
+      '</div>' +
+      '<div class="we-seat-arr">→</div>' +
+    '</div>';
+  document.body.appendChild(seatCard);
+
+  /* ── SCROLL LOCK ── */
+  var scrollLock = document.createElement('div');
+  scrollLock.id = 'weScrollLock';
+  var firstName = p1 || displayName.split(' ')[0];
+  scrollLock.innerHTML =
+    '<div id="weScrollLockContent">' +
+      '<span class="we-lock-icon">💌</span>' +
+      '<div class="we-lock-title">One moment, ' + firstName + '</div>' +
+      '<div class="we-lock-body">You scrolled past your RSVP.<br>It takes less than a minute — and it means<br>everything to us to know you\'ll be there.</div>' +
+      '<button id="weScrollLockCta">RSVP Now →</button>' +
+      '<button id="weScrollLockSkip">Continue browsing</button>' +
+    '</div>';
+  document.body.appendChild(scrollLock);
+
+  /* ── State ── */
+  var gateSkipped      = false;
+  var seatVisible      = false;
+  var lockTriggered    = false;
+  var lockActive       = false;
+  var rsvpCardPassed   = false;
+
+  /* ── Helpers ── */
+  function hideGate() { gate.classList.add('we-hidden'); }
+
+  function showDeadline() {
+    var r = document.getElementById('weRsvpDeadline');
+    if (r) setTimeout(function() { r.classList.add('we-visible'); }, 350);
+  }
+
+  function showSeatCard() {
+    if (seatVisible || rsvpDone) return;
+    seatVisible = true;
+    seatCard.classList.add('we-visible');
+    setTimeout(function() { seatCard.classList.add('we-pulse'); }, 1200);
+  }
+
+  function hideSeatCard() {
+    seatCard.classList.remove('we-visible');
+    seatVisible = false;
+  }
+
+  function scrollToRSVP() {
+    var card = document.querySelector('.rsvp-card');
+    if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    hideScrollLock();
+  }
+
+  function hideScrollLock() {
+    scrollLock.classList.remove('we-locked');
+    lockActive = false;
+  }
+
+  function triggerScrollLock() {
+    if (lockTriggered || lockActive || rsvpDone) return;
+    lockTriggered = true;
+    lockActive    = true;
+    var card = document.querySelector('.rsvp-card');
+    if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setTimeout(function() { scrollLock.classList.add('we-locked'); }, 600);
+  }
+
+  /* ── Gate buttons ── */
+  document.getElementById('weGateCta').addEventListener('click', function() {
+    hideGate();
+    showDeadline();
+    gateSkipped = false;
+    setTimeout(function() {
+      scrollToRSVP();
+      var beginBtn = document.getElementById('rsvpBeginBtn');
+      if (beginBtn) setTimeout(function() { beginBtn.click(); }, 500);
+    }, 500);
+  });
+
+  document.getElementById('weGateSkip').addEventListener('click', function() {
+    hideGate();
+    showDeadline();
+    gateSkipped = true;
+    setTimeout(showSeatCard, 2500);
+  });
+
+  /* ── Seat card ── */
+  document.getElementById('weSeatInner').addEventListener('click', function() {
+    hideSeatCard();
+    scrollToRSVP();
+    var beginBtn = document.getElementById('rsvpBeginBtn');
+    if (beginBtn) setTimeout(function() { beginBtn.click(); }, 500);
+  });
+  document.getElementById('weSeatDismiss').addEventListener('click', function(e) {
+    e.stopPropagation();
+    hideSeatCard();
+  });
+
+  /* ── Scroll lock buttons ── */
+  document.getElementById('weScrollLockCta').addEventListener('click', function() {
+    hideScrollLock();
+    scrollToRSVP();
+    var beginBtn = document.getElementById('rsvpBeginBtn');
+    if (beginBtn) setTimeout(function() { beginBtn.click(); }, 500);
+  });
+  document.getElementById('weScrollLockSkip').addEventListener('click', function() {
+    hideScrollLock();
+    lockTriggered = false; // allow one more trigger
+    showSeatCard();
+  });
+
+  /* ── Scroll watcher ── */
+  var rsvpCard = document.querySelector('.rsvp-card');
+  window.addEventListener('scroll', function() {
+    if (rsvpDone) return;
+
+    // Show seat card on first scroll if gate was skipped
+    if (gateSkipped && !seatVisible && window.scrollY > 60) {
+      showSeatCard();
+    }
+
+    // Detect if RSVP card has been scrolled past
+    if (rsvpCard && gateSkipped) {
+      var rect = rsvpCard.getBoundingClientRect();
+      if (rect.bottom < -80 && !lockTriggered) {
+        triggerScrollLock();
+      }
+    }
+  }, { passive: true });
 
 })();
