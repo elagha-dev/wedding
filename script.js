@@ -88,6 +88,13 @@ function renderContent(c) {
   renderCrewSide("crew-bride", c.crew && c.crew.brideSide);
   renderCrewOther("crew-other", c.crew && c.crew.pastorAndBand);
 
+  /* Kathi contact card in B&S done screen */
+  var kathiContainer = document.getElementById('kathiBsCard');
+  if (kathiContainer && c.crew && c.crew.pastorAndBand) {
+    var kathi = c.crew.pastorAndBand.find(function(p) { return p.role === 'Bring & Share'; });
+    if (kathi) kathiContainer.appendChild(buildPersonCard(kathi));
+  }
+
   /* Ceremony timeline */
   const agendaEl = document.getElementById("ceremony-agenda");
   if (agendaEl && c.ceremony && c.ceremony.agenda) {
@@ -780,7 +787,8 @@ if (wSubmit) wSubmit.addEventListener("click", async function() {
     guests_attending:    guestNames,
     children:            anyAttending   ? String(getChildrenCount()) : "0",
     seats:               anyAttending   ? String(__seatCount) : "0",
-    join_bring_share:    attending && bringShareCheckbox && bringShareCheckbox.checked ? "Yes" : "No"
+    join_bring_share:    attending && bringShareCheckbox && bringShareCheckbox.checked ? "Yes" : "No",
+    coming_by_car:       (document.getElementById('comingByCar') && document.getElementById('comingByCar').checked) ? "Yes" : "No"
   };
 
   try {
@@ -1660,10 +1668,10 @@ if (newRsvpBtn2) {
 
     /* ── Deadline ribbon ────────────────────────── */
     #weRsvpDeadline {
-      position: fixed; top: 0; left: 50%; z-index: 7000;
-      transform: translateX(-50%) translateY(-56px);
+      position: fixed; bottom: 0; left: 50%; z-index: 7000;
+      transform: translateX(-50%) translateY(56px);
       background: rgba(42,32,26,.92);
-      border-bottom: 1px solid rgba(196,149,106,.3);
+      border-top: 1px solid rgba(196,149,106,.3);
       padding: 8px 22px;
       display: flex; align-items: center; gap: 10px;
       font-family: WeddingSerif, Georgia, serif;
@@ -1821,9 +1829,9 @@ if (newRsvpBtn2) {
   gate.innerHTML =
     '<div id="weGateBackdrop"></div>' +
     '<div id="weGateCard">' +
-      '<div class="we-mono">Elnur &amp; Arina · 16.10.2026</div>' +
+      '<div class="we-mono">Arina &amp; Elnur\'s Wedding</div>' +
       '<div class="we-rule"></div>' +
-      '<div class="we-salut">' + salutation + '</div>' +
+      '<div class="we-salut">You are invited,</div>' +
       '<div class="we-guestname">' + displayName + '</div>' +
       '<div class="we-seat-badge">♡ ' + seatsText + '</div>' +
       '<div class="we-body">' + t('gateBody') + '</div>' +
