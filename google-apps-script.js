@@ -40,7 +40,7 @@ function doPost(e) {
     var partySheet = ss.getSheetByName(PARTY_SHEET_NAME);
     if (!partySheet) {
       partySheet = ss.insertSheet(PARTY_SHEET_NAME);
-      partySheet.appendRow(["Date & Time","Name","Party Attending","Dietary","Notes"]);
+      partySheet.appendRow(["Date & Time","Name","Party Attending","Dietary","Notes","Coming by Car"]);
     }
 
     var bsSheet = ss.getSheetByName(BRING_SHARE_SHEET_NAME);
@@ -56,7 +56,8 @@ function doPost(e) {
         data.name            || "",
         data.party_attending || "",
         data.party_dietary   || "",
-        data.party_notes     || ""
+        data.party_notes     || "",
+        data.coming_by_car   || ""
       ]);
 
     } else if (type === "bring_share") {
@@ -114,7 +115,7 @@ function setupSheets() {
 
   var sheets = [
     { name: RSVP_SHEET_NAME, headers: ["Date & Time","First Name","Last Name","Full Name","Email","Phone","Invited to Party","Ceremony Attendance","Evening Attendance","Guests Attending","Children","Total Seats","Join Bring & Share"] },
-    { name: PARTY_SHEET_NAME, headers: ["Date & Time","Name","Party Attending","Dietary","Notes"] },
+    { name: PARTY_SHEET_NAME, headers: ["Date & Time","Name","Party Attending","Dietary","Notes","Coming by Car"] },
     { name: BRING_SHARE_SHEET_NAME, headers: ["Date & Time","Name","Contact","What","Portions","Food Type","Allergens"] }
   ];
 

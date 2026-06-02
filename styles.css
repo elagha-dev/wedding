@@ -61,7 +61,7 @@ html, body {
   top: 22px;
   left: 14px;
   width: clamp(44px, 5.2vw, 80px); /* scales with viewport */
-  z-index: 7100;
+  z-index: 10;
   opacity: .9;
 }
 
@@ -205,7 +205,7 @@ p {
   min-height: 28px;
   padding: 0;
   border: none;
-  border-bottom: 1px solid rgba(49,39,28,.16);
+  border-bottom: 1px solid var(--line);
   background: transparent;
   border-radius: 0;
   color: var(--ink);
@@ -478,7 +478,7 @@ p {
   text-transform: uppercase;
   color: rgba(49,39,28,.38);
   text-decoration: none;
-  border-bottom: 1px solid rgba(49,39,28,.14);
+  border-bottom: 1px solid var(--line);
   padding-bottom: 1px;
   transition: color .15s, border-color .15s;
 }
@@ -1141,7 +1141,7 @@ p {
 .faq-list { display: grid; gap: 0; overflow: auto; scrollbar-width: thin; scrollbar-color: rgb(0 0 0 / 4%) transparent; }
 
 .faq-item {
-  border-bottom: 1px solid rgba(49,39,28,.08);
+  border-bottom: 1px solid var(--line);
 }
 .faq-item:first-child { }
 .faq-item:last-child  { border-bottom: 0; }

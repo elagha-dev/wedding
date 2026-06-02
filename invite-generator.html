@@ -3,384 +3,114 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Arina & Elnur — Invite Link Generator</title>
+<title>Arina & Elnur — Invite Generator</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #F7F3EE;
-    --card: #FDFAF7;
-    --ink: #2A201A;
-    --muted: #7A6B5E;
-    --accent: #7A5236;
-    --accent-light: #C4956A;
-    --border: #E2D8CF;
-    --success: #4A7C59;
-    --tag-ceremony: #E8E0D6;
-    --tag-party: #F0E4D4;
+    --bg: #F7F3EE; --card: #FDFAF7; --ink: #2A201A; --muted: #7A6B5E;
+    --accent: #7A5236; --accent-light: #C4956A; --border: #E2D8CF;
+    --green: #4A7C59; --green-light: #EBF3ED;
     --serif: 'Cormorant Garamond', Georgia, serif;
     --sans: 'Jost', sans-serif;
   }
-
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--sans); background: var(--bg); color: var(--ink); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 40px 16px 80px; }
 
-  body {
-    font-family: var(--sans);
-    background: var(--bg);
-    color: var(--ink);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 40px 16px 80px;
-  }
+  header { text-align: center; margin-bottom: 40px; }
+  .monogram { font-family: var(--serif); font-size: 40px; font-weight: 300; letter-spacing: .18em; color: var(--accent); font-style: italic; }
+  .header-rule { width: 40px; height: 1px; background: var(--accent-light); margin: 12px auto; }
+  header h1 { font-size: 11px; font-weight: 500; letter-spacing: .22em; text-transform: uppercase; color: var(--muted); }
 
-  /* ── Header ── */
-  header {
-    text-align: center;
-    margin-bottom: 48px;
-    max-width: 560px;
-  }
-  .monogram {
-    font-family: var(--serif);
-    font-size: 42px;
-    font-weight: 300;
-    letter-spacing: .18em;
-    color: var(--accent);
-    margin-bottom: 6px;
-    font-style: italic;
-  }
-  header h1 {
-    font-family: var(--sans);
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: .22em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-  .header-rule {
-    width: 40px;
-    height: 1px;
-    background: var(--accent-light);
-    margin: 16px auto;
-  }
+  .card { background: var(--card); border: 1px solid var(--border); padding: 28px 32px; width: 100%; max-width: 640px; box-shadow: 0 2px 24px rgba(42,32,26,.06); margin-top: 20px; }
 
-  /* ── Main card ── */
-  .card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 32px;
-    width: 100%;
-    max-width: 620px;
-    box-shadow: 0 2px 24px rgba(42,32,26,.06);
-  }
+  .section-label { font-size: 10px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); margin-bottom: 18px; display: flex; align-items: center; gap: 10px; }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
-  .card + .card { margin-top: 20px; }
-
-  .section-label {
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: .2em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .section-label::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-
-  /* ── Name input row ── */
-  .name-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 20px;
-  }
+  .name-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
   .field-group { display: flex; flex-direction: column; gap: 6px; }
-  .field-group label {
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: .14em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-  input[type="text"] {
-    font-family: var(--sans);
-    font-size: 14px;
-    padding: 10px 14px;
-    border: 1px solid var(--border);
-    border-radius: 3px;
-    background: var(--bg);
-    color: var(--ink);
-    transition: border-color .2s, box-shadow .2s;
-    outline: none;
-  }
-  input[type="text"]:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(122,82,54,.1);
-  }
+  .field-group label { font-size: 10px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+  input[type="text"] { font-family: var(--sans); font-size: 14px; padding: 10px 14px; border: 1px solid var(--border); background: var(--bg); color: var(--ink); transition: border-color .2s; outline: none; }
+  input[type="text"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(122,82,54,.1); }
   input[type="text"]::placeholder { color: #BEB2A8; }
 
-  /* ── Invite type buttons ── */
-  .type-label {
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: .14em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 10px;
-    display: block;
-  }
-  .invite-types {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    margin-bottom: 24px;
-  }
-  .type-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
-    padding: 14px 16px;
-    background: var(--bg);
-    border: 1.5px solid var(--border);
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all .18s;
-    text-align: left;
-  }
-  .type-btn:hover {
-    border-color: var(--accent-light);
-    background: #FBF6F0;
-  }
-  .type-btn.is-active {
-    border-color: var(--accent);
-    background: #FBF6F0;
-    box-shadow: 0 0 0 2px rgba(122,82,54,.12);
-  }
-  .type-btn-icon { font-size: 20px; margin-bottom: 2px; }
-  .type-btn-title {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--ink);
-    letter-spacing: .02em;
-  }
-  .type-btn-desc {
-    font-size: 11px;
-    color: var(--muted);
-    line-height: 1.4;
-  }
+  .type-label { font-size: 10px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; display: block; }
+  .invite-types { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; margin-bottom: 20px; }
+  .type-btn { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; padding: 12px 14px; background: var(--bg); border: 1.5px solid var(--border); cursor: pointer; transition: all .18s; text-align: left; }
+  .type-btn:hover { border-color: var(--accent-light); background: #FBF6F0; }
+  .type-btn.is-active { border-color: var(--accent); background: #FBF6F0; box-shadow: 0 0 0 2px rgba(122,82,54,.12); }
+  .type-btn-icon { font-size: 18px; }
+  .type-btn-title { font-size: 12px; font-weight: 600; color: var(--ink); }
+  .type-btn-desc { font-size: 10.5px; color: var(--muted); }
   .type-btn.is-active .type-btn-title { color: var(--accent); }
 
-  /* ── Language selector ── */
-  .lang-row {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    margin-bottom: 24px;
-  }
-  .lang-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 7px;
-    padding: 10px 12px;
-    background: var(--bg);
-    border: 1.5px solid var(--border);
-    border-radius: 4px;
-    cursor: pointer;
-    font-family: var(--sans);
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--muted);
-    transition: all .18s;
-  }
-  .lang-btn:hover {
-    border-color: var(--accent-light);
-    background: #FBF6F0;
-  }
-  .lang-btn.is-active {
-    border-color: var(--accent);
-    background: #FBF6F0;
-    color: var(--accent);
-    box-shadow: 0 0 0 2px rgba(122,82,54,.12);
-  }
-  .lang-flag { font-size: 16px; line-height: 1; }
+  .lang-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 20px; }
+  .lang-btn { display: flex; align-items: center; justify-content: center; gap: 7px; padding: 9px 12px; background: var(--bg); border: 1.5px solid var(--border); cursor: pointer; font-family: var(--sans); font-size: 12px; font-weight: 500; color: var(--muted); transition: all .18s; }
+  .lang-btn:hover { border-color: var(--accent-light); background: #FBF6F0; }
+  .lang-btn.is-active { border-color: var(--accent); background: #FBF6F0; color: var(--accent); }
+  .lang-flag { font-size: 15px; }
 
-  /* ── Generate button ── */
-  .generate-btn {
-    width: 100%;
-    padding: 14px 24px;
-    background: var(--accent);
-    color: #FBF6F0;
-    border: none;
-    border-radius: 3px;
-    font-family: var(--sans);
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: .18em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: background .2s, transform .1s;
-  }
+  .generate-btn { width: 100%; padding: 14px 24px; background: var(--accent); color: #FBF6F0; border: none; font-family: var(--sans); font-size: 12px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; cursor: pointer; transition: background .2s; }
   .generate-btn:hover { background: #8E6042; }
-  .generate-btn:active { transform: scale(.99); }
 
-  /* ── Output area ── */
-  .output-card {
-    display: none;
-  }
+  /* Output */
+  .output-card { display: none; }
   .output-card.is-visible { display: block; }
 
-  .guest-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 10px;
-    border-radius: 20px;
-    background: var(--tag-ceremony);
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--muted);
-    margin-bottom: 16px;
-  }
-  .guest-tag.has-party { background: var(--tag-party); }
+  .guest-tag { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: #E8E0D6; font-size: 11px; font-weight: 500; color: var(--muted); margin-bottom: 14px; }
+  .guest-tag.has-party { background: #F0E4D4; }
 
-  .url-box {
-    display: flex;
-    align-items: center;
-    gap: 0;
-    border: 1px solid var(--border);
-    border-radius: 3px;
-    overflow: hidden;
-    margin-bottom: 12px;
-    background: var(--bg);
-  }
-  .url-text {
-    flex: 1;
-    padding: 11px 14px;
-    font-family: 'Courier New', monospace;
-    font-size: 12px;
-    color: var(--ink);
-    word-break: break-all;
-    line-height: 1.5;
-    user-select: all;
-    cursor: text;
-  }
-  .copy-btn {
-    flex-shrink: 0;
-    padding: 0 18px;
-    height: 100%;
-    min-height: 44px;
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    font-family: var(--sans);
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: .1em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: background .2s;
-    white-space: nowrap;
-  }
-  .copy-btn:hover { background: #8E6042; }
-  .copy-btn.copied { background: var(--success); }
+  .url-box { display: flex; align-items: center; border: 1px solid var(--border); overflow: hidden; margin-bottom: 10px; }
+  .url-text { flex: 1; font-size: 12px; padding: 10px 14px; color: var(--muted); font-family: monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .copy-btn { flex-shrink: 0; padding: 10px 18px; background: var(--ink); color: #EBE2DA; border: none; font-family: var(--sans); font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; cursor: pointer; transition: background .2s; white-space: nowrap; }
+  .copy-btn:hover { background: var(--accent); }
+  .copy-btn.copied { background: var(--green); }
+  .open-btn { display: inline-block; font-size: 11px; color: var(--muted); text-decoration: none; letter-spacing: .08em; margin-bottom: 18px; transition: color .2s; }
+  .open-btn:hover { color: var(--accent); }
 
-  .open-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--accent);
-    text-decoration: none;
-    border: 1px solid var(--border);
-    border-radius: 3px;
-    padding: 8px 16px;
-    transition: background .18s, border-color .18s;
-    margin-top: 4px;
-  }
-  .open-btn:hover { background: #FBF6F0; border-color: var(--accent-light); }
+  /* Message preview */
+  .msg-label { font-size: 10px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; margin-top: 4px; }
+  .msg-box { background: var(--bg); border: 1px solid var(--border); padding: 14px 16px; font-family: var(--serif); font-size: 13.5px; line-height: 1.75; color: var(--ink); white-space: pre-wrap; word-break: break-word; margin-bottom: 10px; max-height: 220px; overflow-y: auto; }
+  .msg-actions { display: flex; gap: 10px; }
+  .msg-btn { flex: 1; padding: 11px 14px; border: none; font-family: var(--sans); font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; cursor: pointer; transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 7px; }
+  .msg-btn-copy { background: var(--ink); color: #EBE2DA; }
+  .msg-btn-copy:hover { background: var(--accent); }
+  .msg-btn-copy.copied { background: var(--green); }
+  .msg-btn-wa { background: #25D366; color: #fff; }
+  .msg-btn-wa:hover { background: #1ebe5d; }
 
-  /* ── History list ── */
-  .history-list {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  .history-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 14px;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 3px;
-    font-size: 13px;
-  }
-  .history-name {
-    flex: 1;
-    font-weight: 500;
-    color: var(--ink);
-  }
-  .history-badges {
-    display: flex;
-    gap: 4px;
-  }
-  .badge {
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-    padding: 2px 7px;
-    border-radius: 10px;
-    background: var(--tag-ceremony);
-    color: var(--muted);
-  }
-  .badge.party { background: var(--tag-party); color: var(--accent); }
-  .badge.couple { background: #E6EEF0; color: #3A6070; }
+  /* Tracker history */
+  .history-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+  .history-header .section-label { margin-bottom: 0; }
+  .clear-btn { font-size: 11px; color: #aaa; background: none; border: none; cursor: pointer; }
 
-  .history-copy {
-    background: none;
-    border: 1px solid var(--border);
-    border-radius: 3px;
-    padding: 5px 12px;
-    font-family: var(--sans);
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--muted);
-    cursor: pointer;
-    transition: all .15s;
-    white-space: nowrap;
-  }
-  .history-copy:hover { border-color: var(--accent); color: var(--accent); }
-  .history-copy.copied { border-color: var(--success); color: var(--success); }
+  .history-list { list-style: none; display: flex; flex-direction: column; gap: 0; }
+  .empty-history { text-align: center; padding: 24px; color: var(--muted); font-size: 13px; font-style: italic; font-family: var(--serif); }
 
-  .empty-history {
-    text-align: center;
-    padding: 24px;
-    color: var(--muted);
-    font-size: 13px;
-    font-style: italic;
-    font-family: var(--serif);
-  }
+  .history-item { padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .history-item:last-child { border-bottom: none; }
 
-  /* ── Responsive ── */
+  .hi-top { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+  .hi-name { font-family: var(--serif); font-size: 16px; font-weight: 400; color: var(--ink); }
+  .hi-badges { display: flex; gap: 5px; flex-wrap: wrap; }
+  .badge { font-size: 9.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; padding: 2px 7px; background: #EBE2DA; color: var(--muted); }
+  .badge.party { background: #F0E4D4; color: var(--accent); }
+  .badge.couple { background: #E4EBF0; color: #3a5a6e; }
+
+  .hi-actions { display: flex; gap: 7px; flex-wrap: wrap; }
+  .track-btn { padding: 6px 12px; font-size: 10px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; border: 1.5px solid var(--border); background: var(--bg); color: var(--muted); cursor: pointer; font-family: var(--sans); transition: all .18s; display: flex; align-items: center; gap: 5px; }
+  .track-btn:hover { border-color: var(--accent-light); color: var(--accent); background: #FBF6F0; }
+  .track-btn.done { border-color: var(--green); background: var(--green-light); color: var(--green); }
+  .track-btn .check { font-size: 11px; }
+
+  .hi-meta { font-size: 10px; color: #bbb; letter-spacing: .04em; margin-top: 6px; }
+
+  /* Responsive */
   @media (max-width: 500px) {
     .name-row { grid-template-columns: 1fr; }
-    .invite-types { grid-template-columns: 1fr 1fr; }
-    .card { padding: 24px 18px; }
+    .card { padding: 20px 16px; }
+    .msg-actions { flex-direction: column; }
   }
 </style>
 </head>
@@ -389,21 +119,20 @@
 <header>
   <div class="monogram">A & E</div>
   <div class="header-rule"></div>
-  <h1>Wedding Invite Link Generator</h1>
+  <h1>Wedding Invite Generator</h1>
 </header>
 
-<!-- Generator card -->
+<!-- Generator -->
 <div class="card">
   <div class="section-label">Guest Details</div>
-
   <div class="name-row">
     <div class="field-group">
-      <label for="p1">First Guest Name</label>
+      <label for="p1">First Guest</label>
       <input type="text" id="p1" placeholder="e.g. Sarah" />
     </div>
-    <div class="field-group" id="p2Group">
-      <label for="p2">Second Guest (optional)</label>
-      <input type="text" id="p2" placeholder="e.g. Michael" />
+    <div class="field-group">
+      <label for="p2">Second Guest (couple)</label>
+      <input type="text" id="p2" placeholder="optional" />
     </div>
   </div>
 
@@ -421,213 +150,308 @@
     </button>
     <button class="type-btn" data-type="ceremony-party-single">
       <span class="type-btn-icon">🎉</span>
-      <span class="type-btn-title">Single — Ceremony + Party</span>
-      <span class="type-btn-desc">One guest, full day</span>
+      <span class="type-btn-title">Single — Full Day</span>
+      <span class="type-btn-desc">One guest, ceremony + party</span>
     </button>
     <button class="type-btn" data-type="couple-party">
       <span class="type-btn-icon">✨</span>
-      <span class="type-btn-title">Couple — Ceremony + Party</span>
-      <span class="type-btn-desc">Two guests, full day</span>
+      <span class="type-btn-title">Couple — Full Day</span>
+      <span class="type-btn-desc">Two guests, ceremony + party</span>
     </button>
   </div>
 
   <span class="type-label">Language</span>
   <div class="lang-row">
-    <button class="lang-btn is-active" data-lang="en">
-      <span class="lang-flag">🇬🇧</span> English
-    </button>
-    <button class="lang-btn" data-lang="de">
-      <span class="lang-flag">🇩🇪</span> Deutsch
-    </button>
-    <button class="lang-btn" data-lang="ru">
-      <span class="lang-flag">🇷🇺</span> Русский
-    </button>
+    <button class="lang-btn is-active" data-lang="en"><span class="lang-flag">🇬🇧</span> English</button>
+    <button class="lang-btn" data-lang="de"><span class="lang-flag">🇩🇪</span> Deutsch</button>
+    <button class="lang-btn" data-lang="ru"><span class="lang-flag">🇷🇺</span> Русский</button>
   </div>
 
-  <button class="generate-btn" id="generateBtn">Generate Invite Link →</button>
+  <button class="generate-btn" id="generateBtn">Generate Invite →</button>
 </div>
 
-<!-- Output card -->
+<!-- Output -->
 <div class="card output-card" id="outputCard">
-  <div class="section-label">Your Link</div>
+  <div class="section-label">Invite Link</div>
   <div id="guestTagWrap"></div>
   <div class="url-box">
     <div class="url-text" id="urlDisplay"></div>
-    <button class="copy-btn" id="copyBtn">Copy</button>
+    <button class="copy-btn" id="copyLinkBtn">Copy Link</button>
   </div>
-  <a class="open-btn" id="openBtn" href="#" target="_blank" rel="noreferrer">
-    ↗ Preview invite
-  </a>
+  <a class="open-btn" id="openBtn" href="#" target="_blank" rel="noreferrer">↗ Preview invite</a>
+
+  <div class="msg-label">Message to send</div>
+  <div class="msg-box" id="msgPreview"></div>
+  <div class="msg-actions">
+    <button class="msg-btn msg-btn-copy" id="copyMsgBtn">📋 Copy Message</button>
+    <button class="msg-btn msg-btn-wa" id="waMsgBtn">💬 Send via WhatsApp</button>
+  </div>
 </div>
 
-<!-- History card -->
-<div class="card" style="margin-top:20px">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-    <div class="section-label" style="margin-bottom:0">Generated Links</div>
-    <button id="clearHistoryBtn" style="font-size:11px;color:#999;background:none;border:none;cursor:pointer;padding:2px 0;letter-spacing:.03em">Clear all</button>
+<!-- Tracker / History -->
+<div class="card" id="historyCard">
+  <div class="history-header">
+    <div class="section-label" style="margin-bottom:0;flex:1">Invite Tracker</div>
+    <button class="clear-btn" id="clearHistoryBtn">Clear all</button>
   </div>
-  <ul class="history-list" id="historyList">
-    <li class="empty-history">No links generated yet — create your first above ↑</li>
-  </ul>
+  <ul class="history-list" id="historyList"></ul>
 </div>
 
 <script>
-  // ── Config ─────────────────────────────────────────────
-  // Change this to your actual wedding site URL when deployed!
-  var BASE_URL = 'https://www.arinaelnur.de/';
+var BASE_URL = 'https://www.arinaelnur.de/';
 
-  // ── State ───────────────────────────────────────────────
-  var selectedType = 'ceremony-single';
-  var selectedLang = 'en';
-  var linkHistory = (function() {
-    try { return JSON.parse(localStorage.getItem('weddingLinkHistory') || '[]'); } catch(e) { return []; }
-  })();
+var selectedType = 'ceremony-single';
+var selectedLang = 'en';
+var currentUrl   = '';
+var currentName  = '';
 
-  // ── Language button toggle ─────────────────────────────────
-  document.querySelectorAll('.lang-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      document.querySelectorAll('.lang-btn').forEach(function(b) { b.classList.remove('is-active'); });
-      btn.classList.add('is-active');
-      selectedLang = btn.dataset.lang;
-    });
-  });
+// ── Load history from localStorage ─────────────────────────
+var history = (function() {
+  try { return JSON.parse(localStorage.getItem('inviteTracker') || '[]'); }
+  catch(e) { return []; }
+})();
 
-  // ── Type button toggle ──────────────────────────────────
-  document.querySelectorAll('.type-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      document.querySelectorAll('.type-btn').forEach(function(b) {
-        b.classList.remove('is-active');
-      });
-      btn.classList.add('is-active');
-      selectedType = btn.dataset.type;
+function saveHistory() {
+  try { localStorage.setItem('inviteTracker', JSON.stringify(history)); } catch(e) {}
+}
 
-      // Show/hide second name field
-      var needsP2 = selectedType === 'couple-ceremony' || selectedType === 'couple-party';
-      document.getElementById('p2').placeholder = needsP2 ? 'e.g. Michael' : 'optional';
-    });
-  });
+// ── Message templates ───────────────────────────────────────
+function buildMessage(name, type, lang, url) {
+  var isCouple = type === 'couple-ceremony' || type === 'couple-party';
+  var hasParty = type === 'ceremony-party-single' || type === 'couple-party';
+  var greeting = isCouple ? name : name;
 
-  // ── Build URL ───────────────────────────────────────────
-  function buildUrl(p1, p2, type, lang) {
-    var params = new URLSearchParams();
-    if (p1) params.set('p1', p1);
-    if (p2 && (type === 'couple-ceremony' || type === 'couple-party')) {
-      params.set('p2', p2);
+  var templates = {
+    en: {
+      ceremony: 'Hey {name} 💛\n\nWe\'re getting married and we want you there with us.\n\n📅 16 October 2026 at 14:00\n📍 Schlosskirche Düsseldorf\n\nYour personal invitation is ready — just click the link, take a minute and let us know if you\'re coming.\n\n{url}\n\nCan\'t wait to see you there. ♡\nArina & Elnur',
+      party: 'Hey {name} 💛\n\nWe\'re getting married — and we want you there for the whole day.\n\n📅 16 October 2026\n⛪ Ceremony at 14:00 — Schlosskirche Düsseldorf\n🎉 Evening reception from 17:00\n\nYour personal invitation is ready — open it, tell us if you\'re coming, and we\'ll handle the rest.\n\n{url}\n\nSo excited to celebrate with you. ♡\nArina & Elnur',
+    },
+    de: {
+      ceremony: 'Hey {name} 💛\n\nWir heiraten — und wir wollen, dass du dabei bist.\n\n📅 16. Oktober 2026 um 14:00 Uhr\n📍 Schlosskirche Düsseldorf\n\nDeine persönliche Einladung ist fertig — klick auf den Link und sag uns kurz Bescheid, ob du kommst.\n\n{url}\n\nWir freuen uns riesig auf dich. ♡\nArina & Elnur',
+      party: 'Hey {name} 💛\n\nWir heiraten — und wir wollen den ganzen Tag mit dir feiern.\n\n📅 16. Oktober 2026\n⛪ Trauung um 14:00 Uhr — Schlosskirche Düsseldorf\n🎉 Abendempfang ab 17:00 Uhr\n\nDeine persönliche Einladung wartet auf dich — öffne sie und sag uns, ob du kommst.\n\n{url}\n\nWir können es kaum erwarten. ♡\nArina & Elnur',
+    },
+    ru: {
+      ceremony: 'Привет, {name} 💛\n\nМы женимся — и хотим, чтобы ты был рядом.\n\n📅 16 октября 2026 года в 14:00\n📍 Schlosskirche Düsseldorf\n\nТвоё личное приглашение готово — просто открой ссылку и дай нам знать, придёшь ли.\n\n{url}\n\nТак ждём тебя. ♡\nАрина и Эльнур',
+      party: 'Привет, {name} 💛\n\nМы женимся — и хотим провести весь этот день вместе с тобой.\n\n📅 16 октября 2026 года\n⛪ Венчание в 14:00 — Schlosskirche Düsseldorf\n🎉 Вечерний приём с 17:00\n\nТвоё личное приглашение готово — открой ссылку и скажи нам, придёшь ли.\n\n{url}\n\nНе можем дождаться. ♡\nАрина и Эльнур',
     }
-    if (type === 'ceremony-party-single' || type === 'couple-party') {
-      params.set('party', '1');
-    }
-    if (lang && lang !== 'en') params.set('lang', lang);
-    return BASE_URL + '?' + params.toString();
+  };
+
+  var langSet = templates[lang] || templates.en;
+  var tpl = hasParty ? langSet.party : langSet.ceremony;
+  return tpl.replace('{name}', greeting).replace('{url}', url);
+}
+
+// ── URL builder ─────────────────────────────────────────────
+function buildUrl(p1, p2, type, lang) {
+  var params = new URLSearchParams();
+  if (p1) params.set('p1', p1);
+  if (p2 && (type === 'couple-ceremony' || type === 'couple-party')) params.set('p2', p2);
+  if (type === 'ceremony-party-single' || type === 'couple-party') params.set('party', '1');
+  if (lang && lang !== 'en') params.set('lang', lang);
+  return BASE_URL + '?' + params.toString();
+}
+
+// ── Type / lang toggles ─────────────────────────────────────
+document.querySelectorAll('.type-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.type-btn').forEach(function(b) { b.classList.remove('is-active'); });
+    btn.classList.add('is-active');
+    selectedType = btn.dataset.type;
+  });
+});
+document.querySelectorAll('.lang-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.lang-btn').forEach(function(b) { b.classList.remove('is-active'); });
+    btn.classList.add('is-active');
+    selectedLang = btn.dataset.lang;
+  });
+});
+
+// ── Generate ────────────────────────────────────────────────
+document.getElementById('generateBtn').addEventListener('click', function() {
+  var p1 = document.getElementById('p1').value.trim();
+  var p2 = document.getElementById('p2').value.trim();
+  if (!p1) {
+    var el = document.getElementById('p1');
+    el.style.borderColor = '#C0392B';
+    el.focus();
+    setTimeout(function() { el.style.borderColor = ''; }, 1500);
+    return;
   }
 
-  // ── Generate ────────────────────────────────────────────
-  document.getElementById('generateBtn').addEventListener('click', function() {
-    var p1 = document.getElementById('p1').value.trim();
-    var p2 = document.getElementById('p2').value.trim();
+  var isCouple = selectedType === 'couple-ceremony' || selectedType === 'couple-party';
+  var hasParty = selectedType === 'ceremony-party-single' || selectedType === 'couple-party';
+  var tagName  = isCouple && p2 ? p1 + ' & ' + p2 : p1;
+  var url      = buildUrl(p1, p2, selectedType, selectedLang);
+  var msg      = buildMessage(tagName, selectedType, selectedLang, url);
+  var langLabels = { en: '🇬🇧 EN', de: '🇩🇪 DE', ru: '🇷🇺 RU' };
 
-    if (!p1) {
-      document.getElementById('p1').focus();
-      document.getElementById('p1').style.borderColor = '#C0392B';
-      setTimeout(function() {
-        document.getElementById('p1').style.borderColor = '';
-      }, 1500);
-      return;
-    }
+  currentUrl  = url;
+  currentName = tagName;
 
-    var url = buildUrl(p1, p2, selectedType, selectedLang);
+  // Output card
+  var outputCard = document.getElementById('outputCard');
+  outputCard.classList.add('is-visible');
+  document.getElementById('urlDisplay').textContent = url;
+  document.getElementById('openBtn').href = url;
+  document.getElementById('msgPreview').textContent = msg;
 
-    // Show output
-    var outputCard = document.getElementById('outputCard');
-    outputCard.classList.add('is-visible');
+  // Tag
+  document.getElementById('guestTagWrap').innerHTML =
+    '<span class="guest-tag' + (hasParty ? ' has-party' : '') + '">' +
+    (isCouple ? '👫' : '👤') + ' ' + tagName +
+    (hasParty ? ' · Full day' : ' · Ceremony only') + ' · ' + (langLabels[selectedLang] || 'EN') +
+    '</span>';
 
-    document.getElementById('urlDisplay').textContent = url;
-    document.getElementById('openBtn').href = url;
+  // Reset buttons
+  document.getElementById('copyLinkBtn').textContent = 'Copy Link';
+  document.getElementById('copyLinkBtn').classList.remove('copied');
+  document.getElementById('copyMsgBtn').textContent = '📋 Copy Message';
+  document.getElementById('copyMsgBtn').classList.remove('copied');
 
-    // Guest tag
-    var isCouple = selectedType === 'couple-ceremony' || selectedType === 'couple-party';
-    var hasParty = selectedType === 'ceremony-party-single' || selectedType === 'couple-party';
-    var guestTagWrap = document.getElementById('guestTagWrap');
-    var tagName = isCouple && p2 ? (p1 + ' & ' + p2) : p1;
-    var langLabels = { en: '🇬🇧 EN', de: '🇩🇪 DE', ru: '🇷🇺 RU' };
-    var langLabel = langLabels[selectedLang] || selectedLang.toUpperCase();
-    guestTagWrap.innerHTML = '<span class="guest-tag' + (hasParty ? ' has-party' : '') + '">' +
-      (isCouple ? '👫' : '👤') + ' ' + tagName +
-      (hasParty ? ' · Ceremony + Party' : ' · Ceremony only') + ' · ' + langLabel +
-      '</span>';
-
-    // Reset copy button
-    var copyBtn = document.getElementById('copyBtn');
-    copyBtn.textContent = 'Copy';
-    copyBtn.classList.remove('copied');
-
-    // Scroll to output
-    outputCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
-    // Add to history (avoid duplicates)
-    var existing = linkHistory.findIndex(function(h) { return h.url === url; });
-    if (existing === -1) {
-      linkHistory.unshift({ name: tagName, type: selectedType, url: url, hasParty: hasParty, isCouple: isCouple, lang: selectedLang, langLabel: langLabel });
-      try { localStorage.setItem('weddingLinkHistory', JSON.stringify(linkHistory)); } catch(e) {}
-      renderHistory();
-    }
-  });
-
-  // ── Copy ────────────────────────────────────────────────
-  document.getElementById('copyBtn').addEventListener('click', function() {
-    var url = document.getElementById('urlDisplay').textContent;
-    copyToClipboard(url, this);
-  });
-
-  function copyToClipboard(text, btn) {
-    navigator.clipboard.writeText(text).then(function() {
-      var orig = btn.textContent;
-      btn.textContent = '✓ Copied';
-      btn.classList.add('copied');
-      setTimeout(function() {
-        btn.textContent = orig === '✓ Copied' ? 'Copy' : orig;
-        btn.classList.remove('copied');
-      }, 2000);
+  // Add to tracker (avoid duplicate URL)
+  var existing = history.findIndex(function(h) { return h.url === url; });
+  if (existing === -1) {
+    history.unshift({
+      id: Date.now(),
+      name: tagName, type: selectedType, lang: selectedLang,
+      langLabel: langLabels[selectedLang] || 'EN',
+      url: url, msg: msg,
+      isCouple: isCouple, hasParty: hasParty,
+      createdAt: new Date().toLocaleDateString('en-GB', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }),
+      tracked: { linkCopied: null, msgCopied: null, waSent: null }
     });
+    saveHistory();
+    renderHistory();
   }
 
-  // ── History ─────────────────────────────────────────────
-  function renderHistory() {
-    var list = document.getElementById('historyList');
-    if (linkHistory.length === 0) {
-      list.innerHTML = '<li class="empty-history">No links generated yet — create your first above ↑</li>';
-      return;
+  outputCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+});
+
+// ── Copy link button ────────────────────────────────────────
+document.getElementById('copyLinkBtn').addEventListener('click', function() {
+  navigator.clipboard.writeText(currentUrl).then(function() {
+    var btn = document.getElementById('copyLinkBtn');
+    btn.textContent = '✓ Copied'; btn.classList.add('copied');
+    setTimeout(function() { btn.textContent = 'Copy Link'; btn.classList.remove('copied'); }, 2000);
+    markTracked(currentUrl, 'linkCopied');
+  });
+});
+
+// ── Copy message ────────────────────────────────────────────
+document.getElementById('copyMsgBtn').addEventListener('click', function() {
+  var msg = document.getElementById('msgPreview').textContent;
+  navigator.clipboard.writeText(msg).then(function() {
+    var btn = document.getElementById('copyMsgBtn');
+    btn.textContent = '✓ Message Copied'; btn.classList.add('copied');
+    setTimeout(function() { btn.textContent = '📋 Copy Message'; btn.classList.remove('copied'); }, 2000);
+    markTracked(currentUrl, 'msgCopied');
+  });
+});
+
+// ── WhatsApp ────────────────────────────────────────────────
+document.getElementById('waMsgBtn').addEventListener('click', function() {
+  var msg = document.getElementById('msgPreview').textContent;
+  window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+  markTracked(currentUrl, 'waSent');
+});
+
+// ── Mark tracker ────────────────────────────────────────────
+function markTracked(url, key) {
+  var entry = history.find(function(h) { return h.url === url; });
+  if (!entry) return;
+  if (!entry.tracked[key]) {
+    entry.tracked[key] = new Date().toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+    saveHistory();
+    renderHistory();
+  }
+}
+
+// ── Render history ──────────────────────────────────────────
+function renderHistory() {
+  var list = document.getElementById('historyList');
+  if (history.length === 0) {
+    list.innerHTML = '<li class="empty-history">No invites generated yet — create your first above ↑</li>';
+    return;
+  }
+
+  list.innerHTML = history.map(function(h, idx) {
+    var t = h.tracked || {};
+    function trackBtn(key, label, icon) {
+      var done = !!t[key];
+      return '<button class="track-btn' + (done ? ' done' : '') + '" data-idx="' + idx + '" data-key="' + key + '">' +
+        (done ? '<span class="check">✓</span> ' : '') + icon + ' ' + label +
+        (done ? ' <span style="font-size:9px;opacity:.7;">' + t[key] + '</span>' : '') +
+        '</button>';
     }
-    list.innerHTML = linkHistory.map(function(h, i) {
-      return '<li class="history-item">' +
-        '<span class="history-name">' + h.name + '</span>' +
-        '<span class="history-badges">' +
+    return '<li class="history-item">' +
+      '<div class="hi-top">' +
+        '<span class="hi-name">' + h.name + '</span>' +
+        '<span class="hi-badges">' +
           (h.isCouple ? '<span class="badge couple">Couple</span>' : '') +
-          (h.hasParty ? '<span class="badge party">+ Party</span>' : '') +
-          (h.lang && h.lang !== 'en' ? '<span class="badge" style="background:#EBE2DA">' + h.langLabel + '</span>' : '') +
+          (h.hasParty ? '<span class="badge party">Full Day</span>' : '') +
+          '<span class="badge">' + (h.langLabel || 'EN') + '</span>' +
         '</span>' +
-        '<button class="history-copy" data-idx="' + i + '">Copy</button>' +
-      '</li>';
-    }).join('');
+      '</div>' +
+      '<div class="hi-actions">' +
+        trackBtn('linkCopied', 'Link Copied',    '🔗') +
+        trackBtn('msgCopied',  'Message Copied', '📋') +
+        trackBtn('waSent',     'WhatsApp Sent',  '💬') +
+        '<button class="track-btn" data-idx="' + idx + '" data-action="copy-msg" style="background:#f7f3ee;">📤 Copy & Send</button>' +
+      '</div>' +
+      '<div class="hi-meta">Generated ' + (h.createdAt || '') + '</div>' +
+    '</li>';
+  }).join('');
 
-    list.querySelectorAll('.history-copy').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        var idx = parseInt(this.dataset.idx);
-        copyToClipboard(linkHistory[idx].url, this);
-      });
+  // Track buttons
+  list.querySelectorAll('.track-btn[data-key]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var idx = parseInt(this.dataset.idx);
+      var key = this.dataset.key;
+      var entry = history[idx];
+      if (!entry) return;
+      if (!entry.tracked[key]) {
+        entry.tracked[key] = new Date().toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+        saveHistory();
+        renderHistory();
+      }
     });
-  }
-
-  renderHistory();
-
-  document.getElementById('clearHistoryBtn').addEventListener('click', function() {
-    if (linkHistory.length === 0) return;
-    if (confirm('Clear all saved links?')) {
-      linkHistory = [];
-      try { localStorage.removeItem('weddingLinkHistory'); } catch(e) {}
-      renderHistory();
-    }
   });
+
+  // Copy & send shortcut
+  list.querySelectorAll('.track-btn[data-action="copy-msg"]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var idx = parseInt(this.dataset.idx);
+      var entry = history[idx];
+      if (!entry) return;
+      navigator.clipboard.writeText(entry.msg).then(function() {
+        if (!entry.tracked.msgCopied) {
+          entry.tracked.msgCopied = new Date().toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+          saveHistory();
+          renderHistory();
+        }
+      });
+      window.open('https://wa.me/?text=' + encodeURIComponent(entry.msg), '_blank');
+      if (!entry.tracked.waSent) {
+        entry.tracked.waSent = new Date().toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+        saveHistory();
+        renderHistory();
+      }
+    });
+  });
+}
+
+// ── Clear ───────────────────────────────────────────────────
+document.getElementById('clearHistoryBtn').addEventListener('click', function() {
+  if (history.length === 0) return;
+  if (confirm('Clear all invite history?')) {
+    history = [];
+    saveHistory();
+    renderHistory();
+  }
+});
+
+renderHistory();
 </script>
 </body>
 </html>

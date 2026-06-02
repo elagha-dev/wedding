@@ -876,7 +876,7 @@
         <p class="gift-banner-title"><span data-i18n="giftBannerTitle">Your presence is already our greatest gift</span></p>
         <p class="gift-banner-body"><span data-i18n="giftBannerBody">If you would like to honour our new home with something from your heart, we gratefully welcome a monetary gift — cash at the venue or via PayPal:</span></p>
         <a class="gift-banner-paypal" id="giftPaypalLink" href="#" target="_blank" rel="noreferrer"><span data-i18n="giftPaypalBtn">Pay via PayPal ↗</span></a>
-        <p class="gift-banner-note" id="giftBannerNote">A gift box will be at the church entrance and at the reception venue. Thank you so much. ♡</p>
+        <p class="gift-banner-note" id="giftBannerNote" style="display:none;"></p>
       </div>
 
       <a class="new-rsvp-link" id="bsNudgeBtn" href="#" style="display:none;"><span data-i18n="bringShareNudge">Bring &amp; Share 🧁</span></a>
@@ -970,10 +970,8 @@
           <span class="bs-arrival-icon">⏰</span>
           <p id="bsArrivalText"><span data-i18n="bsArrivalText">Please arrive by <strong>13:30</strong> and place your contribution on the <strong>Bring &amp; Share table</strong> set up outside the church entrance — it will be clearly labelled. Our team will take care of the rest.</span></p>
         </div>
-        <div class="bs-team-photo">
-          <img src="kathi.jpg" alt="Bring &amp; Share Team" loading="lazy" />
-        </div>
-        <p class="bs-hint"><span data-i18n="bsContactHint">Any questions? Reach out to <strong>Kathi Meyer</strong>.</span></p>
+        <div class="bs-team-photo" style="display:none;"></div>
+        <p class="bs-hint">Any questions? Reach out to <span id="kathiHoverTrigger" style="font-weight:600; text-decoration:underline; text-decoration-style:dotted; cursor:pointer; position:relative;">Kathi Meyer<div id="kathiHoverCard" style="display:none; position:absolute; bottom:calc(100% + 8px); left:50%; transform:translateX(-50%); background:#31271C; color:#EBE2DA; padding:12px 16px; white-space:nowrap; z-index:100; box-shadow:0 8px 24px rgba(0,0,0,.2); font-family:inherit; font-weight:400; font-size:12px; text-decoration:none; min-width:180px; text-align:center;"><div style="font-size:10px; letter-spacing:.15em; text-transform:uppercase; color:#C4956A; margin-bottom:4px;">Bring &amp; Share</div><div style="font-size:15px; margin-bottom:6px;">Kathi Meyer</div><a href="tel:+491626247906" style="color:#EBE2DA; text-decoration:none; display:block;">+49 162 6247906</a></div></span>.</p>
         <div id="kathiBsCard" class="party-crew-row" style="margin: 10px 0 14px;"></div>
         <p class="bs-hint bs-hint--warm"><span data-i18n="bsWarmHint">We can't wait to celebrate with you. ♡</span></p>
         <button class="bs-next" id="bsDone"><span data-i18n="bsClose">Close</span></button>
@@ -1068,7 +1066,29 @@
     </div>
   </div>
 
-  <script src="script.js"></script>
+  <script>
+  // Kathi hover card in B&S done screen
+  (function() {
+    function initKathiCard() {
+      var trigger = document.getElementById('kathiHoverTrigger');
+      var card    = document.getElementById('kathiHoverCard');
+      if (!trigger || !card) return;
+      function show() { card.style.display = 'block'; }
+      function hide() { card.style.display = 'none'; }
+      trigger.addEventListener('mouseenter', show);
+      trigger.addEventListener('mouseleave', hide);
+      trigger.addEventListener('click', function(e) {
+        e.stopPropagation();
+        card.style.display = card.style.display === 'block' ? 'none' : 'block';
+      });
+      document.addEventListener('click', hide);
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initKathiCard);
+    } else { initKathiCard(); }
+  })();
+  </script>
   <script src="lang-apply.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>

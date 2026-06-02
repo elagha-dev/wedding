@@ -139,7 +139,7 @@ window.I18N = {
     /* ── Gift banner ── */
     giftBannerTitle  : "Your presence is already our greatest gift",
     giftBannerBody   : "If you would like to honour our new home with something from your heart, we gratefully welcome a monetary gift — cash at the venue or via PayPal:",
-    giftPaypalBtn    : "Pay via PayPal ↗",
+    giftPaypalBtn    : "Bless us digitally ↗",
     giftNoteCeremony : "A gift box will be at the church entrance. Thank you so much. ♡",
     giftNoteParty    : "A gift box will be at the church entrance and at the reception venue. Thank you so much. ♡",
     bringShareNudge  : "Bring & Share 🧁",
@@ -402,7 +402,7 @@ window.I18N = {
 
     giftBannerTitle  : "Eure Anwesenheit ist bereits unser größtes Geschenk",
     giftBannerBody   : "Wenn ihr unserem neuen Zuhause etwas von Herzen schenken möchtet, sind wir für einen finanziellen Beitrag dankbar — Bargeld vor Ort oder per PayPal:",
-    giftPaypalBtn    : "Per PayPal bezahlen ↗",
+    giftPaypalBtn    : "Digital schenken ↗",
     giftNoteCeremony : "Eine Geschenkbox steht am Kircheingang. Vielen herzlichen Dank. ♡",
     giftNoteParty    : "Eine Geschenkbox steht am Kircheingang und am Empfangsort. Vielen herzlichen Dank. ♡",
     bringShareNudge  : "Bring & Share 🧁",
@@ -656,7 +656,7 @@ window.I18N = {
 
     giftBannerTitle  : "Ваше присутствие — уже наш самый большой подарок",
     giftBannerBody   : "Если вы хотите порадовать наш новый дом чем-то от сердца, мы будем очень благодарны за денежный подарок — наличными на месте или через PayPal:",
-    giftPaypalBtn    : "Оплатить через PayPal ↗",
+    giftPaypalBtn    : "Благословить онлайн ↗",
     giftNoteCeremony : "Подарочная коробка будет у входа в церковь. Большое спасибо. ♡",
     giftNoteParty    : "Подарочная коробка будет у входа в церковь и на месте приёма. Большое спасибо. ♡",
     bringShareNudge  : "Bring & Share 🧁",

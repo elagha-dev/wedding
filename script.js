@@ -1203,7 +1203,8 @@ if (bsSubmit) bsSubmit.addEventListener("click", async function() {
       document.querySelectorAll('input[name="party_diet"]:checked')
     ).map(function(cb) { return cb.value; }).join(', ');
 
-    var notes = (document.getElementById('partyNotes') || {}).value || '';
+    var notes   = (document.getElementById('partyNotes') || {}).value || '';
+    var byCar   = (document.getElementById('comingByCar') && document.getElementById('comingByCar').checked) ? 'Yes' : 'No';
 
     __partyRsvp = { attending: 'Yes', dietary: dietary, notes: notes };
 
@@ -1217,7 +1218,8 @@ if (bsSubmit) bsSubmit.addEventListener("click", async function() {
         name:            window.__lastRsvpName || '',
         party_attending: 'Yes',
         party_dietary:   dietary,
-        party_notes:     notes
+        party_notes:     notes,
+        coming_by_car:   byCar
       };
       console.log('[PartyRSVP] Sending payload:', JSON.stringify(partyPayload));
       console.log('[PartyRSVP] To URL:', scriptUrl);
@@ -1668,10 +1670,10 @@ if (newRsvpBtn2) {
 
     /* ── Deadline ribbon ────────────────────────── */
     #weRsvpDeadline {
-      position: fixed; bottom: 0; left: 50%; z-index: 7000;
-      transform: translateX(-50%) translateY(56px);
+      position: fixed; top: 0; left: 50%; z-index: 7000;
+      transform: translateX(-50%) translateY(-56px);
       background: rgba(42,32,26,.92);
-      border-top: 1px solid rgba(196,149,106,.3);
+      border-bottom: 1px solid rgba(196,149,106,.3);
       padding: 8px 22px;
       display: flex; align-items: center; gap: 10px;
       font-family: WeddingSerif, Georgia, serif;
