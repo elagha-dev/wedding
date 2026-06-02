@@ -24,7 +24,9 @@ function buildPersonCard(person) {
   const wrap = document.createElement("div");
   wrap.className = "mini-contact-wrap";
   const photoSrc = person.photo || '';
-  const photoClass = person.photoWide ? 'mini-photo mini-photo--wide' : 'mini-photo';
+  var photoClass = 'mini-photo';
+  if (person.role === 'Worship Team') photoClass = 'mini-photo mini-photo--worship';
+  if (person.role === 'Bring & Share') photoClass = 'mini-photo mini-photo--bs';
   const photoHtml = photoSrc
     ? `<span class="${photoClass}"><img src="${photoSrc}" alt="${person.name}" loading="lazy" /></span>`
     : `<span class="${photoClass} mini-photo--placeholder"></span>`;
@@ -226,9 +228,9 @@ function loadContent() {
       { "name": "Valerie","displayName": "Valerie","photo": "valerie.png", "role": "Bride's Maid", "email": "valneuhausen@gmail.com","phone": "+31 6 10970211" }
     ],
     "pastorAndBand": [
-      { "name": "Felipe", "displayName": "Felipe", "photo": "felipe.jpg", "role": "Pastor", "email": "felipe.schuerch@hillsong.de", "phone": "+49 175 2894775", "hideName": true },
-      { "name": "Jonas Rockhoff", "displayName": "Worship", "photo": "worship-team.jpg", "role": "Worship Team", "email": "jonas.rockhoff@hillsong.de", "phone": "+49 176 56900741", "photoWide": true },
-      { "name": "Kathi Meyer", "displayName": "B&S", "photo": "kathi.jpg", "role": "Bring & Share", "phone": "+49 162 6247906" }
+      { "name": "Felipe", "displayName": "Pastor", "photo": "felipe.jpg", "role": "Pastor", "email": "felipe.schuerch@hillsong.de", "phone": "+49 175 2894775" },
+      { "name": "Jonas", "displayName": "Worship", "photo": "worship-team.jpg", "role": "Worship Team", "email": "jonas.rockhoff@hillsong.de", "phone": "+49 176 56900741" },
+      { "name": "Kathi", "displayName": "B&S", "photo": "kathi.jpg", "role": "Bring & Share", "phone": "+49 162 6247906" }
     ]
   },
   "ceremony": {
@@ -1858,11 +1860,11 @@ if (newRsvpBtn2) {
   /* ── SCROLL LOCK ── */
   var scrollLock = document.createElement('div');
   scrollLock.id = 'weScrollLock';
-  var firstName = p1 || displayName.split(' ')[0];
+  var lockName = isCouple ? displayName : (p1 || displayName.split(' ')[0]);
   scrollLock.innerHTML =
     '<div id="weScrollLockContent">' +
       '<span class="we-lock-icon">💌</span>' +
-      '<div class="we-lock-title">' + t('scrollLockTitle').replace('{name}', firstName) + '</div>' +
+      '<div class="we-lock-title">' + t('scrollLockTitle').replace('{name}', lockName) + '</div>' +
       '<div class="we-lock-body">' + t('scrollLockBody') + '</div>' +
       '<button id="weScrollLockCta">' + t('scrollLockCta') + '</button>' +
       '<button id="weScrollLockSkip">' + t('scrollLockSkip') + '</button>' +
@@ -1908,12 +1910,10 @@ if (newRsvpBtn2) {
   }
 
   function triggerScrollLock() {
-    if (lockTriggered || lockActive || rsvpDone) return;
+    if (lockActive || rsvpDone) return;
     lockTriggered = true;
     lockActive    = true;
-    var card = document.querySelector('.rsvp-card');
-    if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    setTimeout(function() { scrollLock.classList.add('we-locked'); }, 600);
+    setTimeout(function() { scrollLock.classList.add('we-locked'); }, 300);
   }
 
   /* ── Gate buttons ── */
@@ -1953,7 +1953,8 @@ if (newRsvpBtn2) {
   });
   document.getElementById('weScrollLockSkip').addEventListener('click', function() {
     hideScrollLock();
-    lockTriggered = false; // allow one more trigger
+    lockTriggered = false;
+    lockActive = false;
     showSeatCard();
   });
 
@@ -1970,7 +1971,7 @@ if (newRsvpBtn2) {
     // Detect if RSVP card has been scrolled past
     if (rsvpCard && gateSkipped) {
       var rect = rsvpCard.getBoundingClientRect();
-      if (rect.bottom < -80 && !lockTriggered) {
+      if (rect.bottom < -80 && !lockActive) {
         triggerScrollLock();
       }
     }

@@ -37,7 +37,7 @@ window.I18N = {
     /* ── Crew role labels ── */
     roleGroomSide    : "Groom's Side",
     roleBrideSide    : "Bride's Side",
-    rolePastorWorship: "Pastor & Worship",
+    rolePastorWorship: "Further Contacts",
 
     /* ── Individual crew role titles ── */
     crewRoleBestMan     : "Best Man",
@@ -309,7 +309,7 @@ window.I18N = {
 
     roleGroomSide    : "Bräutigamsseite",
     roleBrideSide    : "Brautseite",
-    rolePastorWorship: "Pastor & Worship",
+    rolePastorWorship: "Weitere Kontakte",
 
     crewRoleBestMan     : "Trauzeuge",
     crewRoleGroomsMan   : "Bräutigamsmann",
@@ -563,7 +563,7 @@ window.I18N = {
 
     roleGroomSide    : "Со стороны жениха",
     roleBrideSide    : "Со стороны невесты",
-    rolePastorWorship: "Пастор и Worship",
+    rolePastorWorship: "Дополнительные контакты",
 
     crewRoleBestMan     : "Свидетель",
     crewRoleGroomsMan   : "Друг жениха",
