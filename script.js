@@ -1838,7 +1838,7 @@ if (newRsvpBtn2) {
   if (days > 0) {
     var ribbon = document.createElement('div');
     ribbon.id = 'weRsvpDeadline';
-    ribbon.innerHTML = '<span class="we-dot"></span> RSVP closes 18 September &nbsp;·&nbsp; <strong style="color:#EBE2DA;margin-left:2px;">' + days + ' day' + (days !== 1 ? 's' : '') + ' left</strong>';
+    ribbon.innerHTML = '<span class="we-dot"></span> Confirm your attendance by 18 September &nbsp;·&nbsp; <strong style="color:#EBE2DA;margin-left:2px;">' + days + ' day' + (days !== 1 ? 's' : '') + ' left</strong>';
     document.body.appendChild(ribbon);
   }
 
@@ -1953,8 +1953,7 @@ if (newRsvpBtn2) {
   });
   document.getElementById('weScrollLockSkip').addEventListener('click', function() {
     hideScrollLock();
-    lockTriggered = false;
-    lockActive = false;
+    // lockTriggered stays true — never show again
     showSeatCard();
   });
 
@@ -1971,7 +1970,7 @@ if (newRsvpBtn2) {
     // Detect if RSVP card has been scrolled past
     if (rsvpCard && gateSkipped) {
       var rect = rsvpCard.getBoundingClientRect();
-      if (rect.bottom < -80 && !lockActive) {
+      if (rect.bottom < -80 && !lockTriggered) {
         triggerScrollLock();
       }
     }
