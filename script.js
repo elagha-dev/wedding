@@ -262,7 +262,7 @@ function loadContent() {
         "location": "Rheinliebe am Deich",
         "address": "Heerstraße 45, 40549 Düsseldorf",
         "mapUrl": "https://maps.google.com/?q=Rheinliebe+am+Deich+Düsseldorf",
-        "description": "Join us as we continue the celebration into the evening! Music, dancing, and more joy with our closest friends and family."
+        "description": "Join us as we continue the celebration — an evening reception starting at 17:00 with good food, great company, and all the joy."
       }
     ]
   },
@@ -1642,8 +1642,17 @@ if (newRsvpBtn2) {
       font-size: 10px; font-weight: 400; color: #aaa098;
       letter-spacing: .14em; text-transform: uppercase;
       cursor: pointer; padding: 6px; transition: color .2s;
+      display: block; width: 100%; text-align: center;
     }
     #weGateSkip:hover { color: #2A201A; }
+    .we-gate-note {
+      font-family: WeddingSerif, Georgia, serif;
+      font-size: 11.5px; color: #7a6a5c;
+      line-height: 1.7; letter-spacing: .01em;
+      border-top: 1px solid rgba(196,149,106,.2);
+      padding-top: 14px; margin-bottom: 20px;
+      font-style: italic;
+    }
 
     /* ── Deadline ribbon ────────────────────────── */
     #weRsvpDeadline {
@@ -1778,6 +1787,7 @@ if (newRsvpBtn2) {
       font-size: 10px; color: rgba(253,250,247,.3);
       letter-spacing: .14em; text-transform: uppercase;
       cursor: pointer; padding: 8px; transition: color .2s;
+      width: 100%; text-align: center; margin: 0 auto;
     }
     #weScrollLockSkip:hover { color: rgba(253,250,247,.65); }
 
@@ -1798,11 +1808,8 @@ if (newRsvpBtn2) {
   }
 
   /* ── Greeting text ── */
-  var salutation = isCouple ? 'You are invited,' : 'You are invited,';
-  var eventDesc  = hasParty
-    ? 'Church Ceremony <strong>16 Oct 14:00</strong> &amp; Evening Reception <strong>17:00</strong>'
-    : 'Church Ceremony <strong>16 October at 14:00</strong> in Düsseldorf';
-  var seatsText  = isCouple ? 'We kindly request the honour of your presence' : 'We kindly request the honour of your presence';
+  var salutation = t('gateSalutation');
+  var seatsText  = t('gateSeatsText');
 
   /* ── SOFT GATE HTML ── */
   var gate = document.createElement('div');
@@ -1810,14 +1817,15 @@ if (newRsvpBtn2) {
   gate.innerHTML =
     '<div id="weGateBackdrop"></div>' +
     '<div id="weGateCard">' +
-      '<div class="we-mono">Jonas &amp; Arina · 16.10.2026</div>' +
+      '<div class="we-mono">Elnur &amp; Arina · 16.10.2026</div>' +
       '<div class="we-rule"></div>' +
       '<div class="we-salut">' + salutation + '</div>' +
       '<div class="we-guestname">' + displayName + '</div>' +
       '<div class="we-seat-badge">♡ ' + seatsText + '</div>' +
-      '<div class="we-body">Before you explore — it only takes <strong>60 seconds</strong> to confirm your attendance.<br>Deadline: <strong>18 September</strong>.</div>' +
-      '<button id="weGateCta">Confirm My Attendance →</button>' +
-      '<button id="weGateSkip">I\'ll explore first</button>' +
+      '<div class="we-body">' + t('gateBody') + '</div>' +
+      '<div class="we-gate-note">' + t('gateNote') + '</div>' +
+      '<button id="weGateCta">' + t('gateCtaBtn') + '</button>' +
+      '<button id="weGateSkip">' + t('gateSkipBtn') + '</button>' +
     '</div>';
   document.body.appendChild(gate);
 
@@ -1838,7 +1846,7 @@ if (newRsvpBtn2) {
     '<div class="we-seat-inner" id="weSeatInner">' +
       '<div class="we-seat-icon">💌</div>' +
       '<div class="we-seat-text">' +
-        '<div class="we-seat-lbl">Jonas & Arina · 16.10.2026</div>' +
+        '<div class="we-seat-lbl">Elnur & Arina · 16.10.2026</div>' +
         '<div class="we-seat-name">' + displayName + '</div>' +
       '</div>' +
       '<div class="we-seat-arr">→</div>' +
@@ -1852,10 +1860,10 @@ if (newRsvpBtn2) {
   scrollLock.innerHTML =
     '<div id="weScrollLockContent">' +
       '<span class="we-lock-icon">💌</span>' +
-      '<div class="we-lock-title">One moment, ' + firstName + '</div>' +
-      '<div class="we-lock-body">You scrolled past your RSVP.<br>It takes less than a minute — and it means<br>everything to us to know you\'ll be there.</div>' +
-      '<button id="weScrollLockCta">Confirm Attendance →</button>' +
-      '<button id="weScrollLockSkip">Continue browsing</button>' +
+      '<div class="we-lock-title">' + t('scrollLockTitle').replace('{name}', firstName) + '</div>' +
+      '<div class="we-lock-body">' + t('scrollLockBody') + '</div>' +
+      '<button id="weScrollLockCta">' + t('scrollLockCta') + '</button>' +
+      '<button id="weScrollLockSkip">' + t('scrollLockSkip') + '</button>' +
     '</div>';
   document.body.appendChild(scrollLock);
 
@@ -1913,8 +1921,7 @@ if (newRsvpBtn2) {
     gateSkipped = false;
     setTimeout(function() {
       scrollToRSVP();
-      var beginBtn = document.getElementById('rsvpBeginBtn');
-      if (beginBtn) setTimeout(function() { beginBtn.click(); }, 500);
+      /* NOTE: Do NOT auto-click rsvpBeginBtn — guest reads the note in the RSVP intro first */
     }, 500);
   });
 
@@ -1929,8 +1936,7 @@ if (newRsvpBtn2) {
   document.getElementById('weSeatInner').addEventListener('click', function() {
     hideSeatCard();
     scrollToRSVP();
-    var beginBtn = document.getElementById('rsvpBeginBtn');
-    if (beginBtn) setTimeout(function() { beginBtn.click(); }, 500);
+    /* NOTE: Do NOT auto-click rsvpBeginBtn — guest reads the note first */
   });
   document.getElementById('weSeatDismiss').addEventListener('click', function(e) {
     e.stopPropagation();
@@ -1941,8 +1947,7 @@ if (newRsvpBtn2) {
   document.getElementById('weScrollLockCta').addEventListener('click', function() {
     hideScrollLock();
     scrollToRSVP();
-    var beginBtn = document.getElementById('rsvpBeginBtn');
-    if (beginBtn) setTimeout(function() { beginBtn.click(); }, 500);
+    /* NOTE: Do NOT auto-click rsvpBeginBtn — guest reads the note first */
   });
   document.getElementById('weScrollLockSkip').addEventListener('click', function() {
     hideScrollLock();

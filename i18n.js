@@ -68,13 +68,13 @@ window.I18N = {
 
     greetingLetterParty:
       "<p>We are so excited to have you with us on our wedding day — truly one of the most important days of our lives, and we wouldn't want to share it without you.</p>" +
-      "<p>We're getting married at the <strong>Schlosskirche Düsseldorf</strong> on <strong>16 October at 14:00</strong> — <a href=\"https://maps.google.com/?q=Schlosskirche+Düsseldorf,+Benrather+Str.+5,+40213+Düsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a> — and afterwards we'll celebrate well into the evening at our <strong>reception starting at 17:00</strong> — dinner, dancing, and all the good things.</p>" +
+      "<p>We're getting married at the <strong>Schlosskirche Düsseldorf</strong> on <strong>16 October at 14:00</strong> — <a href=\"https://maps.google.com/?q=Schlosskirche+Düsseldorf,+Benrather+Str.+5,+40213+Düsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a> — and afterwards we'll celebrate well into the evening at our <strong>reception starting at 17:00</strong> — an evening reception starting at 17:00.</p>" +
       "<p>It only takes a minute to let us know you'll be there. If you can make it to both — wonderful. If you can only join us for the evening — we'll take it, gladly. Just let us know below.</p>" +
       "<p class=\"deadline\">Please confirm your attendance by <strong>18 September</strong>.</p>",
 
     greetingLetterPartySingle:
       "<p>We are so excited to have you with us on our wedding day — truly one of the most important days of our lives, and we wouldn't want to share it without you.</p>" +
-      "<p>We're getting married at the <strong>Schlosskirche Düsseldorf</strong> on <strong>16 October at 14:00</strong> — <a href=\"https://maps.google.com/?q=Schlosskirche+Düsseldorf,+Benrather+Str.+5,+40213+Düsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a> — and afterwards we'll celebrate well into the evening at our <strong>reception starting at 17:00</strong> — dinner, dancing, and all the good things.</p>" +
+      "<p>We're getting married at the <strong>Schlosskirche Düsseldorf</strong> on <strong>16 October at 14:00</strong> — <a href=\"https://maps.google.com/?q=Schlosskirche+Düsseldorf,+Benrather+Str.+5,+40213+Düsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a> — and afterwards we'll celebrate well into the evening at our <strong>reception starting at 17:00</strong> — an evening reception starting at 17:00.</p>" +
       "<p>It only takes a minute to let us know you'll be there. If you can make it to both — wonderful. If you can only join us for the evening — we'll take it, gladly. Just let us know below.</p>" +
       "<p class=\"deadline\">Please confirm your attendance by <strong>18 September</strong>.</p>",
 
@@ -146,6 +146,18 @@ window.I18N = {
 
     /* ── Sticky banner ── */
     bannerText: "📋 Please confirm your attendance",
+
+    /* ── Soft Gate / Floating Card / Scroll Lock ── */
+    gateSalutation   : "You are invited,",
+    gateSeatsText    : "We kindly request the honour of your presence",
+    gateBody         : "Before you explore — it only takes <strong>60 seconds</strong> to confirm your attendance.<br>Deadline: <strong>18 September</strong>.",
+    gateNote         : "A small note before you begin: please read the message on the RSVP card — it has everything you need to know.",
+    gateCtaBtn       : "Confirm My Attendance →",
+    gateSkipBtn      : "I'll explore first",
+    scrollLockTitle  : "One moment, {name}",
+    scrollLockBody   : "You scrolled past your RSVP.<br>It takes less than a minute — and it means<br>everything to us to know you'll be there.",
+    scrollLockCta    : "Confirm Attendance →",
+    scrollLockSkip   : "Continue browsing",
     bannerBtn : "Confirm now ↓",
 
     /* ── View on map ── */
@@ -241,7 +253,7 @@ window.I18N = {
         partyOnly: true,
         location: "Rheinliebe am Deich", address: "Heerstraße 45, 40549 Düsseldorf",
         mapUrl: "https://maps.google.com/?q=Rheinliebe+am+Deich+D%C3%BCsseldorf",
-        description: "Join us as we continue the celebration into the evening! Music, dancing, and more joy with our closest friends and family."
+        description: "Join us as we continue the celebration — an evening reception starting at 17:00 with good food, great company, and all the joy."
       }
     ],
 
@@ -396,6 +408,18 @@ window.I18N = {
     bringShareNudge  : "Bring & Share 🧁",
 
     bannerText: "📋 Bitte Teilnahme bestätigen",
+
+    /* ── Soft Gate / Floating Card / Scroll Lock ── */
+    gateSalutation   : "Ihr seid herzlich eingeladen,",
+    gateSeatsText    : "Wir freuen uns auf eure Anwesenheit",
+    gateBody         : "Bevor ihr euch umschaut — es dauert nur <strong>60 Sekunden</strong>, eure Teilnahme zu bestätigen.<br>Deadline: <strong>18. September</strong>.",
+    gateNote         : "Ein kleiner Hinweis vorab: Bitte lest die Nachricht auf der RSVP-Karte — dort findet ihr alles Wichtige.",
+    gateCtaBtn       : "Teilnahme bestätigen →",
+    gateSkipBtn      : "Ich schaue mich erst um",
+    scrollLockTitle  : "Kurz innehalten, {name}",
+    scrollLockBody   : "Du hast dein RSVP überscrollt.<br>Es dauert weniger als eine Minute — und es bedeutet<br>uns alles, zu wissen, dass du dabei bist.",
+    scrollLockCta    : "Teilnahme bestätigen →",
+    scrollLockSkip   : "Weiter stöbern",
     bannerBtn : "Jetzt bestätigen ↓",
     viewOnMap : "Auf der Karte anzeigen ↗",
 
@@ -638,6 +662,18 @@ window.I18N = {
     bringShareNudge  : "Bring & Share 🧁",
 
     bannerText: "📋 Пожалуйста, подтвердите участие",
+
+    /* ── Soft Gate / Floating Card / Scroll Lock ── */
+    gateSalutation   : "Вы приглашены,",
+    gateSeatsText    : "Мы будем рады видеть вас",
+    gateBody         : "Прежде чем изучить сайт — подтверждение займёт всего <strong>60 секунд</strong>.<br>Срок: <strong>18 сентября</strong>.",
+    gateNote         : "Небольшое примечание: пожалуйста, прочитайте сообщение на карточке RSVP — там есть всё, что вам нужно знать.",
+    gateCtaBtn       : "Подтвердить участие →",
+    gateSkipBtn      : "Сначала посмотрю сайт",
+    scrollLockTitle  : "Одну секунду, {name}",
+    scrollLockBody   : "Вы пролистали свой RSVP.<br>Это займёт меньше минуты — и для нас<br>очень важно знать, что вы будете с нами.",
+    scrollLockCta    : "Подтвердить участие →",
+    scrollLockSkip   : "Продолжить просмотр",
     bannerBtn : "Подтвердить сейчас ↓",
     viewOnMap : "Посмотреть на карте ↗",
 
