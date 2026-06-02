@@ -24,21 +24,23 @@ function buildPersonCard(person) {
   const wrap = document.createElement("div");
   wrap.className = "mini-contact-wrap";
   const photoSrc = person.photo || '';
+  const photoClass = person.photoWide ? 'mini-photo mini-photo--wide' : 'mini-photo';
   const photoHtml = photoSrc
-    ? `<span class="mini-photo"><img src="${photoSrc}" alt="${person.name}" loading="lazy" /></span>`
-    : `<span class="mini-photo mini-photo--placeholder"></span>`;
+    ? `<span class="${photoClass}"><img src="${photoSrc}" alt="${person.name}" loading="lazy" /></span>`
+    : `<span class="${photoClass} mini-photo--placeholder"></span>`;
   const emailHtml = person.email
     ? `<p><span>${t('emailLabel')}</span><a href="mailto:${person.email}">${person.email}</a></p>`
     : '';
+  const popoverName = person.hideName ? translateRole(person.role) : person.name;
   wrap.innerHTML = `
-    <button type="button" class="party-mini-contact" aria-label="Open ${person.name} contact card">
+    <button type="button" class="party-mini-contact" aria-label="Open ${person.displayName || person.name} contact card">
       ${photoHtml}
       <span class="mini-name">${person.displayName || person.name}</span>
     </button>
     <div class="mini-popover">
       <button type="button" class="mini-popover-close" aria-label="Close">×</button>
       <div class="contact-role">${translateRole(person.role)}</div>
-      <h3>${person.name}</h3>
+      <h3>${popoverName}</h3>
       ${emailHtml}
       ${person.phone ? `<p><span>${t('phoneLabel')}</span><a href="tel:${person.phone.replace(/\s+/g, "")}">${person.phone}</a></p>` : ''}
     </div>`;
@@ -224,9 +226,9 @@ function loadContent() {
       { "name": "Valerie","displayName": "Valerie","photo": "valerie.png", "role": "Bride's Maid", "email": "valneuhausen@gmail.com","phone": "+31 6 10970211" }
     ],
     "pastorAndBand": [
-      { "name": "Felipe", "displayName": "Felipe", "photo": "felipe.jpg", "role": "Pastor", "email": "felipe.schuerch@hillsong.de", "phone": "+49 175 2894775" },
-      { "name": "Jonas&Jenny",  "displayName": "Rockhoffs",   "photo": "jonasnjenny.jpg",  "role": "Worship Team",   "email": "jonas.rockhoff@hillsong.de",  "phone": "+49 176 56900741" },
-      { "name": "David",  "displayName": "David",   "photo": "plivi.jpg",  "role": "Worship Team",   "email": "david.pliev@me.com",  "phone": "+49 174 6910946" }
+      { "name": "Felipe", "displayName": "Felipe", "photo": "felipe.jpg", "role": "Pastor", "email": "felipe.schuerch@hillsong.de", "phone": "+49 175 2894775", "hideName": true },
+      { "name": "Jonas Rockhoff", "displayName": "Worship", "photo": "worship-team.jpg", "role": "Worship Team", "email": "jonas.rockhoff@hillsong.de", "phone": "+49 176 56900741", "photoWide": true },
+      { "name": "Kathi Meyer", "displayName": "B&S", "photo": "kathi.jpg", "role": "Bring & Share", "phone": "+49 162 6247906" }
     ]
   },
   "ceremony": {
