@@ -62,33 +62,33 @@ window.I18N = {
     navParty   : "🥂 Evening Reception",
 
     /* ── RSVP card ── */
-    rsvpBeginBtn   : "Begin your RSVP →",
+    rsvpBeginBtn   : "Confirm your attendance →",
     greetingDear   : "Dear",
     crewNote       : "Any questions? Reach out to anyone in the crew — they're wonderful and happy to help.",
 
     greetingLetterParty:
       "<p>We are so excited to have you with us on our wedding day — truly one of the most important days of our lives, and we wouldn't want to share it without you.</p>" +
-      "<p>We're getting married at the <strong>church</strong> on <strong>16 October at 14:00</strong>, and afterwards we'll celebrate well into the evening at our <strong>reception starting at 17:00</strong> — dinner, dancing, and all the good things.</p>" +
+      "<p>We're getting married at the <strong>Schlosskirche Düsseldorf</strong> on <strong>16 October at 14:00</strong> — <a href=\"https://maps.google.com/?q=Schlosskirche+Düsseldorf,+Benrather+Str.+5,+40213+Düsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a> — and afterwards we'll celebrate well into the evening at our <strong>reception starting at 17:00</strong> — dinner, dancing, and all the good things.</p>" +
       "<p>It only takes a minute to let us know you'll be there. If you can make it to both — wonderful. If you can only join us for the evening — we'll take it, gladly. Just let us know below.</p>" +
-      "<p class=\"deadline\">Please let us know your RSVP by <strong>18 September</strong>.</p>",
+      "<p class=\"deadline\">Please confirm your attendance by <strong>18 September</strong>.</p>",
 
     greetingLetterPartySingle:
       "<p>We are so excited to have you with us on our wedding day — truly one of the most important days of our lives, and we wouldn't want to share it without you.</p>" +
-      "<p>We're getting married at the <strong>church</strong> on <strong>16 October at 14:00</strong>, and afterwards we'll celebrate well into the evening at our <strong>reception starting at 17:00</strong> — dinner, dancing, and all the good things.</p>" +
+      "<p>We're getting married at the <strong>Schlosskirche Düsseldorf</strong> on <strong>16 October at 14:00</strong> — <a href=\"https://maps.google.com/?q=Schlosskirche+Düsseldorf,+Benrather+Str.+5,+40213+Düsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a> — and afterwards we'll celebrate well into the evening at our <strong>reception starting at 17:00</strong> — dinner, dancing, and all the good things.</p>" +
       "<p>It only takes a minute to let us know you'll be there. If you can make it to both — wonderful. If you can only join us for the evening — we'll take it, gladly. Just let us know below.</p>" +
-      "<p class=\"deadline\">Please let us know your RSVP by <strong>18 September</strong>.</p>",
+      "<p class=\"deadline\">Please confirm your attendance by <strong>18 September</strong>.</p>",
 
     greetingLetterCeremony:
       "<p>We are so happy to invite you to witness one of the most meaningful moments of our lives — our wedding ceremony.</p>" +
-      "<p>We're getting married on <strong>16 October at 14:00 in Düsseldorf, Germany</strong>, and we would be truly honoured to have you there with us as we say our vows.</p>" +
+      "<p>We're getting married at the <strong>Schlosskirche Düsseldorf</strong> on <strong>16 October at 14:00</strong>, and we would be truly honoured to have you there with us as we say our vows. <a href=\"https://maps.google.com/?q=Schlosskirche+Düsseldorf,+Benrather+Str.+5,+40213+Düsseldorf\" target=\"_blank\" rel=\"noopener\">View on Google Maps ↗</a></p>" +
       "<p>It only takes a minute — just let us know you'll be coming, and we'll take care of the rest.</p>" +
-      "<p class=\"deadline\">Please let us know your RSVP by <strong>18 September</strong>.</p>",
+      "<p class=\"deadline\">Please confirm your attendance by <strong>18 September</strong>.</p>",
 
     greetingLetterCeremonySingle:
       "<p>We are so happy to invite you to witness one of the most meaningful moments of our lives — our wedding ceremony.</p>" +
-      "<p>We're getting married on <strong>16 October at 14:00 in Düsseldorf, Germany</strong>, and we would be truly honoured to have you there with us as we say our vows.</p>" +
+      "<p>We're getting married at the <strong>Schlosskirche Düsseldorf</strong> on <strong>16 October at 14:00</strong>, and we would be truly honoured to have you there with us as we say our vows. <a href=\"https://maps.google.com/?q=Schlosskirche+Düsseldorf,+Benrather+Str.+5,+40213+Düsseldorf\" target=\"_blank\" rel=\"noopener\">View on Google Maps ↗</a></p>" +
       "<p>It only takes a minute — just let us know you'll be coming, and we'll take care of the rest.</p>" +
-      "<p class=\"deadline\">Please let us know your RSVP by <strong>18 September</strong>.</p>",
+      "<p class=\"deadline\">Please confirm your attendance by <strong>18 September</strong>.</p>",
 
     /* ── RSVP Wizard ── */
     step1Label    : "Step 1 of 3 — Your Details",
@@ -116,10 +116,10 @@ window.I18N = {
     seatHint       : "Adjust if needed — every seat helps us plan. 🙏",
     declineLabel   : "Leave us a note (optional)",
     declinePlaceholder: "We'll miss you — feel free to say something 💛",
-    sendRsvpBtn    : "Send RSVP ✓",
-    selectAttendanceErr: "Please select your attendance for the ceremony.",
-    rsvpSubmittedBtn   : "RSVP Submitted ✓",
-    submitAnotherRsvp  : "Submit another RSVP",
+    sendRsvpBtn    : "Confirm attendance ✓",
+    selectAttendanceErr: "Please let us know if you'll be attending the ceremony.",
+    rsvpSubmittedBtn   : "Attendance confirmed ✓",
+    submitAnotherRsvp  : "Submit for another guest",
 
     /* ── Adult/child seat summary ── */
     adultSingular  : "adult",
@@ -131,8 +131,8 @@ window.I18N = {
     successKicker          : "THANK YOU",
     successTitleAttending  : "We cannot wait to celebrate with you.",
     successTitleDecline    : "We are sorry you cannot make it.",
-    successMsgAttending    : "Your RSVP has been received. Thank you for being part of this special day.",
-    successMsgDecline      : "Thank you for letting us know. You will be missed, and we hope to celebrate together another time.",
+    successMsgAttending    : "Your attendance has been confirmed. Thank you for being part of this special day.",
+    successMsgDecline      : "Thank you for letting us know. You will be missed — we hope to celebrate together soon.",
     successCardAttending   : "We cannot wait to celebrate with you.",
     successCardDecline     : "We are sorry you cannot make it. Thank you for letting us know.",
 
@@ -145,8 +145,8 @@ window.I18N = {
     bringShareNudge  : "Bring & Share 🧁",
 
     /* ── Sticky banner ── */
-    bannerText: "📋 Please complete your RSVP",
-    bannerBtn : "RSVP now ↓",
+    bannerText: "📋 Please confirm your attendance",
+    bannerBtn : "Confirm now ↓",
 
     /* ── View on map ── */
     viewOnMap: "View on Map ↗",
@@ -317,33 +317,33 @@ window.I18N = {
     navCeremony: "💒 Kirchliche Trauung",
     navParty   : "🥂 Abendempfang",
 
-    rsvpBeginBtn   : "RSVP beginnen →",
+    rsvpBeginBtn   : "Teilnahme bestätigen →",
     greetingDear   : "Liebe/Lieber",
     crewNote       : "Fragen? Wendet euch an jemanden aus dem Team — sie helfen euch gerne weiter.",
 
     greetingLetterParty:
       "<p>Wir freuen uns so sehr, euch an unserem Hochzeitstag bei uns zu haben — einem der wichtigsten Tage unseres Lebens. Wir möchten ihn nicht ohne euch erleben.</p>" +
-      "<p>Wir heiraten in der <strong>Kirche</strong> am <strong>16. Oktober um 14:00 Uhr</strong>, und danach feiern wir bis in den Abend bei unserem <strong>Empfang ab 17:00 Uhr</strong> — mit Essen, Tanzen und allem, was dazugehört.</p>" +
+      "<p>Wir heiraten in der <strong>Schlosskirche Düsseldorf</strong> am <strong>16. Oktober um 14:00 Uhr</strong> — <a href=\"https://maps.google.com/?q=Schlosskirche+Düsseldorf,+Benrather+Str.+5,+40213+Düsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a> — und danach feiern wir bis in den Abend bei unserem <strong>Empfang ab 17:00 Uhr</strong> — mit Essen, Tanzen und allem, was dazugehört.</p>" +
       "<p>Es dauert nur eine Minute — gebt uns einfach Bescheid, dass ihr kommt. Wir kümmern uns um den Rest.</p>" +
-      "<p class=\"deadline\">Bitte gebt uns bis zum <strong>18. September</strong> Rückmeldung.</p>",
+      "<p class=\"deadline\">Bitte bestätigt eure Teilnahme bis zum <strong>18. September</strong>.</p>",
 
     greetingLetterPartySingle:
       "<p>Wir freuen uns so sehr, dich an unserem Hochzeitstag bei uns zu haben — einem der wichtigsten Tage unseres Lebens. Wir möchten ihn nicht ohne dich erleben.</p>" +
-      "<p>Wir heiraten in der <strong>Kirche</strong> am <strong>16. Oktober um 14:00 Uhr</strong>, und danach feiern wir bis in den Abend bei unserem <strong>Empfang ab 17:00 Uhr</strong> — mit Essen, Tanzen und allem, was dazugehört.</p>" +
+      "<p>Wir heiraten in der <strong>Schlosskirche Düsseldorf</strong> am <strong>16. Oktober um 14:00 Uhr</strong> — <a href=\"https://maps.google.com/?q=Schlosskirche+Düsseldorf,+Benrather+Str.+5,+40213+Düsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a> — und danach feiern wir bis in den Abend bei unserem <strong>Empfang ab 17:00 Uhr</strong> — mit Essen, Tanzen und allem, was dazugehört.</p>" +
       "<p>Es dauert nur eine Minute — gib uns einfach Bescheid, dass du kommst. Wir kümmern uns um den Rest.</p>" +
-      "<p class=\"deadline\">Bitte gib uns bis zum <strong>18. September</strong> Rückmeldung.</p>",
+      "<p class=\"deadline\">Bitte bestätige deine Teilnahme bis zum <strong>18. September</strong>.</p>",
 
     greetingLetterCeremony:
       "<p>Wir laden euch herzlich ein, einen der bedeutsamsten Momente unseres Lebens mitzuerleben — unsere Hochzeitszeremonie.</p>" +
-      "<p>Wir heiraten am <strong>16. Oktober um 14:00 Uhr in Düsseldorf</strong>, und wir wären sehr geehrt, euch dabei zu haben, wenn wir unser Ja-Wort geben.</p>" +
+      "<p>Wir heiraten in der <strong>Schlosskirche Düsseldorf</strong> am <strong>16. Oktober um 14:00 Uhr</strong>, und wir wären sehr geehrt, euch dabei zu haben, wenn wir unser Ja-Wort geben. <a href=\"https://maps.google.com/?q=Schlosskirche+Düsseldorf,+Benrather+Str.+5,+40213+Düsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></p>" +
       "<p>Es dauert nur eine Minute — gebt uns einfach Bescheid, dass ihr kommt, und wir kümmern uns um den Rest.</p>" +
-      "<p class=\"deadline\">Bitte gebt uns bis zum <strong>18. September</strong> Rückmeldung.</p>",
+      "<p class=\"deadline\">Bitte bestätigt eure Teilnahme bis zum <strong>18. September</strong>.</p>",
 
     greetingLetterCeremonySingle:
       "<p>Wir laden dich herzlich ein, einen der bedeutsamsten Momente unseres Lebens mitzuerleben — unsere Hochzeitszeremonie.</p>" +
-      "<p>Wir heiraten am <strong>16. Oktober um 14:00 Uhr in Düsseldorf</strong>, und wir wären sehr geehrt, dich dabei zu haben, wenn wir unser Ja-Wort geben.</p>" +
+      "<p>Wir heiraten in der <strong>Schlosskirche Düsseldorf</strong> am <strong>16. Oktober um 14:00 Uhr</strong>, und wir wären sehr geehrt, dich dabei zu haben, wenn wir unser Ja-Wort geben. <a href=\"https://maps.google.com/?q=Schlosskirche+Düsseldorf,+Benrather+Str.+5,+40213+Düsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></p>" +
       "<p>Es dauert nur eine Minute — gib uns einfach Bescheid, dass du kommst, und wir kümmern uns um den Rest.</p>" +
-      "<p class=\"deadline\">Bitte gib uns bis zum <strong>18. September</strong> Rückmeldung.</p>",
+      "<p class=\"deadline\">Bitte bestätige deine Teilnahme bis zum <strong>18. September</strong>.</p>",
 
     step1Label    : "Schritt 1 von 3 — Eure Daten",
     step2Label    : "Schritt 2 von 3 — Teilnahme",
@@ -370,10 +370,10 @@ window.I18N = {
     seatHint       : "Bei Bedarf anpassen — jeder Platz hilft uns bei der Planung. 🙏",
     declineLabel   : "Hinterlasst uns eine Nachricht (optional)",
     declinePlaceholder: "Wir vermissen euch — sagt gerne etwas 💛",
-    sendRsvpBtn    : "RSVP absenden ✓",
-    selectAttendanceErr: "Bitte wählt eure Teilnahme für die Zeremonie aus.",
-    rsvpSubmittedBtn   : "RSVP eingereicht ✓",
-    submitAnotherRsvp  : "Weiteres RSVP einreichen",
+    sendRsvpBtn    : "Teilnahme bestätigen ✓",
+    selectAttendanceErr: "Bitte gebt an, ob ihr zur Trauung kommt.",
+    rsvpSubmittedBtn   : "Teilnahme bestätigt ✓",
+    submitAnotherRsvp  : "Für eine weitere Person einreichen",
 
     adultSingular  : "Erwachsener",
     adultPlural    : "Erwachsene",
@@ -383,7 +383,7 @@ window.I18N = {
     successKicker          : "DANKE",
     successTitleAttending  : "Wir freuen uns riesig, mit euch zu feiern.",
     successTitleDecline    : "Es tut uns leid, dass ihr nicht dabei sein könnt.",
-    successMsgAttending    : "Eure RSVP ist eingegangen. Danke, dass ihr Teil dieses besonderen Tages seid.",
+    successMsgAttending    : "Eure Teilnahme ist bestätigt. Danke, dass ihr Teil dieses besonderen Tages seid.",
     successMsgDecline      : "Danke für eure Rückmeldung. Ihr werdet fehlen — wir hoffen, bald zusammen zu feiern.",
     successCardAttending   : "Wir können es kaum erwarten, mit euch zu feiern.",
     successCardDecline     : "Schade, dass ihr nicht kommen könnt. Danke für eure Rückmeldung.",
@@ -395,8 +395,8 @@ window.I18N = {
     giftNoteParty    : "Eine Geschenkbox steht am Kircheingang und am Empfangsort. Vielen herzlichen Dank. ♡",
     bringShareNudge  : "Bring & Share 🧁",
 
-    bannerText: "📋 Bitte RSVP ausfüllen",
-    bannerBtn : "Jetzt RSVP ↓",
+    bannerText: "📋 Bitte Teilnahme bestätigen",
+    bannerBtn : "Jetzt bestätigen ↓",
     viewOnMap : "Auf der Karte anzeigen ↗",
 
     bsStep1Title    : "Was bringt ihr mit?",
@@ -559,33 +559,33 @@ window.I18N = {
     navCeremony: "💒 Венчание",
     navParty   : "🥂 Вечерний приём",
 
-    rsvpBeginBtn   : "Начать RSVP →",
+    rsvpBeginBtn   : "Подтвердить участие →",
     greetingDear   : "Дорогие",
     crewNote       : "Есть вопросы? Обратитесь к кому-нибудь из команды — они будут рады помочь.",
 
     greetingLetterParty:
       "<p>Мы так рады пригласить вас разделить с нами наш свадебный день — один из самых важных дней в нашей жизни. Мы не хотим отмечать его без вас.</p>" +
-      "<p>Венчание состоится в <strong>церкви 16 октября в 14:00</strong>, а после мы будем праздновать до вечера на <strong>банкете, начиная с 17:00</strong> — ужин, танцы и всё самое хорошее.</p>" +
+      "<p>Венчание состоится в <strong>Schlosskirche Düsseldorf</strong>, 16 октября в 14:00 — <a href=\"https://maps.google.com/?q=Schlosskirche+Düsseldorf,+Benrather+Str.+5,+40213+Düsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a> — а после мы будем праздновать до вечера на <strong>банкете, начиная с 17:00</strong> — ужин, танцы и всё самое хорошее.</p>" +
       "<p>Это займёт всего минуту — просто дайте нам знать, что придёте, а мы позаботимся об остальном.</p>" +
-      "<p class=\"deadline\">Пожалуйста, ответьте до <strong>18 сентября</strong>.</p>",
+      "<p class=\"deadline\">Пожалуйста, подтвердите участие до <strong>18 сентября</strong>.</p>",
 
     greetingLetterPartySingle:
       "<p>Мы так рады пригласить тебя разделить с нами наш свадебный день — один из самых важных дней в нашей жизни. Мы не хотим отмечать его без тебя.</p>" +
-      "<p>Венчание состоится в <strong>церкви 16 октября в 14:00</strong>, а после мы будем праздновать до вечера на <strong>банкете, начиная с 17:00</strong> — ужин, танцы и всё самое хорошее.</p>" +
+      "<p>Венчание состоится в <strong>Schlosskirche Düsseldorf</strong>, 16 октября в 14:00 — <a href=\"https://maps.google.com/?q=Schlosskirche+Düsseldorf,+Benrather+Str.+5,+40213+Düsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a> — а после мы будем праздновать до вечера на <strong>банкете, начиная с 17:00</strong> — ужин, танцы и всё самое хорошее.</p>" +
       "<p>Это займёт всего минуту — просто дай нам знать, что придёшь, а мы позаботимся об остальном.</p>" +
-      "<p class=\"deadline\">Пожалуйста, ответь до <strong>18 сентября</strong>.</p>",
+      "<p class=\"deadline\">Пожалуйста, подтверди участие до <strong>18 сентября</strong>.</p>",
 
     greetingLetterCeremony:
       "<p>Мы с радостью приглашаем вас стать свидетелями одного из самых важных моментов нашей жизни — нашего венчания.</p>" +
-      "<p>Мы заключим брак в <strong>церкви 16 октября в 14:00</strong>, и нам будет очень дорого видеть вас рядом, когда мы произносим клятвы.</p>" +
+      "<p>Венчание состоится в <strong>Schlosskirche Düsseldorf</strong>, 16 октября в 14:00 — <a href=\"https://maps.google.com/?q=Schlosskirche+Düsseldorf,+Benrather+Str.+5,+40213+Düsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a>. Нам будет очень дорого видеть вас рядом, когда мы произносим клятвы.</p>" +
       "<p>Это займёт всего минуту — просто дайте нам знать, что придёте.</p>" +
-      "<p class=\"deadline\">Пожалуйста, ответьте до <strong>18 сентября</strong>.</p>",
+      "<p class=\"deadline\">Пожалуйста, подтвердите участие до <strong>18 сентября</strong>.</p>",
 
     greetingLetterCeremonySingle:
       "<p>Мы с радостью приглашаем тебя стать свидетелем одного из самых важных моментов нашей жизни — нашего венчания.</p>" +
-      "<p>Мы заключим брак в <strong>церкви 16 октября в 14:00</strong>, и нам будет очень дорого видеть тебя рядом, когда мы произносим клятвы.</p>" +
+      "<p>Венчание состоится в <strong>Schlosskirche Düsseldorf</strong>, 16 октября в 14:00 — <a href=\"https://maps.google.com/?q=Schlosskirche+Düsseldorf,+Benrather+Str.+5,+40213+Düsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a>. Нам будет очень дорого видеть тебя рядом, когда мы произносим клятвы.</p>" +
       "<p>Это займёт всего минуту — просто дай нам знать, что придёшь.</p>" +
-      "<p class=\"deadline\">Пожалуйста, ответь до <strong>18 сентября</strong>.</p>",
+      "<p class=\"deadline\">Пожалуйста, подтверди участие до <strong>18 сентября</strong>.</p>",
 
     step1Label    : "Шаг 1 из 3 — Ваши данные",
     step2Label    : "Шаг 2 из 3 — Посещение",
@@ -612,10 +612,10 @@ window.I18N = {
     seatHint       : "Скорректируйте при необходимости — каждое место помогает нам в планировании. 🙏",
     declineLabel   : "Оставьте нам сообщение (необязательно)",
     declinePlaceholder: "Мы будем скучать — скажите что-нибудь 💛",
-    sendRsvpBtn    : "Отправить RSVP ✓",
-    selectAttendanceErr: "Пожалуйста, укажите, придёте ли вы на венчание.",
-    rsvpSubmittedBtn   : "RSVP отправлен ✓",
-    submitAnotherRsvp  : "Отправить ещё один RSVP",
+    sendRsvpBtn    : "Подтвердить участие ✓",
+    selectAttendanceErr: "Пожалуйста, укажите, сможете ли вы прийти на венчание.",
+    rsvpSubmittedBtn   : "Участие подтверждено ✓",
+    submitAnotherRsvp  : "Отправить для другого гостя",
 
     adultSingular  : "взрослый",
     adultPlural    : "взрослых",
@@ -625,7 +625,7 @@ window.I18N = {
     successKicker          : "СПАСИБО",
     successTitleAttending  : "Мы не можем дождаться, когда отпразднуем вместе с вами.",
     successTitleDecline    : "Жаль, что вы не сможете прийти.",
-    successMsgAttending    : "Ваш RSVP получен. Спасибо, что будете частью этого особенного дня.",
+    successMsgAttending    : "Ваше участие подтверждено. Спасибо, что будете частью этого особенного дня.",
     successMsgDecline      : "Спасибо, что сообщили нам. Вы будете нам не хватать — надеемся отпраздновать вместе в другой раз.",
     successCardAttending   : "Мы не можем дождаться, когда отпразднуем вместе с вами.",
     successCardDecline     : "Жаль, что вы не сможете прийти. Спасибо, что сообщили нам.",
@@ -637,8 +637,8 @@ window.I18N = {
     giftNoteParty    : "Подарочная коробка будет у входа в церковь и на месте приёма. Большое спасибо. ♡",
     bringShareNudge  : "Bring & Share 🧁",
 
-    bannerText: "📋 Пожалуйста, заполните RSVP",
-    bannerBtn : "RSVP сейчас ↓",
+    bannerText: "📋 Пожалуйста, подтвердите участие",
+    bannerBtn : "Подтвердить сейчас ↓",
     viewOnMap : "Посмотреть на карте ↗",
 
     bsStep1Title    : "Что вы принесёте?",

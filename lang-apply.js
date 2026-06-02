@@ -21,10 +21,14 @@
   if (window.__LANG === 'en') return;
 
   /* ── 1. Translate all [data-i18n] spans/elements ── */
+  var htmlKeys = ['bsArrivalText','bsContactHint','bsWarmHint'];
   document.querySelectorAll('[data-i18n]').forEach(function (el) {
     var key = el.getAttribute('data-i18n');
     var val = t(key);
-    if (typeof val === 'string') el.textContent = val;
+    if (typeof val === 'string') {
+      if (htmlKeys.indexOf(key) !== -1) el.innerHTML = val;
+      else el.textContent = val;
+    }
   });
 
   /* ── 2. Translate all [data-i18n-ph] placeholders ── */

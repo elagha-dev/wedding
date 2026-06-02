@@ -40,7 +40,7 @@ function buildPersonCard(person) {
       <div class="contact-role">${translateRole(person.role)}</div>
       <h3>${person.name}</h3>
       ${emailHtml}
-      <p><span>${t('phoneLabel')}</span><a href="tel:${person.phone.replace(/\s+/g, "")}">${person.phone}</a></p>
+      ${person.phone ? `<p><span>${t('phoneLabel')}</span><a href="tel:${person.phone.replace(/\s+/g, "")}">${person.phone}</a></p>` : ''}
     </div>`;
   return wrap;
 }
@@ -1086,114 +1086,7 @@ if (bsSubmit) bsSubmit.addEventListener("click", async function() {
 })();
 
 
-/* ── STICKY RSVP REMINDER BANNER ────────────────────────────
-   Appears at the bottom of the page on mobile (≤920px) and
-   at the top-right on desktop. Does NOT go away until RSVP
-   is actually submitted (success screen shown).
-   ─────────────────────────────────────────────────────────── */
-(function() {
-  // Inject the banner HTML
-  var banner = document.createElement('div');
-  banner.id = 'rsvpBanner';
-  banner.innerHTML =
-    '<span id="rsvpBannerText">' + t('bannerText') + '</span>' +
-    '<button id="rsvpBannerBtn">' + t('bannerBtn') + '</button>';
-  document.body.appendChild(banner);
-
-  // Inject minimal banner styles (no changes to styles.css)
-  var style = document.createElement('style');
-  style.textContent = [
-    '#rsvpBanner {',
-    '  display: none;',
-    '  position: fixed;',
-    '  z-index: 9999;',
-    '  background: #31271C;',
-    '  color: #EBE2DA;',
-    '  font-family: inherit;',
-    '  align-items: center;',
-    '  justify-content: space-between;',
-    '  gap: 12px;',
-    '  box-shadow: 0 -2px 20px rgba(0,0,0,.25);',
-    '  transition: opacity .3s;',
-    '}',
-    /* Mobile: bottom bar */
-    '@media (max-width: 920px) {',
-    '  #rsvpBanner {',
-    '    bottom: 0; left: 0; right: 0;',
-    '    padding: 14px 20px;',
-    '    font-size: 14px;',
-    '  }',
-    '}',
-    /* Desktop: top-right pill */
-    '@media (min-width: 921px) {',
-    '  #rsvpBanner {',
-    '    top: 14px; right: 14px;',
-    '    border-radius: 2px;',
-    '    padding: 10px 16px;',
-    '    font-size: 11px;',
-    '    letter-spacing: .06em;',
-    '  }',
-    '}',
-    '#rsvpBannerText { flex: 1; }',
-    '#rsvpBannerBtn {',
-    '  flex-shrink: 0;',
-    '  background: #EBE2DA;',
-    '  color: #31271C;',
-    '  border: none;',
-    '  padding: 7px 16px;',
-    '  font-family: inherit;',
-    '  font-size: inherit;',
-    '  font-weight: 600;',
-    '  letter-spacing: .08em;',
-    '  text-transform: uppercase;',
-    '  cursor: pointer;',
-    '  white-space: nowrap;',
-    '  border-radius: 1px;',
-    '}',
-    '#rsvpBannerBtn:hover { opacity: .85; }'
-  ].join('\n');
-  document.head.appendChild(style);
-
-  var submitted = false;
-
-  function isSuccessVisible() {
-    var s = document.getElementById('rsvpSuccess');
-    return s && (s.classList.contains('is-visible') || getComputedStyle(s).display !== 'none');
-  }
-
-  function updateBanner() {
-    if (submitted || isSuccessVisible()) {
-      banner.style.display = 'none';
-      return;
-    }
-    banner.style.display = 'flex';
-  }
-
-  // Watch RSVP success div for class changes
-  var successEl = document.getElementById('rsvpSuccess');
-  if (successEl) {
-    new MutationObserver(function() {
-      if (isSuccessVisible()) { submitted = true; }
-      updateBanner();
-    }).observe(successEl, { attributes: true, attributeFilter: ['class', 'style'] });
-  }
-
-  // Scroll to RSVP card on click
-  document.getElementById('rsvpBannerBtn').addEventListener('click', function() {
-    var card = document.querySelector('.rsvp-card');
-    if (card) {
-      card.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      // On desktop the card is always visible in the grid, so just focus first field
-      var firstInput = card.querySelector('input');
-      if (firstInput) setTimeout(function() { firstInput.focus(); }, 400);
-    }
-  });
-
-  window.addEventListener('resize', updateBanner);
-
-  // Initial state — small delay so success screen has time to render on reload
-  setTimeout(updateBanner, 100);
-})();
+/* ── STICKY RSVP BANNER: removed — replaced by personalised gate + floating card system ── */
 
 
 /* ── PARTY RSVP WIZARD ───────────────────────────────────────
@@ -1909,7 +1802,7 @@ if (newRsvpBtn2) {
   var eventDesc  = hasParty
     ? 'Church Ceremony <strong>16 Oct 14:00</strong> &amp; Evening Reception <strong>17:00</strong>'
     : 'Church Ceremony <strong>16 October at 14:00</strong> in Düsseldorf';
-  var seatsText  = isCouple ? '2 seats have been reserved for you' : 'A seat has been reserved for you';
+  var seatsText  = isCouple ? 'We kindly request the honour of your presence' : 'We kindly request the honour of your presence';
 
   /* ── SOFT GATE HTML ── */
   var gate = document.createElement('div');
@@ -1921,8 +1814,8 @@ if (newRsvpBtn2) {
       '<div class="we-rule"></div>' +
       '<div class="we-salut">' + salutation + '</div>' +
       '<div class="we-guestname">' + displayName + '</div>' +
-      '<div class="we-seat-badge">🪑 ' + seatsText + '</div>' +
-      '<div class="we-body">Before you explore — it only takes <strong>60 seconds</strong> to confirm your attendance.<br>RSVP deadline: <strong>18 September</strong>.</div>' +
+      '<div class="we-seat-badge">♡ ' + seatsText + '</div>' +
+      '<div class="we-body">Before you explore — it only takes <strong>60 seconds</strong> to confirm your attendance.<br>Deadline: <strong>18 September</strong>.</div>' +
       '<button id="weGateCta">Confirm My Attendance →</button>' +
       '<button id="weGateSkip">I\'ll explore first</button>' +
     '</div>';
@@ -1943,9 +1836,9 @@ if (newRsvpBtn2) {
   seatCard.innerHTML =
     '<button id="weSeatDismiss" title="Dismiss">×</button>' +
     '<div class="we-seat-inner" id="weSeatInner">' +
-      '<div class="we-seat-icon">🪑</div>' +
+      '<div class="we-seat-icon">💌</div>' +
       '<div class="we-seat-text">' +
-        '<div class="we-seat-lbl">Your seat · Reserved</div>' +
+        '<div class="we-seat-lbl">Jonas & Arina · 16.10.2026</div>' +
         '<div class="we-seat-name">' + displayName + '</div>' +
       '</div>' +
       '<div class="we-seat-arr">→</div>' +
@@ -1961,7 +1854,7 @@ if (newRsvpBtn2) {
       '<span class="we-lock-icon">💌</span>' +
       '<div class="we-lock-title">One moment, ' + firstName + '</div>' +
       '<div class="we-lock-body">You scrolled past your RSVP.<br>It takes less than a minute — and it means<br>everything to us to know you\'ll be there.</div>' +
-      '<button id="weScrollLockCta">RSVP Now →</button>' +
+      '<button id="weScrollLockCta">Confirm Attendance →</button>' +
       '<button id="weScrollLockSkip">Continue browsing</button>' +
     '</div>';
   document.body.appendChild(scrollLock);
