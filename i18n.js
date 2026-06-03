@@ -68,27 +68,27 @@ window.I18N = {
 
     greetingLetterParty:
       "<p>We are so excited to have you with us on our wedding day — truly one of the most important days of our lives, and we wouldn't want to share it without you.</p>" +
-      "<p>We're getting married at the <strong>Schlosskirche Düsseldorf</strong> on <strong>16 October</strong> — doors open <strong>13:30</strong>, ceremony at <strong>14:00</strong>. <a href=\"https://maps.google.com/?q=Schlosskirche+D%C3%BCsseldorf,+Benrather+Str.+5,+40213+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></p>" +
-      "<p>Afterwards we'll keep the celebration going at <strong>Rheinliebe am Deich</strong> from <strong>17:00</strong>. <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Heerstra%C3%9Fe+45,+40549+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></p>" +
+      "<p>⛪ Please arrive by <strong>13:30</strong> — the ceremony begins at <strong>14:00</strong> sharp<br><strong>Schlosskirche Düsseldorf</strong> · <a href=\"https://maps.google.com/?q=Schlosskirche+D%C3%BCsseldorf,+Benrather+Str.+5,+40213+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></p>" +
+      "<p>🥂 Evening reception from <strong>17:00</strong><br><strong>Rheinliebe am Deich</strong> · <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Heerstra%C3%9Fe+45,+40549+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></p>" +
       "<p>It only takes a minute to let us know you'll be there. If you can make it to both — wonderful. If you can only join us for the evening — we'll take it, gladly. Just let us know below.</p>" +
       "<p class=\"deadline\">Please confirm your attendance by <strong>18 September</strong>.</p>",
 
     greetingLetterPartySingle:
       "<p>We are so excited to have you with us on our wedding day — truly one of the most important days of our lives, and we wouldn't want to share it without you.</p>" +
-      "<p>We're getting married at the <strong>Schlosskirche Düsseldorf</strong> on <strong>16 October</strong> — doors open <strong>13:30</strong>, ceremony at <strong>14:00</strong>. <a href=\"https://maps.google.com/?q=Schlosskirche+D%C3%BCsseldorf,+Benrather+Str.+5,+40213+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></p>" +
-      "<p>Afterwards we'll keep the celebration going at <strong>Rheinliebe am Deich</strong> from <strong>17:00</strong>. <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Heerstra%C3%9Fe+45,+40549+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></p>" +
+      "<p>⛪ Please arrive by <strong>13:30</strong> — the ceremony begins at <strong>14:00</strong> sharp<br><strong>Schlosskirche Düsseldorf</strong> · <a href=\"https://maps.google.com/?q=Schlosskirche+D%C3%BCsseldorf,+Benrather+Str.+5,+40213+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></p>" +
+      "<p>🥂 Evening reception from <strong>17:00</strong><br><strong>Rheinliebe am Deich</strong> · <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Heerstra%C3%9Fe+45,+40549+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></p>" +
       "<p>It only takes a minute to let us know you'll be there. If you can make it to both — wonderful. If you can only join us for the evening — we'll take it, gladly. Just let us know below.</p>" +
       "<p class=\"deadline\">Please confirm your attendance by <strong>18 September</strong>.</p>",
 
     greetingLetterCeremony:
       "<p>We are so happy to invite you to witness one of the most meaningful moments of our lives — our wedding ceremony.</p>" +
-      "<p>We're getting married at the <strong>Schlosskirche Düsseldorf</strong> on <strong>16 October</strong> — doors open <strong>13:30</strong>, ceremony at <strong>14:00</strong>. <a href=\"https://maps.google.com/?q=Schlosskirche+D%C3%BCsseldorf,+Benrather+Str.+5,+40213+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></p>" +
+      "<p>⛪ Please arrive by <strong>13:30</strong> — the ceremony begins at <strong>14:00</strong> sharp<br><strong>Schlosskirche Düsseldorf</strong> · <a href=\"https://maps.google.com/?q=Schlosskirche+D%C3%BCsseldorf,+Benrather+Str.+5,+40213+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></p>" +
       "<p>It only takes a minute — just let us know you'll be coming, and we'll take care of the rest.</p>" +
       "<p class=\"deadline\">Please confirm your attendance by <strong>18 September</strong>.</p>",
 
     greetingLetterCeremonySingle:
       "<p>We are so happy to invite you to witness one of the most meaningful moments of our lives — our wedding ceremony.</p>" +
-      "<p>We're getting married at the <strong>Schlosskirche Düsseldorf</strong> on <strong>16 October</strong> — doors open <strong>13:30</strong>, ceremony at <strong>14:00</strong>. <a href=\"https://maps.google.com/?q=Schlosskirche+D%C3%BCsseldorf,+Benrather+Str.+5,+40213+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></p>" +
+      "<p>⛪ Please arrive by <strong>13:30</strong> — the ceremony begins at <strong>14:00</strong> sharp<br><strong>Schlosskirche Düsseldorf</strong> · <a href=\"https://maps.google.com/?q=Schlosskirche+D%C3%BCsseldorf,+Benrather+Str.+5,+40213+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></p>" +
       "<p>It only takes a minute — just let us know you'll be coming, and we'll take care of the rest.</p>" +
       "<p class=\"deadline\">Please confirm your attendance by <strong>18 September</strong>.</p>",
 
@@ -337,25 +337,27 @@ window.I18N = {
 
     greetingLetterParty:
       "<p>Wir freuen uns so sehr, euch an unserem Hochzeitstag bei uns zu haben — einem der wichtigsten Tage unseres Lebens. Wir möchten ihn nicht ohne euch erleben.</p>" +
-      "<p>Wir heiraten in der <strong>Schlosskirche Düsseldorf</strong> am <strong>16. Oktober um 14:00 Uhr</strong> — <a href=\"https://maps.google.com/?q=Schlosskirche+Düsseldorf,+Benrather+Str.+5,+40213+Düsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a> — und danach feiern wir bis in den Abend bei unserem <strong>Empfang ab 17:00 Uhr</strong> — mit Essen, Tanzen und allem, was dazugehört.</p>" +
+      "<p>⛪ Bitte kommt bis <strong>13:30</strong> — die Trauung beginnt pünktlich um <strong>14:00 Uhr</strong><br><strong>Schlosskirche Düsseldorf</strong> · <a href=\"https://maps.google.com/?q=Schlosskirche+Düsseldorf,+Benrather+Str.+5,+40213+Düsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></p>" +
+      "<p>🥂 Abendempfang ab <strong>17:00 Uhr</strong><br><strong>Rheinliebe am Deich</strong> · <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Heerstra%C3%9Fe+45,+40549+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></p>" +
       "<p>Es dauert nur eine Minute — gebt uns einfach Bescheid, dass ihr kommt. Wir kümmern uns um den Rest.</p>" +
       "<p class=\"deadline\">Bitte bestätigt eure Teilnahme bis zum <strong>18. September</strong>.</p>",
 
     greetingLetterPartySingle:
       "<p>Wir freuen uns so sehr, dich an unserem Hochzeitstag bei uns zu haben — einem der wichtigsten Tage unseres Lebens. Wir möchten ihn nicht ohne dich erleben.</p>" +
-      "<p>Wir heiraten in der <strong>Schlosskirche Düsseldorf</strong> am <strong>16. Oktober um 14:00 Uhr</strong> — <a href=\"https://maps.google.com/?q=Schlosskirche+Düsseldorf,+Benrather+Str.+5,+40213+Düsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a> — und danach feiern wir bis in den Abend bei unserem <strong>Empfang ab 17:00 Uhr</strong> — mit Essen, Tanzen und allem, was dazugehört.</p>" +
+      "<p>⛪ Bitte komm bis <strong>13:30</strong> — die Trauung beginnt pünktlich um <strong>14:00 Uhr</strong><br><strong>Schlosskirche Düsseldorf</strong> · <a href=\"https://maps.google.com/?q=Schlosskirche+Düsseldorf,+Benrather+Str.+5,+40213+Düsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></p>" +
+      "<p>🥂 Abendempfang ab <strong>17:00 Uhr</strong><br><strong>Rheinliebe am Deich</strong> · <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Heerstra%C3%9Fe+45,+40549+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></p>" +
       "<p>Es dauert nur eine Minute — gib uns einfach Bescheid, dass du kommst. Wir kümmern uns um den Rest.</p>" +
       "<p class=\"deadline\">Bitte bestätige deine Teilnahme bis zum <strong>18. September</strong>.</p>",
 
     greetingLetterCeremony:
       "<p>Wir laden euch herzlich ein, einen der bedeutsamsten Momente unseres Lebens mitzuerleben — unsere Hochzeitszeremonie.</p>" +
-      "<p>Wir heiraten in der <strong>Schlosskirche Düsseldorf</strong> am <strong>16. Oktober</strong> — Einlass ab <strong>13:30 Uhr</strong>, Trauung um <strong>14:00 Uhr</strong>. <a href=\"https://maps.google.com/?q=Schlosskirche+D%C3%BCsseldorf,+Benrather+Str.+5,+40213+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></p>" +
+      "<p>⛪ Bitte kommt bis <strong>13:30</strong> — die Trauung beginnt pünktlich um <strong>14:00 Uhr</strong><br><strong>Schlosskirche Düsseldorf</strong> · <a href=\"https://maps.google.com/?q=Schlosskirche+D%C3%BCsseldorf,+Benrather+Str.+5,+40213+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></p>" +
       "<p>Es dauert nur eine Minute — gebt uns einfach Bescheid, dass ihr kommt, und wir kümmern uns um den Rest.</p>" +
       "<p class=\"deadline\">Bitte bestätigt eure Teilnahme bis zum <strong>18. September</strong>.</p>",
 
     greetingLetterCeremonySingle:
       "<p>Wir laden dich herzlich ein, einen der bedeutsamsten Momente unseres Lebens mitzuerleben — unsere Hochzeitszeremonie.</p>" +
-      "<p>Wir heiraten in der <strong>Schlosskirche Düsseldorf</strong> am <strong>16. Oktober</strong> — Einlass ab <strong>13:30 Uhr</strong>, Trauung um <strong>14:00 Uhr</strong>. <a href=\"https://maps.google.com/?q=Schlosskirche+D%C3%BCsseldorf,+Benrather+Str.+5,+40213+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></p>" +
+      "<p>⛪ Bitte komm bis <strong>13:30</strong> — die Trauung beginnt pünktlich um <strong>14:00 Uhr</strong><br><strong>Schlosskirche Düsseldorf</strong> · <a href=\"https://maps.google.com/?q=Schlosskirche+D%C3%BCsseldorf,+Benrather+Str.+5,+40213+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></p>" +
       "<p>Es dauert nur eine Minute — gib uns einfach Bescheid, dass du kommst, und wir kümmern uns um den Rest.</p>" +
       "<p class=\"deadline\">Bitte bestätige deine Teilnahme bis zum <strong>18. September</strong>.</p>",
 
@@ -591,25 +593,27 @@ window.I18N = {
 
     greetingLetterParty:
       "<p>Мы так рады пригласить вас разделить с нами наш свадебный день — один из самых важных дней в нашей жизни. Мы не хотим отмечать его без вас.</p>" +
-      "<p>Венчание состоится в <strong>Schlosskirche Düsseldorf</strong>, 16 октября в 14:00 — <a href=\"https://maps.google.com/?q=Schlosskirche+Düsseldorf,+Benrather+Str.+5,+40213+Düsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a> — а после мы будем праздновать до вечера на <strong>банкете, начиная с 17:00</strong> — ужин, танцы и всё самое хорошее.</p>" +
+      "<p>⛪ Пожалуйста, приходите к <strong>13:30</strong> — венчание начнётся ровно в <strong>14:00</strong><br><strong>Schlosskirche Düsseldorf</strong> · <a href=\"https://maps.google.com/?q=Schlosskirche+Düsseldorf,+Benrather+Str.+5,+40213+Düsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></p>" +
+      "<p>🥂 Вечерний банкет с <strong>17:00</strong><br><strong>Rheinliebe am Deich</strong> · <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Heerstra%C3%9Fe+45,+40549+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></p>" +
       "<p>Это займёт всего минуту — просто дайте нам знать, что придёте, а мы позаботимся об остальном.</p>" +
       "<p class=\"deadline\">Пожалуйста, подтвердите участие до <strong>18 сентября</strong>.</p>",
 
     greetingLetterPartySingle:
       "<p>Мы так рады пригласить тебя разделить с нами наш свадебный день — один из самых важных дней в нашей жизни. Мы не хотим отмечать его без тебя.</p>" +
-      "<p>Венчание состоится в <strong>Schlosskirche Düsseldorf</strong>, 16 октября в 14:00 — <a href=\"https://maps.google.com/?q=Schlosskirche+Düsseldorf,+Benrather+Str.+5,+40213+Düsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a> — а после мы будем праздновать до вечера на <strong>банкете, начиная с 17:00</strong> — ужин, танцы и всё самое хорошее.</p>" +
+      "<p>⛪ Пожалуйста, приходи к <strong>13:30</strong> — венчание начнётся ровно в <strong>14:00</strong><br><strong>Schlosskirche Düsseldorf</strong> · <a href=\"https://maps.google.com/?q=Schlosskirche+Düsseldorf,+Benrather+Str.+5,+40213+Düsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></p>" +
+      "<p>🥂 Вечерний банкет с <strong>17:00</strong><br><strong>Rheinliebe am Deich</strong> · <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Heerstra%C3%9Fe+45,+40549+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></p>" +
       "<p>Это займёт всего минуту — просто дай нам знать, что придёшь, а мы позаботимся об остальном.</p>" +
       "<p class=\"deadline\">Пожалуйста, подтверди участие до <strong>18 сентября</strong>.</p>",
 
     greetingLetterCeremony:
       "<p>Мы с радостью приглашаем вас стать свидетелями одного из самых важных моментов нашей жизни — нашего венчания.</p>" +
-      "<p>Венчание состоится в <strong>Schlosskirche Düsseldorf</strong>, 16 октября в 14:00 — <a href=\"https://maps.google.com/?q=Schlosskirche+Düsseldorf,+Benrather+Str.+5,+40213+Düsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a>. Нам будет очень дорого видеть вас рядом, когда мы произносим клятвы.</p>" +
+      "<p>⛪ Пожалуйста, приходите к <strong>13:30</strong> — венчание начнётся ровно в <strong>14:00</strong><br><strong>Schlosskirche Düsseldorf</strong> · <a href=\"https://maps.google.com/?q=Schlosskirche+Düsseldorf,+Benrather+Str.+5,+40213+Düsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></p>" +
       "<p>Это займёт всего минуту — просто дайте нам знать, что придёте.</p>" +
       "<p class=\"deadline\">Пожалуйста, подтвердите участие до <strong>18 сентября</strong>.</p>",
 
     greetingLetterCeremonySingle:
       "<p>Мы с радостью приглашаем тебя стать свидетелем одного из самых важных моментов нашей жизни — нашего венчания.</p>" +
-      "<p>Венчание состоится в <strong>Schlosskirche Düsseldorf</strong>, 16 октября в 14:00 — <a href=\"https://maps.google.com/?q=Schlosskirche+Düsseldorf,+Benrather+Str.+5,+40213+Düsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a>. Нам будет очень дорого видеть тебя рядом, когда мы произносим клятвы.</p>" +
+      "<p>⛪ Пожалуйста, приходи к <strong>13:30</strong> — венчание начнётся ровно в <strong>14:00</strong><br><strong>Schlosskirche Düsseldorf</strong> · <a href=\"https://maps.google.com/?q=Schlosskirche+Düsseldorf,+Benrather+Str.+5,+40213+Düsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></p>" +
       "<p>Это займёт всего минуту — просто дай нам знать, что придёшь.</p>" +
       "<p class=\"deadline\">Пожалуйста, подтверди участие до <strong>18 сентября</strong>.</p>",
 
