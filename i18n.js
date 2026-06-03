@@ -68,13 +68,13 @@ window.I18N = {
 
     greetingLetterParty:
       "<p>We are so excited to have you with us on our wedding day — truly one of the most important days of our lives, and we wouldn't want to share it without you.</p>" +
-      "<p>We're getting married at the <strong>Schlosskirche Düsseldorf</strong> on <strong>16 October at 14:00</strong> — <a href=\"https://maps.google.com/?q=Schlosskirche+Düsseldorf,+Benrather+Str.+5,+40213+Düsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a> — and afterwards we'll celebrate well into the evening at our <strong>reception starting at 17:00</strong> — an evening reception starting at 17:00.</p>" +
+      "<p>We're getting married at the <strong>Schlosskirche Düsseldorf</strong> on <strong>16 October at 14:00</strong> — <a href=\"https://maps.google.com/?q=Schlosskirche+Düsseldorf,+Benrather+Str.+5,+40213+Düsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a> — and afterwards we'll keep the celebration going at our <strong>evening reception from 17:00</strong>.</p>" +
       "<p>It only takes a minute to let us know you'll be there. If you can make it to both — wonderful. If you can only join us for the evening — we'll take it, gladly. Just let us know below.</p>" +
       "<p class=\"deadline\">Please confirm your attendance by <strong>18 September</strong>.</p>",
 
     greetingLetterPartySingle:
       "<p>We are so excited to have you with us on our wedding day — truly one of the most important days of our lives, and we wouldn't want to share it without you.</p>" +
-      "<p>We're getting married at the <strong>Schlosskirche Düsseldorf</strong> on <strong>16 October at 14:00</strong> — <a href=\"https://maps.google.com/?q=Schlosskirche+Düsseldorf,+Benrather+Str.+5,+40213+Düsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a> — and afterwards we'll celebrate well into the evening at our <strong>reception starting at 17:00</strong> — an evening reception starting at 17:00.</p>" +
+      "<p>We're getting married at the <strong>Schlosskirche Düsseldorf</strong> on <strong>16 October at 14:00</strong> — <a href=\"https://maps.google.com/?q=Schlosskirche+Düsseldorf,+Benrather+Str.+5,+40213+Düsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a> — and afterwards we'll keep the celebration going at our <strong>evening reception from 17:00</strong>.</p>" +
       "<p>It only takes a minute to let us know you'll be there. If you can make it to both — wonderful. If you can only join us for the evening — we'll take it, gladly. Just let us know below.</p>" +
       "<p class=\"deadline\">Please confirm your attendance by <strong>18 September</strong>.</p>",
 
@@ -138,10 +138,10 @@ window.I18N = {
 
     /* ── Gift banner ── */
     giftBannerTitle  : "Your presence is already our greatest gift",
-    giftBannerBody   : "If you would like to honour our new home with something from your heart, we gratefully welcome a monetary gift — cash at the venue or via PayPal:",
+    giftBannerBody   : "If you want to bless us with something — a contribution towards our new home or honeymoon would mean the world to us.",
     giftPaypalBtn    : "Bless us digitally ↗",
-    giftNoteCeremony : "A gift box will be at the church entrance. Thank you so much. ♡",
-    giftNoteParty    : "A gift box will be at the church entrance and at the reception venue. Thank you so much. ♡",
+    giftNoteCeremony : "There will be a gift box at the church entrance. ♡",
+    giftNoteParty    : "There will be gift boxes at the church entrance and at the evening venue. ♡",
     bringShareNudge  : "Bring & Share 🧁",
 
     /* ── Sticky banner ── */
@@ -150,7 +150,7 @@ window.I18N = {
     /* ── Soft Gate / Floating Card / Scroll Lock ── */
     gateSalutation   : "You are invited,",
     gateSeatsText    : "We kindly request the honour of your presence",
-    gateBody         : "Before you explore — it only takes <strong>60 seconds</strong> to confirm your attendance.<br>Deadline: <strong>18 September</strong>.",
+    gateBody         : "We'd love to know you're coming. Takes a minute. ♡",
     gateNote         : "A small note before you begin: please read the message on the RSVP card — it has everything you need to know.",
     gateCtaBtn       : "Confirm My Attendance →",
     gateSkipBtn      : "I'll explore first",
@@ -253,7 +253,7 @@ window.I18N = {
         partyOnly: true,
         location: "Rheinliebe am Deich", address: "Heerstraße 45, 40549 Düsseldorf",
         mapUrl: "https://maps.google.com/?q=Rheinliebe+am+Deich+D%C3%BCsseldorf",
-        description: "Join us as we continue the celebration — an evening reception starting at 17:00 with good food, great company, and all the joy."
+        description: "The night is just starting. Come dance with us. 🎉"
       }
     ],
 
@@ -401,10 +401,10 @@ window.I18N = {
     successCardDecline     : "Schade, dass ihr nicht kommen könnt. Danke für eure Rückmeldung.",
 
     giftBannerTitle  : "Eure Anwesenheit ist bereits unser größtes Geschenk",
-    giftBannerBody   : "Wenn ihr unserem neuen Zuhause etwas von Herzen schenken möchtet, sind wir für einen finanziellen Beitrag dankbar — Bargeld vor Ort oder per PayPal:",
+    giftBannerBody   : "Wenn ihr uns etwas schenken möchtet — ein Beitrag für unser neues Zuhause oder unsere Flitterwochen würde uns unglaublich viel bedeuten.",
     giftPaypalBtn    : "Digital schenken ↗",
-    giftNoteCeremony : "Eine Geschenkbox steht am Kircheingang. Vielen herzlichen Dank. ♡",
-    giftNoteParty    : "Eine Geschenkbox steht am Kircheingang und am Empfangsort. Vielen herzlichen Dank. ♡",
+    giftNoteCeremony : "Am Kircheingang steht eine Geschenkbox für euch. ♡",
+    giftNoteParty    : "Geschenkboxen stehen am Kircheingang und am Abendlocation. ♡",
     bringShareNudge  : "Bring & Share 🧁",
 
     bannerText: "📋 Bitte Teilnahme bestätigen",
@@ -412,7 +412,7 @@ window.I18N = {
     /* ── Soft Gate / Floating Card / Scroll Lock ── */
     gateSalutation   : "Ihr seid herzlich eingeladen,",
     gateSeatsText    : "Wir freuen uns auf eure Anwesenheit",
-    gateBody         : "Bevor ihr euch umschaut — es dauert nur <strong>60 Sekunden</strong>, eure Teilnahme zu bestätigen.<br>Deadline: <strong>18. September</strong>.",
+    gateBody         : "Wir würden so gerne wissen, dass ihr kommt. Dauert eine Minute. ♡",
     gateNote         : "Ein kleiner Hinweis vorab: Bitte lest die Nachricht auf der RSVP-Karte — dort findet ihr alles Wichtige.",
     gateCtaBtn       : "Teilnahme bestätigen →",
     gateSkipBtn      : "Ich schaue mich erst um",
@@ -655,10 +655,10 @@ window.I18N = {
     successCardDecline     : "Жаль, что вы не сможете прийти. Спасибо, что сообщили нам.",
 
     giftBannerTitle  : "Ваше присутствие — уже наш самый большой подарок",
-    giftBannerBody   : "Если вы хотите порадовать наш новый дом чем-то от сердца, мы будем очень благодарны за денежный подарок — наличными на месте или через PayPal:",
+    giftBannerBody   : "Если хотите нас порадовать — вклад в наш новый дом или медовый месяц значил бы для нас очень много.",
     giftPaypalBtn    : "Благословить онлайн ↗",
-    giftNoteCeremony : "Подарочная коробка будет у входа в церковь. Большое спасибо. ♡",
-    giftNoteParty    : "Подарочная коробка будет у входа в церковь и на месте приёма. Большое спасибо. ♡",
+    giftNoteCeremony : "У входа в церковь будет коробка для подарков. ♡",
+    giftNoteParty    : "Коробки для подарков будут у церкви и на вечернем мероприятии. ♡",
     bringShareNudge  : "Bring & Share 🧁",
 
     bannerText: "📋 Пожалуйста, подтвердите участие",
@@ -666,7 +666,7 @@ window.I18N = {
     /* ── Soft Gate / Floating Card / Scroll Lock ── */
     gateSalutation   : "Вы приглашены,",
     gateSeatsText    : "Мы будем рады видеть вас",
-    gateBody         : "Прежде чем изучить сайт — подтверждение займёт всего <strong>60 секунд</strong>.<br>Срок: <strong>18 сентября</strong>.",
+    gateBody         : "Мы хотим знать, что ты придёшь. Займёт минуту. ♡",
     gateNote         : "Небольшое примечание: пожалуйста, прочитайте сообщение на карточке RSVP — там есть всё, что вам нужно знать.",
     gateCtaBtn       : "Подтвердить участие →",
     gateSkipBtn      : "Сначала посмотрю сайт",

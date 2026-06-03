@@ -481,6 +481,9 @@ function setPartyAttendance(val) {
   if (partyAttendSelect) partyAttendSelect.value = val;
   if (partyYesBtn) partyYesBtn.classList.toggle("is-active", val === "Yes");
   if (partyNoBtn)  partyNoBtn.classList.toggle("is-active",  val === "No");
+  /* Show car checkbox when evening is selected */
+  var carRow = document.getElementById("comingByCarRow");
+  if (carRow) carRow.style.display = (val === "Yes") ? "" : "none";
   onAttendanceChange();
 }
 
@@ -1848,7 +1851,7 @@ if (newRsvpBtn2) {
   if (days > 0) {
     var ribbon = document.createElement('div');
     ribbon.id = 'weRsvpDeadline';
-    ribbon.innerHTML = '<span class="we-dot"></span> Confirm your attendance by 18 September &nbsp;·&nbsp; <strong style="color:#EBE2DA;margin-left:2px;">' + days + ' day' + (days !== 1 ? 's' : '') + ' left</strong>';
+    ribbon.innerHTML = '<span class="we-dot"></span> Confirm attendance by 18.09';
     document.body.appendChild(ribbon);
   }
 

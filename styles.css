@@ -745,11 +745,10 @@ p {
   display: block;
 }
 
-/* Worship team — show full composite (couple + David side by side) */
+/* Worship team — full cover, padding removed from source image */
 .mini-photo--worship img {
-  object-fit: contain;
-  object-position: center center;
-  background: #e8ddd0;
+  object-fit: cover;
+  object-position: center 30%;
 }
 /* B&S contact — align photo left to show more of right side */
 .mini-photo--bs img {
