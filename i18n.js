@@ -68,25 +68,27 @@ window.I18N = {
 
     greetingLetterParty:
       "<p>We are so excited to have you with us on our wedding day — truly one of the most important days of our lives, and we wouldn't want to share it without you.</p>" +
-      "<p>We're getting married at the <strong>Schlosskirche Düsseldorf</strong> on <strong>16 October at 14:00</strong> — <a href=\"https://maps.google.com/?q=Schlosskirche+Düsseldorf,+Benrather+Str.+5,+40213+Düsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a> — and afterwards we'll keep the celebration going at our <strong>evening reception from 17:00</strong>.</p>" +
+      "<p>We're getting married at the <strong>Schlosskirche Düsseldorf</strong> on <strong>16 October</strong> — doors open <strong>13:30</strong>, ceremony at <strong>14:00</strong>. <a href=\"https://maps.google.com/?q=Schlosskirche+D%C3%BCsseldorf,+Benrather+Str.+5,+40213+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></p>" +
+      "<p>Afterwards we'll keep the celebration going at <strong>Rheinliebe am Deich</strong> from <strong>17:00</strong>. <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Heerstra%C3%9Fe+45,+40549+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></p>" +
       "<p>It only takes a minute to let us know you'll be there. If you can make it to both — wonderful. If you can only join us for the evening — we'll take it, gladly. Just let us know below.</p>" +
       "<p class=\"deadline\">Please confirm your attendance by <strong>18 September</strong>.</p>",
 
     greetingLetterPartySingle:
       "<p>We are so excited to have you with us on our wedding day — truly one of the most important days of our lives, and we wouldn't want to share it without you.</p>" +
-      "<p>We're getting married at the <strong>Schlosskirche Düsseldorf</strong> on <strong>16 October at 14:00</strong> — <a href=\"https://maps.google.com/?q=Schlosskirche+Düsseldorf,+Benrather+Str.+5,+40213+Düsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a> — and afterwards we'll keep the celebration going at our <strong>evening reception from 17:00</strong>.</p>" +
+      "<p>We're getting married at the <strong>Schlosskirche Düsseldorf</strong> on <strong>16 October</strong> — doors open <strong>13:30</strong>, ceremony at <strong>14:00</strong>. <a href=\"https://maps.google.com/?q=Schlosskirche+D%C3%BCsseldorf,+Benrather+Str.+5,+40213+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></p>" +
+      "<p>Afterwards we'll keep the celebration going at <strong>Rheinliebe am Deich</strong> from <strong>17:00</strong>. <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Heerstra%C3%9Fe+45,+40549+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></p>" +
       "<p>It only takes a minute to let us know you'll be there. If you can make it to both — wonderful. If you can only join us for the evening — we'll take it, gladly. Just let us know below.</p>" +
       "<p class=\"deadline\">Please confirm your attendance by <strong>18 September</strong>.</p>",
 
     greetingLetterCeremony:
       "<p>We are so happy to invite you to witness one of the most meaningful moments of our lives — our wedding ceremony.</p>" +
-      "<p>We're getting married at the <strong>Schlosskirche Düsseldorf</strong> on <strong>16 October at 14:00</strong>, and we would be truly honoured to have you there with us as we say our vows. <a href=\"https://maps.google.com/?q=Schlosskirche+Düsseldorf,+Benrather+Str.+5,+40213+Düsseldorf\" target=\"_blank\" rel=\"noopener\">View on Google Maps ↗</a></p>" +
+      "<p>We're getting married at the <strong>Schlosskirche Düsseldorf</strong> on <strong>16 October</strong> — doors open <strong>13:30</strong>, ceremony at <strong>14:00</strong>. <a href=\"https://maps.google.com/?q=Schlosskirche+D%C3%BCsseldorf,+Benrather+Str.+5,+40213+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></p>" +
       "<p>It only takes a minute — just let us know you'll be coming, and we'll take care of the rest.</p>" +
       "<p class=\"deadline\">Please confirm your attendance by <strong>18 September</strong>.</p>",
 
     greetingLetterCeremonySingle:
       "<p>We are so happy to invite you to witness one of the most meaningful moments of our lives — our wedding ceremony.</p>" +
-      "<p>We're getting married at the <strong>Schlosskirche Düsseldorf</strong> on <strong>16 October at 14:00</strong>, and we would be truly honoured to have you there with us as we say our vows. <a href=\"https://maps.google.com/?q=Schlosskirche+Düsseldorf,+Benrather+Str.+5,+40213+Düsseldorf\" target=\"_blank\" rel=\"noopener\">View on Google Maps ↗</a></p>" +
+      "<p>We're getting married at the <strong>Schlosskirche Düsseldorf</strong> on <strong>16 October</strong> — doors open <strong>13:30</strong>, ceremony at <strong>14:00</strong>. <a href=\"https://maps.google.com/?q=Schlosskirche+D%C3%BCsseldorf,+Benrather+Str.+5,+40213+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></p>" +
       "<p>It only takes a minute — just let us know you'll be coming, and we'll take care of the rest.</p>" +
       "<p class=\"deadline\">Please confirm your attendance by <strong>18 September</strong>.</p>",
 
@@ -140,8 +142,8 @@ window.I18N = {
     giftBannerTitle  : "Your presence is already our greatest gift",
     giftBannerBody   : "If you want to bless us with something — a contribution towards our new home or honeymoon would mean the world to us.",
     giftPaypalBtn    : "Bless us digitally ↗",
-    giftNoteCeremony : "There will be a gift box at the church entrance. ♡",
-    giftNoteParty    : "There will be gift boxes at the church entrance and at the evening venue. ♡",
+    giftNoteCeremony : "There will be a card box at the church entrance. ♡",
+    giftNoteParty    : "There will be a card box at the church entrance and at the evening venue. ♡",
     bringShareNudge  : "Bring & Share 🧁",
 
     /* ── Sticky banner ── */
@@ -347,13 +349,13 @@ window.I18N = {
 
     greetingLetterCeremony:
       "<p>Wir laden euch herzlich ein, einen der bedeutsamsten Momente unseres Lebens mitzuerleben — unsere Hochzeitszeremonie.</p>" +
-      "<p>Wir heiraten in der <strong>Schlosskirche Düsseldorf</strong> am <strong>16. Oktober um 14:00 Uhr</strong>, und wir wären sehr geehrt, euch dabei zu haben, wenn wir unser Ja-Wort geben. <a href=\"https://maps.google.com/?q=Schlosskirche+Düsseldorf,+Benrather+Str.+5,+40213+Düsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></p>" +
+      "<p>Wir heiraten in der <strong>Schlosskirche Düsseldorf</strong> am <strong>16. Oktober</strong> — Einlass ab <strong>13:30 Uhr</strong>, Trauung um <strong>14:00 Uhr</strong>. <a href=\"https://maps.google.com/?q=Schlosskirche+D%C3%BCsseldorf,+Benrather+Str.+5,+40213+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></p>" +
       "<p>Es dauert nur eine Minute — gebt uns einfach Bescheid, dass ihr kommt, und wir kümmern uns um den Rest.</p>" +
       "<p class=\"deadline\">Bitte bestätigt eure Teilnahme bis zum <strong>18. September</strong>.</p>",
 
     greetingLetterCeremonySingle:
       "<p>Wir laden dich herzlich ein, einen der bedeutsamsten Momente unseres Lebens mitzuerleben — unsere Hochzeitszeremonie.</p>" +
-      "<p>Wir heiraten in der <strong>Schlosskirche Düsseldorf</strong> am <strong>16. Oktober um 14:00 Uhr</strong>, und wir wären sehr geehrt, dich dabei zu haben, wenn wir unser Ja-Wort geben. <a href=\"https://maps.google.com/?q=Schlosskirche+Düsseldorf,+Benrather+Str.+5,+40213+Düsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></p>" +
+      "<p>Wir heiraten in der <strong>Schlosskirche Düsseldorf</strong> am <strong>16. Oktober</strong> — Einlass ab <strong>13:30 Uhr</strong>, Trauung um <strong>14:00 Uhr</strong>. <a href=\"https://maps.google.com/?q=Schlosskirche+D%C3%BCsseldorf,+Benrather+Str.+5,+40213+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></p>" +
       "<p>Es dauert nur eine Minute — gib uns einfach Bescheid, dass du kommst, und wir kümmern uns um den Rest.</p>" +
       "<p class=\"deadline\">Bitte bestätige deine Teilnahme bis zum <strong>18. September</strong>.</p>",
 
@@ -403,8 +405,8 @@ window.I18N = {
     giftBannerTitle  : "Eure Anwesenheit ist bereits unser größtes Geschenk",
     giftBannerBody   : "Wenn ihr uns etwas schenken möchtet — ein Beitrag für unser neues Zuhause oder unsere Flitterwochen würde uns unglaublich viel bedeuten.",
     giftPaypalBtn    : "Digital schenken ↗",
-    giftNoteCeremony : "Am Kircheingang steht eine Geschenkbox für euch. ♡",
-    giftNoteParty    : "Geschenkboxen stehen am Kircheingang und am Abendlocation. ♡",
+    giftNoteCeremony : "Am Kircheingang steht eine Kartenbox für euch. ♡",
+    giftNoteParty    : "Eine Kartenbox steht am Kircheingang und am Abendlocation. ♡",
     bringShareNudge  : "Bring & Share 🧁",
 
     bannerText: "📋 Bitte Teilnahme bestätigen",
@@ -657,8 +659,8 @@ window.I18N = {
     giftBannerTitle  : "Ваше присутствие — уже наш самый большой подарок",
     giftBannerBody   : "Если хотите нас порадовать — вклад в наш новый дом или медовый месяц значил бы для нас очень много.",
     giftPaypalBtn    : "Благословить онлайн ↗",
-    giftNoteCeremony : "У входа в церковь будет коробка для подарков. ♡",
-    giftNoteParty    : "Коробки для подарков будут у церкви и на вечернем мероприятии. ♡",
+    giftNoteCeremony : "У входа в церковь будет коробка для открыток. ♡",
+    giftNoteParty    : "Коробка для открыток будет у церкви и на вечернем мероприятии. ♡",
     bringShareNudge  : "Bring & Share 🧁",
 
     bannerText: "📋 Пожалуйста, подтвердите участие",
