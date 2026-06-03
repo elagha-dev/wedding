@@ -88,12 +88,6 @@ function renderContent(c) {
   renderCrewSide("crew-bride", c.crew && c.crew.brideSide);
   renderCrewOther("crew-other", c.crew && c.crew.pastorAndBand);
 
-  /* Kathi contact card in B&S done screen */
-  var kathiContainer = document.getElementById('kathiBsCard');
-  if (kathiContainer && c.crew && c.crew.pastorAndBand) {
-    var kathi = c.crew.pastorAndBand.find(function(p) { return p.role === 'Bring & Share'; });
-    if (kathi) kathiContainer.appendChild(buildPersonCard(kathi));
-  }
 
   /* Ceremony timeline */
   const agendaEl = document.getElementById("ceremony-agenda");

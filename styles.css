@@ -745,14 +745,15 @@ p {
   display: block;
 }
 
-/* Worship team — full cover, padding removed from source image */
+/* Worship team */
 .mini-photo--worship img {
   object-fit: cover;
-  object-position: center 30%;
+  object-position: center top;
 }
-/* B&S contact — align photo left to show more of right side */
+/* B&S crew */
 .mini-photo--bs img {
-  object-position: left center;
+  object-fit: cover;
+  object-position: center top;
 }
 
 .mini-name {
