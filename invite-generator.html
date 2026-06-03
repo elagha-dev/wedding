@@ -60,7 +60,8 @@ input::placeholder{color:#c0b5aa}
 .previewlink{display:block;font-size:10.5px;color:var(--muted);text-decoration:none;letter-spacing:.06em;margin-bottom:16px}
 .previewlink:hover{color:var(--accent)}
 .mlabel{font-size:10px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
-.msgbox{background:var(--bg);border:1px solid var(--border);padding:13px 15px;font-family:var(--serif);font-size:13px;line-height:1.8;color:var(--ink);white-space:pre-wrap;word-break:break-word;margin-bottom:9px;max-height:200px;overflow-y:auto}
+.msgbox{background:var(--bg);border:1px solid var(--border);padding:13px 15px;font-family:var(--serif);font-size:13px;line-height:1.8;color:var(--ink);white-space:pre-wrap;word-break:break-word;margin-bottom:9px;max-height:220px;overflow-y:auto;width:100%;resize:vertical;outline:none;transition:border-color .18s}
+.msgbox:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(122,82,54,.1)}
 .mactions{display:flex;gap:9px}
 .mbtn{flex:1;padding:10px 12px;border:none;font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:all .18s;display:flex;align-items:center;justify-content:center;gap:6px}
 .mbtn-copy{background:var(--ink);color:#ebe2da}
@@ -181,8 +182,8 @@ input::placeholder{color:#c0b5aa}
     <button class="ubtn ubtn-sent" id="sentBtn">Mark Sent</button>
   </div>
   <a class="previewlink" id="previewLink" href="#" target="_blank" rel="noreferrer">↗ Open invite</a>
-  <div class="mlabel">Message</div>
-  <div class="msgbox" id="msgBox"></div>
+  <div class="mlabel">Message <span style="font-size:9px;font-weight:400;letter-spacing:0;text-transform:none;color:#b0a090">— editable</span></div>
+  <textarea class="msgbox" id="msgBox"></textarea>
   <div class="mactions">
     <button class="mbtn mbtn-copy" id="copyMsgBtn">📋 Copy Message</button>
     <button class="mbtn mbtn-wa" id="waSendBtn">💬 Send via WhatsApp</button>
@@ -216,16 +217,16 @@ mem = load();
 
 var msgs = {
   en:{
-    ceremony:"Hey {n} 💛\n\nWe're getting married — and we can't imagine our church ceremony without you!\n\n📅 16 October 2026\n⛪ Doors open 13:30 · Ceremony at 14:00\n📍 Schlosskirche Düsseldorf\n\nYour personal invitation is ready — just open the link below and let us know you're coming.\n\n{u}\n\nCan't wait to see you there. ♡\nArina & Elnur",
-    party:"Hey {n} 💛\n\nWe're getting married — and we can't imagine our special day without you!\n\n📅 16 October 2026\n⛪ Doors open 13:30 · Ceremony 14:00 — Schlosskirche Düsseldorf\n🎉 Evening reception from 17:00 — Rheinliebe am Deich\n\nYour personal invitation is ready — open the link and tell us you're coming.\n\n{u}\n\nSo excited to celebrate with you. ♡\nArina & Elnur"
+    ceremony:"Hey {n} 💛\n\nWe're getting married — and we can't imagine our church ceremony without you!\n\n📅 16 October 2026\n⛪ Please arrive by 13:30 — the ceremony begins at 14:00 sharp\n📍 Schlosskirche Düsseldorf\n\nYour personal invitation is ready — just open the link below and let us know you're coming.\n\n{u}\n\nCan't wait to see you there. ♡\nArina & Elnur",
+    party:"Hey {n} 💛\n\nWe're getting married — and we can't imagine our special day without you!\n\n📅 16 October 2026\n⛪ Please arrive by 13:30 — the ceremony begins at 14:00 sharp\n📍 Schlosskirche Düsseldorf\n🎉 Evening reception from 17:00 — Rheinliebe am Deich\n\nYour personal invitation is ready — open the link and tell us you're coming.\n\n{u}\n\nSo excited to celebrate with you. ♡\nArina & Elnur"
   },
   de:{
-    ceremony:"Hey {n} 💛\n\nWir heiraten — und wir können uns unsere Trauung ohne dich nicht vorstellen!\n\n📅 16. Oktober 2026\n⛪ Einlass 13:30 · Trauung 14:00 Uhr\n📍 Schlosskirche Düsseldorf\n\nDeine persönliche Einladung wartet — öffne den Link und sag uns kurz Bescheid.\n\n{u}\n\nWir freuen uns riesig auf dich. ♡\nArina & Elnur",
-    party:"Hey {n} 💛\n\nWir heiraten — und wir können uns unseren besonderen Tag ohne dich nicht vorstellen!\n\n📅 16. Oktober 2026\n⛪ Einlass 13:30 · Trauung 14:00 Uhr — Schlosskirche Düsseldorf\n🎉 Abendempfang ab 17:00 Uhr — Rheinliebe am Deich\n\nDeine persönliche Einladung wartet — öffne den Link und gib uns Bescheid.\n\n{u}\n\nWir können es kaum erwarten. ♡\nArina & Elnur"
+    ceremony:"Hey {n} 💛\n\nWir heiraten — und wir können uns unsere Trauung ohne dich nicht vorstellen!\n\n📅 16. Oktober 2026\n⛪ Bitte komm bis 13:30 — die Trauung beginnt pünktlich um 14:00 Uhr\n📍 Schlosskirche Düsseldorf\n\nDeine persönliche Einladung wartet — öffne den Link und sag uns kurz Bescheid.\n\n{u}\n\nWir freuen uns riesig auf dich. ♡\nArina & Elnur",
+    party:"Hey {n} 💛\n\nWir heiraten — und wir können uns unseren besonderen Tag ohne dich nicht vorstellen!\n\n📅 16. Oktober 2026\n⛪ Bitte komm bis 13:30 — die Trauung beginnt pünktlich um 14:00 Uhr\n📍 Schlosskirche Düsseldorf\n🎉 Abendempfang ab 17:00 Uhr — Rheinliebe am Deich\n\nDeine persönliche Einladung wartet — öffne den Link und gib uns Bescheid.\n\n{u}\n\nWir können es kaum erwarten. ♡\nArina & Elnur"
   },
   ru:{
-    ceremony:"Привет, {n} 💛\n\nМы женимся — и не можем представить венчание без тебя!\n\n📅 16 октября 2026\n⛪ Двери открываются в 13:30 · Венчание в 14:00\n📍 Schlosskirche Düsseldorf\n\nТвоё личное приглашение готово — открой ссылку и дай нам знать.\n\n{u}\n\nТак ждём тебя. ♡\nАрина и Эльнур",
-    party:"Привет, {n} 💛\n\nМы женимся — и не можем представить этот день без тебя!\n\n📅 16 октября 2026\n⛪ Двери в 13:30 · Венчание в 14:00 — Schlosskirche Düsseldorf\n🎉 Вечерний приём с 17:00 — Rheinliebe am Deich\n\nТвоё личное приглашение готово — открой ссылку и дай нам знать.\n\n{u}\n\nНе можем дождаться. ♡\nАрина и Эльнур"
+    ceremony:"Привет, {n} 💛\n\nМы женимся — и не можем представить венчание без тебя!\n\n📅 16 октября 2026\n⛪ Пожалуйста, приходи к 13:30 — венчание начнётся ровно в 14:00\n📍 Schlosskirche Düsseldorf\n\nТвоё личное приглашение готово — открой ссылку и дай нам знать.\n\n{u}\n\nТак ждём тебя. ♡\nАрина и Эльнур",
+    party:"Привет, {n} 💛\n\nМы женимся — и не можем представить этот день без тебя!\n\n📅 16 октября 2026\n⛪ Пожалуйста, приходи к 13:30 — венчание начнётся ровно в 14:00\n📍 Schlosskirche Düsseldorf\n🎉 Вечерний приём с 17:00 — Rheinliebe am Deich\n\nТвоё личное приглашение готово — открой ссылку и дай нам знать.\n\n{u}\n\nНе можем дождаться. ♡\nАрина и Эльнур"
   }
 };
 
@@ -296,7 +297,7 @@ document.getElementById('genBtn').addEventListener('click',function(){
   out.style.display='block';
   document.getElementById('urlTxt').textContent=url;
   document.getElementById('previewLink').href=url;
-  document.getElementById('msgBox').textContent=msg;
+  document.getElementById('msgBox').value=msg;
   document.getElementById('guestTag').innerHTML=
     '<span class="gtag'+(hasParty?' p':'')+'">'+
     (isCouple?'👫':'👤')+' '+name+
@@ -313,6 +314,10 @@ document.getElementById('genBtn').addEventListener('click',function(){
   else{sb.textContent='Mark Sent';sb.classList.remove('ok');}
 
   out.scrollIntoView({behavior:'smooth',block:'nearest'});
+
+  // Save edits back to entry
+  var mb=document.getElementById('msgBox');
+  mb.oninput=function(){ if(cur) cur.msg=mb.value; };
 });
 
 document.getElementById('copyLinkBtn').addEventListener('click',function(){
@@ -329,13 +334,13 @@ document.getElementById('sentBtn').addEventListener('click',function(){
 });
 
 document.getElementById('copyMsgBtn').addEventListener('click',function(){
-  var msg=document.getElementById('msgBox').textContent;
+  var msg=document.getElementById('msgBox').value;
   copyText(msg,this,'📋 Copy Message');
   if(cur&&!cur.tracked.msgCopied){cur.tracked.msgCopied=ts();save();renderTracker();}
 });
 
 document.getElementById('waSendBtn').addEventListener('click',function(){
-  var msg=document.getElementById('msgBox').textContent;
+  var msg=document.getElementById('msgBox').value;
   var phone=cur&&cur.phone?cur.phone:'';
   var clean=phone.replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');
   var waUrl=clean
