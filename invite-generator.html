@@ -6,7 +6,14 @@
 <title>A & E · Invite Generator</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#F7F3EE;--card:#FDFAF7;--ink:#2A201A;--muted:#7A6B5E;--accent:#7A5236;--al:#C4956A;--border:#E2D8CF;--green:#3d7a55;--gl:#EBF3ED;--serif:'Cormorant Garamond',Georgia,serif;--sans:'Jost',sans-serif}
+:root{
+  --bg:#F7F3EE;--card:#FDFAF7;--ink:#2A201A;--muted:#7A6B5E;
+  --accent:#7A5236;--al:#C4956A;--border:#E2D8CF;
+  --green:#2e7d52;--green-bg:#EBF3ED;--green-mid:#4caf7d;
+  --amber:#a06020;--amber-bg:#FEF3E2;
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --sans:'Jost',sans-serif;
+}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:32px 14px 80px}
 header{text-align:center;margin-bottom:32px}
@@ -62,53 +69,72 @@ input::placeholder{color:#c0b5aa}
 .mbtn-wa{background:#25d366;color:#fff}
 .mbtn-wa:hover{background:#1db954}
 
-/* tracker */
-.hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px}
+/* ── TRACKER ──────────────────────────────────────────────── */
+.tracker-hdr{display:flex;align-items:center;gap:8px;margin-bottom:16px}
+.tracker-hdr .slabel{margin-bottom:0;flex:1}
 .clrbtn{font-size:11px;color:#bbb;background:none;border:none;cursor:pointer;font-family:var(--sans)}
 .clrbtn:hover{color:var(--accent)}
-.hlist{list-style:none}
-.empty{text-align:center;padding:22px;color:var(--muted);font-size:13px;font-style:italic;font-family:var(--serif)}
-.hi{padding:13px 0;border-bottom:1px solid var(--border)}
-.hi:last-child{border-bottom:none}
-.hitop{display:flex;align-items:center;gap:7px;margin-bottom:9px;flex-wrap:wrap}
-.hiname{font-family:var(--serif);font-size:16px;color:var(--ink)}
-.badges{display:flex;gap:4px;flex-wrap:wrap}
-.bdg{font-size:9px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:2px 6px;background:#ebe2da;color:var(--muted)}
-.bdg.p{background:#f0e4d4;color:var(--accent)}
-.bdg.c{background:#e4ebf0;color:#3a5a6e}
-.bdg.s{background:var(--gl);color:var(--green)}
-.hiacts{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
-.tbtn2{padding:5px 10px;font-size:9.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;border:1.5px solid var(--border);background:var(--bg);color:var(--muted);cursor:pointer;font-family:var(--sans);transition:all .15s;display:flex;align-items:center;gap:4px}
-.tbtn2:hover{border-color:var(--al);color:var(--accent);background:#fbf6f0}
-.tbtn2.ok{border-color:var(--green);background:var(--gl);color:var(--green)}
-.himeta{font-size:10px;color:#c0b5aa;margin-top:3px}
-.hiurl{font-family:monospace;font-size:9.5px;color:#c8bfb4;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-/* Summary bar */
-.sum-counts{display:flex;align-items:center;gap:14px;margin-bottom:8px;flex-wrap:wrap}
-.sum-sent{font-size:12px;font-weight:600;color:var(--green)}
-.sum-unsent{font-size:12px;font-weight:600;color:var(--accent)}
-.sum-total{font-size:11px;color:var(--muted);margin-left:auto}
-.sum-bar-wrap{height:4px;background:var(--border);border-radius:2px;overflow:hidden}
-.sum-bar{height:100%;background:var(--green);border-radius:2px;transition:width .4s ease}
+/* Summary strip */
+.sum-strip{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:16px;overflow:hidden}
+.sum-cell{background:var(--card);padding:10px 14px;text-align:center}
+.sum-num{font-family:var(--serif);font-size:26px;font-weight:300;line-height:1;color:var(--ink)}
+.sum-cell.sent .sum-num{color:var(--green)}
+.sum-cell.unsent .sum-num{color:var(--amber)}
+.sum-lbl{font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:3px}
+.sum-bar-wrap{height:3px;background:var(--border);margin-bottom:16px}
+.sum-bar{height:100%;background:var(--green);transition:width .4s ease}
 
 /* Group headers */
-.group-hdr{list-style:none;font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);padding:12px 0 6px;border-bottom:1.5px solid var(--accent-light)}
-.group-hdr:first-child{padding-top:4px}
-.group-hdr--sent{color:var(--green);border-bottom-color:var(--green)}
+.group-hdr{font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;padding:10px 0 6px;color:var(--accent);border-bottom:1px solid var(--border);margin-bottom:2px;list-style:none}
+.group-hdr.gh-sent{color:var(--green)}
 
-/* Sent items slightly muted */
-.hi-sent .hiname{opacity:.6}
-.hi-sent .hiurl{opacity:.5}
+/* Guest card */
+.hlist{list-style:none;display:flex;flex-direction:column;gap:6px}
+.empty{text-align:center;padding:28px;color:var(--muted);font-size:13px;font-style:italic;font-family:var(--serif)}
 
-/* Not sent badge */
-.bdg.u{background:#fdf0e8;color:#a0622a}
+.hi{background:var(--bg);border:1px solid var(--border);padding:12px 14px;transition:border-color .15s}
+.hi.hi-sent{border-left:3px solid var(--green-mid)}
+.hi.hi-unsent{border-left:3px solid var(--al)}
+
+/* Guest name row */
+.hi-top{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.hi-name{font-family:var(--serif);font-size:17px;font-weight:400;flex:1}
+.hi-sent .hi-name{color:var(--muted)}
+.hi-meta-chips{display:flex;gap:4px;flex-wrap:wrap}
+.chip{font-size:9px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;padding:2px 7px;border-radius:0}
+.chip-couple{background:#e4ebf0;color:#3a5a6e}
+.chip-party{background:#f0e4d4;color:var(--accent)}
+.chip-lang{background:#e8e0d6;color:var(--muted)}
+
+/* Status pipeline */
+.pipeline{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px}
+.pip-step{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 6px;border:1.5px solid var(--border);background:var(--card);cursor:pointer;transition:all .15s;user-select:none;position:relative}
+.pip-step:hover{border-color:var(--al)}
+.pip-step.done{border-color:var(--green-mid);background:var(--green-bg)}
+.pip-step.done:hover{border-color:var(--green)}
+.pip-icon{font-size:16px;line-height:1}
+.pip-label{font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:center}
+.pip-step.done .pip-label{color:var(--green)}
+.pip-time{font-size:8px;color:#a09080;text-align:center;font-variant-numeric:tabular-nums}
+.pip-check{position:absolute;top:4px;right:5px;font-size:10px;color:var(--green-mid);opacity:0;transition:opacity .15s}
+.pip-step.done .pip-check{opacity:1}
+
+/* Footer row */
+.hi-footer{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.hi-url{font-family:monospace;font-size:9px;color:#c0b0a0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.hi-actions{display:flex;gap:5px;flex-shrink:0}
+.act-btn{padding:4px 9px;font-size:9px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;border:1px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer;font-family:var(--sans);transition:all .13s;white-space:nowrap}
+.act-btn:hover{border-color:var(--al);color:var(--accent);background:#fbf6f0}
+.act-btn.del-btn:hover{border-color:#c0392b;color:#c0392b;background:#fdf5f5}
 
 @media(max-width:480px){
   .row2{grid-template-columns:1fr}
   .types{grid-template-columns:1fr}
   .card{padding:18px 14px}
   .mactions{flex-direction:column}
+  .pipeline{grid-template-columns:repeat(3,1fr);gap:4px}
+  .pip-step{padding:7px 4px}
 }
 </style>
 </head>
@@ -164,11 +190,11 @@ input::placeholder{color:#c0b5aa}
 </div>
 
 <div class="card" id="trackerCard">
-  <div class="hdr">
+  <div class="tracker-hdr">
     <div class="slabel" style="margin-bottom:0;flex:1">Tracker</div>
     <button class="clrbtn" id="clearBtn">Clear all</button>
   </div>
-  <div id="trackerSummary" style="display:none;margin-bottom:14px;"></div>
+  <div id="trackerSummary" style="display:none"></div>
   <ul class="hlist" id="hlist"></ul>
 </div>
 
@@ -176,20 +202,18 @@ input::placeholder{color:#c0b5aa}
 var BASE = 'https://www.arinaelnur.de/';
 var selType = 'ceremony-single';
 var selLang = 'en';
-var cur = null; // current entry object
+var cur = null;
 
-// ── Persistent storage: try localStorage, fall back to memory ─
 var mem = [];
 function load(){
-  try{ var d=localStorage.getItem('wt'); return d?JSON.parse(d):[];}
-  catch(e){return [];}
+  try{ var d=localStorage.getItem('wt'); return d?JSON.parse(d):[]; }
+  catch(e){ return []; }
 }
 function save(){
-  try{localStorage.setItem('wt',JSON.stringify(mem));}catch(e){}
+  try{ localStorage.setItem('wt',JSON.stringify(mem)); } catch(e){}
 }
 mem = load();
 
-// ── Messages ─────────────────────────────────────────────────
 var msgs = {
   en:{
     ceremony:"Hey {n} 💛\n\nWe're getting married — and we can't imagine our church ceremony without you!\n\n📅 16 October 2026\n⛪ Doors open 13:30 · Ceremony at 14:00\n📍 Schlosskirche Düsseldorf\n\nYour personal invitation is ready — just open the link below and let us know you're coming.\n\n{u}\n\nCan't wait to see you there. ♡\nArina & Elnur",
@@ -220,10 +244,9 @@ function buildMsg(name,type,lang,url){
   return (hasParty?l.party:l.ceremony).replace('{n}',name).replace('{u}',url);
 }
 
-function ts(){return new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});}
-function dt(){return new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short'})+' '+ts();}
+function ts(){ return new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}); }
+function dt(){ return new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short'})+' '+ts(); }
 
-// ── Type / lang selectors ─────────────────────────────────────
 document.querySelectorAll('.tbtn').forEach(function(b){
   b.addEventListener('click',function(){
     document.querySelectorAll('.tbtn').forEach(function(x){x.classList.remove('on');});
@@ -237,7 +260,6 @@ document.querySelectorAll('.lbtn').forEach(function(b){
   });
 });
 
-// ── Generate ─────────────────────────────────────────────────
 document.getElementById('genBtn').addEventListener('click',function(){
   var p1=document.getElementById('p1').value.trim();
   var p2=document.getElementById('p2').value.trim();
@@ -255,7 +277,6 @@ document.getElementById('genBtn').addEventListener('click',function(){
   var msg=buildMsg(name,selType,selLang,url);
   var ll={en:'🇬🇧 EN',de:'🇩🇪 DE',ru:'🇷🇺 RU'};
 
-  // Find or create entry
   var idx=mem.findIndex(function(h){return h.url===url;});
   var entry;
   if(idx>-1){
@@ -271,7 +292,6 @@ document.getElementById('genBtn').addEventListener('click',function(){
   cur=entry;
   save(); renderTracker();
 
-  // Show output
   var out=document.getElementById('outCard');
   out.style.display='block';
   document.getElementById('urlTxt').textContent=url;
@@ -283,13 +303,11 @@ document.getElementById('genBtn').addEventListener('click',function(){
     (hasParty?' · Full day':' · Ceremony')+' · '+(ll[selLang]||'EN')+
     '</span>';
 
-  // Reset copy buttons
   var clb=document.getElementById('copyLinkBtn');
   clb.textContent='Copy Link'; clb.classList.remove('ok');
   var cmb=document.getElementById('copyMsgBtn');
   cmb.textContent='📋 Copy Message'; cmb.classList.remove('ok');
 
-  // Sync sent button
   var sb=document.getElementById('sentBtn');
   if(entry.tracked.waSent){sb.textContent='✓ Sent';sb.classList.add('ok');}
   else{sb.textContent='Mark Sent';sb.classList.remove('ok');}
@@ -297,14 +315,12 @@ document.getElementById('genBtn').addEventListener('click',function(){
   out.scrollIntoView({behavior:'smooth',block:'nearest'});
 });
 
-// ── Copy link ─────────────────────────────────────────────────
 document.getElementById('copyLinkBtn').addEventListener('click',function(){
   var url=document.getElementById('urlTxt').textContent;
   copyText(url,this,'Copy Link');
   if(cur&&!cur.tracked.linkCopied){cur.tracked.linkCopied=ts();save();renderTracker();}
 });
 
-// ── Mark Sent toggle ──────────────────────────────────────────
 document.getElementById('sentBtn').addEventListener('click',function(){
   if(!cur) return;
   if(cur.tracked.waSent){cur.tracked.waSent=null;this.textContent='Mark Sent';this.classList.remove('ok');}
@@ -312,14 +328,12 @@ document.getElementById('sentBtn').addEventListener('click',function(){
   save(); renderTracker();
 });
 
-// ── Copy message ──────────────────────────────────────────────
 document.getElementById('copyMsgBtn').addEventListener('click',function(){
   var msg=document.getElementById('msgBox').textContent;
   copyText(msg,this,'📋 Copy Message');
   if(cur&&!cur.tracked.msgCopied){cur.tracked.msgCopied=ts();save();renderTracker();}
 });
 
-// ── WhatsApp ──────────────────────────────────────────────────
 document.getElementById('waSendBtn').addEventListener('click',function(){
   var msg=document.getElementById('msgBox').textContent;
   var phone=cur&&cur.phone?cur.phone:'';
@@ -333,7 +347,6 @@ document.getElementById('waSendBtn').addEventListener('click',function(){
   sb.textContent='✓ Sent'; sb.classList.add('ok');
 });
 
-// ── Copy helper ───────────────────────────────────────────────
 function copyText(text,btn,resetLabel){
   if(navigator.clipboard&&navigator.clipboard.writeText){
     navigator.clipboard.writeText(text).then(function(){flash(btn,resetLabel);}).catch(function(){fallbackCopy(text,btn,resetLabel);});
@@ -347,7 +360,6 @@ function fallbackCopy(text,btn,resetLabel){
   document.body.removeChild(ta);
 }
 function flash(btn,resetLabel){
-  var prev=btn.textContent;
   btn.textContent='✓ Copied'; btn.classList.add('ok');
   setTimeout(function(){btn.textContent=resetLabel; btn.classList.remove('ok');},2000);
 }
@@ -364,68 +376,76 @@ function renderTracker(){
   var sent=mem.filter(function(h){return !!h.tracked.waSent;});
   var unsent=mem.filter(function(h){return !h.tracked.waSent;});
   var total=mem.length;
-
-  // Summary bar
   var pct=Math.round(sent.length/total*100);
+
   var sumEl=document.getElementById('trackerSummary');
   sumEl.style.display='block';
   sumEl.innerHTML=
-    '<div class="sum-counts">'+
-      '<span class="sum-sent">✓ Sent <strong>'+sent.length+'</strong></span>'+
-      '<span class="sum-unsent">⏳ Not sent <strong>'+unsent.length+'</strong></span>'+
-      '<span class="sum-total">'+total+' total</span>'+
+    '<div class="sum-strip">'+
+      '<div class="sum-cell sent"><div class="sum-num">'+sent.length+'</div><div class="sum-lbl">✓ Sent</div></div>'+
+      '<div class="sum-cell unsent"><div class="sum-num">'+unsent.length+'</div><div class="sum-lbl">⏳ Pending</div></div>'+
+      '<div class="sum-cell"><div class="sum-num">'+total+'</div><div class="sum-lbl">Total</div></div>'+
     '</div>'+
     '<div class="sum-bar-wrap"><div class="sum-bar" style="width:'+pct+'%"></div></div>';
 
-  function renderGroup(items, startIdx){
+  function renderGroup(items){
     return items.map(function(h){
       var i=mem.indexOf(h);
       var t=h.tracked||{};
-      function mkbtn(key,icon,label){
+      var isSent=!!t.waSent;
+
+      function pipStep(key, icon, label){
         var done=!!t[key];
-        return '<button class="tbtn2'+(done?' ok':'')+'" data-i="'+i+'" data-k="'+key+'">'+
-          icon+' '+(done?'✓ '+label+' <span style="opacity:.6;font-size:8px">'+t[key]+'</span>':label)+
-          '</button>';
+        return '<div class="pip-step'+(done?' done':'')+'" data-i="'+i+'" data-k="'+key+'" title="Click to toggle">'+
+          '<span class="pip-check">✓</span>'+
+          '<span class="pip-icon">'+icon+'</span>'+
+          '<span class="pip-label">'+label+'</span>'+
+          (done && t[key] ? '<span class="pip-time">'+t[key]+'</span>' : '<span class="pip-time">—</span>')+
+        '</div>';
       }
-      return '<li class="hi'+(t.waSent?' hi-sent':'')+'">'+
-        '<div class="hitop"><span class="hiname">'+h.name+'</span>'+
-          '<span class="badges">'+
-            (h.isCouple?'<span class="bdg c">Couple</span>':'')+
-            (h.hasParty?'<span class="bdg p">Full Day</span>':'')+
-            '<span class="bdg">'+(h.ll||'EN')+'</span>'+
-            (t.waSent?'<span class="bdg s">Sent ✓</span>':'<span class="bdg u">Not sent</span>')+
-          '</span></div>'+
-        '<div class="hiacts">'+
-          mkbtn('linkCopied','🔗','Link Copied')+
-          mkbtn('msgCopied','📋','Msg Copied')+
-          mkbtn('waSent','💬','WA Sent')+
-          '<button class="tbtn2" data-i="'+i+'" data-resend="1">📤 Resend WA</button>'+
+
+      return '<li class="hi '+(isSent?'hi-sent':'hi-unsent')+'">'+
+        '<div class="hi-top">'+
+          '<span class="hi-name">'+h.name+'</span>'+
+          '<div class="hi-meta-chips">'+
+            (h.isCouple?'<span class="chip chip-couple">Couple</span>':'')+
+            (h.hasParty?'<span class="chip chip-party">Full Day</span>':'')+
+            '<span class="chip chip-lang">'+(h.ll||'EN')+'</span>'+
+          '</div>'+
         '</div>'+
-        (h.phone?'<div class="himeta">📱 '+h.phone+'</div>':'')+
-        '<div class="hiurl">'+h.url+'</div>'+
-        '<div class="himeta">Generated '+h.created+'</div>'+
+        '<div class="pipeline">'+
+          pipStep('linkCopied','🔗','Link Copied')+
+          pipStep('msgCopied','📋','Msg Copied')+
+          pipStep('waSent','💬','WA Sent')+
+        '</div>'+
+        '<div class="hi-footer">'+
+          '<span class="hi-url">'+h.url+'</span>'+
+          '<div class="hi-actions">'+
+            '<button class="act-btn resend-btn" data-i="'+i+'">📤 Resend</button>'+
+            '<button class="act-btn del-btn" data-i="'+i+'">✕</button>'+
+          '</div>'+
+        '</div>'+
       '</li>';
     }).join('');
   }
 
   var html='';
   if(unsent.length){
-    html+='<li class="group-hdr">⏳ Not yet sent ('+unsent.length+')</li>';
+    html+='<li class="group-hdr">⏳ Pending ('+unsent.length+')</li>';
     html+=renderGroup(unsent);
   }
   if(sent.length){
-    html+='<li class="group-hdr group-hdr--sent">✓ Sent ('+sent.length+')</li>';
+    html+='<li class="group-hdr gh-sent">✓ Sent ('+sent.length+')</li>';
     html+=renderGroup(sent);
   }
   list.innerHTML=html;
 
-  // Track buttons
-  list.querySelectorAll('.tbtn2[data-k]').forEach(function(b){
+  // Pipeline step toggles
+  list.querySelectorAll('.pip-step[data-k]').forEach(function(b){
     b.addEventListener('click',function(){
-      var i=parseInt(this.dataset.i),k=this.dataset.k;
+      var i=parseInt(this.dataset.i), k=this.dataset.k;
       var e=mem[i]; if(!e) return;
       e.tracked[k]=e.tracked[k]?null:ts();
-      // Sync output card sent button if this is the current entry
       if(cur&&cur.url===e.url&&k==='waSent'){
         var sb=document.getElementById('sentBtn');
         if(e.tracked.waSent){sb.textContent='✓ Sent';sb.classList.add('ok');}
@@ -435,8 +455,22 @@ function renderTracker(){
     });
   });
 
-  // Resend
-  list.querySelectorAll('.tbtn2[data-resend]').forEach(function(b){
+  // Delete
+  list.querySelectorAll('.del-btn').forEach(function(b){
+    b.addEventListener('click',function(){
+      var i=parseInt(this.dataset.i);
+      var entry=mem[i]; if(!entry) return;
+      if(cur&&cur.url===entry.url){
+        cur=null;
+        document.getElementById('outCard').style.display='none';
+      }
+      mem.splice(i,1);
+      save(); renderTracker();
+    });
+  });
+
+  // Resend WA
+  list.querySelectorAll('.resend-btn').forEach(function(b){
     b.addEventListener('click',function(){
       var i=parseInt(this.dataset.i);
       var e=mem[i]; if(!e) return;
@@ -451,7 +485,6 @@ function renderTracker(){
   });
 }
 
-// ── Clear ─────────────────────────────────────────────────────
 document.getElementById('clearBtn').addEventListener('click',function(){
   if(!mem.length) return;
   if(confirm('Clear all tracker history?')){

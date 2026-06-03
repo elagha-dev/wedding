@@ -255,7 +255,7 @@ window.I18N = {
         partyOnly: true,
         location: "Rheinliebe am Deich", address: "Heerstraße 45, 40549 Düsseldorf",
         mapUrl: "https://maps.google.com/?q=Rheinliebe+am+Deich+D%C3%BCsseldorf",
-        description: "The night is just starting. Come dance with us. 🎉"
+        description: ""
       }
     ],
 
@@ -277,7 +277,7 @@ window.I18N = {
       { q: "Are there any parking spots?",   a: "Yes! There are some directly at the church, as well as near the houses around it, and a bigger parking area within walking distance." },
       { q: "Is there a wish list?",          a: "No wish list — but if you'd like to gift us something, we would be so grateful for a financial contribution toward starting our new home together and celebrating our honeymoon." },
       { q: "Is there any place for kids?",   a: "Kids are more than welcome! We would kindly ask that they sit or play in the kids' space at the back of the church during the ceremony. Thank you ❤️" },
-      { q: "When should I arrive?",          a: "Please arrive by 13:30 to find your seat and settle in before the ceremony begins at 14:00." },
+      { q: "When should I arrive?",          a: "We'd love to see you from 13:30 for the get together — ceremony starts at 14:00." },
       { q: "Who can I contact?",             a: "The best man or maid of honor are your go-to contacts — find them in the Crew section." }
     ]
   },
@@ -511,7 +511,7 @@ window.I18N = {
         partyOnly: true,
         location: "Rheinliebe am Deich", address: "Heerstraße 45, 40549 Düsseldorf",
         mapUrl: "https://maps.google.com/?q=Rheinliebe+am+Deich+D%C3%BCsseldorf",
-        description: "Feiert mit uns weiter bis in den Abend! Musik, Tanzen und mehr Freude mit unseren engsten Freunden und der Familie."
+        description: ""
       }
     ],
 
@@ -765,7 +765,7 @@ window.I18N = {
         partyOnly: true,
         location: "Rheinliebe am Deich", address: "Heerstraße 45, 40549 Düsseldorf",
         mapUrl: "https://maps.google.com/?q=Rheinliebe+am+Deich+D%C3%BCsseldorf",
-        description: "Продолжайте праздновать с нами вечером! Музыка, танцы и радость с самыми близкими."
+        description: ""
       }
     ],
 
