@@ -122,6 +122,7 @@ window.I18N = {
     selectAttendanceErr: "Please let us know if you'll be attending the ceremony.",
     rsvpSubmittedBtn   : "Attendance confirmed ✓",
     submitAnotherRsvp  : "Submit for another guest",
+    spotifyBtn         : "Add your song to our wedding playlist",
 
     /* ── Adult/child seat summary ── */
     adultSingular  : "adult",
@@ -390,6 +391,7 @@ window.I18N = {
     selectAttendanceErr: "Bitte gebt an, ob ihr zur Trauung kommt.",
     rsvpSubmittedBtn   : "Teilnahme bestätigt ✓",
     submitAnotherRsvp  : "Für eine weitere Person einreichen",
+    spotifyBtn         : "Füg deinen Song zur Hochzeitsplaylist hinzu",
 
     adultSingular  : "Erwachsener",
     adultPlural    : "Erwachsene",
@@ -646,6 +648,7 @@ window.I18N = {
     selectAttendanceErr: "Пожалуйста, укажите, сможете ли вы прийти на венчание.",
     rsvpSubmittedBtn   : "Участие подтверждено ✓",
     submitAnotherRsvp  : "Отправить для другого гостя",
+    spotifyBtn         : "Добавь свою песню в свадебный плейлист",
 
     adultSingular  : "взрослый",
     adultPlural    : "взрослых",

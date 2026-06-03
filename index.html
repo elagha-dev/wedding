@@ -434,6 +434,23 @@
       transition: background .15s;
     }
     .gift-banner-paypal:hover { background: #7a5133; }
+
+    .spotify-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin-top: 16px;
+      padding: 11px 20px;
+      background: #1DB954;
+      color: #fff;
+      font-family: var(--sans, sans-serif);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-decoration: none;
+      transition: background .18s;
+    }
+    .spotify-btn:hover { background: #17a349; }
     .gift-banner-note {
       font-family: WeddingSerif, Georgia, serif;
       font-size: 10px;
@@ -729,6 +746,9 @@
         <!-- ── In-card thank you (shown after submit, overlay is closeable) ── -->
         <div class="rsvp-card-thanks" id="rsvpCardThanks">
           <button class="rsvp-submitted-btn" id="rsvpSubmittedBtn" type="button"><span data-i18n="rsvpSubmittedBtn">RSVP Submitted ✓</span></button>
+          <a class="spotify-btn" href="https://open.spotify.com/playlist/2hS0Aojwv2dNrI59rbAdbl?si=ZlbdUekCQXmRTAy-Wl0alg&pi=qBp_ztvSQrCi2" target="_blank" rel="noreferrer" style="margin-top:12px;">
+            🎵 <span data-i18n="spotifyBtn">Add your song to our wedding playlist</span> ↗
+          </a>
           <a class="new-rsvp-link" id="newRsvpBtn2" href="#" style="margin-top:14px;"><span data-i18n="submitAnotherRsvp">Submit another RSVP</span></a>
         </div>
 
@@ -889,6 +909,11 @@
       </div>
 
       <a class="new-rsvp-link" id="bsNudgeBtn" href="#" style="display:none;"><span data-i18n="bringShareNudge">Bring &amp; Share 🧁</span></a>
+
+      <a class="spotify-btn" href="https://open.spotify.com/playlist/2hS0Aojwv2dNrI59rbAdbl?si=ZlbdUekCQXmRTAy-Wl0alg&pi=qBp_ztvSQrCi2" target="_blank" rel="noreferrer">
+        🎵 <span data-i18n="spotifyBtn">Add your song to our wedding playlist</span> ↗
+      </a>
+
       <a class="new-rsvp-link" id="newRsvpBtn" href="#"><span data-i18n="submitAnotherRsvp">Submit another RSVP</span></a>
     </div>
   </div>
