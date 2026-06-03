@@ -745,7 +745,7 @@ p {
   display: block;
 }
 
-/* Worship team */
+/* Worship team — pre-composed circle image */
 .mini-photo--worship img {
   object-fit: cover;
   object-position: center top;
