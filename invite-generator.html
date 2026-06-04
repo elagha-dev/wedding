@@ -624,7 +624,7 @@ function renderImportQueue(){
         '</div>'+
         (g.phone?'<div class="iq-phone">'+g.phone+'</div>':'')+
         '<span class="chip '+senderClass+'" style="flex-shrink:0">'+g.sender+'</span>'+
-        '<button class="iq-wa'+(g.sent?' done':'')+'" data-qi="'+realIdx+'">'+(g.sent?'✓':'💬 Send')+'</button>'+
+        '<button class="iq-wa'+(g.sent?' done':'')+'" data-qi="'+realIdx+'">'+(g.sent?'✓ Undo':'💬 Send')+'</button>'+
         '<button class="iq-skip" data-qi="'+realIdx+'" title="Skip">✕</button>'+
       '</div>';
     }).join('');
@@ -633,6 +633,17 @@ function renderImportQueue(){
       btn.addEventListener('click', function(){
         var qi = parseInt(this.dataset.qi);
         var g  = importQueue[qi]; if(!g) return;
+
+        // If already sent, just toggle it off
+        if(g.sent){
+          g.sent=false;
+          var url = buildUrl(g.name, '', g.type, g.lang||'en');
+          var existing = mem.findIndex(function(h){ return h.url===url; });
+          if(existing>-1){ mem[existing].tracked.waSent=null; }
+          save(); renderTracker(); renderRows(importFilter);
+          return;
+        }
+
         var ll = {en:'🇬🇧 EN',de:'🇩🇪 DE',ru:'🇷🇺 RU'};
         var p1 = g.name, p2 = '', type = g.type, lang = g.lang||'en';
         var url = buildUrl(p1, p2, type, lang);
