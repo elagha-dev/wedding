@@ -232,18 +232,20 @@ input::placeholder{color:#c0b5aa}
 </div>
 
 <div class="card">
-  <div class="slabel">Bulk Import from Notion / CSV</div>
-  <div class="import-card" id="importDrop">
-    <input type="file" id="importFile" accept=".csv,.txt">
-    <div class="import-icon">⇪</div>
-    <div class="import-title">Drop CSV or click to upload</div>
-    <div class="import-desc">Export your Notion table as CSV. Columns needed: Name, Phone, Type (optional), Sender (optional)</div>
+  <div class="slabel">Sync from Notion</div>
+  <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:14px">
+    <div class="fg" style="flex:1">
+      <label for="workerUrl">Cloudflare Worker URL</label>
+      <input id="workerUrl" type="text" placeholder="https://wedding.your-name.workers.dev" />
+    </div>
+    <button class="genbtn" id="syncBtn" style="width:auto;padding:13px 20px;white-space:nowrap">⟳ Sync</button>
   </div>
+  <div id="syncStatus" style="font-size:11px;color:var(--muted);margin-bottom:10px;display:none"></div>
   <div id="importQueue" style="display:none">
     <div class="filter-bar" id="importFilterBar"></div>
     <div class="import-queue" id="importQueueList"></div>
     <div class="import-actions">
-      <button class="import-clear" id="importClear">Clear import</button>
+      <button class="import-clear" id="importClear">Clear list</button>
     </div>
   </div>
 </div>
@@ -578,6 +580,7 @@ function renderTracker(){
   });
 }
 
+// ── Notion Sync ───────────────────────────────────────────────
 document.getElementById('clearBtn').addEventListener('click',function(){
   if(!mem.length) return;
   if(confirm('Clear all tracker history?')){
@@ -585,100 +588,63 @@ document.getElementById('clearBtn').addEventListener('click',function(){
     document.getElementById('outCard').style.display='none';
   }
 });
-
-// ── CSV / Notion Import ───────────────────────────────────────
 var importQueue = [];
 
-function parseCSV(text){
-  var lines=text.trim().split(/\r?\n/);
-  if(!lines.length) return [];
-  var headers=lines[0].split(',').map(function(h){return h.trim().replace(/^"|"$/g,'').toLowerCase();});
-  return lines.slice(1).map(function(line){
-    var cols=line.match(/(".*?"|[^,]+)(?=,|$)/g)||[];
-    var row={};
-    headers.forEach(function(h,i){
-      row[h]=(cols[i]||'').trim().replace(/^"|"$/g,'');
-    });
-    return row;
-  }).filter(function(r){ return r.name||r['first guest']||r['guest']; });
-}
+function saveWorkerUrl(url){ try{ localStorage.setItem('ww_url', url); }catch(e){} }
+function loadWorkerUrl(){ try{ return localStorage.getItem('ww_url')||''; }catch(e){ return ''; } }
 
-function guessType(val){
-  if(!val) return 'ceremony-single';
-  val=val.toLowerCase();
-  if(val.includes('couple')&&val.includes('party')) return 'couple-party';
-  if(val.includes('couple')&&val.includes('ceremony')) return 'couple-ceremony';
-  if(val.includes('party')||val.includes('full')) return 'ceremony-party-single';
-  if(val.includes('couple')) return 'couple-ceremony';
-  return 'ceremony-single';
-}
-
-function guessLang(val){
-  if(!val) return 'en';
-  val=val.toLowerCase();
-  if(val.includes('de')||val.includes('deutsch')||val.includes('german')) return 'de';
-  if(val.includes('ru')||val.includes('русский')||val.includes('russian')) return 'ru';
-  return 'en';
-}
+var workerInput = document.getElementById('workerUrl');
+workerInput.value = loadWorkerUrl();
 
 function renderImportQueue(){
-  var queueEl=document.getElementById('importQueue');
-  var listEl=document.getElementById('importQueueList');
-  var filterBarEl=document.getElementById('importFilterBar');
-
+  var queueEl  = document.getElementById('importQueue');
+  var listEl   = document.getElementById('importQueueList');
+  var filterBarEl = document.getElementById('importFilterBar');
   if(!importQueue.length){ queueEl.style.display='none'; return; }
   queueEl.style.display='block';
 
-  // Sender filter for import
   var importFilter='all';
-  var senders=['all'].concat(['Arina','Elnur'].filter(function(s){
-    return importQueue.some(function(g){return g.sender===s;});
-  }));
-
-  filterBarEl.innerHTML=senders.map(function(s){
-    return '<button class="fbtn'+(importFilter===s?' on':'')+'" data-f="'+s+'">'+(s==='all'?'All':s)+'</button>';
-  }).join('');
-  filterBarEl.querySelectorAll('.fbtn').forEach(function(b){
-    b.addEventListener('click',function(){
-      importFilter=this.dataset.f;
-      renderRows(importFilter);
-      filterBarEl.querySelectorAll('.fbtn').forEach(function(x){x.classList.remove('on');});
-      this.classList.add('on');
-    });
-  });
 
   function renderRows(filter){
-    var items=filter==='all'?importQueue:importQueue.filter(function(g){return g.sender===filter;});
-    listEl.innerHTML=items.map(function(g,fi){
-      var realIdx=importQueue.indexOf(g);
-      var senderClass=g.sender==='Elnur'?'chip-elnur':'chip-arina';
+    var items = filter==='all' ? importQueue : importQueue.filter(function(g){ return g.sender===filter; });
+    listEl.innerHTML = items.map(function(g){
+      var realIdx = importQueue.indexOf(g);
+      var senderClass = g.sender==='Elnur'?'chip-elnur':'chip-arina';
+      var typeLabel = g.type==='couple-party'?'Couple·Full'
+                    : g.type==='couple-ceremony'?'Couple·Ch'
+                    : g.type==='ceremony-party-single'?'Full Day'
+                    : 'Ceremony';
       return '<div class="iq-row" data-qi="'+realIdx+'">'+
-        '<div class="iq-name">'+g.name+'</div>'+
+        '<div style="flex:1;min-width:0">'+
+          '<div class="iq-name">'+g.name+'</div>'+
+          '<div style="display:flex;gap:4px;margin-top:3px;flex-wrap:wrap">'+
+            '<span class="chip chip-lang" style="font-size:8px">'+typeLabel+'</span>'+
+            (g.confirmed?'<span class="chip" style="background:#e8f5e9;color:#2e7d52;font-size:8px">✓ Confirmed</span>':'')+
+          '</div>'+
+        '</div>'+
         (g.phone?'<div class="iq-phone">'+g.phone+'</div>':'')+
         '<span class="chip '+senderClass+'" style="flex-shrink:0">'+g.sender+'</span>'+
-        '<button class="iq-wa'+(g.sent?' done':'')+'" data-qi="'+realIdx+'">'+(g.sent?'✓ Sent':'💬 Send')+'</button>'+
-        '<button class="iq-skip" data-qi="'+realIdx+'" title="Remove">✕</button>'+
+        '<button class="iq-wa'+(g.sent?' done':'')+'" data-qi="'+realIdx+'">'+(g.sent?'✓':'💬 Send')+'</button>'+
+        '<button class="iq-skip" data-qi="'+realIdx+'" title="Skip">✕</button>'+
       '</div>';
     }).join('');
 
     listEl.querySelectorAll('.iq-wa').forEach(function(btn){
-      btn.addEventListener('click',function(){
-        var qi=parseInt(this.dataset.qi);
-        var g=importQueue[qi]; if(!g) return;
-        var ll={en:'🇬🇧 EN',de:'🇩🇪 DE',ru:'🇷🇺 RU'};
-        var p1=g.p1, p2=g.p2||'', type=g.type, lang=g.lang;
-        var url=buildUrl(p1,p2,type,lang);
-        var isCouple=type==='couple-ceremony'||type==='couple-party';
-        var hasParty=type==='ceremony-party-single'||type==='couple-party';
-        var nameFull=isCouple&&p2?p1+' & '+p2:p1;
-        var msg=buildMsg(nameFull,type,lang,url);
+      btn.addEventListener('click', function(){
+        var qi = parseInt(this.dataset.qi);
+        var g  = importQueue[qi]; if(!g) return;
+        var ll = {en:'🇬🇧 EN',de:'🇩🇪 DE',ru:'🇷🇺 RU'};
+        var p1 = g.name, p2 = '', type = g.type, lang = g.lang||'en';
+        var url = buildUrl(p1, p2, type, lang);
+        var isCouple = type==='couple-ceremony'||type==='couple-party';
+        var hasParty = type==='ceremony-party-single'||type==='couple-party';
+        var msg = buildMsg(p1, type, lang, url);
 
-        // Add to tracker
-        var existing=mem.findIndex(function(h){return h.url===url;});
+        var existing = mem.findIndex(function(h){ return h.url===url; });
         var entry;
         if(existing>-1){ entry=mem[existing]; }
         else {
-          entry={id:Date.now(),name:nameFull,type:type,lang:lang,ll:ll[lang]||'EN',
+          entry={id:Date.now(),name:p1,type:type,lang:lang,ll:ll[lang]||'EN',
             url:url,msg:msg,phone:g.phone,isCouple:isCouple,hasParty:hasParty,
             sender:g.sender,created:dt(),tracked:{linkCopied:null,msgCopied:null,waSent:null}};
           mem.unshift(entry);
@@ -696,51 +662,66 @@ function renderImportQueue(){
     });
 
     listEl.querySelectorAll('.iq-skip').forEach(function(btn){
-      btn.addEventListener('click',function(){
-        var qi=parseInt(this.dataset.qi);
+      btn.addEventListener('click', function(){
+        var qi = parseInt(this.dataset.qi);
         importQueue.splice(qi,1);
         renderImportQueue();
       });
     });
   }
 
-  renderRows(importFilter);
+  // Filter bar
+  filterBarEl.innerHTML = ['all','Arina','Elnur'].map(function(s){
+    return '<button class="fbtn'+(importFilter===s?' on':'')+'" data-f="'+s+'">'+(s==='all'?'All':s)+'</button>';
+  }).join('');
+  filterBarEl.querySelectorAll('.fbtn').forEach(function(b){
+    b.addEventListener('click', function(){
+      importFilter=this.dataset.f;
+      renderRows(importFilter);
+      filterBarEl.querySelectorAll('.fbtn').forEach(function(x){x.classList.remove('on');});
+      this.classList.add('on');
+    });
+  });
+
+  renderRows('all');
 }
 
-function handleCSVFile(file){
-  var reader=new FileReader();
-  reader.onload=function(e){
-    var rows=parseCSV(e.target.result);
-    importQueue=rows.map(function(r){
-      var name=r.name||r['first guest']||r['guest']||'';
-      var p2=r['second guest']||r['partner']||r['p2']||'';
-      var phone=r.phone||r['whatsapp']||r['number']||'';
-      var type=guessType(r.type||r['invite type']||'');
-      var lang=guessLang(r.lang||r['language']||'');
-      var sender=r.sender||r['sent by']||'Arina';
-      if(!['Arina','Elnur'].includes(sender)) sender='Arina';
-      return {name:name,p1:name,p2:p2,phone:phone,type:type,lang:lang,sender:sender,sent:false};
-    }).filter(function(g){return g.name;});
+document.getElementById('syncBtn').addEventListener('click', async function(){
+  var url = workerInput.value.trim();
+  if(!url){ workerInput.style.borderColor='#b0392b'; workerInput.focus(); setTimeout(function(){workerInput.style.borderColor='';},1400); return; }
+  saveWorkerUrl(url);
+
+  var statusEl = document.getElementById('syncStatus');
+  statusEl.style.display='block';
+  statusEl.textContent='Syncing from Notion…';
+  this.textContent='…'; this.disabled=true;
+  var btn=this;
+
+  try {
+    var res  = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body:'{}' });
+    var data = await res.json();
+    if(data.error) throw new Error(data.error);
+
+    // Merge: keep sent status from existing mem entries
+    importQueue = data.guests.map(function(g){
+      var existing = mem.find(function(h){ return h.name===g.name && !!h.tracked.waSent; });
+      g.sent  = !!existing;
+      g.lang  = g.lang||'en';
+      return g;
+    });
+
+    statusEl.textContent = '✓ '+importQueue.length+' guests synced from Notion';
     renderImportQueue();
-  };
-  reader.readAsText(file);
-}
+  } catch(e) {
+    statusEl.textContent = '✗ Error: '+e.message;
+  }
 
-var importDrop=document.getElementById('importDrop');
-var importFile=document.getElementById('importFile');
+  btn.textContent='⟳ Sync'; btn.disabled=false;
+});
 
-importDrop.addEventListener('click',function(){ importFile.click(); });
-importFile.addEventListener('change',function(){
-  if(this.files[0]) handleCSVFile(this.files[0]);
-});
-importDrop.addEventListener('dragover',function(e){ e.preventDefault(); this.style.borderColor='var(--accent)'; });
-importDrop.addEventListener('dragleave',function(){ this.style.borderColor=''; });
-importDrop.addEventListener('drop',function(e){
-  e.preventDefault(); this.style.borderColor='';
-  if(e.dataTransfer.files[0]) handleCSVFile(e.dataTransfer.files[0]);
-});
-document.getElementById('importClear').addEventListener('click',function(){
+document.getElementById('importClear').addEventListener('click', function(){
   importQueue=[]; renderImportQueue();
+  document.getElementById('syncStatus').style.display='none';
 });
 
 renderTracker();
