@@ -704,7 +704,6 @@ function toggleSelect(realIdx){
 // ── Send group invite ─────────────────────────────────────────
 function sendGroupInvite(guestList, phone){
   var ll = {en:'🇬🇧 EN',de:'🇩🇪 DE',ru:'🇷🇺 RU'};
-  // Use type/lang from first guest
   var type  = guestList[0].type;
   var lang  = guestList[0].lang||'en';
   var names = guestList.map(function(g){return g.name;});
@@ -715,11 +714,9 @@ function sendGroupInvite(guestList, phone){
   var hasParty  = type==='ceremony-party-single'||type==='couple-party';
   var isCouple  = type==='couple-ceremony'||type==='couple-party';
 
-  // Build URL using first guest's name
   var url = buildUrl(guestList[0].name, '', type, lang);
   var msg = buildMsg(combinedName, type, lang, url);
 
-  // Add to tracker as one combined entry
   var existing = mem.findIndex(function(h){ return h.url===url; });
   var entry;
   if(existing>-1){ entry=mem[existing]; entry.name=combinedName; }
@@ -737,6 +734,31 @@ function sendGroupInvite(guestList, phone){
     :'https://wa.me/?text='+encodeURIComponent(msg);
   window.open(waUrl,'_blank');
   entry.tracked.waSent=ts();
+
+  // Save to KV
+  var workerUrl = document.getElementById('workerUrl').value.trim();
+  if(workerUrl){
+    fetch(workerUrl+'/sent', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({names:names})
+    }).catch(function(){});
+  }
+
+  // Save sent status to KV (shared across devices)
+  var workerUrl = workerInput.value.trim();
+  var sentTime  = ts();
+  guestList.forEach(function(g){
+    fetch(workerUrl+'?action=setSent', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        name: g.name, sent: true,
+        sentAt: sentTime, sender: g.sender,
+        collective: guestList.length>1 ? guestList.map(function(x){return x.name;}) : null
+      })
+    });
+  });
 
   // Mark all selected guests as sent
   guestList.forEach(function(g){ g.sent=true; g.collectiveWith=names; });
@@ -849,6 +871,16 @@ function renderImportQueue(){
         var existing = mem.findIndex(function(h){ return h.url===url; });
         if(existing>-1){ mem[existing].tracked.waSent=null; }
 
+        // Remove from KV
+        var workerUrl = document.getElementById('workerUrl').value.trim();
+        if(workerUrl){
+          fetch(workerUrl+'/unsent', {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({names: isCollective ? g.collectiveWith : [g.name]})
+          }).catch(function(){});
+        }
+
         save(); renderTracker(); renderRows(filter);
         updateGroupBar();
       });
@@ -885,37 +917,43 @@ function renderImportQueue(){
   renderRows(importFilter);
 }
 
-document.getElementById('syncBtn').addEventListener('click', async function(){
-  var url = workerInput.value.trim();
-  if(!url){ workerInput.style.borderColor='#b0392b'; workerInput.focus(); setTimeout(function(){workerInput.style.borderColor='';},1400); return; }
+document.getElementById('syncBtn').addEventListener('click', function(){ doSync(); });
+
+async function doSync(){
+  var url = document.getElementById('workerUrl').value.trim();
+  if(!url) return;
   saveWorkerUrl(url);
 
   var statusEl = document.getElementById('syncStatus');
+  var btn = document.getElementById('syncBtn');
   statusEl.style.display='block';
   statusEl.textContent='Syncing from Notion…';
-  this.textContent='…'; this.disabled=true;
-  var btn=this;
+  btn.textContent='…'; btn.disabled=true;
 
   try {
-    var res  = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body:'{}' });
+    var res  = await fetch(url, { method:'GET' });
     var data = await res.json();
     if(data.error) throw new Error(data.error);
 
     importQueue = data.guests.map(function(g){
-      var existing = mem.find(function(h){ return h.name===g.name && !!h.tracked.waSent; });
-      g.sent  = !!existing;
-      g.lang  = g.lang||'en';
+      g.sent = !!g.sentAt;
+      g.lang = g.lang||'en';
       return g;
     });
     selectedIdxs=[];
-    statusEl.textContent = '✓ '+importQueue.length+' guests synced from Notion';
+    statusEl.textContent = '✓ '+importQueue.length+' guests synced · '+ new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
     renderImportQueue();
   } catch(e) {
     statusEl.textContent = '✗ Error: '+e.message;
   }
 
   btn.textContent='⟳ Sync'; btn.disabled=false;
-});
+}
+
+// Auto-sync on load if worker URL is saved
+if(workerInput.value) {
+  doSync();
+}
 
 document.getElementById('importClear').addEventListener('click', function(){
   importQueue=[]; selectedIdxs=[]; renderImportQueue();
