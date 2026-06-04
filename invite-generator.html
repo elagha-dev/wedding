@@ -146,7 +146,7 @@ input::placeholder{color:#c0b5aa}
 .import-icon{font-size:22px;margin-bottom:8px}
 .import-title{font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
 .import-desc{font-size:11px;color:#b0a090}
-.import-queue{margin-top:16px;display:flex;flex-direction:column;gap:8px}
+.import-queue{display:flex;flex-direction:column;gap:6px}
 .iq-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border:1px solid var(--border)}
 .iq-name{font-family:var(--serif);font-size:15px;flex:1}
 .iq-phone{font-size:10px;color:var(--muted);font-family:monospace}
@@ -179,10 +179,10 @@ input::placeholder{color:#c0b5aa}
   display:flex;
   align-items:center;
   gap:8px;
-  padding:11px 24px;
+  padding:11px 28px;
   background:var(--ink);
   color:#ebe2da;
-  margin:0 -24px 12px;
+  margin:0 -28px 12px;
   box-shadow:0 4px 16px rgba(42,32,26,.18);
   transform:translateY(-8px);
   opacity:0;
@@ -862,7 +862,9 @@ function renderImportQueue(){
 
   function lastName(name){
     var parts = (name||'').trim().split(/\s+/);
-    return parts.length > 1 ? parts[parts.length-1].toUpperCase() : '';
+    // Only use second word if it exists and is 3+ chars (not an initial like "A" or "S")
+    var second = parts[1] || '';
+    return second.length >= 3 ? second.toUpperCase() : '';
   }
 
   function renderRows(filter){
