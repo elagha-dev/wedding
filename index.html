@@ -449,6 +449,79 @@
       transition: background .15s;
     }
     .spotify-btn:hover { background: #7a5133; }
+
+    /* ── Celebration card ───────────────────────────────────── */
+    .celebration-intro {
+      font-family: WeddingSerif, Georgia, serif;
+      font-size: 13px;
+      color: rgba(49,39,28,.6);
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+    .celebration-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .celebration-tile {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 18px;
+      border: 1px solid rgba(49,39,28,.12);
+      background: rgba(49,39,28,.02);
+      text-decoration: none;
+      color: inherit;
+      transition: border-color .18s, background .18s;
+      position: relative;
+    }
+    a.celebration-tile:hover {
+      border-color: rgba(49,39,28,.3);
+      background: rgba(49,39,28,.04);
+    }
+    .celebration-tile--soon {
+      opacity: .6;
+      cursor: default;
+    }
+    .celebration-tile-icon {
+      font-size: 22px;
+      width: 36px;
+      text-align: center;
+      flex-shrink: 0;
+      font-family: WeddingSerif, Georgia, serif;
+      color: rgba(49,39,28,.5);
+    }
+    .celebration-tile-body { flex: 1; min-width: 0; }
+    .celebration-tile-title {
+      font-family: WeddingSerif, Georgia, serif;
+      font-size: 15px;
+      font-weight: 400;
+      color: #31271C;
+      margin-bottom: 2px;
+    }
+    .celebration-tile-desc {
+      font-size: 11px;
+      color: rgba(49,39,28,.55);
+      letter-spacing: .02em;
+      line-height: 1.5;
+    }
+    .celebration-tile-arrow {
+      font-size: 14px;
+      color: rgba(49,39,28,.35);
+      flex-shrink: 0;
+    }
+    .celebration-tile-soon-badge {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      font-size: 8px;
+      font-weight: 600;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: rgba(49,39,28,.4);
+      border: 1px solid rgba(49,39,28,.2);
+      padding: 2px 6px;
+    }
     .gift-banner-note {
       font-family: WeddingSerif, Georgia, serif;
       font-size: 10px;
@@ -744,9 +817,6 @@
         <!-- ── In-card thank you (shown after submit, overlay is closeable) ── -->
         <div class="rsvp-card-thanks" id="rsvpCardThanks">
           <button class="rsvp-submitted-btn" id="rsvpSubmittedBtn" type="button"><span data-i18n="rsvpSubmittedBtn">RSVP Submitted ✓</span></button>
-          <a class="spotify-btn" href="https://open.spotify.com/playlist/2hS0Aojwv2dNrI59rbAdbl?si=ZlbdUekCQXmRTAy-Wl0alg&pi=qBp_ztvSQrCi2" target="_blank" rel="noreferrer" style="margin-top:12px;">
-            <span data-i18n="spotifyBtn">Add your song to our wedding playlist</span> ↗
-          </a>
           <a class="new-rsvp-link" id="newRsvpBtn2" href="#" style="margin-top:14px;"><span data-i18n="submitAnotherRsvp">Submit another RSVP</span></a>
         </div>
 
@@ -888,6 +958,40 @@
         </div>
       </article>
 
+      <!-- 07 The Celebration ──────────────────────────────── -->
+      <article class="card celebration-card">
+        <div class="topline">
+          <span class="number">07</span>
+          <span class="label"><span data-i18n="card07Label">The Celebration</span></span>
+        </div>
+        <h2><span data-i18n="card07Title">The Celebration</span></h2>
+        <p class="celebration-intro"><span data-i18n="card07Intro">A few ways to be part of the day — before, during and after.</span></p>
+
+        <div class="celebration-grid">
+
+          <!-- Spotify -->
+          <a class="celebration-tile" href="https://open.spotify.com/playlist/2hS0Aojwv2dNrI59rbAdbl?si=ZlbdUekCQXmRTAy-Wl0alg&pi=qBp_ztvSQrCi2" target="_blank" rel="noreferrer">
+            <div class="celebration-tile-icon">♪</div>
+            <div class="celebration-tile-body">
+              <div class="celebration-tile-title"><span data-i18n="spotifyTileTitle">Wedding Playlist</span></div>
+              <div class="celebration-tile-desc"><span data-i18n="spotifyTileDesc">Add the song that gets you on the dance floor</span></div>
+            </div>
+            <div class="celebration-tile-arrow">↗</div>
+          </a>
+
+          <!-- Photo wall — coming soon -->
+          <div class="celebration-tile celebration-tile--soon">
+            <div class="celebration-tile-icon">◻</div>
+            <div class="celebration-tile-body">
+              <div class="celebration-tile-title"><span data-i18n="photoTileTitle">Photo Wall</span></div>
+              <div class="celebration-tile-desc"><span data-i18n="photoTileDesc">Share your photos from the day — coming soon</span></div>
+            </div>
+            <div class="celebration-tile-soon-badge"><span data-i18n="comingSoon">Soon</span></div>
+          </div>
+
+        </div>
+      </article>
+
     </section><!-- /.right -->
 
   <!-- ── RSVP Success Overlay (full-page) ────────────────── -->
@@ -907,11 +1011,6 @@
       </div>
 
       <a class="new-rsvp-link" id="bsNudgeBtn" href="#" style="display:none;"><span data-i18n="bringShareNudge">Bring &amp; Share 🧁</span></a>
-
-      <a class="spotify-btn" href="https://open.spotify.com/playlist/2hS0Aojwv2dNrI59rbAdbl?si=ZlbdUekCQXmRTAy-Wl0alg&pi=qBp_ztvSQrCi2" target="_blank" rel="noreferrer">
-        <span data-i18n="spotifyBtn">Add your song to our wedding playlist</span> ↗
-      </a>
-
       <a class="new-rsvp-link" id="newRsvpBtn" href="#"><span data-i18n="submitAnotherRsvp">Submit another RSVP</span></a>
     </div>
   </div>
