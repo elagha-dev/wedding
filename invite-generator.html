@@ -169,7 +169,9 @@ input::placeholder{color:#c0b5aa}
 .iq-row.selected{background:#f5ede4;border-color:var(--al)}
 .iq-check{width:18px;height:18px;border:1.5px solid var(--border);border-radius:0;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .15s;background:var(--card)}
 .iq-row.selected .iq-check{background:var(--accent);border-color:var(--accent);color:#fff}
-.iq-row.sent .iq-check{background:#e8e0d6;border-color:#d0c8c0}
+.iq-row.skipped{opacity:.3;background:repeating-linear-gradient(45deg,var(--bg),var(--bg) 4px,#f0ebe4 4px,#f0ebe4 8px)}
+.iq-row.skipped .iq-check{background:#e0d8d0;border-color:#c8bfb5}
+.iq-family-header{font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:10px 0 4px;border-bottom:1px solid var(--border);margin-bottom:4px}
 .group-send-bar{
   position:sticky;
   top:0;
@@ -177,10 +179,10 @@ input::placeholder{color:#c0b5aa}
   display:flex;
   align-items:center;
   gap:8px;
-  padding:10px 12px;
+  padding:11px 24px;
   background:var(--ink);
   color:#ebe2da;
-  margin:0 -28px 10px;
+  margin:0 -24px 12px;
   box-shadow:0 4px 16px rgba(42,32,26,.18);
   transform:translateY(-8px);
   opacity:0;
@@ -717,10 +719,19 @@ function updateGroupBar(){
   });
   if(visibleSelected.length){
     bar.classList.add('visible');
-    if(visibleSelected.length > 2){
+    var guests = visibleSelected.map(function(i){ return importQueue[i]; });
+    var tooMany = visibleSelected.length > 2;
+    var hasPartyFn = function(g){ return g.type==='ceremony-party-single'||g.type==='couple-party'; };
+    var mixedTypes = guests.length>1 && guests.some(hasPartyFn) && guests.some(function(g){return !hasPartyFn(g);});
+
+    if(tooMany){
       countEl.textContent = visibleSelected.length + ' selected — max 2!';
       sendBtn.disabled = true;
       bar.style.background = '#8b2020';
+    } else if(mixedTypes){
+      countEl.textContent = visibleSelected.length + ' selected — mixed invite types!';
+      sendBtn.disabled = true;
+      bar.style.background = '#7a4a00';
     } else {
       countEl.textContent = visibleSelected.length + ' selected';
       sendBtn.disabled = false;
@@ -849,9 +860,40 @@ function renderImportQueue(){
   if(!importQueue.length){ queueEl.style.display='none'; return; }
   queueEl.style.display='block';
 
+  function lastName(name){
+    var parts = (name||'').trim().split(/\s+/);
+    return parts.length > 1 ? parts[parts.length-1].toUpperCase() : '';
+  }
+
+  function sortByFamily(items){
+    // Group by last name, keep original order within group
+    var groups = {};
+    var order  = [];
+    items.forEach(function(g){
+      var ln = lastName(g.name);
+      if(ln && !groups[ln]){ groups[ln]=[]; order.push(ln); }
+      if(ln) groups[ln].push(g);
+      else {
+        if(!groups['']){ groups['']=[]; order.push(''); }
+        groups[''].push(g);
+      }
+    });
+    // Only group last names that appear more than once
+    var result = [];
+    order.forEach(function(ln){
+      groups[ln].forEach(function(g){ result.push({g:g, family: ln && groups[ln].length>1 ? ln : null}); });
+    });
+    return result;
+  }
+
   function renderRows(filter){
     var items = filter==='all' ? importQueue : importQueue.filter(function(g){ return g.sender===filter; });
-    listEl.innerHTML = items.map(function(g){
+    var sorted = sortByFamily(items);
+    var html = '';
+    var lastFamily = null;
+
+    sorted.forEach(function(entry){
+      var g = entry.g;
       var realIdx     = importQueue.indexOf(g);
       var isSelected  = selectedIdxs.indexOf(realIdx)>-1;
       var senderClass = g.sender==='Elnur'?'chip-elnur':'chip-arina';
@@ -859,84 +901,113 @@ function renderImportQueue(){
                       : g.type==='couple-ceremony'?'Couple·Ch'
                       : g.type==='ceremony-party-single'?'Full Day'
                       : 'Ceremony';
-      return '<div class="iq-row'+(g.sent?' sent':'')+(isSelected?' selected':'')+'" data-qi="'+realIdx+'">'+
+      var rowClass = 'iq-row'+(g.sent?' sent':'')+(g.skipped?' skipped':'')+(isSelected?' selected':'');
+
+      // Family header
+      if(entry.family && entry.family !== lastFamily){
+        html += '<div class="iq-family-header">'+entry.family+'</div>';
+        lastFamily = entry.family;
+      } else if(!entry.family){
+        lastFamily = null;
+      }
+
+      html += '<div class="'+rowClass+'" data-qi="'+realIdx+'">'+
         '<div class="iq-check">'+(isSelected?'✓':'')+'</div>'+
         '<div style="flex:1;min-width:0">'+
-          '<div class="iq-name">'+g.name+'</div>'+
+          '<div class="iq-name"'+(g.skipped?' style="text-decoration:line-through"':'')+'>'+g.name+'</div>'+
           '<div style="display:flex;gap:4px;margin-top:3px;flex-wrap:wrap">'+
             '<span class="chip chip-lang" style="font-size:8px">'+typeLabel+'</span>'+
             (g.confirmed?'<span class="chip" style="background:#e8f5e9;color:#2e7d52;font-size:8px">✓ RSVP</span>':'')+
-            (g.sent&&g.collectiveWith&&g.collectiveWith.length>1?'<span class="chip" style="background:#e8e0d6;color:#7a6b5e;font-size:8px">Group invite</span>':'')+
+            (g.sent&&g.collectiveWith&&g.collectiveWith.length>1?'<span class="chip" style="background:#e8e0d6;color:#7a6b5e;font-size:8px">Group</span>':'')+
+            (g.skipped?'<span class="chip" style="background:#e8e0d6;color:#7a6b5e;font-size:8px">Not needed</span>':'')+
           '</div>'+
         '</div>'+
         (g.phone?'<div class="iq-phone">'+g.phone+'</div>':'')+
         '<span class="chip '+senderClass+'" style="flex-shrink:0">'+g.sender+'</span>'+
         (g.sent
           ? '<button class="iq-wa done iq-undo" data-qi="'+realIdx+'">✓ Undo</button>'
-          : '')+
-        '<button class="iq-skip" data-qi="'+realIdx+'" title="Remove">✕</button>'+
+          : g.skipped
+            ? '<button class="iq-unskip" data-qi="'+realIdx+'" style="padding:4px 8px;font-size:9px;background:none;border:1px solid var(--border);cursor:pointer;font-family:var(--sans);color:var(--muted)">Restore</button>'
+            : '<button class="iq-mark-skip" data-qi="'+realIdx+'" title="Mark as not needed" style="padding:4px 8px;font-size:9px;background:none;border:1px solid var(--border);cursor:pointer;font-family:var(--sans);color:var(--muted)">Skip</button>'
+        )+
+        '<button class="iq-remove" data-qi="'+realIdx+'" title="Remove from list" style="background:none;border:none;color:#ccc;font-size:14px;cursor:pointer;padding:4px">✕</button>'+
       '</div>';
-    }).join('');
+    });
 
-    // Row click → toggle selection (only for unsent)
+    listEl.innerHTML = html;
+
+    // Row click → toggle selection (only for unsent, unskipped)
     listEl.querySelectorAll('.iq-row').forEach(function(row){
       row.addEventListener('click', function(e){
-        if(e.target.classList.contains('iq-skip')||
-           e.target.classList.contains('iq-undo')||
-           e.target.classList.contains('iq-wa')) return;
+        if(e.target.tagName==='BUTTON') return;
         var qi=parseInt(this.dataset.qi);
-        if(importQueue[qi]&&importQueue[qi].sent) return; // can't select sent
+        var g=importQueue[qi];
+        if(!g || g.sent || g.skipped) return;
         toggleSelect(qi);
       });
     });
 
-    // Undo button
+    // Undo
     listEl.querySelectorAll('.iq-undo').forEach(function(btn){
       btn.addEventListener('click', function(e){
         e.stopPropagation();
         var qi = parseInt(this.dataset.qi);
         var g  = importQueue[qi]; if(!g) return;
-
         var isCollective = g.collectiveWith && g.collectiveWith.length > 1;
         var msg = isCollective
           ? 'This will unmark '+g.collectiveWith.length+' guests as sent ('+g.collectiveWith.join(', ')+').\n\nContinue?'
           : 'Unmark "'+g.name+'" as sent?';
-
         if(!confirm(msg)) return;
-
-        // Unmark all guests in collective
         importQueue.forEach(function(guest){
           if(g.collectiveWith && g.collectiveWith.indexOf(guest.name)>-1){
             guest.sent=false; guest.collectiveWith=null;
           }
         });
         if(!isCollective){ g.sent=false; }
-
-        // Unmark in tracker
         var url = buildUrl(g.name, '', g.type, g.lang||'en');
         var existing = mem.findIndex(function(h){ return h.url===url; });
         if(existing>-1){ mem[existing].tracked.waSent=null; }
-
-        // Remove from KV
         var workerUrl = document.getElementById('workerUrl').value.trim();
         if(workerUrl){
           fetch(workerUrl+'/unsent', {
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
+            method:'POST', headers:{'Content-Type':'application/json'},
             body:JSON.stringify({names: isCollective ? g.collectiveWith : [g.name]})
           }).catch(function(){});
         }
-
-        save(); renderTracker(); renderRows(filter);
-        updateGroupBar();
+        save(); renderTracker(); renderRows(filter); updateGroupBar();
       });
     });
 
-    // Skip/remove
-    listEl.querySelectorAll('.iq-skip').forEach(function(btn){
+    // Mark as skip
+    listEl.querySelectorAll('.iq-mark-skip').forEach(function(btn){
       btn.addEventListener('click', function(e){
         e.stopPropagation();
         var qi = parseInt(this.dataset.qi);
+        if(importQueue[qi]){ importQueue[qi].skipped=true; selectedIdxs=selectedIdxs.filter(function(i){return i!==qi;}); }
+        renderRows(filter); updateGroupBar();
+      });
+    });
+
+    // Restore from skip
+    listEl.querySelectorAll('.iq-unskip').forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        var qi = parseInt(this.dataset.qi);
+        if(importQueue[qi]) importQueue[qi].skipped=false;
+        renderRows(filter); updateGroupBar();
+      });
+    });
+
+    // Remove from list entirely
+    listEl.querySelectorAll('.iq-remove').forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        var qi = parseInt(this.dataset.qi);
+        var g  = importQueue[qi]; if(!g) return;
+        var workerUrl = document.getElementById('workerUrl').value.trim();
+        var msg = 'Remove "'+g.name+'" from the list?';
+        if(workerUrl) msg += '\n\nNote: they will reappear next time you sync from Notion.';
+        if(!confirm(msg)) return;
         importQueue.splice(qi,1);
         selectedIdxs = selectedIdxs.filter(function(i){return i!==qi;}).map(function(i){return i>qi?i-1:i;});
         renderImportQueue();
