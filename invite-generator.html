@@ -163,6 +163,33 @@ input::placeholder{color:#c0b5aa}
 .fbtn{padding:5px 10px;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--border);background:var(--bg);color:var(--muted);cursor:pointer;font-family:var(--sans);transition:all .13s}
 .fbtn.on{background:var(--ink);color:#ebe2da;border-color:var(--ink)}
 
+/* Collective invite */
+.iq-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border:1px solid var(--border);transition:opacity .2s,background .15s;cursor:pointer;user-select:none}
+.iq-row.sent{opacity:.38}
+.iq-row.selected{background:#f5ede4;border-color:var(--al)}
+.iq-check{width:18px;height:18px;border:1.5px solid var(--border);border-radius:0;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .15s;background:var(--card)}
+.iq-row.selected .iq-check{background:var(--accent);border-color:var(--accent);color:#fff}
+.iq-row.sent .iq-check{background:#e8e0d6;border-color:#d0c8c0}
+.group-send-bar{display:flex;align-items:center;gap:8px;padding:10px 0;border-top:1px solid var(--border);margin-top:6px}
+.group-send-count{font-size:11px;color:var(--muted);flex:1}
+.group-send-btn{padding:9px 16px;background:var(--accent);color:#fbf6f0;border:none;font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:background .15s}
+.group-send-btn:hover{background:#8e6042}
+.group-send-btn:disabled{background:#c0b0a0;cursor:default}
+.group-deselect{padding:9px 12px;background:none;border:1px solid var(--border);font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);cursor:pointer}
+.group-deselect:hover{border-color:var(--accent);color:var(--accent)}
+
+/* Phone picker modal */
+.phone-modal-backdrop{position:fixed;inset:0;background:rgba(42,32,26,.45);z-index:200;display:flex;align-items:flex-end;justify-content:center}
+.phone-modal{background:var(--card);width:100%;max-width:480px;padding:24px 20px 32px;border-top:2px solid var(--accent)}
+.phone-modal-title{font-family:var(--serif);font-size:18px;margin-bottom:4px}
+.phone-modal-sub{font-size:11px;color:var(--muted);margin-bottom:16px}
+.phone-option{display:flex;align-items:center;gap:12px;padding:11px 14px;border:1.5px solid var(--border);margin-bottom:8px;cursor:pointer;transition:all .15s;background:var(--bg)}
+.phone-option:hover{border-color:var(--al);background:#fbf6f0}
+.phone-option-name{font-family:var(--serif);font-size:15px;flex:1}
+.phone-option-num{font-family:monospace;font-size:11px;color:var(--muted)}
+.phone-option-select{width:16px;height:16px;border:1.5px solid var(--border);flex-shrink:0}
+.phone-modal-cancel{width:100%;margin-top:8px;padding:11px;background:none;border:1px solid var(--border);font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);cursor:pointer}
+
 @media(max-width:480px){
   .row2{grid-template-columns:1fr}
   .types{grid-template-columns:1fr}
@@ -244,9 +271,24 @@ input::placeholder{color:#c0b5aa}
   <div id="importQueue" style="display:none">
     <div class="filter-bar" id="importFilterBar"></div>
     <div class="import-queue" id="importQueueList"></div>
+    <div class="group-send-bar" id="groupSendBar" style="display:none">
+      <span class="group-send-count" id="groupSendCount">0 selected</span>
+      <button class="group-deselect" id="groupDeselect">Deselect all</button>
+      <button class="group-send-btn" id="groupSendBtn">💬 Send invite</button>
+    </div>
     <div class="import-actions">
       <button class="import-clear" id="importClear">Clear list</button>
     </div>
+  </div>
+</div>
+
+<!-- Phone picker modal -->
+<div class="phone-modal-backdrop" id="phoneModal" style="display:none">
+  <div class="phone-modal">
+    <div class="phone-modal-title">Who's number to use?</div>
+    <div class="phone-modal-sub" id="phoneModalSub"></div>
+    <div id="phoneModalOptions"></div>
+    <button class="phone-modal-cancel" id="phoneModalCancel">Cancel</button>
   </div>
 </div>
 
@@ -589,6 +631,8 @@ document.getElementById('clearBtn').addEventListener('click',function(){
   }
 });
 var importQueue = [];
+var selectedIdxs = [];
+var importFilter = 'all';
 
 function saveWorkerUrl(url){ try{ localStorage.setItem('ww_url', url); }catch(e){} }
 function loadWorkerUrl(){ try{ return localStorage.getItem('ww_url')||''; }catch(e){ return ''; } }
@@ -596,89 +640,232 @@ function loadWorkerUrl(){ try{ return localStorage.getItem('ww_url')||''; }catch
 var workerInput = document.getElementById('workerUrl');
 workerInput.value = loadWorkerUrl();
 
+// ── Phone picker modal ────────────────────────────────────────
+var phoneModal       = document.getElementById('phoneModal');
+var phoneModalSub    = document.getElementById('phoneModalSub');
+var phoneModalOpts   = document.getElementById('phoneModalOptions');
+var phoneModalCancel = document.getElementById('phoneModalCancel');
+var pendingGroupSend = null;
+
+function showPhonePicker(guests, onChoose){
+  var withPhone = guests.filter(function(g){ return g.phone; });
+  phoneModalSub.textContent = 'Sending invite for: ' + guests.map(function(g){return g.name;}).join(', ');
+  phoneModalOpts.innerHTML = withPhone.map(function(g,i){
+    return '<div class="phone-option" data-pi="'+i+'">'+
+      '<div class="phone-option-name">'+g.name+'</div>'+
+      '<div class="phone-option-num">'+g.phone+'</div>'+
+    '</div>';
+  }).join('');
+  phoneModal.style.display='flex';
+  phoneModalOpts.querySelectorAll('.phone-option').forEach(function(opt){
+    opt.addEventListener('click', function(){
+      phoneModal.style.display='none';
+      onChoose(withPhone[parseInt(this.dataset.pi)].phone);
+    });
+  });
+  pendingGroupSend = null;
+}
+
+phoneModalCancel.addEventListener('click', function(){ phoneModal.style.display='none'; });
+
+// ── Selection helpers ─────────────────────────────────────────
+function updateGroupBar(){
+  var bar      = document.getElementById('groupSendBar');
+  var countEl  = document.getElementById('groupSendCount');
+  var sendBtn  = document.getElementById('groupSendBtn');
+  var filtered = importFilter==='all' ? importQueue : importQueue.filter(function(g){return g.sender===importFilter;});
+  var visibleSelected = selectedIdxs.filter(function(i){
+    return filtered.indexOf(importQueue[i]) > -1;
+  });
+  if(visibleSelected.length){
+    bar.style.display='flex';
+    countEl.textContent = visibleSelected.length + ' selected';
+    sendBtn.disabled = false;
+  } else {
+    bar.style.display='none';
+  }
+}
+
+function toggleSelect(realIdx){
+  var pos = selectedIdxs.indexOf(realIdx);
+  if(pos>-1) selectedIdxs.splice(pos,1);
+  else selectedIdxs.push(realIdx);
+  updateGroupBar();
+  // Update just the row visually
+  var row = document.querySelector('.iq-row[data-qi="'+realIdx+'"]');
+  if(row){
+    var isNowSelected = selectedIdxs.indexOf(realIdx)>-1;
+    row.classList.toggle('selected', isNowSelected);
+    var chk = row.querySelector('.iq-check');
+    if(chk) chk.textContent = isNowSelected ? '✓' : '';
+  }
+}
+
+// ── Send group invite ─────────────────────────────────────────
+function sendGroupInvite(guestList, phone){
+  var ll = {en:'🇬🇧 EN',de:'🇩🇪 DE',ru:'🇷🇺 RU'};
+  // Use type/lang from first guest
+  var type  = guestList[0].type;
+  var lang  = guestList[0].lang||'en';
+  var names = guestList.map(function(g){return g.name;});
+  var combinedName = names.length>1
+    ? names.slice(0,-1).join(', ')+' & '+names[names.length-1]
+    : names[0];
+
+  var hasParty  = type==='ceremony-party-single'||type==='couple-party';
+  var isCouple  = type==='couple-ceremony'||type==='couple-party';
+
+  // Build URL using first guest's name
+  var url = buildUrl(guestList[0].name, '', type, lang);
+  var msg = buildMsg(combinedName, type, lang, url);
+
+  // Add to tracker as one combined entry
+  var existing = mem.findIndex(function(h){ return h.url===url; });
+  var entry;
+  if(existing>-1){ entry=mem[existing]; entry.name=combinedName; }
+  else {
+    entry={id:Date.now(),name:combinedName,type:type,lang:lang,ll:ll[lang]||'EN',
+      url:url,msg:msg,phone:phone,isCouple:isCouple,hasParty:hasParty,
+      sender:guestList[0].sender,collective:names,
+      created:dt(),tracked:{linkCopied:null,msgCopied:null,waSent:null}};
+    mem.unshift(entry);
+  }
+
+  var clean=(phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');
+  var waUrl=clean
+    ?'https://wa.me/'+clean+'?text='+encodeURIComponent(msg)
+    :'https://wa.me/?text='+encodeURIComponent(msg);
+  window.open(waUrl,'_blank');
+  entry.tracked.waSent=ts();
+
+  // Mark all selected guests as sent
+  guestList.forEach(function(g){ g.sent=true; g.collectiveWith=names; });
+  selectedIdxs=[];
+  save(); renderTracker(); renderImportQueue();
+}
+
+// ── Group send button ─────────────────────────────────────────
+document.getElementById('groupSendBtn').addEventListener('click', function(){
+  var filtered = importFilter==='all' ? importQueue : importQueue.filter(function(g){return g.sender===importFilter;});
+  var visibleSelected = selectedIdxs.filter(function(i){
+    return filtered.indexOf(importQueue[i]) > -1;
+  });
+  var guests = visibleSelected.map(function(i){ return importQueue[i]; });
+  if(!guests.length) return;
+
+  var phones = guests.filter(function(g){return g.phone;});
+  if(phones.length===0){
+    alert('No phone numbers found for selected guests.');
+    return;
+  } else if(phones.length===1){
+    sendGroupInvite(guests, phones[0].phone);
+  } else {
+    showPhonePicker(guests, function(phone){ sendGroupInvite(guests, phone); });
+  }
+});
+
+document.getElementById('groupDeselect').addEventListener('click', function(){
+  selectedIdxs=[];
+  updateGroupBar();
+  document.querySelectorAll('.iq-row').forEach(function(r){
+    r.classList.remove('selected');
+    var chk=r.querySelector('.iq-check'); if(chk) chk.textContent='';
+  });
+});
+
+// ── Render queue ──────────────────────────────────────────────
 function renderImportQueue(){
-  var queueEl  = document.getElementById('importQueue');
-  var listEl   = document.getElementById('importQueueList');
+  var queueEl     = document.getElementById('importQueue');
+  var listEl      = document.getElementById('importQueueList');
   var filterBarEl = document.getElementById('importFilterBar');
   if(!importQueue.length){ queueEl.style.display='none'; return; }
   queueEl.style.display='block';
 
-  var importFilter='all';
-
   function renderRows(filter){
     var items = filter==='all' ? importQueue : importQueue.filter(function(g){ return g.sender===filter; });
     listEl.innerHTML = items.map(function(g){
-      var realIdx = importQueue.indexOf(g);
+      var realIdx     = importQueue.indexOf(g);
+      var isSelected  = selectedIdxs.indexOf(realIdx)>-1;
       var senderClass = g.sender==='Elnur'?'chip-elnur':'chip-arina';
-      var typeLabel = g.type==='couple-party'?'Couple·Full'
-                    : g.type==='couple-ceremony'?'Couple·Ch'
-                    : g.type==='ceremony-party-single'?'Full Day'
-                    : 'Ceremony';
-      return '<div class="iq-row" data-qi="'+realIdx+'">'+
+      var typeLabel   = g.type==='couple-party'?'Couple·Full'
+                      : g.type==='couple-ceremony'?'Couple·Ch'
+                      : g.type==='ceremony-party-single'?'Full Day'
+                      : 'Ceremony';
+      return '<div class="iq-row'+(g.sent?' sent':'')+(isSelected?' selected':'')+'" data-qi="'+realIdx+'">'+
+        '<div class="iq-check">'+(isSelected?'✓':'')+'</div>'+
         '<div style="flex:1;min-width:0">'+
           '<div class="iq-name">'+g.name+'</div>'+
           '<div style="display:flex;gap:4px;margin-top:3px;flex-wrap:wrap">'+
             '<span class="chip chip-lang" style="font-size:8px">'+typeLabel+'</span>'+
-            (g.confirmed?'<span class="chip" style="background:#e8f5e9;color:#2e7d52;font-size:8px">✓ Confirmed</span>':'')+
+            (g.confirmed?'<span class="chip" style="background:#e8f5e9;color:#2e7d52;font-size:8px">✓ RSVP</span>':'')+
+            (g.sent&&g.collectiveWith&&g.collectiveWith.length>1?'<span class="chip" style="background:#e8e0d6;color:#7a6b5e;font-size:8px">Group invite</span>':'')+
           '</div>'+
         '</div>'+
         (g.phone?'<div class="iq-phone">'+g.phone+'</div>':'')+
         '<span class="chip '+senderClass+'" style="flex-shrink:0">'+g.sender+'</span>'+
-        '<button class="iq-wa'+(g.sent?' done':'')+'" data-qi="'+realIdx+'">'+(g.sent?'✓ Undo':'💬 Send')+'</button>'+
-        '<button class="iq-skip" data-qi="'+realIdx+'" title="Skip">✕</button>'+
+        (g.sent
+          ? '<button class="iq-wa done iq-undo" data-qi="'+realIdx+'">✓ Undo</button>'
+          : '')+
+        '<button class="iq-skip" data-qi="'+realIdx+'" title="Remove">✕</button>'+
       '</div>';
     }).join('');
 
-    listEl.querySelectorAll('.iq-wa').forEach(function(btn){
-      btn.addEventListener('click', function(){
+    // Row click → toggle selection (only for unsent)
+    listEl.querySelectorAll('.iq-row').forEach(function(row){
+      row.addEventListener('click', function(e){
+        if(e.target.classList.contains('iq-skip')||
+           e.target.classList.contains('iq-undo')||
+           e.target.classList.contains('iq-wa')) return;
+        var qi=parseInt(this.dataset.qi);
+        if(importQueue[qi]&&importQueue[qi].sent) return; // can't select sent
+        toggleSelect(qi);
+      });
+    });
+
+    // Undo button
+    listEl.querySelectorAll('.iq-undo').forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
         var qi = parseInt(this.dataset.qi);
         var g  = importQueue[qi]; if(!g) return;
 
-        // If already sent, just toggle it off
-        if(g.sent){
-          g.sent=false;
-          var url = buildUrl(g.name, '', g.type, g.lang||'en');
-          var existing = mem.findIndex(function(h){ return h.url===url; });
-          if(existing>-1){ mem[existing].tracked.waSent=null; }
-          save(); renderTracker(); renderRows(importFilter);
-          return;
-        }
+        var isCollective = g.collectiveWith && g.collectiveWith.length > 1;
+        var msg = isCollective
+          ? 'This will unmark '+g.collectiveWith.length+' guests as sent ('+g.collectiveWith.join(', ')+').\n\nContinue?'
+          : 'Unmark "'+g.name+'" as sent?';
 
-        var ll = {en:'🇬🇧 EN',de:'🇩🇪 DE',ru:'🇷🇺 RU'};
-        var p1 = g.name, p2 = '', type = g.type, lang = g.lang||'en';
-        var url = buildUrl(p1, p2, type, lang);
-        var isCouple = type==='couple-ceremony'||type==='couple-party';
-        var hasParty = type==='ceremony-party-single'||type==='couple-party';
-        var msg = buildMsg(p1, type, lang, url);
+        if(!confirm(msg)) return;
 
+        // Unmark all guests in collective
+        importQueue.forEach(function(guest){
+          if(g.collectiveWith && g.collectiveWith.indexOf(guest.name)>-1){
+            guest.sent=false; guest.collectiveWith=null;
+          }
+        });
+        if(!isCollective){ g.sent=false; }
+
+        // Unmark in tracker
+        var url = buildUrl(g.name, '', g.type, g.lang||'en');
         var existing = mem.findIndex(function(h){ return h.url===url; });
-        var entry;
-        if(existing>-1){ entry=mem[existing]; }
-        else {
-          entry={id:Date.now(),name:p1,type:type,lang:lang,ll:ll[lang]||'EN',
-            url:url,msg:msg,phone:g.phone,isCouple:isCouple,hasParty:hasParty,
-            sender:g.sender,created:dt(),tracked:{linkCopied:null,msgCopied:null,waSent:null}};
-          mem.unshift(entry);
-        }
+        if(existing>-1){ mem[existing].tracked.waSent=null; }
 
-        var clean=(g.phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');
-        var waUrl=clean
-          ?'https://wa.me/'+clean+'?text='+encodeURIComponent(msg)
-          :'https://wa.me/?text='+encodeURIComponent(msg);
-        window.open(waUrl,'_blank');
-        entry.tracked.waSent=ts();
-        g.sent=true;
-        save(); renderTracker(); renderRows(importFilter);
+        save(); renderTracker(); renderRows(filter);
+        updateGroupBar();
       });
     });
 
+    // Skip/remove
     listEl.querySelectorAll('.iq-skip').forEach(function(btn){
-      btn.addEventListener('click', function(){
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
         var qi = parseInt(this.dataset.qi);
         importQueue.splice(qi,1);
+        selectedIdxs = selectedIdxs.filter(function(i){return i!==qi;}).map(function(i){return i>qi?i-1:i;});
         renderImportQueue();
       });
     });
+
+    updateGroupBar();
   }
 
   // Filter bar
@@ -688,13 +875,14 @@ function renderImportQueue(){
   filterBarEl.querySelectorAll('.fbtn').forEach(function(b){
     b.addEventListener('click', function(){
       importFilter=this.dataset.f;
+      selectedIdxs=[];
       renderRows(importFilter);
       filterBarEl.querySelectorAll('.fbtn').forEach(function(x){x.classList.remove('on');});
       this.classList.add('on');
     });
   });
 
-  renderRows('all');
+  renderRows(importFilter);
 }
 
 document.getElementById('syncBtn').addEventListener('click', async function(){
@@ -713,14 +901,13 @@ document.getElementById('syncBtn').addEventListener('click', async function(){
     var data = await res.json();
     if(data.error) throw new Error(data.error);
 
-    // Merge: keep sent status from existing mem entries
     importQueue = data.guests.map(function(g){
       var existing = mem.find(function(h){ return h.name===g.name && !!h.tracked.waSent; });
       g.sent  = !!existing;
       g.lang  = g.lang||'en';
       return g;
     });
-
+    selectedIdxs=[];
     statusEl.textContent = '✓ '+importQueue.length+' guests synced from Notion';
     renderImportQueue();
   } catch(e) {
@@ -731,7 +918,7 @@ document.getElementById('syncBtn').addEventListener('click', async function(){
 });
 
 document.getElementById('importClear').addEventListener('click', function(){
-  importQueue=[]; renderImportQueue();
+  importQueue=[]; selectedIdxs=[]; renderImportQueue();
   document.getElementById('syncStatus').style.display='none';
 });
 
