@@ -170,13 +170,34 @@ input::placeholder{color:#c0b5aa}
 .iq-check{width:18px;height:18px;border:1.5px solid var(--border);border-radius:0;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .15s;background:var(--card)}
 .iq-row.selected .iq-check{background:var(--accent);border-color:var(--accent);color:#fff}
 .iq-row.sent .iq-check{background:#e8e0d6;border-color:#d0c8c0}
-.group-send-bar{display:flex;align-items:center;gap:8px;padding:10px 0;border-top:1px solid var(--border);margin-top:6px}
-.group-send-count{font-size:11px;color:var(--muted);flex:1}
-.group-send-btn{padding:9px 16px;background:var(--accent);color:#fbf6f0;border:none;font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:background .15s}
-.group-send-btn:hover{background:#8e6042}
-.group-send-btn:disabled{background:#c0b0a0;cursor:default}
-.group-deselect{padding:9px 12px;background:none;border:1px solid var(--border);font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);cursor:pointer}
-.group-deselect:hover{border-color:var(--accent);color:var(--accent)}
+.group-send-bar{
+  position:sticky;
+  top:0;
+  z-index:10;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 12px;
+  background:var(--ink);
+  color:#ebe2da;
+  margin:0 -28px 10px;
+  box-shadow:0 4px 16px rgba(42,32,26,.18);
+  transform:translateY(-8px);
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .2s, transform .2s;
+}
+.group-send-bar.visible{
+  opacity:1;
+  transform:translateY(0);
+  pointer-events:all;
+}
+.group-send-count{font-size:11px;color:#c0b5aa;flex:1;letter-spacing:.06em}
+.group-send-btn{padding:8px 14px;background:var(--al);color:var(--ink);border:none;font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:background .15s;white-space:nowrap}
+.group-send-btn:hover{background:#d4a870}
+.group-send-btn:disabled{background:#666;color:#999;cursor:default}
+.group-deselect{padding:8px 10px;background:none;border:1px solid rgba(255,255,255,.2);font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#c0b5aa;cursor:pointer;white-space:nowrap}
+.group-deselect:hover{border-color:rgba(255,255,255,.5);color:#fff}
 
 /* Phone picker modal */
 .phone-modal-backdrop{position:fixed;inset:0;background:rgba(42,32,26,.45);z-index:200;display:flex;align-items:flex-end;justify-content:center}
@@ -267,15 +288,15 @@ input::placeholder{color:#c0b5aa}
     </div>
     <button class="genbtn" id="syncBtn" style="width:auto;padding:13px 20px;white-space:nowrap">⟳ Sync</button>
   </div>
-  <div id="syncStatus" style="font-size:11px;color:var(--muted);margin-bottom:10px;display:none"></div>
+  <div id="syncStatus" style="font-size:11px;color:var(--muted);margin-bottom:10px"></div>
   <div id="importQueue" style="display:none">
     <div class="filter-bar" id="importFilterBar"></div>
-    <div class="import-queue" id="importQueueList"></div>
-    <div class="group-send-bar" id="groupSendBar" style="display:none">
+    <div class="group-send-bar" id="groupSendBar">
       <span class="group-send-count" id="groupSendCount">0 selected</span>
-      <button class="group-deselect" id="groupDeselect">Deselect all</button>
+      <button class="group-deselect" id="groupDeselect">✕ Deselect</button>
       <button class="group-send-btn" id="groupSendBtn">💬 Send invite</button>
     </div>
+    <div class="import-queue" id="importQueueList"></div>
     <div class="import-actions">
       <button class="import-clear" id="importClear">Clear list</button>
     </div>
@@ -640,6 +661,15 @@ function loadWorkerUrl(){ try{ return localStorage.getItem('ww_url')||''; }catch
 var workerInput = document.getElementById('workerUrl');
 workerInput.value = loadWorkerUrl();
 
+// Show last sync time on load
+(function(){
+  var statusEl = document.getElementById('syncStatus');
+  try {
+    var last = localStorage.getItem('ww_last_sync');
+    if(last) statusEl.textContent = 'Last synced: ' + last;
+  } catch(e){}
+})();
+
 // ── Phone picker modal ────────────────────────────────────────
 var phoneModal       = document.getElementById('phoneModal');
 var phoneModalSub    = document.getElementById('phoneModalSub');
@@ -672,17 +702,15 @@ phoneModalCancel.addEventListener('click', function(){ phoneModal.style.display=
 function updateGroupBar(){
   var bar      = document.getElementById('groupSendBar');
   var countEl  = document.getElementById('groupSendCount');
-  var sendBtn  = document.getElementById('groupSendBtn');
   var filtered = importFilter==='all' ? importQueue : importQueue.filter(function(g){return g.sender===importFilter;});
   var visibleSelected = selectedIdxs.filter(function(i){
     return filtered.indexOf(importQueue[i]) > -1;
   });
   if(visibleSelected.length){
-    bar.style.display='flex';
+    bar.classList.add('visible');
     countEl.textContent = visibleSelected.length + ' selected';
-    sendBtn.disabled = false;
   } else {
-    bar.style.display='none';
+    bar.classList.remove('visible');
   }
 }
 
@@ -744,21 +772,6 @@ function sendGroupInvite(guestList, phone){
       body:JSON.stringify({names:names})
     }).catch(function(){});
   }
-
-  // Save sent status to KV (shared across devices)
-  var workerUrl = workerInput.value.trim();
-  var sentTime  = ts();
-  guestList.forEach(function(g){
-    fetch(workerUrl+'?action=setSent', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        name: g.name, sent: true,
-        sentAt: sentTime, sender: g.sender,
-        collective: guestList.length>1 ? guestList.map(function(x){return x.name;}) : null
-      })
-    });
-  });
 
   // Mark all selected guests as sent
   guestList.forEach(function(g){ g.sent=true; g.collectiveWith=names; });
@@ -941,7 +954,9 @@ async function doSync(){
       return g;
     });
     selectedIdxs=[];
-    statusEl.textContent = '✓ '+importQueue.length+' guests synced · '+ new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+    var syncTime = new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short'}) + ' · ' + new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+    try{ localStorage.setItem('ww_last_sync', syncTime); }catch(e){}
+    statusEl.textContent = '✓ '+importQueue.length+' guests synced · ' + syncTime;
     renderImportQueue();
   } catch(e) {
     statusEl.textContent = '✗ Error: '+e.message;
