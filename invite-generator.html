@@ -354,10 +354,18 @@ var msgs = {
   }
 };
 
+function firstName(name){
+  // Take first word, capitalize first letter, lowercase rest
+  // e.g. "SIMON KLEIN" → "Simon", "MOM A" → "Mom"
+  var word = (name||'').trim().split(/\s+/)[0];
+  if(!word) return '';
+  return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+}
+
 function buildUrl(p1,p2,type,lang){
   var q=new URLSearchParams();
-  if(p1) q.set('p1',p1);
-  if(p2&&(type==='couple-ceremony'||type==='couple-party')) q.set('p2',p2);
+  if(p1) q.set('p1',firstName(p1));
+  if(p2) q.set('p2',firstName(p2));
   if(type==='ceremony-party-single'||type==='couple-party') q.set('party','1');
   if(lang&&lang!=='en') q.set('lang',lang);
   return BASE+'?'+q.toString();
@@ -700,17 +708,27 @@ phoneModalCancel.addEventListener('click', function(){ phoneModal.style.display=
 
 // ── Selection helpers ─────────────────────────────────────────
 function updateGroupBar(){
-  var bar      = document.getElementById('groupSendBar');
-  var countEl  = document.getElementById('groupSendCount');
+  var bar     = document.getElementById('groupSendBar');
+  var countEl = document.getElementById('groupSendCount');
+  var sendBtn = document.getElementById('groupSendBtn');
   var filtered = importFilter==='all' ? importQueue : importQueue.filter(function(g){return g.sender===importFilter;});
   var visibleSelected = selectedIdxs.filter(function(i){
     return filtered.indexOf(importQueue[i]) > -1;
   });
   if(visibleSelected.length){
     bar.classList.add('visible');
-    countEl.textContent = visibleSelected.length + ' selected';
+    if(visibleSelected.length > 2){
+      countEl.textContent = visibleSelected.length + ' selected — max 2!';
+      sendBtn.disabled = true;
+      bar.style.background = '#8b2020';
+    } else {
+      countEl.textContent = visibleSelected.length + ' selected';
+      sendBtn.disabled = false;
+      bar.style.background = '';
+    }
   } else {
     bar.classList.remove('visible');
+    bar.style.background = '';
   }
 }
 
@@ -731,25 +749,35 @@ function toggleSelect(realIdx){
 
 // ── Send group invite ─────────────────────────────────────────
 function sendGroupInvite(guestList, phone){
+  if(guestList.length > 2){
+    alert('Max 2 people per invite. Please select 1 or 2 guests.');
+    return;
+  }
+
   var ll = {en:'🇬🇧 EN',de:'🇩🇪 DE',ru:'🇷🇺 RU'};
-  var type  = guestList[0].type;
-  var lang  = guestList[0].lang||'en';
+  var type = guestList[0].type;
+  var lang = guestList[0].lang||'en';
+  var p1   = guestList[0].name;
+  var p2   = guestList[1] ? guestList[1].name : '';
   var names = guestList.map(function(g){return g.name;});
-  var combinedName = names.length>1
-    ? names.slice(0,-1).join(', ')+' & '+names[names.length-1]
-    : names[0];
 
-  var hasParty  = type==='ceremony-party-single'||type==='couple-party';
-  var isCouple  = type==='couple-ceremony'||type==='couple-party';
+  // Display name uses first names: "Simon & Mom"
+  var displayName = guestList.length > 1
+    ? firstName(p1) + ' & ' + firstName(p2)
+    : firstName(p1);
 
-  var url = buildUrl(guestList[0].name, '', type, lang);
-  var msg = buildMsg(combinedName, type, lang, url);
+  var hasParty = type==='ceremony-party-single'||type==='couple-party';
+  var isCouple = guestList.length > 1;
+
+  // URL uses first names for p1/p2
+  var url = buildUrl(p1, p2, type, lang);
+  var msg = buildMsg(displayName, type, lang, url);
 
   var existing = mem.findIndex(function(h){ return h.url===url; });
   var entry;
-  if(existing>-1){ entry=mem[existing]; entry.name=combinedName; }
+  if(existing>-1){ entry=mem[existing]; entry.name=displayName; }
   else {
-    entry={id:Date.now(),name:combinedName,type:type,lang:lang,ll:ll[lang]||'EN',
+    entry={id:Date.now(),name:displayName,type:type,lang:lang,ll:ll[lang]||'EN',
       url:url,msg:msg,phone:phone,isCouple:isCouple,hasParty:hasParty,
       sender:guestList[0].sender,collective:names,
       created:dt(),tracked:{linkCopied:null,msgCopied:null,waSent:null}};
@@ -787,6 +815,11 @@ document.getElementById('groupSendBtn').addEventListener('click', function(){
   });
   var guests = visibleSelected.map(function(i){ return importQueue[i]; });
   if(!guests.length) return;
+
+  if(guests.length > 2){
+    alert('Max 2 people per invite.\n\nPlease select 1 or 2 guests only.');
+    return;
+  }
 
   var phones = guests.filter(function(g){return g.phone;});
   if(phones.length===0){
