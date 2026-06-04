@@ -865,35 +865,20 @@ function renderImportQueue(){
     return parts.length > 1 ? parts[parts.length-1].toUpperCase() : '';
   }
 
-  function sortByFamily(items){
-    // Group by last name, keep original order within group
-    var groups = {};
-    var order  = [];
-    items.forEach(function(g){
-      var ln = lastName(g.name);
-      if(ln && !groups[ln]){ groups[ln]=[]; order.push(ln); }
-      if(ln) groups[ln].push(g);
-      else {
-        if(!groups['']){ groups['']=[]; order.push(''); }
-        groups[''].push(g);
-      }
-    });
-    // Only group last names that appear more than once
-    var result = [];
-    order.forEach(function(ln){
-      groups[ln].forEach(function(g){ result.push({g:g, family: ln && groups[ln].length>1 ? ln : null}); });
-    });
-    return result;
-  }
-
   function renderRows(filter){
     var items = filter==='all' ? importQueue : importQueue.filter(function(g){ return g.sender===filter; });
-    var sorted = sortByFamily(items);
-    var html = '';
-    var lastFamily = null;
 
-    sorted.forEach(function(entry){
-      var g = entry.g;
+    // Count last name occurrences to know which ones to group
+    var lnCount = {};
+    items.forEach(function(g){
+      var ln = lastName(g.name);
+      if(ln.length > 2) lnCount[ln] = (lnCount[ln]||0) + 1;
+    });
+
+    var html = '';
+    var shownHeaders = {};
+
+    items.forEach(function(g){
       var realIdx     = importQueue.indexOf(g);
       var isSelected  = selectedIdxs.indexOf(realIdx)>-1;
       var senderClass = g.sender==='Elnur'?'chip-elnur':'chip-arina';
@@ -903,12 +888,11 @@ function renderImportQueue(){
                       : 'Ceremony';
       var rowClass = 'iq-row'+(g.sent?' sent':'')+(g.skipped?' skipped':'')+(isSelected?' selected':'');
 
-      // Family header
-      if(entry.family && entry.family !== lastFamily){
-        html += '<div class="iq-family-header">'+entry.family+'</div>';
-        lastFamily = entry.family;
-      } else if(!entry.family){
-        lastFamily = null;
+      // Show family header on first occurrence of a repeated last name
+      var ln = lastName(g.name);
+      if(ln.length > 2 && lnCount[ln] > 1 && !shownHeaders[ln]){
+        html += '<div class="iq-family-header">'+ln+'</div>';
+        shownHeaders[ln] = true;
       }
 
       html += '<div class="'+rowClass+'" data-qi="'+realIdx+'">'+
