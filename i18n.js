@@ -131,6 +131,11 @@ window.I18N = {
     photoTileTitle     : "Photo Wall",
     photoTileDesc      : "Share your photos from the day — coming soon",
     comingSoon         : "Soon",
+    bsTileTitle        : "Bring & Share",
+    bsTileDesc         : "Bringing something to the celebration? Let us know",
+    calTileTitle       : "Add to Calendar",
+    calTileDescCeremony: "Save the ceremony to your calendar",
+    calTileDescFull    : "Save both the ceremony & evening to your calendar",
 
     /* ── Adult/child seat summary ── */
     adultSingular  : "adult",
@@ -408,6 +413,11 @@ window.I18N = {
     photoTileTitle     : "Fotowand",
     photoTileDesc      : "Teile deine Fotos vom Tag — demnächst verfügbar",
     comingSoon         : "Bald",
+    bsTileTitle        : "Bring & Share",
+    bsTileDesc         : "Bringst du etwas mit? Sag uns kurz Bescheid",
+    calTileTitle       : "Zum Kalender hinzufügen",
+    calTileDescCeremony: "Trauung im Kalender speichern",
+    calTileDescFull    : "Trauung & Abendempfang im Kalender speichern",
 
     adultSingular  : "Erwachsener",
     adultPlural    : "Erwachsene",
@@ -673,6 +683,11 @@ window.I18N = {
     photoTileTitle     : "Фотостена",
     photoTileDesc      : "Поделись фотографиями с праздника — скоро",
     comingSoon         : "Скоро",
+    bsTileTitle        : "Bring & Share",
+    bsTileDesc         : "Принесёшь что-нибудь на праздник? Дай нам знать",
+    calTileTitle       : "Добавить в календарь",
+    calTileDescCeremony: "Сохрани венчание в календарь",
+    calTileDescFull    : "Сохрани венчание и вечерний банкет в календарь",
 
     adultSingular  : "взрослый",
     adultPlural    : "взрослых",

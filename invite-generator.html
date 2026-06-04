@@ -129,6 +129,40 @@ input::placeholder{color:#c0b5aa}
 .act-btn:hover{border-color:var(--al);color:var(--accent);background:#fbf6f0}
 .act-btn.del-btn:hover{border-color:#c0392b;color:#c0392b;background:#fdf5f5}
 
+/* Sender toggle */
+.sender-toggle{display:flex;gap:6px;margin-top:2px}
+.sbtn{flex:1;padding:8px;background:var(--bg);border:1.5px solid var(--border);cursor:pointer;font-family:var(--sans);font-size:12px;font-weight:500;color:var(--muted);transition:all .15s}
+.sbtn:hover{border-color:var(--al)}
+.sbtn.on{border-color:var(--accent);background:#fbf6f0;color:var(--accent);font-weight:600}
+
+/* Sender chip on tracker card */
+.chip-arina{background:#fce8f0;color:#9b3060}
+.chip-elnur{background:#e8eef8;color:#2a4a8a}
+
+/* Notion import card */
+.import-card{border:1.5px dashed var(--border);padding:20px 24px;cursor:pointer;transition:border-color .18s;text-align:center}
+.import-card:hover{border-color:var(--al)}
+.import-card input[type=file]{display:none}
+.import-icon{font-size:22px;margin-bottom:8px}
+.import-title{font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.import-desc{font-size:11px;color:#b0a090}
+.import-queue{margin-top:16px;display:flex;flex-direction:column;gap:8px}
+.iq-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border:1px solid var(--border)}
+.iq-name{font-family:var(--serif);font-size:15px;flex:1}
+.iq-phone{font-size:10px;color:var(--muted);font-family:monospace}
+.iq-sender{font-size:9px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:2px 7px}
+.iq-wa{padding:6px 10px;background:#25d366;color:#fff;border:none;font-size:10px;font-weight:600;font-family:var(--sans);cursor:pointer;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;transition:background .15s}
+.iq-wa:hover{background:#1db954}
+.iq-wa.done{background:var(--green)}
+.iq-skip{background:none;border:none;color:#ccc;font-size:14px;cursor:pointer;padding:4px}
+.iq-skip:hover{color:#c0392b}
+.import-actions{display:flex;gap:8px;margin-top:14px}
+.import-clear{flex:1;padding:9px;background:none;border:1px solid var(--border);font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);cursor:pointer}
+.import-clear:hover{border-color:#c0392b;color:#c0392b}
+.filter-bar{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.fbtn{padding:5px 10px;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--border);background:var(--bg);color:var(--muted);cursor:pointer;font-family:var(--sans);transition:all .13s}
+.fbtn.on{background:var(--ink);color:#ebe2da;border-color:var(--ink)}
+
 @media(max-width:480px){
   .row2{grid-template-columns:1fr}
   .types{grid-template-columns:1fr}
@@ -154,6 +188,13 @@ input::placeholder{color:#c0b5aa}
   </div>
   <div class="row2" style="margin-bottom:18px">
     <div class="fg"><label for="waPhone">WhatsApp Number</label><input id="waPhone" type="tel" placeholder="+49 176 12345678"/></div>
+    <div class="fg">
+      <label>Sender</label>
+      <div class="sender-toggle">
+        <button class="sbtn on" data-sender="Arina">Arina</button>
+        <button class="sbtn" data-sender="Elnur">Elnur</button>
+      </div>
+    </div>
   </div>
 
   <span class="tlabel">Invite Type</span>
@@ -190,6 +231,23 @@ input::placeholder{color:#c0b5aa}
   </div>
 </div>
 
+<div class="card">
+  <div class="slabel">Bulk Import from Notion / CSV</div>
+  <div class="import-card" id="importDrop">
+    <input type="file" id="importFile" accept=".csv,.txt">
+    <div class="import-icon">⇪</div>
+    <div class="import-title">Drop CSV or click to upload</div>
+    <div class="import-desc">Export your Notion table as CSV. Columns needed: Name, Phone, Type (optional), Sender (optional)</div>
+  </div>
+  <div id="importQueue" style="display:none">
+    <div class="filter-bar" id="importFilterBar"></div>
+    <div class="import-queue" id="importQueueList"></div>
+    <div class="import-actions">
+      <button class="import-clear" id="importClear">Clear import</button>
+    </div>
+  </div>
+</div>
+
 <div class="card" id="trackerCard">
   <div class="tracker-hdr">
     <div class="slabel" style="margin-bottom:0;flex:1">Tracker</div>
@@ -203,6 +261,7 @@ input::placeholder{color:#c0b5aa}
 var BASE = 'https://www.arinaelnur.de/';
 var selType = 'ceremony-single';
 var selLang = 'en';
+var selSender = 'Arina';
 var cur = null;
 
 var mem = [];
@@ -248,6 +307,12 @@ function buildMsg(name,type,lang,url){
 function ts(){ return new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}); }
 function dt(){ return new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short'})+' '+ts(); }
 
+document.querySelectorAll('.sbtn').forEach(function(b){
+  b.addEventListener('click',function(){
+    document.querySelectorAll('.sbtn').forEach(function(x){x.classList.remove('on');});
+    b.classList.add('on'); selSender=b.dataset.sender;
+  });
+});
 document.querySelectorAll('.tbtn').forEach(function(b){
   b.addEventListener('click',function(){
     document.querySelectorAll('.tbtn').forEach(function(x){x.classList.remove('on');});
@@ -287,7 +352,7 @@ document.getElementById('genBtn').addEventListener('click',function(){
   } else {
     entry={id:Date.now(),name:name,type:selType,lang:selLang,ll:ll[selLang]||'EN',
       url:url,msg:msg,phone:phone,isCouple:isCouple,hasParty:hasParty,
-      created:dt(),tracked:{linkCopied:null,msgCopied:null,waSent:null}};
+      sender:selSender,created:dt(),tracked:{linkCopied:null,msgCopied:null,waSent:null}};
     mem.unshift(entry);
   }
   cur=entry;
@@ -370,6 +435,7 @@ function flash(btn,resetLabel){
 }
 
 // ── Tracker ───────────────────────────────────────────────────
+var trackerFilter = 'all';
 function renderTracker(){
   var list=document.getElementById('hlist');
   if(!mem.length){
@@ -378,10 +444,30 @@ function renderTracker(){
     return;
   }
 
-  var sent=mem.filter(function(h){return !!h.tracked.waSent;});
-  var unsent=mem.filter(function(h){return !h.tracked.waSent;});
-  var total=mem.length;
-  var pct=Math.round(sent.length/total*100);
+  // Filter bar
+  var filterBar=document.getElementById('trackerSummary').previousElementSibling;
+  var existingFilterBar=document.getElementById('trackerFilterBar');
+  if(!existingFilterBar){
+    var fb=document.createElement('div');
+    fb.id='trackerFilterBar';
+    fb.className='filter-bar';
+    fb.style.marginBottom='12px';
+    document.getElementById('trackerCard').insertBefore(fb, document.getElementById('trackerSummary'));
+    existingFilterBar=fb;
+  }
+  var senders=['all','Arina','Elnur'];
+  existingFilterBar.innerHTML=senders.map(function(s){
+    return '<button class="fbtn'+(trackerFilter===s?' on':'')+'" data-f="'+s+'">'+(s==='all'?'All':s)+'</button>';
+  }).join('');
+  existingFilterBar.querySelectorAll('.fbtn').forEach(function(b){
+    b.addEventListener('click',function(){trackerFilter=this.dataset.f;renderTracker();});
+  });
+
+  var filtered=trackerFilter==='all'?mem:mem.filter(function(h){return h.sender===trackerFilter;});
+  var sent=filtered.filter(function(h){return !!h.tracked.waSent;});
+  var unsent=filtered.filter(function(h){return !h.tracked.waSent;});
+  var total=filtered.length;
+  var pct=total?Math.round(sent.length/total*100):0;
 
   var sumEl=document.getElementById('trackerSummary');
   sumEl.style.display='block';
@@ -398,6 +484,7 @@ function renderTracker(){
       var i=mem.indexOf(h);
       var t=h.tracked||{};
       var isSent=!!t.waSent;
+      var senderClass=h.sender==='Elnur'?'chip-elnur':'chip-arina';
 
       function pipStep(key, icon, label){
         var done=!!t[key];
@@ -416,6 +503,7 @@ function renderTracker(){
             (h.isCouple?'<span class="chip chip-couple">Couple</span>':'')+
             (h.hasParty?'<span class="chip chip-party">Full Day</span>':'')+
             '<span class="chip chip-lang">'+(h.ll||'EN')+'</span>'+
+            (h.sender?'<span class="chip '+senderClass+'">'+h.sender+'</span>':'')+
           '</div>'+
         '</div>'+
         '<div class="pipeline">'+
@@ -496,6 +584,163 @@ document.getElementById('clearBtn').addEventListener('click',function(){
     mem=[]; cur=null; save(); renderTracker();
     document.getElementById('outCard').style.display='none';
   }
+});
+
+// ── CSV / Notion Import ───────────────────────────────────────
+var importQueue = [];
+
+function parseCSV(text){
+  var lines=text.trim().split(/\r?\n/);
+  if(!lines.length) return [];
+  var headers=lines[0].split(',').map(function(h){return h.trim().replace(/^"|"$/g,'').toLowerCase();});
+  return lines.slice(1).map(function(line){
+    var cols=line.match(/(".*?"|[^,]+)(?=,|$)/g)||[];
+    var row={};
+    headers.forEach(function(h,i){
+      row[h]=(cols[i]||'').trim().replace(/^"|"$/g,'');
+    });
+    return row;
+  }).filter(function(r){ return r.name||r['first guest']||r['guest']; });
+}
+
+function guessType(val){
+  if(!val) return 'ceremony-single';
+  val=val.toLowerCase();
+  if(val.includes('couple')&&val.includes('party')) return 'couple-party';
+  if(val.includes('couple')&&val.includes('ceremony')) return 'couple-ceremony';
+  if(val.includes('party')||val.includes('full')) return 'ceremony-party-single';
+  if(val.includes('couple')) return 'couple-ceremony';
+  return 'ceremony-single';
+}
+
+function guessLang(val){
+  if(!val) return 'en';
+  val=val.toLowerCase();
+  if(val.includes('de')||val.includes('deutsch')||val.includes('german')) return 'de';
+  if(val.includes('ru')||val.includes('русский')||val.includes('russian')) return 'ru';
+  return 'en';
+}
+
+function renderImportQueue(){
+  var queueEl=document.getElementById('importQueue');
+  var listEl=document.getElementById('importQueueList');
+  var filterBarEl=document.getElementById('importFilterBar');
+
+  if(!importQueue.length){ queueEl.style.display='none'; return; }
+  queueEl.style.display='block';
+
+  // Sender filter for import
+  var importFilter='all';
+  var senders=['all'].concat(['Arina','Elnur'].filter(function(s){
+    return importQueue.some(function(g){return g.sender===s;});
+  }));
+
+  filterBarEl.innerHTML=senders.map(function(s){
+    return '<button class="fbtn'+(importFilter===s?' on':'')+'" data-f="'+s+'">'+(s==='all'?'All':s)+'</button>';
+  }).join('');
+  filterBarEl.querySelectorAll('.fbtn').forEach(function(b){
+    b.addEventListener('click',function(){
+      importFilter=this.dataset.f;
+      renderRows(importFilter);
+      filterBarEl.querySelectorAll('.fbtn').forEach(function(x){x.classList.remove('on');});
+      this.classList.add('on');
+    });
+  });
+
+  function renderRows(filter){
+    var items=filter==='all'?importQueue:importQueue.filter(function(g){return g.sender===filter;});
+    listEl.innerHTML=items.map(function(g,fi){
+      var realIdx=importQueue.indexOf(g);
+      var senderClass=g.sender==='Elnur'?'chip-elnur':'chip-arina';
+      return '<div class="iq-row" data-qi="'+realIdx+'">'+
+        '<div class="iq-name">'+g.name+'</div>'+
+        (g.phone?'<div class="iq-phone">'+g.phone+'</div>':'')+
+        '<span class="chip '+senderClass+'" style="flex-shrink:0">'+g.sender+'</span>'+
+        '<button class="iq-wa'+(g.sent?' done':'')+'" data-qi="'+realIdx+'">'+(g.sent?'✓ Sent':'💬 Send')+'</button>'+
+        '<button class="iq-skip" data-qi="'+realIdx+'" title="Remove">✕</button>'+
+      '</div>';
+    }).join('');
+
+    listEl.querySelectorAll('.iq-wa').forEach(function(btn){
+      btn.addEventListener('click',function(){
+        var qi=parseInt(this.dataset.qi);
+        var g=importQueue[qi]; if(!g) return;
+        var ll={en:'🇬🇧 EN',de:'🇩🇪 DE',ru:'🇷🇺 RU'};
+        var p1=g.p1, p2=g.p2||'', type=g.type, lang=g.lang;
+        var url=buildUrl(p1,p2,type,lang);
+        var isCouple=type==='couple-ceremony'||type==='couple-party';
+        var hasParty=type==='ceremony-party-single'||type==='couple-party';
+        var nameFull=isCouple&&p2?p1+' & '+p2:p1;
+        var msg=buildMsg(nameFull,type,lang,url);
+
+        // Add to tracker
+        var existing=mem.findIndex(function(h){return h.url===url;});
+        var entry;
+        if(existing>-1){ entry=mem[existing]; }
+        else {
+          entry={id:Date.now(),name:nameFull,type:type,lang:lang,ll:ll[lang]||'EN',
+            url:url,msg:msg,phone:g.phone,isCouple:isCouple,hasParty:hasParty,
+            sender:g.sender,created:dt(),tracked:{linkCopied:null,msgCopied:null,waSent:null}};
+          mem.unshift(entry);
+        }
+
+        var clean=(g.phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');
+        var waUrl=clean
+          ?'https://wa.me/'+clean+'?text='+encodeURIComponent(msg)
+          :'https://wa.me/?text='+encodeURIComponent(msg);
+        window.open(waUrl,'_blank');
+        entry.tracked.waSent=ts();
+        g.sent=true;
+        save(); renderTracker(); renderRows(importFilter);
+      });
+    });
+
+    listEl.querySelectorAll('.iq-skip').forEach(function(btn){
+      btn.addEventListener('click',function(){
+        var qi=parseInt(this.dataset.qi);
+        importQueue.splice(qi,1);
+        renderImportQueue();
+      });
+    });
+  }
+
+  renderRows(importFilter);
+}
+
+function handleCSVFile(file){
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var rows=parseCSV(e.target.result);
+    importQueue=rows.map(function(r){
+      var name=r.name||r['first guest']||r['guest']||'';
+      var p2=r['second guest']||r['partner']||r['p2']||'';
+      var phone=r.phone||r['whatsapp']||r['number']||'';
+      var type=guessType(r.type||r['invite type']||'');
+      var lang=guessLang(r.lang||r['language']||'');
+      var sender=r.sender||r['sent by']||'Arina';
+      if(!['Arina','Elnur'].includes(sender)) sender='Arina';
+      return {name:name,p1:name,p2:p2,phone:phone,type:type,lang:lang,sender:sender,sent:false};
+    }).filter(function(g){return g.name;});
+    renderImportQueue();
+  };
+  reader.readAsText(file);
+}
+
+var importDrop=document.getElementById('importDrop');
+var importFile=document.getElementById('importFile');
+
+importDrop.addEventListener('click',function(){ importFile.click(); });
+importFile.addEventListener('change',function(){
+  if(this.files[0]) handleCSVFile(this.files[0]);
+});
+importDrop.addEventListener('dragover',function(e){ e.preventDefault(); this.style.borderColor='var(--accent)'; });
+importDrop.addEventListener('dragleave',function(){ this.style.borderColor=''; });
+importDrop.addEventListener('drop',function(e){
+  e.preventDefault(); this.style.borderColor='';
+  if(e.dataTransfer.files[0]) handleCSVFile(e.dataTransfer.files[0]);
+});
+document.getElementById('importClear').addEventListener('click',function(){
+  importQueue=[]; renderImportQueue();
 });
 
 renderTracker();

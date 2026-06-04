@@ -870,6 +870,16 @@ if (bsNudgeBtnEl) {
   });
 }
 
+/* Celebration card Bring & Share tile */
+var celebrationBsBtn = document.getElementById("celebrationBsBtn");
+if (celebrationBsBtn) {
+  celebrationBsBtn.addEventListener("click", function(e) {
+    e.preventDefault();
+    var prefill = window.__lastRsvpName || "";
+    openBringShare(prefill);
+  });
+}
+
 if (bsClose)  bsClose.addEventListener("click", closeBringShare);
 if (bsDone)   bsDone.addEventListener("click", closeBringShare);
 
@@ -1893,8 +1903,10 @@ if (newRsvpBtn2) {
     if (r) setTimeout(function() { r.classList.add('we-visible'); }, 350);
   }
 
+  var seatDismissed    = false;
+
   function showSeatCard() {
-    if (seatVisible || rsvpDone) return;
+    if (seatVisible || rsvpDone || seatDismissed) return;
     seatVisible = true;
     seatCard.classList.add('we-visible');
     setTimeout(function() { seatCard.classList.add('we-pulse'); }, 1200);
@@ -1949,6 +1961,7 @@ if (newRsvpBtn2) {
   });
   document.getElementById('weSeatDismiss').addEventListener('click', function(e) {
     e.stopPropagation();
+    seatDismissed = true;
     hideSeatCard();
   });
 
@@ -1983,4 +1996,98 @@ if (newRsvpBtn2) {
     }
   }, { passive: true });
 
+})();
+
+/* ── Add to Calendar ─────────────────────────────────────────
+   Generates an .ics file with 1 or 2 events depending on
+   whether the guest has party=1 in their URL params.
+   ──────────────────────────────────────────────────────────── */
+(function() {
+  var calTile = document.getElementById('calendarTile');
+  if (!calTile) return;
+
+  var params   = new URLSearchParams(window.location.search);
+  var hasParty = params.get('party') === '1';
+
+  // Update tile description if full day
+  if (hasParty) {
+    var descEl = document.getElementById('calTileDesc');
+    if (descEl) {
+      var lang = document.documentElement.lang || 'en';
+      var fullDayDescs = {
+        en: 'Save both the ceremony & evening to your calendar',
+        de: 'Zeremonie & Abendempfang im Kalender speichern',
+        ru: 'Сохрани оба события в календарь'
+      };
+      descEl.textContent = fullDayDescs[lang] || fullDayDescs.en;
+    }
+  }
+
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+
+  function icsDate(year, month, day, hour, minute) {
+    return year + '' + pad(month) + pad(day) + 'T' + pad(hour) + pad(minute) + '00';
+  }
+
+  function makeEvent(uid, summary, dtstart, dtend, location, description) {
+    return [
+      'BEGIN:VEVENT',
+      'UID:' + uid,
+      'DTSTAMP:' + icsDate(2026, 6, 4, 0, 0) + 'Z',
+      'DTSTART;TZID=Europe/Berlin:' + dtstart,
+      'DTEND;TZID=Europe/Berlin:' + dtend,
+      'SUMMARY:' + summary,
+      'LOCATION:' + location,
+      'DESCRIPTION:' + description,
+      'END:VEVENT'
+    ].join('\r\n');
+  }
+
+  calTile.addEventListener('click', function(e) {
+    e.preventDefault();
+
+    var events = [];
+
+    // Ceremony — always included
+    events.push(makeEvent(
+      'ae-ceremony-20261016@arinaelnur.de',
+      'Arina & Elnur — Wedding Ceremony',
+      icsDate(2026, 10, 16, 14, 0),
+      icsDate(2026, 10, 16, 16, 0),
+      'Schlosskirche Düsseldorf\\, Benrather Str. 5\\, 40213 Düsseldorf',
+      'Please arrive by 13:30. https://maps.google.com/?q=Schlosskirche+Düsseldorf'
+    ));
+
+    // Evening — only for party guests
+    if (hasParty) {
+      events.push(makeEvent(
+        'ae-party-20261016@arinaelnur.de',
+        'Arina & Elnur — Evening Reception',
+        icsDate(2026, 10, 16, 17, 0),
+        icsDate(2026, 10, 16, 23, 59),
+        'Rheinliebe am Deich\\, Heerstraße 45\\, 40549 Düsseldorf',
+        'Evening reception. https://maps.google.com/?q=Rheinliebe+am+Deich'
+      ));
+    }
+
+    var ics = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//Arina & Elnur//Wedding//EN',
+      'CALSCALE:GREGORIAN',
+      'METHOD:PUBLISH',
+      events.join('\r\n'),
+      'END:VCALENDAR'
+    ].join('\r\n');
+
+    var blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+    var url  = URL.createObjectURL(blob);
+    var a    = document.createElement('a');
+    a.href     = url;
+    a.download = 'arina-elnur-wedding.ics';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
 })();

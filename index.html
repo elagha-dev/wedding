@@ -939,23 +939,6 @@
         <div class="faq-list" id="faq-list">
           <!-- Populated by script.js -->
         </div>
-        <!-- ── Language switcher ── -->
-        <div class="lang-bar" id="langBar">
-          <span class="lang-bar-label"><span data-i18n="langLabel">Language</span></span>
-          <button class="lang-btn" data-lang="en" aria-label="English" title="English">
-            <img src="https://flagcdn.com/w40/gb.png" width="28" height="20" alt="English" draggable="false">
-          </button>
-          <button class="lang-btn" data-lang="de" aria-label="Deutsch" title="Deutsch">
-            <img src="https://flagcdn.com/w40/de.png" width="28" height="20" alt="Deutsch" draggable="false">
-          </button>
-          <button class="lang-btn" data-lang="ru" aria-label="Русский" title="Русский">
-            <svg width="14" height="10" viewBox="0 0 3 2" xmlns="http://www.w3.org/2000/svg" style="display:block;border-radius:1px;">
-              <rect width="3" height="0.667" y="0" fill="#FFFFFF"/>
-              <rect width="3" height="0.667" y="0.667" fill="#4A90D9"/>
-              <rect width="3" height="0.667" y="1.333" fill="#FFFFFF"/>
-            </svg>
-          </button>
-        </div>
       </article>
 
       <!-- 07 The Celebration ──────────────────────────────── -->
@@ -979,6 +962,16 @@
             <div class="celebration-tile-arrow">↗</div>
           </a>
 
+          <!-- Add to Calendar -->
+          <a class="celebration-tile" href="#" id="calendarTile">
+            <div class="celebration-tile-icon">◈</div>
+            <div class="celebration-tile-body">
+              <div class="celebration-tile-title"><span data-i18n="calTileTitle">Add to Calendar</span></div>
+              <div class="celebration-tile-desc" id="calTileDesc"><span data-i18n="calTileDescCeremony">Save the ceremony to your calendar</span></div>
+            </div>
+            <div class="celebration-tile-arrow">↓</div>
+          </a>
+
           <!-- Photo wall — coming soon -->
           <div class="celebration-tile celebration-tile--soon">
             <div class="celebration-tile-icon">◻</div>
@@ -989,8 +982,36 @@
             <div class="celebration-tile-soon-badge"><span data-i18n="comingSoon">Soon</span></div>
           </div>
 
+          <!-- Bring & Share -->
+          <a class="celebration-tile" href="#" id="celebrationBsBtn">
+            <div class="celebration-tile-icon">🧁</div>
+            <div class="celebration-tile-body">
+              <div class="celebration-tile-title"><span data-i18n="bsTileTitle">Bring &amp; Share</span></div>
+              <div class="celebration-tile-desc"><span data-i18n="bsTileDesc">Bringing something to the celebration? Let us know</span></div>
+            </div>
+            <div class="celebration-tile-arrow">→</div>
+          </a>
+
         </div>
       </article>
+
+      <!-- Language bar ─────────────────────────────────────── -->
+      <div class="lang-bar" id="langBar">
+        <span class="lang-bar-label"><span data-i18n="langLabel">Language</span></span>
+        <button class="lang-btn" data-lang="en" aria-label="English" title="English">
+          <img src="https://flagcdn.com/w40/gb.png" width="28" height="20" alt="English" draggable="false">
+        </button>
+        <button class="lang-btn" data-lang="de" aria-label="Deutsch" title="Deutsch">
+          <img src="https://flagcdn.com/w40/de.png" width="28" height="20" alt="Deutsch" draggable="false">
+        </button>
+        <button class="lang-btn" data-lang="ru" aria-label="Русский" title="Русский">
+          <svg width="14" height="10" viewBox="0 0 3 2" xmlns="http://www.w3.org/2000/svg" style="display:block;border-radius:1px;">
+            <rect width="3" height="0.667" y="0" fill="#FFFFFF"/>
+            <rect width="3" height="0.667" y="0.667" fill="#4A90D9"/>
+            <rect width="3" height="0.667" y="1.333" fill="#FFFFFF"/>
+          </svg>
+        </button>
+      </div>
 
     </section><!-- /.right -->
 
