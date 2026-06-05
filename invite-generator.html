@@ -861,28 +861,34 @@ function renderImportQueue(){
 
   function lastName(name){
     var parts = (name||'').trim().split(/\s+/);
-    var second = parts[1] || '';
+    if(parts.length < 2) return '';
+    var second = parts[parts.length - 1] || '';
     return second.length >= 3 ? second.toUpperCase() : '';
+  }
+
+  function isKidEntry(name){
+    return /\b(kid|kids|child|children)\b/i.test(name||'');
   }
 
   function renderRows(filter){
     var items = filter==='all' ? importQueue : importQueue.filter(function(g){ return g.sender===filter; });
 
-    // Only group if the same second word appears in adjacent rows (within 2 positions)
-    function isPartOfGroup(items, idx){
-      var ln = lastName(items[idx].name);
-      if(!ln) return false;
-      var prev = idx > 0 ? lastName(items[idx-1].name) : '';
-      var next = idx < items.length-1 ? lastName(items[idx+1].name) : '';
-      var prev2 = idx > 1 ? lastName(items[idx-2].name) : '';
-      var next2 = idx < items.length-2 ? lastName(items[idx+2].name) : '';
-      return ln === prev || ln === next || ln === prev2 || ln === next2;
-    }
+    // Count how many non-kid guests share each last name across the ENTIRE list (not just adjacent)
+    var lastNameCount = {};
+    items.forEach(function(g){
+      if(isKidEntry(g.name)) return;
+      var ln = lastName(g.name);
+      if(ln) lastNameCount[ln] = (lastNameCount[ln]||0) + 1;
+    });
+
+    // Separate kids out — they get their own section at the end
+    var regularItems = items.filter(function(g){ return !isKidEntry(g.name); });
+    var kidItems     = items.filter(function(g){ return isKidEntry(g.name); });
 
     var html = '';
     var lastHeader = null;
 
-    items.forEach(function(g, idx){
+    function renderItem(g, isKid){
       var realIdx     = importQueue.indexOf(g);
       var isSelected  = selectedIdxs.indexOf(realIdx)>-1;
       var senderClass = g.sender==='Elnur'?'chip-elnur':'chip-arina';
@@ -891,21 +897,13 @@ function renderImportQueue(){
                       : g.type==='ceremony-party-single'?'Full Day'
                       : 'Ceremony';
       var rowClass = 'iq-row'+(g.sent?' sent':'')+(g.skipped?' skipped':'')+(isSelected?' selected':'');
-
-      var ln = lastName(g.name);
-      if(ln && ln !== lastHeader && isPartOfGroup(items, idx)){
-        html += '<div class="iq-family-header">'+ln+'</div>';
-        lastHeader = ln;
-      } else if(ln !== lastHeader){
-        lastHeader = null;
-      }
-
-      html += '<div class="'+rowClass+'" data-qi="'+realIdx+'">'+
+      return '<div class="'+rowClass+'" data-qi="'+realIdx+'">'+
         '<div class="iq-check">'+(isSelected?'✓':'')+'</div>'+
         '<div style="flex:1;min-width:0">'+
           '<div class="iq-name"'+(g.skipped?' style="text-decoration:line-through"':'')+'>'+g.name+'</div>'+
           '<div style="display:flex;gap:4px;margin-top:3px;flex-wrap:wrap">'+
             '<span class="chip chip-lang" style="font-size:8px">'+typeLabel+'</span>'+
+            (isKid?'<span class="chip" style="background:#e8f5e9;color:#2e7d52;font-size:8px">Child</span>':'')+
             (g.confirmed?'<span class="chip" style="background:#e8f5e9;color:#2e7d52;font-size:8px">✓ RSVP</span>':'')+
             (g.sent&&g.collectiveWith&&g.collectiveWith.length>1?'<span class="chip" style="background:#e8e0d6;color:#7a6b5e;font-size:8px">Group</span>':'')+
             (g.skipped?'<span class="chip" style="background:#e8e0d6;color:#7a6b5e;font-size:8px">Not needed</span>':'')+
@@ -921,7 +919,34 @@ function renderImportQueue(){
         )+
         '<button class="iq-remove" data-qi="'+realIdx+'" title="Remove from list" style="background:none;border:none;color:#ccc;font-size:14px;cursor:pointer;padding:4px">✕</button>'+
       '</div>';
+    }
+
+    // Render regular guests: grouped by last name if 2+ share it, else UNSORTED
+    var unsortedItems = [];
+    regularItems.forEach(function(g){
+      var ln = lastName(g.name);
+      if(ln && lastNameCount[ln] >= 2){
+        if(ln !== lastHeader){
+          html += '<div class="iq-family-header">'+ln+'</div>';
+          lastHeader = ln;
+        }
+        html += renderItem(g, false);
+      } else {
+        unsortedItems.push(g);
+      }
     });
+
+    if(unsortedItems.length){
+      html += '<div class="iq-family-header" style="color:var(--muted)">Unsorted</div>';
+      unsortedItems.forEach(function(g){ html += renderItem(g, false); });
+    }
+
+    if(kidItems.length){
+      html += '<div class="iq-family-header" style="color:#2e7d52">Children</div>';
+      kidItems.forEach(function(g){ html += renderItem(g, true); });
+    }
+
+
 
     listEl.innerHTML = html;
 
