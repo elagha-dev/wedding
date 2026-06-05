@@ -287,7 +287,7 @@ input::placeholder{color:#c0b5aa}
   <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:14px">
     <div class="fg" style="flex:1">
       <label for="workerUrl">Cloudflare Worker URL</label>
-      <input id="workerUrl" type="text" placeholder="https://wedding.your-name.workers.dev" />
+      <input id="workerUrl" type="text" placeholder="https://wedding.your-name.workers.dev" value="https://guestlist.elnur-agha.workers.dev/" />
     </div>
     <button class="genbtn" id="syncBtn" style="width:auto;padding:13px 20px;white-space:nowrap">⟳ Sync</button>
   </div>
@@ -676,7 +676,7 @@ function saveWorkerUrl(url){ try{ localStorage.setItem('ww_url', url); }catch(e)
 function loadWorkerUrl(){ try{ return localStorage.getItem('ww_url')||''; }catch(e){ return ''; } }
 
 var workerInput = document.getElementById('workerUrl');
-workerInput.value = loadWorkerUrl();
+workerInput.value = loadWorkerUrl() || 'https://guestlist.elnur-agha.workers.dev/';
 
 // Show last sync time on load
 (function(){
