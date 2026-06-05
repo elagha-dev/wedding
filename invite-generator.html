@@ -861,7 +861,6 @@ function renderImportQueue(){
 
   function lastName(name){
     var parts = (name||'').trim().split(/\s+/);
-    // Only use second word if it exists and is 3+ chars (not an initial like "A" or "S")
     var second = parts[1] || '';
     return second.length >= 3 ? second.toUpperCase() : '';
   }
@@ -869,17 +868,21 @@ function renderImportQueue(){
   function renderRows(filter){
     var items = filter==='all' ? importQueue : importQueue.filter(function(g){ return g.sender===filter; });
 
-    // Count last name occurrences to know which ones to group
-    var lnCount = {};
-    items.forEach(function(g){
-      var ln = lastName(g.name);
-      if(ln.length > 2) lnCount[ln] = (lnCount[ln]||0) + 1;
-    });
+    // Only group if the same second word appears in adjacent rows (within 2 positions)
+    function isPartOfGroup(items, idx){
+      var ln = lastName(items[idx].name);
+      if(!ln) return false;
+      var prev = idx > 0 ? lastName(items[idx-1].name) : '';
+      var next = idx < items.length-1 ? lastName(items[idx+1].name) : '';
+      var prev2 = idx > 1 ? lastName(items[idx-2].name) : '';
+      var next2 = idx < items.length-2 ? lastName(items[idx+2].name) : '';
+      return ln === prev || ln === next || ln === prev2 || ln === next2;
+    }
 
     var html = '';
-    var shownHeaders = {};
+    var lastHeader = null;
 
-    items.forEach(function(g){
+    items.forEach(function(g, idx){
       var realIdx     = importQueue.indexOf(g);
       var isSelected  = selectedIdxs.indexOf(realIdx)>-1;
       var senderClass = g.sender==='Elnur'?'chip-elnur':'chip-arina';
@@ -889,11 +892,12 @@ function renderImportQueue(){
                       : 'Ceremony';
       var rowClass = 'iq-row'+(g.sent?' sent':'')+(g.skipped?' skipped':'')+(isSelected?' selected':'');
 
-      // Show family header on first occurrence of a repeated last name
       var ln = lastName(g.name);
-      if(ln.length > 2 && lnCount[ln] > 1 && !shownHeaders[ln]){
+      if(ln && ln !== lastHeader && isPartOfGroup(items, idx)){
         html += '<div class="iq-family-header">'+ln+'</div>';
-        shownHeaders[ln] = true;
+        lastHeader = ln;
+      } else if(ln !== lastHeader){
+        lastHeader = null;
       }
 
       html += '<div class="'+rowClass+'" data-qi="'+realIdx+'">'+
