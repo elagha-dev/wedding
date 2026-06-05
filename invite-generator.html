@@ -873,12 +873,15 @@ function renderImportQueue(){
   function renderRows(filter){
     var items = filter==='all' ? importQueue : importQueue.filter(function(g){ return g.sender===filter; });
 
-    // Count how many non-kid guests share each last name across the ENTIRE list (not just adjacent)
+    // Count last names within this filtered view only
     var lastNameCount = {};
     items.forEach(function(g){
       if(isKidEntry(g.name)) return;
       var ln = lastName(g.name);
       if(ln) lastNameCount[ln] = (lastNameCount[ln]||0) + 1;
+    });
+    Object.keys(lastNameCount).forEach(function(ln){
+      if(lastNameCount[ln] < 2) delete lastNameCount[ln];
     });
 
     // Separate kids out — they get their own section at the end
