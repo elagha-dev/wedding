@@ -232,7 +232,11 @@ input::placeholder{color:#c0b5aa}
 </header>
 
 <div class="card" id="genCard">
-  <div class="slabel">Guest Details</div>
+  <div class="slabel" id="genCardToggle" style="cursor:pointer;user-select:none;display:flex;align-items:center;justify-content:space-between">
+    Manual Invite Generator
+    <span id="genCardChevron" style="font-size:11px;transition:transform .2s">▼</span>
+  </div>
+  <div id="genCardBody" style="display:none">
   <div class="row2">
     <div class="fg"><label for="p1">First Guest *</label><input id="p1" type="text" placeholder="e.g. Sarah"/></div>
     <div class="fg"><label for="p2">Second Guest (couple)</label><input id="p2" type="text" placeholder="optional"/></div>
@@ -263,6 +267,7 @@ input::placeholder{color:#c0b5aa}
     <button class="lbtn" data-lang="ru">🇷🇺 Русский</button>
   </div>
   <button class="genbtn" id="genBtn">Generate Invite →</button>
+  </div><!-- /genCardBody -->
 </div>
 
 <div class="card" id="outCard" style="display:none">
@@ -1118,6 +1123,34 @@ document.getElementById('groupDropdown').addEventListener('change', function(){
 
 document.getElementById('syncBtn').addEventListener('click', function(){ doSync(); });
 
+// Collapsible guest details panel
+(function(){
+  var toggle = document.getElementById('genCardToggle');
+  if(!toggle) return;
+  var genOpen = true;
+  toggle.addEventListener('click', function(){
+    var body = document.getElementById('genCardBody');
+    var chev = document.getElementById('genCardChevron');
+    genOpen = !genOpen;
+    body.style.display = genOpen ? '' : 'none';
+    chev.style.transform = genOpen ? '' : 'rotate(180deg)';
+  });
+})();
+
+// Collapsible guest details panel
+(function(){
+  var toggle = document.getElementById('genCardToggle');
+  if(!toggle) return;
+  var genOpen = false;
+  toggle.addEventListener('click', function(){
+    var body = document.getElementById('genCardBody');
+    var chev = document.getElementById('genCardChevron');
+    genOpen = !genOpen;
+    body.style.display = genOpen ? '' : 'none';
+    chev.style.transform = genOpen ? 'rotate(180deg)' : '';
+  });
+})();
+
 // Collapsible invite panel
 (function(){
   var toggle = document.getElementById('outCardToggle');
@@ -1176,5 +1209,14 @@ document.getElementById('importClear').addEventListener('click', function(){
 
 renderTracker();
 </script>
+<div style="margin:32px 0 12px;padding:12px 16px;background:#f5f0ea;border-radius:8px;font-size:10px;color:#a09080;font-family:monospace;line-height:1.7">
+  <strong style="font-size:10px;letter-spacing:.06em;color:#7a6b5e">FILE INFO</strong><br>
+  📄 invite-generator.html — updated 05 Jun 2026, 07:59<br>
+  ☁️ cloudflare-worker.js — <a href="https://guestlist.elnur-agha.workers.dev/" style="color:#7a6b5e">guestlist.elnur-agha.workers.dev</a><br>
+  🌐 BASE URL: <a href="https://www.arinaelnur.de/" style="color:#7a6b5e">arinaelnur.de</a><br>
+  📅 Wedding: 16 October 2026 · Schlosskirche Düsseldorf · Rheinliebe am Deich<br>
+  🔑 Notion DB: dd8fedbcfd64429f9da3b9531797408e<br>
+  ⚠️ Notion page_size capped at 100 — add pagination to worker to fetch all guests
+</div>
 </body>
 </html>
