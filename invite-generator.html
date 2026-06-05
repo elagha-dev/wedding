@@ -136,8 +136,8 @@ input::placeholder{color:#c0b5aa}
 .sbtn.on{border-color:var(--accent);background:#fbf6f0;color:var(--accent);font-weight:600}
 
 /* Sender chip on tracker card */
-.chip-arina{background:#fce8f0;color:#9b3060}
-.chip-elnur{background:#e8eef8;color:#2a4a8a}
+.chip-arina{background:#ffb6c1;color:#7a0030}
+.chip-elnur{background:#ffd9a0;color:#7a4000}
 
 /* Notion import card */
 .import-card{border:1.5px dashed var(--border);padding:20px 24px;cursor:pointer;transition:border-color .18s;text-align:center}
@@ -168,7 +168,7 @@ input::placeholder{color:#c0b5aa}
 .group-dropdown:focus{border-color:var(--ink)}
 
 /* Collective invite */
-.iq-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border:1px solid var(--border);transition:opacity .2s,background .15s;cursor:pointer;user-select:none}
+.iq-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border:1px solid var(--border);transition:opacity .2s,background .15s;cursor:pointer;user-select:none;position:relative}
 .iq-row.sent{opacity:.38}
 .iq-row.selected{background:#f5ede4;border-color:var(--al)}
 .iq-check{width:18px;height:18px;border:1.5px solid var(--border);border-radius:0;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .15s;background:var(--card)}
@@ -265,12 +265,6 @@ input::placeholder{color:#c0b5aa}
 </style>
 </head>
 <body>
-<header>
-  <div class="mono">A & E</div>
-  <div class="rule"></div>
-  <h1>Invite Generator</h1>
-</header>
-
 <div class="card" id="genCard">
   <div class="slabel" id="genCardToggle" style="cursor:pointer;user-select:none;display:flex;align-items:center;justify-content:space-between">
     Manual Invite Generator
@@ -333,6 +327,16 @@ input::placeholder{color:#c0b5aa}
   </div><!-- /outCardBody -->
 </div>
 
+<div class="card" id="statsCard" style="display:none">
+  <div class="slabel" id="statsToggle" style="cursor:pointer;user-select:none;display:flex;align-items:center;justify-content:space-between">
+    Dashboard
+    <span id="statsChevron" style="font-size:11px;transition:transform .2s">▲</span>
+  </div>
+  <div id="statsBody">
+    <div class="stats-grid" id="statsGrid"></div>
+  </div>
+</div>
+
 <div class="card">
   <div class="slabel">Sync from Notion</div>
   <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:14px">
@@ -385,16 +389,6 @@ input::placeholder{color:#c0b5aa}
     <div class="phone-modal-sub" id="phoneModalSub"></div>
     <div id="phoneModalOptions"></div>
     <button class="phone-modal-cancel" id="phoneModalCancel">Cancel</button>
-  </div>
-</div>
-
-<div class="card" id="statsCard" style="display:none">
-  <div class="slabel" id="statsToggle" style="cursor:pointer;user-select:none;display:flex;align-items:center;justify-content:space-between">
-    Dashboard
-    <span id="statsChevron" style="font-size:11px;transition:transform .2s">▲</span>
-  </div>
-  <div id="statsBody">
-    <div class="stats-grid" id="statsGrid"></div>
   </div>
 </div>
 
@@ -991,10 +985,11 @@ function renderImportQueue(){
       items = items.filter(function(g){ return g.name && g.name.toLowerCase().indexOf(searchQuery) > -1; });
     }
 
-    // Count last names globally (all senders, unsent/unskipped only) so cross-sender families still group
+    // Count last names globally — include skipped so skipping one family member
+    // doesn't break the whole family group
     var lastNameCountGlobal = {};
     importQueue.forEach(function(g){
-      if(isKidEntry(g.name) || g.sent || g.skipped) return;
+      if(isKidEntry(g.name) || g.sent) return;
       var ln = lastName(g.name);
       if(ln) lastNameCountGlobal[ln] = (lastNameCountGlobal[ln]||0) + 1;
     });
@@ -1044,9 +1039,9 @@ function renderImportQueue(){
             )+
             '<button class="iq-note-btn'+( g.note?' has-note':'')+'" data-qi="'+realIdx+'">'+( g.note?'📝 Edit note':'+ Note')+'</button>'+
             '<button class="iq-followup-btn'+( g.followup?' flagged':'')+'" data-qi="'+realIdx+'">'+( g.followup?'🔔 Flagged':'⚐ Follow up')+'</button>'+
-            '<button class="iq-remove" data-qi="'+realIdx+'" style="background:none;border:none;color:#ccc;font-size:14px;cursor:pointer;padding:2px 4px">✕</button>'+
           '</div>'+
         '</div>'+
+        '<button class="iq-remove" data-qi="'+realIdx+'" style="position:absolute;top:6px;right:6px;background:none;border:none;color:#ccc;font-size:14px;cursor:pointer;padding:2px 4px;line-height:1">✕</button>'+
       '</div>';
     }
 
@@ -1431,7 +1426,7 @@ function renderStats() {
 </script>
 <div style="margin:32px 0 12px;padding:12px 16px;background:#f5f0ea;border-radius:8px;font-size:10px;color:#a09080;font-family:monospace;line-height:1.7">
   <strong style="font-size:10px;letter-spacing:.06em;color:#7a6b5e">FILE INFO</strong><br>
-  📄 invite-generator.html — updated 05 Jun 2026, 21:35<br>
+  📄 invite-generator.html — updated 05 Jun 2026, 21:45<br>
   ☁️ cloudflare-worker.js — <a href="https://guestlist.elnur-agha.workers.dev/" style="color:#7a6b5e">guestlist.elnur-agha.workers.dev</a><br>
   🌐 BASE URL: <a href="https://www.arinaelnur.de/" style="color:#7a6b5e">arinaelnur.de</a><br>
   📅 Wedding: 16 October 2026 · Schlosskirche Düsseldorf · Rheinliebe am Deich<br>
