@@ -164,6 +164,8 @@ input::placeholder{color:#c0b5aa}
 .filter-bar{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
 .fbtn{padding:5px 10px;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--border);background:var(--bg);color:var(--muted);cursor:pointer;font-family:var(--sans);transition:all .13s}
 .fbtn.on{background:var(--ink);color:#ebe2da;border-color:var(--ink)}
+.group-dropdown{padding:5px 10px;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--border);background:var(--bg);color:var(--muted);cursor:pointer;font-family:var(--sans);outline:none;height:28px;}
+.group-dropdown:focus{border-color:var(--ink)}
 
 /* Collective invite */
 .iq-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border:1px solid var(--border);transition:opacity .2s,background .15s;cursor:pointer;user-select:none}
@@ -291,7 +293,12 @@ input::placeholder{color:#c0b5aa}
   </div>
   <div id="syncStatus" style="font-size:11px;color:var(--muted);margin-bottom:10px"></div>
   <div id="importQueue" style="display:none">
-    <div class="filter-bar" id="importFilterBar"></div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+      <div class="filter-bar" id="importFilterBar" style="margin-bottom:0;flex:1"></div>
+      <select class="group-dropdown" id="groupDropdown" style="display:none">
+        <option value="">All groups</option>
+      </select>
+    </div>
     <div class="group-send-bar" id="groupSendBar">
       <span class="group-send-count" id="groupSendCount">0 selected</span>
       <button class="group-deselect" id="groupDeselect">✕ Deselect</button>
@@ -663,6 +670,7 @@ document.getElementById('clearBtn').addEventListener('click',function(){
 var importQueue = [];
 var selectedIdxs = [];
 var importFilter = 'all';
+var groupFilter = '';
 
 function saveWorkerUrl(url){ try{ localStorage.setItem('ww_url', url); }catch(e){} }
 function loadWorkerUrl(){ try{ return localStorage.getItem('ww_url')||''; }catch(e){ return ''; } }
@@ -1043,6 +1051,11 @@ function renderImportQueue(){
   filterBarEl.querySelectorAll('.fbtn').forEach(function(b){
     b.addEventListener('click', function(){
       importFilter=this.dataset.f;
+      groupFilter='';
+      var dd=document.getElementById('groupDropdown');
+      if(dd) dd.value='';
+      // Reset visibility
+      document.querySelectorAll('.iq-family-header,.iq-row').forEach(function(el){el.style.display='';});
       selectedIdxs=[];
       renderRows(importFilter);
       filterBarEl.querySelectorAll('.fbtn').forEach(function(x){x.classList.remove('on');});
@@ -1051,7 +1064,46 @@ function renderImportQueue(){
   });
 
   renderRows(importFilter);
+  rebuildGroupDropdown();
 }
+
+function rebuildGroupDropdown(){
+  var dropdown = document.getElementById('groupDropdown');
+  if(!dropdown) return;
+  // Collect family group names from current rendered headers
+  var groups = [];
+  document.querySelectorAll('.iq-family-header').forEach(function(el){
+    var txt = el.textContent.trim();
+    if(txt && txt !== 'Unsorted' && txt !== 'Children') groups.push(txt);
+  });
+  if(!groups.length){ dropdown.style.display='none'; return; }
+  dropdown.style.display='';
+  var current = dropdown.value;
+  dropdown.innerHTML = '<option value="">All groups</option>' +
+    groups.map(function(g){ return '<option value="'+g+'"'+(current===g?' selected':'')+'>'+g+'</option>'; }).join('');
+}
+
+document.getElementById('groupDropdown').addEventListener('change', function(){
+  groupFilter = this.value;
+  var headers = document.querySelectorAll('.iq-family-header');
+  var rows = document.querySelectorAll('.iq-row');
+  if(!groupFilter){
+    headers.forEach(function(h){ h.style.display=''; });
+    rows.forEach(function(r){ r.style.display=''; });
+    return;
+  }
+  // Hide all, then show only matching family header + its rows
+  var inSection = false;
+  var allEls = document.querySelectorAll('.iq-family-header, .iq-row');
+  allEls.forEach(function(el){
+    if(el.classList.contains('iq-family-header')){
+      inSection = el.textContent.trim() === groupFilter;
+      el.style.display = inSection ? '' : 'none';
+    } else {
+      el.style.display = inSection ? '' : 'none';
+    }
+  });
+});
 
 document.getElementById('syncBtn').addEventListener('click', function(){ doSync(); });
 
