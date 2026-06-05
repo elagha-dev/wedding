@@ -266,7 +266,12 @@ input::placeholder{color:#c0b5aa}
 </div>
 
 <div class="card" id="outCard" style="display:none">
-  <div class="slabel">Invite Link</div>
+  <div class="slabel" id="outCardToggle" style="cursor:pointer;user-select:none;display:flex;align-items:center;justify-content:space-between">
+    Invite &amp; Message
+    <span id="outCardChevron" style="font-size:11px;transition:transform .2s">▲</span>
+  </div>
+  <div id="outCardBody">
+  <div class="slabel" style="margin-top:8px">Invite Link</div>
   <div id="guestTag"></div>
   <div class="urlrow">
     <div class="urltext" id="urlTxt"></div>
@@ -280,6 +285,7 @@ input::placeholder{color:#c0b5aa}
     <button class="mbtn mbtn-copy" id="copyMsgBtn">📋 Copy Message</button>
     <button class="mbtn mbtn-wa" id="waSendBtn">💬 Send via WhatsApp</button>
   </div>
+  </div><!-- /outCardBody -->
 </div>
 
 <div class="card">
@@ -442,6 +448,11 @@ document.getElementById('genBtn').addEventListener('click',function(){
   var out=document.getElementById('outCard');
   out.style.display='block';
   document.getElementById('urlTxt').textContent=url;
+  // Show outCard and expand if collapsed
+  var outCardBody = document.getElementById('outCardBody');
+  if(outCardBody) outCardBody.style.display = '';
+  var chev = document.getElementById('outCardChevron');
+  if(chev) chev.style.transform = '';
   document.getElementById('previewLink').href=url;
   document.getElementById('msgBox').value=msg;
   document.getElementById('guestTag').innerHTML=
@@ -1106,6 +1117,19 @@ document.getElementById('groupDropdown').addEventListener('change', function(){
 });
 
 document.getElementById('syncBtn').addEventListener('click', function(){ doSync(); });
+
+// Collapsible invite panel
+(function(){
+  var toggle = document.getElementById('outCardToggle');
+  if(!toggle) return;
+  toggle.addEventListener('click', function(){
+    var body = document.getElementById('outCardBody');
+    var chev = document.getElementById('outCardChevron');
+    var collapsed = body.style.display === 'none';
+    body.style.display = collapsed ? '' : 'none';
+    chev.style.transform = collapsed ? '' : 'rotate(180deg)';
+  });
+})();
 
 async function doSync(){
   var url = document.getElementById('workerUrl').value.trim();
