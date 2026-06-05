@@ -873,16 +873,16 @@ function renderImportQueue(){
   function renderRows(filter){
     var items = filter==='all' ? importQueue : importQueue.filter(function(g){ return g.sender===filter; });
 
-    // Count last names within this filtered view only
-    var lastNameCount = {};
-    items.forEach(function(g){
-      if(isKidEntry(g.name)) return;
+    // Count last names globally (all senders, unsent/unskipped only) so cross-sender families still group
+    var lastNameCountGlobal = {};
+    importQueue.forEach(function(g){
+      if(isKidEntry(g.name) || g.sent || g.skipped) return;
       var ln = lastName(g.name);
-      if(ln) lastNameCount[ln] = (lastNameCount[ln]||0) + 1;
+      if(ln) lastNameCountGlobal[ln] = (lastNameCountGlobal[ln]||0) + 1;
     });
-    Object.keys(lastNameCount).forEach(function(ln){
-      if(lastNameCount[ln] < 2) delete lastNameCount[ln];
-    });
+
+    // Use global count so cross-sender families (e.g. one Arina, one Elnur) still group correctly
+    var lastNameCount = lastNameCountGlobal;
 
     // Separate kids out — they get their own section at the end
     var regularItems = items.filter(function(g){ return !isKidEntry(g.name); });
@@ -924,19 +924,21 @@ function renderImportQueue(){
       '</div>';
     }
 
-    // Render regular guests: grouped by last name if 2+ share it, else UNSORTED
+    // Render regular guests: sort so family members are consecutive, then group
     var unsortedItems = [];
+    var familyItems = {};
     regularItems.forEach(function(g){
       var ln = lastName(g.name);
       if(ln && lastNameCount[ln] >= 2){
-        if(ln !== lastHeader){
-          html += '<div class="iq-family-header">'+ln+'</div>';
-          lastHeader = ln;
-        }
-        html += renderItem(g, false);
+        if(!familyItems[ln]) familyItems[ln] = [];
+        familyItems[ln].push(g);
       } else {
         unsortedItems.push(g);
       }
+    });
+    Object.keys(familyItems).sort().forEach(function(ln){
+      html += '<div class="iq-family-header">'+ln+'</div>';
+      familyItems[ln].forEach(function(g){ html += renderItem(g, false); });
     });
 
     if(unsortedItems.length){
