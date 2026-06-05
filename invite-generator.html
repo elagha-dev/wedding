@@ -761,6 +761,26 @@ var groupFilter = '';
 function saveWorkerUrl(url){ try{ localStorage.setItem('ww_url', url); }catch(e){} }
 function loadWorkerUrl(){ try{ return localStorage.getItem('ww_url')||''; }catch(e){ return ''; } }
 
+// ── Guest meta (notes + followup) persisted separately ────────
+function saveGuestMeta(){
+  try{
+    var meta = {};
+    importQueue.forEach(function(g){
+      if(g.note || g.followup) meta[g.name] = { note: g.note||'', followup: !!g.followup };
+    });
+    localStorage.setItem('ww_guest_meta', JSON.stringify(meta));
+  }catch(e){}
+}
+function loadGuestMeta(){
+  try{ return JSON.parse(localStorage.getItem('ww_guest_meta')||'{}'); }catch(e){ return {}; }
+}
+function applyGuestMeta(){
+  var meta = loadGuestMeta();
+  importQueue.forEach(function(g){
+    if(meta[g.name]){ g.note = meta[g.name].note; g.followup = meta[g.name].followup; }
+  });
+}
+
 var workerInput = document.getElementById('workerUrl');
 workerInput.value = loadWorkerUrl() || 'https://guestlist.elnur-agha.workers.dev/';
 
@@ -1001,28 +1021,32 @@ function renderImportQueue(){
       return '<div class="'+rowClass+'" data-qi="'+realIdx+'">'+
         '<div class="iq-check">'+(isSelected?'✓':'')+'</div>'+
         '<div style="flex:1;min-width:0">'+
-          '<div class="iq-name"'+(g.skipped?' style="text-decoration:line-through"':'')+'>'+g.name+'</div>'+
-          '<div style="display:flex;gap:4px;margin-top:3px;flex-wrap:wrap">'+
+          '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">'+
+            '<span class="iq-name"'+(g.skipped?' style="text-decoration:line-through"':'')+'>'+g.name+'</span>'+
+            '<span class="chip '+senderClass+'" style="flex-shrink:0">'+g.sender+'</span>'+
+          '</div>'+
+          '<div style="display:flex;gap:4px;margin-top:3px;flex-wrap:wrap;align-items:center">'+
             '<span class="chip chip-lang" style="font-size:8px">'+typeLabel+'</span>'+
             (isKid?'<span class="chip" style="background:#e8f5e9;color:#2e7d52;font-size:8px">Child</span>':'')+
             (g.confirmed?'<span class="chip" style="background:#e8f5e9;color:#2e7d52;font-size:8px">✓ RSVP</span>':'')+
             (g.sent&&g.collectiveWith&&g.collectiveWith.length>1?'<span class="chip" style="background:#e8e0d6;color:#7a6b5e;font-size:8px">Group</span>':'')+
-            (g.skipped?'<span class="chip" style="background:#e8e0d6;color:#7a6b5e;font-size:8px">Not needed</span>':'')+
+            (g.skipped?'<span class="chip" style="background:#e8e0d6;color:#7a6b5e;font-size:8px">Skipped</span>':'')+
             (g.followup?'<span class="chip" style="background:#fff3e0;color:#e67e22;font-size:8px">🔔 Follow up</span>':'')+
+            (g.phone?'<span style="font-size:9px;color:var(--muted);font-family:monospace">'+g.phone+'</span>':'')+
           '</div>'+
           (g.note?'<div class="iq-note-text">📝 '+g.note+'</div>':'')+
+          '<div style="display:flex;gap:5px;margin-top:6px;flex-wrap:wrap">'+
+            (g.sent
+              ? '<button class="iq-wa done iq-undo" data-qi="'+realIdx+'">✓ Undo</button>'
+              : g.skipped
+                ? '<button class="iq-unskip" data-qi="'+realIdx+'" style="padding:4px 8px;font-size:9px;background:none;border:1px solid var(--border);cursor:pointer;font-family:var(--sans);color:var(--muted)">Restore</button>'
+                : '<button class="iq-mark-skip" data-qi="'+realIdx+'" style="padding:4px 8px;font-size:9px;background:none;border:1px solid var(--border);cursor:pointer;font-family:var(--sans);color:var(--muted)">Skip</button>'
+            )+
+            '<button class="iq-note-btn'+( g.note?' has-note':'')+'" data-qi="'+realIdx+'">'+( g.note?'📝 Edit note':'+ Note')+'</button>'+
+            '<button class="iq-followup-btn'+( g.followup?' flagged':'')+'" data-qi="'+realIdx+'">'+( g.followup?'🔔 Flagged':'⚐ Follow up')+'</button>'+
+            '<button class="iq-remove" data-qi="'+realIdx+'" style="background:none;border:none;color:#ccc;font-size:14px;cursor:pointer;padding:2px 4px">✕</button>'+
+          '</div>'+
         '</div>'+
-        (g.phone?'<div class="iq-phone">'+g.phone+'</div>':'')+
-        '<span class="chip '+senderClass+'" style="flex-shrink:0">'+g.sender+'</span>'+
-        (g.sent
-          ? '<button class="iq-wa done iq-undo" data-qi="'+realIdx+'">✓ Undo</button>'
-          : g.skipped
-            ? '<button class="iq-unskip" data-qi="'+realIdx+'" style="padding:4px 8px;font-size:9px;background:none;border:1px solid var(--border);cursor:pointer;font-family:var(--sans);color:var(--muted)">Restore</button>'
-            : '<button class="iq-mark-skip" data-qi="'+realIdx+'" title="Mark as not needed" style="padding:4px 8px;font-size:9px;background:none;border:1px solid var(--border);cursor:pointer;font-family:var(--sans);color:var(--muted)">Skip</button>'
-        )+
-        '<button class="iq-note-btn'+( g.note?' has-note':'')+'" data-qi="'+realIdx+'" title="Add note">'+( g.note?'📝':'+ Note')+'</button>'+
-        '<button class="iq-followup-btn'+( g.followup?' flagged':'')+'" data-qi="'+realIdx+'" title="Flag for follow-up">'+( g.followup?'🔔':'⚐')+'</button>'+
-        '<button class="iq-remove" data-qi="'+realIdx+'" title="Remove from list" style="background:none;border:none;color:#ccc;font-size:14px;cursor:pointer;padding:4px">✕</button>'+
       '</div>';
     }
 
@@ -1133,6 +1157,7 @@ function renderImportQueue(){
         e.stopPropagation();
         var qi = parseInt(this.dataset.qi);
         if(importQueue[qi]) importQueue[qi].followup = !importQueue[qi].followup;
+        saveGuestMeta();
         renderRows(filter); updateGroupBar(); renderStats();
       });
     });
@@ -1281,6 +1306,7 @@ async function doSync(){
       g.lang = g.lang||'en';
       return g;
     });
+    applyGuestMeta();
     selectedIdxs=[];
     var syncTime = new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short'}) + ' · ' + new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
     try{ localStorage.setItem('ww_last_sync', syncTime); }catch(e){}
@@ -1328,6 +1354,7 @@ noteModalSave.addEventListener('click', function(){
   var g = importQueue[noteTargetIdx];
   if(g) g.note = noteModalText.value.trim();
   noteModal.style.display = 'none';
+  saveGuestMeta();
   renderImportQueue();
 });
 noteModal.addEventListener('click', function(e){ if(e.target===noteModal) noteModal.style.display='none'; });
@@ -1404,7 +1431,7 @@ function renderStats() {
 </script>
 <div style="margin:32px 0 12px;padding:12px 16px;background:#f5f0ea;border-radius:8px;font-size:10px;color:#a09080;font-family:monospace;line-height:1.7">
   <strong style="font-size:10px;letter-spacing:.06em;color:#7a6b5e">FILE INFO</strong><br>
-  📄 invite-generator.html — updated 05 Jun 2026, 21:28<br>
+  📄 invite-generator.html — updated 05 Jun 2026, 21:35<br>
   ☁️ cloudflare-worker.js — <a href="https://guestlist.elnur-agha.workers.dev/" style="color:#7a6b5e">guestlist.elnur-agha.workers.dev</a><br>
   🌐 BASE URL: <a href="https://www.arinaelnur.de/" style="color:#7a6b5e">arinaelnur.de</a><br>
   📅 Wedding: 16 October 2026 · Schlosskirche Düsseldorf · Rheinliebe am Deich<br>
