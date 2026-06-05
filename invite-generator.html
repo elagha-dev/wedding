@@ -327,16 +327,6 @@ input::placeholder{color:#c0b5aa}
   </div><!-- /outCardBody -->
 </div>
 
-<div class="card" id="statsCard" style="display:none">
-  <div class="slabel" id="statsToggle" style="cursor:pointer;user-select:none;display:flex;align-items:center;justify-content:space-between">
-    Dashboard
-    <span id="statsChevron" style="font-size:11px;transition:transform .2s">▲</span>
-  </div>
-  <div id="statsBody">
-    <div class="stats-grid" id="statsGrid"></div>
-  </div>
-</div>
-
 <div class="card">
   <div class="slabel">Sync from Notion</div>
   <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:14px">
@@ -347,6 +337,9 @@ input::placeholder{color:#c0b5aa}
     <button class="genbtn" id="syncBtn" style="width:auto;padding:13px 20px;white-space:nowrap">⟳ Sync</button>
   </div>
   <div id="syncStatus" style="font-size:11px;color:var(--muted);margin-bottom:10px"></div>
+  <div id="statsInline" style="display:none;margin-bottom:14px">
+    <div class="stats-grid" id="statsGrid"></div>
+  </div>
   <div id="importQueue" style="display:none">
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">
       <div class="filter-bar" id="importFilterBar" style="margin-bottom:0;flex:1"></div>
@@ -393,12 +386,14 @@ input::placeholder{color:#c0b5aa}
 </div>
 
 <div class="card" id="trackerCard">
-  <div class="tracker-hdr">
-    <div class="slabel" style="margin-bottom:0;flex:1">Tracker</div>
-    <button class="clrbtn" id="clearBtn">Clear all</button>
+  <div class="tracker-hdr" id="trackerToggle" style="cursor:pointer;user-select:none">
+    <div class="slabel" style="margin-bottom:0;flex:1">Tracker <span id="trackerChevron" style="font-size:11px;transition:transform .2s;margin-left:6px">▼</span></div>
+    <button class="clrbtn" id="clearBtn" onclick="event.stopPropagation()">Clear all</button>
   </div>
+  <div id="trackerBody" style="display:none">
   <div id="trackerSummary" style="display:none"></div>
   <ul class="hlist" id="hlist"></ul>
+  </div><!-- /trackerBody -->
 </div>
 
 <script>
@@ -599,6 +594,7 @@ function flash(btn,resetLabel){
 var trackerFilter = 'all';
 function renderTracker(){
   var list=document.getElementById('hlist');
+  var trackerBodyEl=document.getElementById('trackerBody');
   if(!mem.length){
     document.getElementById('trackerSummary').style.display='none';
     list.innerHTML='<li class="empty">No invites yet — generate your first above ↑</li>';
@@ -760,7 +756,7 @@ function saveGuestMeta(){
   try{
     var meta = {};
     importQueue.forEach(function(g){
-      if(g.note || g.followup) meta[g.name] = { note: g.note||'', followup: !!g.followup };
+      if(g.note || g.followup || g.skipped) meta[g.name] = { note: g.note||'', followup: !!g.followup, skipped: !!g.skipped };
     });
     localStorage.setItem('ww_guest_meta', JSON.stringify(meta));
   }catch(e){}
@@ -771,7 +767,11 @@ function loadGuestMeta(){
 function applyGuestMeta(){
   var meta = loadGuestMeta();
   importQueue.forEach(function(g){
-    if(meta[g.name]){ g.note = meta[g.name].note; g.followup = meta[g.name].followup; }
+    if(meta[g.name]){
+      g.note = meta[g.name].note;
+      g.followup = meta[g.name].followup;
+      g.skipped = meta[g.name].skipped;
+    }
   });
 }
 
@@ -979,7 +979,9 @@ function renderImportQueue(){
   }
 
   function renderRows(filter){
-    var items = filter==='all' ? importQueue : importQueue.filter(function(g){ return g.sender===filter; });
+    var items = filter==='followup'
+      ? importQueue.filter(function(g){ return g.followup; })
+      : filter==='all' ? importQueue : importQueue.filter(function(g){ return g.sender===filter; });
     // Apply search filter
     if(searchQuery) {
       items = items.filter(function(g){ return g.name && g.name.toLowerCase().indexOf(searchQuery) > -1; });
@@ -1032,16 +1034,17 @@ function renderImportQueue(){
           (g.note?'<div class="iq-note-text">📝 '+g.note+'</div>':'')+
           '<div style="display:flex;gap:5px;margin-top:6px;flex-wrap:wrap">'+
             (g.sent
-              ? '<button class="iq-wa done iq-undo" data-qi="'+realIdx+'">✓ Undo</button>'
+              ? '<button class="iq-wa done iq-undo" data-qi="'+realIdx+'">✓ Sent</button>'
               : g.skipped
                 ? '<button class="iq-unskip" data-qi="'+realIdx+'" style="padding:4px 8px;font-size:9px;background:none;border:1px solid var(--border);cursor:pointer;font-family:var(--sans);color:var(--muted)">Restore</button>'
-                : '<button class="iq-mark-skip" data-qi="'+realIdx+'" style="padding:4px 8px;font-size:9px;background:none;border:1px solid var(--border);cursor:pointer;font-family:var(--sans);color:var(--muted)">Skip</button>'
+                : '<button class="iq-send-single iq-wa" data-qi="'+realIdx+'" style="padding:4px 10px;font-size:9px">💬 Send</button>'+
+                  '<button class="iq-mark-skip" data-qi="'+realIdx+'" style="padding:4px 8px;font-size:9px;background:none;border:1px solid var(--border);cursor:pointer;font-family:var(--sans);color:var(--muted)">Skip</button>'
             )+
             '<button class="iq-note-btn'+( g.note?' has-note':'')+'" data-qi="'+realIdx+'">'+( g.note?'📝 Edit note':'+ Note')+'</button>'+
             '<button class="iq-followup-btn'+( g.followup?' flagged':'')+'" data-qi="'+realIdx+'">'+( g.followup?'🔔 Flagged':'⚐ Follow up')+'</button>'+
           '</div>'+
         '</div>'+
-        '<button class="iq-remove" data-qi="'+realIdx+'" style="position:absolute;top:6px;right:6px;background:none;border:none;color:#ccc;font-size:14px;cursor:pointer;padding:2px 4px;line-height:1">✕</button>'+
+        '<button class="iq-remove" data-qi="'+realIdx+'" style="position:absolute;top:8px;right:8px;background:none;border:none;color:#aaa;font-size:16px;cursor:pointer;padding:0;line-height:1;z-index:2">✕</button>'+
       '</div>';
     }
 
@@ -1124,6 +1127,7 @@ function renderImportQueue(){
         e.stopPropagation();
         var qi = parseInt(this.dataset.qi);
         if(importQueue[qi]){ importQueue[qi].skipped=true; selectedIdxs=selectedIdxs.filter(function(i){return i!==qi;}); }
+        saveGuestMeta();
         renderRows(filter); updateGroupBar();
       });
     });
@@ -1134,7 +1138,41 @@ function renderImportQueue(){
         e.stopPropagation();
         var qi = parseInt(this.dataset.qi);
         if(importQueue[qi]) importQueue[qi].skipped=false;
+        saveGuestMeta();
         renderRows(filter); updateGroupBar();
+      });
+    });
+
+    // Single send button
+    listEl.querySelectorAll('.iq-send-single').forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        var qi = parseInt(this.dataset.qi);
+        var g = importQueue[qi]; if(!g) return;
+        var workerUrl = document.getElementById('workerUrl').value.trim();
+        var url = buildUrl(g.name, '', g.type, g.lang||'en');
+        var msg = buildMsg(firstName(g.name), g.type, g.lang||'en', url);
+        var clean = (g.phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');
+        var waUrl = clean
+          ? 'https://wa.me/'+clean+'?text='+encodeURIComponent(msg)
+          : 'https://wa.me/?text='+encodeURIComponent(msg);
+        window.open(waUrl,'_blank');
+        g.sent = true;
+        if(workerUrl){
+          fetch(workerUrl+'/sent',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:g.name})}).catch(function(){});
+        }
+        // Add to tracker
+        var ll = {en:'🇬🇧 EN',de:'🇩🇪 DE',ru:'🇷🇺 RU'};
+        var existing = mem.findIndex(function(h){ return h.url===url; });
+        if(existing === -1){
+          mem.unshift({id:Date.now(),name:firstName(g.name),type:g.type,lang:g.lang||'en',
+            ll:ll[g.lang||'en']||'EN',url:url,msg:msg,phone:g.phone||'',
+            isCouple:false,hasParty:g.type==='ceremony-party-single'||g.type==='couple-party',
+            sender:g.sender,created:dt(),tracked:{linkCopied:null,msgCopied:null,waSent:ts()}});
+        } else {
+          mem[existing].tracked.waSent = ts();
+        }
+        save(); renderTracker(); renderRows(filter); updateGroupBar(); renderStats();
       });
     });
 
@@ -1177,8 +1215,8 @@ function renderImportQueue(){
   }
 
   // Filter bar
-  filterBarEl.innerHTML = ['all','Arina','Elnur'].map(function(s){
-    return '<button class="fbtn'+(importFilter===s?' on':'')+'" data-f="'+s+'">'+(s==='all'?'All':s)+'</button>';
+  filterBarEl.innerHTML = ['all','Arina','Elnur','followup'].map(function(s){
+    return '<button class="fbtn'+(importFilter===s?' on':'')+'" data-f="'+s+'">'+(s==='all'?'All':s==='followup'?'🔔 Follow Up':s)+'</button>';
   }).join('');
   filterBarEl.querySelectorAll('.fbtn').forEach(function(b){
     b.addEventListener('click', function(){
@@ -1387,9 +1425,9 @@ document.getElementById('exportBtn').addEventListener('click', function(){
 
 // ── STATS DASHBOARD ───────────────────────────────────────────
 function renderStats() {
-  var card = document.getElementById('statsCard');
+  var card = document.getElementById('statsInline');
   var grid = document.getElementById('statsGrid');
-  if(!importQueue.length && !mem.length){ card.style.display='none'; return; }
+  if(!importQueue.length){ card.style.display='none'; return; }
   card.style.display='';
 
   var total = importQueue.length;
@@ -1410,15 +1448,15 @@ function renderStats() {
     '<div class="stat-box blue"><div class="stat-num">'+elnur+'</div><div class="stat-lbl">Elnur — Pending</div></div>';
 }
 
-// Stats collapsible
+// Tracker collapsible
 (function(){
-  var toggle = document.getElementById('statsToggle');
+  var toggle = document.getElementById('trackerToggle');
   if(!toggle) return;
-  var open = true;
+  var open = false;
   toggle.addEventListener('click', function(){
     open = !open;
-    document.getElementById('statsBody').style.display = open ? '' : 'none';
-    document.getElementById('statsChevron').style.transform = open ? '' : 'rotate(180deg)';
+    document.getElementById('trackerBody').style.display = open ? '' : 'none';
+    document.getElementById('trackerChevron').style.transform = open ? 'rotate(180deg)' : '';
   });
 })();
 
@@ -1426,7 +1464,7 @@ function renderStats() {
 </script>
 <div style="margin:32px 0 12px;padding:12px 16px;background:#f5f0ea;border-radius:8px;font-size:10px;color:#a09080;font-family:monospace;line-height:1.7">
   <strong style="font-size:10px;letter-spacing:.06em;color:#7a6b5e">FILE INFO</strong><br>
-  📄 invite-generator.html — updated 05 Jun 2026, 21:45<br>
+  📄 invite-generator.html — updated 05 Jun 2026, 21:57<br>
   ☁️ cloudflare-worker.js — <a href="https://guestlist.elnur-agha.workers.dev/" style="color:#7a6b5e">guestlist.elnur-agha.workers.dev</a><br>
   🌐 BASE URL: <a href="https://www.arinaelnur.de/" style="color:#7a6b5e">arinaelnur.de</a><br>
   📅 Wedding: 16 October 2026 · Schlosskirche Düsseldorf · Rheinliebe am Deich<br>
