@@ -222,6 +222,46 @@ input::placeholder{color:#c0b5aa}
   .pipeline{grid-template-columns:repeat(3,1fr);gap:4px}
   .pip-step{padding:7px 4px}
 }
+
+/* ── NEW FEATURES CSS ─────────────────────────────────────── */
+/* Search bar */
+.search-bar{display:flex;gap:8px;margin-bottom:10px}
+.search-input{flex:1;font-family:var(--sans);font-size:12px;padding:7px 11px;border:1px solid var(--border);background:var(--bg);color:var(--ink);outline:none}
+.search-input:focus{border-color:var(--accent)}
+
+/* Note & follow-up on iq-row */
+.iq-note-btn{padding:3px 7px;font-size:9px;background:none;border:1px solid var(--border);cursor:pointer;font-family:var(--sans);color:var(--muted);white-space:nowrap}
+.iq-note-btn:hover{border-color:var(--accent);color:var(--accent)}
+.iq-note-btn.has-note{border-color:var(--al);color:var(--amber)}
+.iq-followup-btn{padding:3px 7px;font-size:9px;background:none;border:1px solid var(--border);cursor:pointer;font-family:var(--sans);color:var(--muted);white-space:nowrap}
+.iq-followup-btn.flagged{background:#fff3e0;border-color:#e67e22;color:#e67e22}
+.iq-note-text{font-size:10px;color:var(--amber);margin-top:3px;font-style:italic}
+
+/* Note modal */
+.note-modal-backdrop{position:fixed;inset:0;background:rgba(42,32,26,.45);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px}
+.note-modal{background:var(--card);width:100%;max-width:420px;padding:22px 20px 20px;border-top:2px solid var(--accent)}
+.note-modal textarea{width:100%;height:80px;font-family:var(--sans);font-size:13px;padding:9px 11px;border:1px solid var(--border);background:var(--bg);color:var(--ink);resize:none;outline:none;margin:10px 0}
+.note-modal textarea:focus{border-color:var(--accent)}
+.note-modal-actions{display:flex;gap:8px}
+.note-modal-save{flex:1;padding:9px;background:var(--accent);color:#fbf6f0;border:none;font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
+.note-modal-cancel{padding:9px 16px;background:none;border:1px solid var(--border);font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);cursor:pointer}
+
+/* Export button */
+.export-btn{padding:5px 12px;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--border);background:var(--bg);color:var(--muted);cursor:pointer;font-family:var(--sans);transition:all .13s;white-space:nowrap}
+.export-btn:hover{border-color:var(--accent);color:var(--accent);background:#fbf6f0}
+
+/* Follow-up badge in tracker */
+.chip-followup{background:#fff3e0;color:#e67e22}
+
+/* Stats dashboard */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.stat-box{background:var(--bg);border:1px solid var(--border);padding:12px 14px;text-align:center}
+.stat-num{font-family:var(--serif);font-size:28px;font-weight:300;line-height:1;color:var(--ink)}
+.stat-lbl{font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:3px}
+.stat-box.green .stat-num{color:var(--green)}
+.stat-box.amber .stat-num{color:var(--amber)}
+.stat-box.blue .stat-num{color:#2a4a8a}
+.stat-box.red .stat-num{color:#c0392b}
 </style>
 </head>
 <body>
@@ -309,6 +349,10 @@ input::placeholder{color:#c0b5aa}
       <select class="group-dropdown" id="groupDropdown" style="display:none">
         <option value="">All groups</option>
       </select>
+      <button class="export-btn" id="exportBtn">⬇ CSV</button>
+    </div>
+    <div class="search-bar">
+      <input class="search-input" id="searchInput" type="text" placeholder="🔍  Search guest name…" />
     </div>
     <div class="group-send-bar" id="groupSendBar">
       <span class="group-send-count" id="groupSendCount">0 selected</span>
@@ -322,6 +366,18 @@ input::placeholder{color:#c0b5aa}
   </div>
 </div>
 
+<!-- Note modal -->
+<div class="note-modal-backdrop" id="noteModal" style="display:none">
+  <div class="note-modal">
+    <div class="phone-modal-title" id="noteModalTitle">Add Note</div>
+    <textarea id="noteModalText" placeholder="e.g. No WhatsApp, sending by post…"></textarea>
+    <div class="note-modal-actions">
+      <button class="note-modal-cancel" id="noteModalCancel">Cancel</button>
+      <button class="note-modal-save" id="noteModalSave">Save Note</button>
+    </div>
+  </div>
+</div>
+
 <!-- Phone picker modal -->
 <div class="phone-modal-backdrop" id="phoneModal" style="display:none">
   <div class="phone-modal">
@@ -329,6 +385,16 @@ input::placeholder{color:#c0b5aa}
     <div class="phone-modal-sub" id="phoneModalSub"></div>
     <div id="phoneModalOptions"></div>
     <button class="phone-modal-cancel" id="phoneModalCancel">Cancel</button>
+  </div>
+</div>
+
+<div class="card" id="statsCard" style="display:none">
+  <div class="slabel" id="statsToggle" style="cursor:pointer;user-select:none;display:flex;align-items:center;justify-content:space-between">
+    Dashboard
+    <span id="statsChevron" style="font-size:11px;transition:transform .2s">▲</span>
+  </div>
+  <div id="statsBody">
+    <div class="stats-grid" id="statsGrid"></div>
   </div>
 </div>
 
@@ -382,10 +448,14 @@ function firstName(name){
 }
 
 function buildUrl(p1,p2,type,lang){
-  var q=new URLSearchParams();
-  if(p1) q.set('p1',firstName(p1));
-  if(p2) q.set('p2',firstName(p2));
-  if(type==='ceremony-party-single'||type==='couple-party') q.set('party','1');
+  var n1 = firstName(p1).toLowerCase();
+  var n2 = p2 ? firstName(p2).toLowerCase() : '';
+  var isParty = type==='ceremony-party-single'||type==='couple-party';
+  // Build pretty ?w= URL
+  var w = n2 ? n1+'-'+n2 : n1;
+  var q = new URLSearchParams();
+  q.set('w', w);
+  if(isParty) q.set('v','1');
   if(lang&&lang!=='en') q.set('lang',lang);
   return BASE+'?'+q.toString();
 }
@@ -896,6 +966,10 @@ function renderImportQueue(){
 
   function renderRows(filter){
     var items = filter==='all' ? importQueue : importQueue.filter(function(g){ return g.sender===filter; });
+    // Apply search filter
+    if(searchQuery) {
+      items = items.filter(function(g){ return g.name && g.name.toLowerCase().indexOf(searchQuery) > -1; });
+    }
 
     // Count last names globally (all senders, unsent/unskipped only) so cross-sender families still group
     var lastNameCountGlobal = {};
@@ -934,7 +1008,9 @@ function renderImportQueue(){
             (g.confirmed?'<span class="chip" style="background:#e8f5e9;color:#2e7d52;font-size:8px">✓ RSVP</span>':'')+
             (g.sent&&g.collectiveWith&&g.collectiveWith.length>1?'<span class="chip" style="background:#e8e0d6;color:#7a6b5e;font-size:8px">Group</span>':'')+
             (g.skipped?'<span class="chip" style="background:#e8e0d6;color:#7a6b5e;font-size:8px">Not needed</span>':'')+
+            (g.followup?'<span class="chip" style="background:#fff3e0;color:#e67e22;font-size:8px">🔔 Follow up</span>':'')+
           '</div>'+
+          (g.note?'<div class="iq-note-text">📝 '+g.note+'</div>':'')+
         '</div>'+
         (g.phone?'<div class="iq-phone">'+g.phone+'</div>':'')+
         '<span class="chip '+senderClass+'" style="flex-shrink:0">'+g.sender+'</span>'+
@@ -944,6 +1020,8 @@ function renderImportQueue(){
             ? '<button class="iq-unskip" data-qi="'+realIdx+'" style="padding:4px 8px;font-size:9px;background:none;border:1px solid var(--border);cursor:pointer;font-family:var(--sans);color:var(--muted)">Restore</button>'
             : '<button class="iq-mark-skip" data-qi="'+realIdx+'" title="Mark as not needed" style="padding:4px 8px;font-size:9px;background:none;border:1px solid var(--border);cursor:pointer;font-family:var(--sans);color:var(--muted)">Skip</button>'
         )+
+        '<button class="iq-note-btn'+( g.note?' has-note':'')+'" data-qi="'+realIdx+'" title="Add note">'+( g.note?'📝':'+ Note')+'</button>'+
+        '<button class="iq-followup-btn'+( g.followup?' flagged':'')+'" data-qi="'+realIdx+'" title="Flag for follow-up">'+( g.followup?'🔔':'⚐')+'</button>'+
         '<button class="iq-remove" data-qi="'+realIdx+'" title="Remove from list" style="background:none;border:none;color:#ccc;font-size:14px;cursor:pointer;padding:4px">✕</button>'+
       '</div>';
     }
@@ -1038,6 +1116,24 @@ function renderImportQueue(){
         var qi = parseInt(this.dataset.qi);
         if(importQueue[qi]) importQueue[qi].skipped=false;
         renderRows(filter); updateGroupBar();
+      });
+    });
+
+    // Note button
+    listEl.querySelectorAll('.iq-note-btn').forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        openNoteModal(parseInt(this.dataset.qi));
+      });
+    });
+
+    // Follow-up flag
+    listEl.querySelectorAll('.iq-followup-btn').forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        var qi = parseInt(this.dataset.qi);
+        if(importQueue[qi]) importQueue[qi].followup = !importQueue[qi].followup;
+        renderRows(filter); updateGroupBar(); renderStats();
       });
     });
 
@@ -1190,6 +1286,7 @@ async function doSync(){
     try{ localStorage.setItem('ww_last_sync', syncTime); }catch(e){}
     statusEl.textContent = '✓ '+importQueue.length+' guests synced · ' + syncTime;
     renderImportQueue();
+    renderStats();
   } catch(e) {
     statusEl.textContent = '✗ Error: '+e.message;
   }
@@ -1203,15 +1300,111 @@ if(workerInput.value) {
 }
 
 document.getElementById('importClear').addEventListener('click', function(){
-  importQueue=[]; selectedIdxs=[]; renderImportQueue();
+  importQueue=[]; selectedIdxs=[]; renderImportQueue(); renderStats();
   document.getElementById('syncStatus').style.display='none';
 });
 
 renderTracker();
+
+// ── NOTE MODAL ────────────────────────────────────────────────
+var noteModal = document.getElementById('noteModal');
+var noteModalText = document.getElementById('noteModalText');
+var noteModalTitle = document.getElementById('noteModalTitle');
+var noteModalSave = document.getElementById('noteModalSave');
+var noteModalCancel = document.getElementById('noteModalCancel');
+var noteTargetIdx = null;
+
+function openNoteModal(qi) {
+  noteTargetIdx = qi;
+  var g = importQueue[qi];
+  noteModalTitle.textContent = (g ? g.name : '') + ' — Note';
+  noteModalText.value = g && g.note ? g.note : '';
+  noteModal.style.display = 'flex';
+  setTimeout(function(){ noteModalText.focus(); }, 50);
+}
+noteModalCancel.addEventListener('click', function(){ noteModal.style.display = 'none'; });
+noteModalSave.addEventListener('click', function(){
+  if(noteTargetIdx === null) return;
+  var g = importQueue[noteTargetIdx];
+  if(g) g.note = noteModalText.value.trim();
+  noteModal.style.display = 'none';
+  renderImportQueue();
+});
+noteModal.addEventListener('click', function(e){ if(e.target===noteModal) noteModal.style.display='none'; });
+
+// ── SEARCH ────────────────────────────────────────────────────
+var searchQuery = '';
+document.getElementById('searchInput').addEventListener('input', function(){
+  searchQuery = this.value.trim().toLowerCase();
+  renderImportQueue();
+});
+
+// ── EXPORT CSV ───────────────────────────────────────────────
+document.getElementById('exportBtn').addEventListener('click', function(){
+  var rows = [['Name','Phone','Type','Sender','Sent','Confirmed','Skipped','Follow Up','Note']];
+  importQueue.forEach(function(g){
+    rows.push([
+      g.name || '',
+      g.phone || '',
+      g.type || '',
+      g.sender || '',
+      g.sent ? 'Yes' : 'No',
+      g.confirmed ? 'Yes' : 'No',
+      g.skipped ? 'Yes' : 'No',
+      g.followup ? 'Yes' : 'No',
+      (g.note || '').replace(/,/g, ';')
+    ]);
+  });
+  var csv = rows.map(function(r){ return r.map(function(c){ return '"'+c+'"'; }).join(','); }).join('\n');
+  var blob = new Blob([csv], {type:'text/csv'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'guest-list-' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+});
+
+// ── STATS DASHBOARD ───────────────────────────────────────────
+function renderStats() {
+  var card = document.getElementById('statsCard');
+  var grid = document.getElementById('statsGrid');
+  if(!importQueue.length && !mem.length){ card.style.display='none'; return; }
+  card.style.display='';
+
+  var total = importQueue.length;
+  var sent = importQueue.filter(function(g){ return g.sent; }).length;
+  var confirmed = importQueue.filter(function(g){ return g.confirmed; }).length;
+  var followup = importQueue.filter(function(g){ return g.followup; }).length;
+  var skipped = importQueue.filter(function(g){ return g.skipped; }).length;
+  var pending = total - sent - skipped;
+  var arina = importQueue.filter(function(g){ return g.sender==='Arina' && !g.sent && !g.skipped; }).length;
+  var elnur = importQueue.filter(function(g){ return g.sender==='Elnur' && !g.sent && !g.skipped; }).length;
+
+  grid.innerHTML =
+    '<div class="stat-box green"><div class="stat-num">'+sent+'</div><div class="stat-lbl">✓ Sent</div></div>'+
+    '<div class="stat-box amber"><div class="stat-num">'+pending+'</div><div class="stat-lbl">⏳ Pending</div></div>'+
+    '<div class="stat-box green"><div class="stat-num">'+confirmed+'</div><div class="stat-lbl">💛 Confirmed RSVP</div></div>'+
+    '<div class="stat-box red"><div class="stat-num">'+followup+'</div><div class="stat-lbl">🔔 Follow Up</div></div>'+
+    '<div class="stat-box blue"><div class="stat-num">'+arina+'</div><div class="stat-lbl">Arina — Pending</div></div>'+
+    '<div class="stat-box blue"><div class="stat-num">'+elnur+'</div><div class="stat-lbl">Elnur — Pending</div></div>';
+}
+
+// Stats collapsible
+(function(){
+  var toggle = document.getElementById('statsToggle');
+  if(!toggle) return;
+  var open = true;
+  toggle.addEventListener('click', function(){
+    open = !open;
+    document.getElementById('statsBody').style.display = open ? '' : 'none';
+    document.getElementById('statsChevron').style.transform = open ? '' : 'rotate(180deg)';
+  });
+})();
+
+
 </script>
 <div style="margin:32px 0 12px;padding:12px 16px;background:#f5f0ea;border-radius:8px;font-size:10px;color:#a09080;font-family:monospace;line-height:1.7">
   <strong style="font-size:10px;letter-spacing:.06em;color:#7a6b5e">FILE INFO</strong><br>
-  📄 invite-generator.html — updated 05 Jun 2026, 07:59<br>
+  📄 invite-generator.html — updated 05 Jun 2026, 21:28<br>
   ☁️ cloudflare-worker.js — <a href="https://guestlist.elnur-agha.workers.dev/" style="color:#7a6b5e">guestlist.elnur-agha.workers.dev</a><br>
   🌐 BASE URL: <a href="https://www.arinaelnur.de/" style="color:#7a6b5e">arinaelnur.de</a><br>
   📅 Wedding: 16 October 2026 · Schlosskirche Düsseldorf · Rheinliebe am Deich<br>

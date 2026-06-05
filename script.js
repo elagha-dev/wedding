@@ -958,13 +958,30 @@ if (bsSubmit) bsSubmit.addEventListener("click", async function() {
 
 
 /* ── PERSONALIZED RSVP ───────────────────────────────────────
-   Single ceremony:       ?p1=Elnur
-   Couple ceremony:       ?p1=Elnur&p2=Arina
-   Single + party:        ?p1=Elnur&party=1
-   Couple + party:        ?p1=Elnur&p2=Arina&party=1
+   Pretty URL (new):      ?w=philipp-doro        (couple, ceremony)
+   Pretty URL + venue:    ?w=philipp-doro&v=1    (couple, full day)
+   Pretty URL single:     ?w=philipp             (single, ceremony)
+   Pretty URL single+v:   ?w=philipp&v=1         (single, full day)
+   Legacy still works:    ?p1=Elnur&p2=Arina&party=1
    ─────────────────────────────────────────────────────────── */
 (function() {
   var params = new URLSearchParams(window.location.search);
+
+  // ── Pretty ?w= URL decoding ──────────────────────────────
+  var w = (params.get('w') || '').trim();
+  if (w) {
+    var parts = w.split('-');
+    // capitalise each part
+    var cap = function(s){ return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase(); };
+    if (parts.length >= 2) {
+      params.set('p1', cap(parts[0]));
+      params.set('p2', cap(parts.slice(1).join('-')));
+    } else {
+      params.set('p1', cap(parts[0]));
+    }
+    if (params.get('v') === '1') params.set('party', '1');
+  }
+
   var p1     = (params.get('p1')   || '').trim();
   var p2     = (params.get('p2')   || '').trim();
   var name   = (params.get('name') || '').trim();
