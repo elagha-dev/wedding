@@ -760,6 +760,7 @@ var importQueue = [];
 var selectedIdxs = [];
 var importFilter = 'all';
 var groupFilter = '';
+var currentRenderFilter = 'all'; // tracks active filter for use outside renderRows
 
 function saveWorkerUrl(url){ try{ localStorage.setItem('ww_url', url); }catch(e){} }
 function loadWorkerUrl(){ try{ return localStorage.getItem('ww_url')||''; }catch(e){ return ''; } }
@@ -985,6 +986,7 @@ function renderImportQueue(){
   }
 
   function renderRows(filter){
+    currentRenderFilter = filter;
     var items = filter==='followup'
       ? importQueue.filter(function(g){ return g.followup; })
       : filter==='all' ? importQueue : importQueue.filter(function(g){ return g.sender===filter; });
@@ -1166,7 +1168,7 @@ function renderImportQueue(){
         window.open(waUrl,'_blank');
         // Mark as pending (reddish) until confirmed
         g.pendingSent = true;
-        renderRows(filter);
+        renderRows(currentRenderFilter);
         // Show confirmation modal
         showConfirmSent([g], workerUrl, url, msg);
       });
@@ -1174,10 +1176,13 @@ function renderImportQueue(){
 
     // Note button — delegated to avoid duplicate listeners on re-render
     listEl.querySelectorAll('.iq-note-btn').forEach(function(btn){
-      btn.onclick = function(e){
-        e.stopPropagation();
-        openNoteModal(parseInt(this.dataset.qi));
-      };
+      (function(b){
+        b.onclick = function(e){
+          e.stopPropagation();
+          e.preventDefault();
+          openNoteModal(parseInt(b.dataset.qi));
+        };
+      })(btn);
     });
 
     // Follow-up flag
