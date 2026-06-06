@@ -984,24 +984,21 @@ function renderImportQueue(){
       items = items.filter(function(g){ return g.name && g.name.toLowerCase().indexOf(searchQuery) > -1; });
     }
 
-    // Count last names globally — include skipped so skipping one family member
-    // doesn't break the whole family group
+    // Count last names across ALL guests (sent or not) so family grouping stays stable
     var lastNameCountGlobal = {};
     importQueue.forEach(function(g){
-      if(isKidEntry(g.name) || g.sent) return;
+      if(isKidEntry(g.name)) return;
       var ln = lastName(g.name);
       if(ln) lastNameCountGlobal[ln] = (lastNameCountGlobal[ln]||0) + 1;
     });
-
-    // Use global count so cross-sender families (e.g. one Arina, one Elnur) still group correctly
     var lastNameCount = lastNameCountGlobal;
 
-    // Separate kids out — they get their own section at the end
-    var regularItems = items.filter(function(g){ return !isKidEntry(g.name); });
-    var kidItems     = items.filter(function(g){ return isKidEntry(g.name); });
+    // Split into unsent and sent — kids always separate
+    var unsentItems = items.filter(function(g){ return !isKidEntry(g.name) && !g.sent; });
+    var sentItems   = items.filter(function(g){ return !isKidEntry(g.name) && g.sent; });
+    var kidItems    = items.filter(function(g){ return isKidEntry(g.name); });
 
     var html = '';
-    var lastHeader = null;
 
     // Build index map once so indexOf works even after sync rebuilds objects
     var guestIndexMap = new Map();
@@ -1061,36 +1058,66 @@ function renderImportQueue(){
       '</div>';
     }
 
-    // Render regular guests: sort so family members are consecutive, then group
-    var unsortedItems = [];
-    var familyItems = {};
-    regularItems.forEach(function(g){
-      var ln = lastName(g.name);
-      if(ln && lastNameCount[ln] >= 2){
-        if(!familyItems[ln]) familyItems[ln] = [];
-        familyItems[ln].push(g);
-      } else {
-        unsortedItems.push(g);
-      }
-    });
-    Object.keys(familyItems).sort().forEach(function(ln){
-      html += '<div class="iq-family-header">'+ln+'</div>';
-      familyItems[ln].forEach(function(g){ html += renderItem(g, false); });
-    });
-
-    if(unsortedItems.length){
-      html += '<div class="iq-family-header" style="color:var(--muted)">Unsorted</div>';
-      unsortedItems.forEach(function(g){ html += renderItem(g, false); });
+    // Helper: group items into family buckets + unsorted
+    function groupByFamily(arr){
+      var families = {}, solo = [];
+      arr.forEach(function(g){
+        var ln = lastName(g.name);
+        if(ln && lastNameCount[ln] >= 2){
+          if(!families[ln]) families[ln] = [];
+          families[ln].push(g);
+        } else { solo.push(g); }
+      });
+      return { families: families, solo: solo };
     }
 
+    // ── Unsent guests (grouped by family) ──
+    var unsent = groupByFamily(unsentItems);
+    Object.keys(unsent.families).sort().forEach(function(ln){
+      html += '<div class="iq-family-header">'+ln+'</div>';
+      unsent.families[ln].forEach(function(g){ html += renderItem(g, false); });
+    });
+    if(unsent.solo.length){
+      if(Object.keys(unsent.families).length)
+        html += '<div class="iq-family-header" style="color:var(--muted)">Other</div>';
+      unsent.solo.forEach(function(g){ html += renderItem(g, false); });
+    }
+
+    // ── Children ──
     if(kidItems.length){
       html += '<div class="iq-family-header" style="color:#2e7d52">Children</div>';
       kidItems.forEach(function(g){ html += renderItem(g, true); });
     }
 
+    // ── Sent guests (collapsed section at the bottom) ──
+    if(sentItems.length){
+      html += '<div class="iq-family-header gh-sent" style="cursor:pointer;user-select:none" id="sentSectionHdr">✓ Sent ('+sentItems.length+') <span style="font-size:9px;opacity:.6">▼</span></div>';
+      html += '<div id="sentSection">';
+      var sentGrouped = groupByFamily(sentItems);
+      Object.keys(sentGrouped.families).sort().forEach(function(ln){
+        html += '<div class="iq-family-header gh-sent" style="font-size:8px;opacity:.7">'+ln+'</div>';
+        sentGrouped.families[ln].forEach(function(g){ html += renderItem(g, false); });
+      });
+      sentGrouped.solo.forEach(function(g){ html += renderItem(g, false); });
+      html += '</div>';
+    }
+
 
 
     listEl.innerHTML = html;
+
+    // Sent section toggle
+    var sentHdr = listEl.querySelector('#sentSectionHdr');
+    var sentSec = listEl.querySelector('#sentSection');
+    if(sentHdr && sentSec){
+      sentSec.style.display = 'none'; // collapsed by default
+      sentHdr.querySelector('span').textContent = '▶';
+      sentHdr.addEventListener('click', function(){
+        var collapsed = sentSec.style.display === 'none';
+        sentSec.style.display = collapsed ? '' : 'none';
+        sentHdr.querySelector('span').textContent = collapsed ? '▼' : '▶';
+      });
+    }
 
     // Row click → toggle selection (only for unsent, unskipped)
     listEl.querySelectorAll('.iq-row').forEach(function(row){
