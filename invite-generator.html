@@ -171,13 +171,13 @@ input::placeholder{color:#c0b5aa}
 /* Collective invite */
 .iq-row{display:flex;align-items:center;gap:10px;padding:10px 32px 10px 12px;background:var(--bg);border:1px solid var(--border);transition:opacity .2s,background .15s;cursor:pointer;user-select:none;position:relative}
 .iq-row.sent{opacity:.38}
-.iq-row.pending-sent{background:#fff8e1;border-color:#ffe082;opacity:1}
-.iq-row.pending-sent .iq-name{color:#b8860b}
-.inline-confirm{display:flex;gap:6px;align-items:center;margin-top:6px;padding:8px 10px;background:#fff3cd;border:1px solid #ffe082;flex-wrap:wrap}
-.inline-confirm-msg{font-size:11px;font-weight:600;color:#b8860b;flex:1;min-width:120px}
-.inline-confirm-yes{padding:6px 14px;background:#5a3e2b;color:#fff;border:none;font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
-.inline-confirm-resend{padding:6px 12px;background:none;border:1px solid #aaa;font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;color:#777}
-.inline-confirm-no{padding:6px 12px;background:none;border:none;font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;color:#bbb}
+.iq-row.pending-sent{background:#ffe0b2;border-color:#e65100;border-left:3px solid #e65100;opacity:1}
+.iq-row.pending-sent .iq-name{color:#bf360c;font-weight:500}
+.inline-confirm{display:flex;gap:6px;align-items:center;margin-top:8px;padding:8px 10px;background:#e65100;border:none;flex-wrap:wrap}
+.inline-confirm-msg{font-size:11px;font-weight:600;color:#fff;flex:1;min-width:120px}
+.inline-confirm-yes{padding:6px 14px;background:#fff;color:#e65100;border:none;font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
+.inline-confirm-resend{padding:6px 12px;background:none;border:1px solid rgba(255,255,255,.5);font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;color:#fff}
+.inline-confirm-no{padding:6px 12px;background:none;border:none;font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;color:rgba(255,255,255,.6)}
 .iq-row.selected{background:#f5ede4;border-color:var(--al)}
 .iq-check{width:18px;height:18px;border:1.5px solid var(--border);border-radius:0;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .15s;background:var(--card)}
 .iq-row.selected .iq-check{background:var(--accent);border-color:var(--accent);color:#fff}
@@ -909,9 +909,9 @@ function sendGroupInvite(guestList, phone){
   var waUrl=clean
     ?'https://wa.me/'+clean+'?text='+encodeURIComponent(msg)
     :'https://wa.me/?text='+encodeURIComponent(msg);
-  // Open WhatsApp directly, mark pending so inline confirm appears
+  // Open WhatsApp directly, mark pending + auto follow-up
   window.open(waUrl, '_blank');
-  guestList.forEach(function(g){ g.pendingSent=true; });
+  guestList.forEach(function(g){ g.pendingSent=true; g.followup=true; });
   selectedIdxs=[];
   saveGuestMeta();
   renderImportQueue();
@@ -1019,10 +1019,9 @@ function renderImportQueue(){
       var rowClass = 'iq-row'+(g.sent?' sent':'')+(g.skipped?' skipped':'')+(isSelected?' selected':'');
       var inlineConfirm = g.pendingSent
         ? '<div class="inline-confirm">'+
-            '<span class="inline-confirm-msg">✈️ Did you send it to '+g.name+'?</span>'+
-            '<button class="inline-confirm-yes" data-qi="'+realIdx+'">✓ Yes, sent</button>'+
+            '<button class="inline-confirm-yes" data-qi="'+realIdx+'">✓ Sent</button>'+
             '<button class="inline-confirm-resend" data-qi="'+realIdx+'">↺ Resend</button>'+
-            '<button class="inline-confirm-no" data-qi="'+realIdx+'">✕ Cancel</button>'+
+            '<button class="inline-confirm-no" data-qi="'+realIdx+'">✕</button>'+
           '</div>'
         : '';
       return '<div class="'+rowClass+'" data-qi="'+realIdx+'">'+
@@ -1168,10 +1167,12 @@ function renderImportQueue(){
           : 'https://wa.me/?text='+encodeURIComponent(msg);
         // Open WhatsApp directly in new tab — no confirmation prompt
         window.open(waUrl, '_blank');
-        // Mark pending so inline confirm appears
+        // Mark pending + auto follow-up so inline confirm appears
         g.pendingSent = true;
+        g.followup = true;
         saveGuestMeta();
         renderRows(currentRenderFilter);
+        renderStats();
       });
     });
 
@@ -1181,7 +1182,7 @@ function renderImportQueue(){
         e.stopPropagation();
         var qi = parseInt(this.dataset.qi);
         var g = importQueue[qi]; if(!g) return;
-        g.sent = true; g.pendingSent = false;
+        g.sent = true; g.pendingSent = false; g.followup = false;
         var workerUrl = document.getElementById('workerUrl').value.trim();
         if(workerUrl) fetch(workerUrl+'/sent',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({names:[g.name]})}).catch(function(){});
         saveGuestMeta(); renderRows(currentRenderFilter); updateGroupBar(); renderStats();
@@ -1423,26 +1424,27 @@ function openNoteModal(qi) {
 
 // ── HARD RESET ───────────────────────────────────────────────
 document.getElementById('hardResetBtn').addEventListener('click', function(){
-  if(!confirm('Reset everything back to original?\n\nThis clears all notes, flags, skipped state, sent status and tracker history.\n\nContinue?')) return;
-  try{ localStorage.removeItem('ww_guest_meta'); }catch(e){}
-  try{ localStorage.removeItem('ww_pending'); }catch(e){}
-  try{ localStorage.removeItem('ww_history'); }catch(e){}
-  try{ localStorage.removeItem('wt'); }catch(e){}
+  // Nuke all localStorage keys this app uses
+  var keys = ['wt','ww_guest_meta','ww_pending','ww_history','ww_last_sync'];
+  keys.forEach(function(k){ try{ localStorage.removeItem(k); }catch(e){} });
+  // Reset all in-memory state
   importQueue.forEach(function(g){
-    g.note = '';
-    g.followup = false;
-    g.skipped = false;
-    g.pendingSent = false;
-    g.sent = false;
-    g.collectiveWith = null;
+    g.note = ''; g.followup = false; g.skipped = false;
+    g.pendingSent = false; g.sent = false; g.collectiveWith = null;
   });
-  mem = [];
-  selectedIdxs = [];
+  mem = []; cur = null; selectedIdxs = [];
   save();
-  renderImportQueue();
-  renderTracker();
-  renderStats();
-  alert('Reset done.');
+  // Re-render everything
+  try{ renderImportQueue(); }catch(e){}
+  try{ renderTracker(); }catch(e){}
+  try{ renderStats(); }catch(e){}
+  // Hide output card
+  var outCard = document.getElementById('outCard');
+  if(outCard) outCard.style.display = 'none';
+  // Visual feedback on button
+  var btn = document.getElementById('hardResetBtn');
+  if(btn){ btn.textContent = '✓ Reset'; btn.style.color = '#2e7d52'; btn.style.borderColor = '#2e7d52';
+    setTimeout(function(){ btn.textContent = '⚠ Hard Reset'; btn.style.color = '#bbb'; btn.style.borderColor = '#ccc'; }, 2000); }
 });
 
 // ── SEARCH ────────────────────────────────────────────────────
