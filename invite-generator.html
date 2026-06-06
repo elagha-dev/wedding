@@ -742,6 +742,7 @@ var selectedIdxs = [];
 var importFilter = 'all';
 var groupFilter = '';
 var currentRenderFilter = 'all'; // tracks active filter for use outside renderRows
+var renderRows = null; // promoted so openNoteModal can access it
 
 function saveWorkerUrl(url){ try{ localStorage.setItem('ww_url', url); }catch(e){} }
 function loadWorkerUrl(){ try{ return localStorage.getItem('ww_url')||''; }catch(e){ return ''; } }
@@ -903,12 +904,12 @@ function sendGroupInvite(guestList, phone){
   var waUrl=clean
     ?'https://wa.me/'+clean+'?text='+encodeURIComponent(msg)
     :'https://wa.me/?text='+encodeURIComponent(msg);
-  // Mark as pending, open WA, then show confirm modal
+  // Open WhatsApp directly, mark pending so inline confirm appears
+  window.open(waUrl, '_blank');
   guestList.forEach(function(g){ g.pendingSent=true; });
   selectedIdxs=[];
   saveGuestMeta();
   renderImportQueue();
-  setTimeout(function(){ window.location.href = waUrl; }, 100);
 }
 
 // ── Group send button ─────────────────────────────────────────
@@ -964,7 +965,7 @@ function renderImportQueue(){
     return /\b(kid|kids|child|children)\b/i.test(name||'');
   }
 
-  function renderRows(filter){
+  renderRows = function(filter){
     currentRenderFilter = filter;
     var items = filter==='followup'
       ? importQueue.filter(function(g){ return g.followup; })
@@ -1005,7 +1006,16 @@ function renderImportQueue(){
                       : g.type==='couple-ceremony'?'Couple·Ch'
                       : g.type==='ceremony-party-single'?'Full Day'
                       : 'Ceremony';
-      var rowClass = 'iq-row'+(g.sent?' sent':'')+(g.pendingSent?' pending-sent':'')+(g.skipped?' skipped':'')+(isSelected?' selected':'');
+      // pendingSent rows stay fully visible (no gray-out), show inline confirm instead
+      var rowClass = 'iq-row'+(g.sent?' sent':'')+(g.skipped?' skipped':'')+(isSelected?' selected':'');
+      var inlineConfirm = g.pendingSent
+        ? '<div class="inline-confirm">'+
+            '<span class="inline-confirm-msg">✈️ Did you send it to '+g.name+'?</span>'+
+            '<button class="inline-confirm-yes" data-qi="'+realIdx+'">✓ Yes, sent</button>'+
+            '<button class="inline-confirm-resend" data-qi="'+realIdx+'">↺ Resend</button>'+
+            '<button class="inline-confirm-no" data-qi="'+realIdx+'">✕ Cancel</button>'+
+          '</div>'
+        : '';
       return '<div class="'+rowClass+'" data-qi="'+realIdx+'">'+
         '<div class="iq-check">'+(isSelected?'✓':'')+'</div>'+
         '<div style="flex:1;min-width:0">'+
@@ -1023,17 +1033,21 @@ function renderImportQueue(){
             (g.phone?'<span style="font-size:9px;color:var(--muted);font-family:monospace">'+g.phone+'</span>':'')+
           '</div>'+
           (g.note?'<div class="iq-note-text">📝 '+g.note+'</div>':'')+
-          '<div style="display:flex;gap:5px;margin-top:6px;flex-wrap:wrap">'+
-            (g.sent
-              ? '<button class="iq-wa done iq-undo" data-qi="'+realIdx+'">✓ Sent</button>'
-              : g.skipped
-                ? '<button class="iq-unskip" data-qi="'+realIdx+'" style="padding:4px 8px;font-size:9px;background:none;border:1px solid var(--border);cursor:pointer;font-family:var(--sans);color:var(--muted)">Restore</button>'
-                : '<button class="iq-send-single iq-wa" data-qi="'+realIdx+'" style="padding:4px 10px;font-size:9px">💬 Send</button>'+
-                  '<button class="iq-mark-skip" data-qi="'+realIdx+'" style="padding:4px 8px;font-size:9px;background:none;border:1px solid var(--border);cursor:pointer;font-family:var(--sans);color:var(--muted)">Skip</button>'
-            )+
-            '<button class="iq-note-btn'+( g.note?' has-note':'')+'" data-qi="'+realIdx+'">'+( g.note?'📝 Edit note':'+ Note')+'</button>'+
-            '<button class="iq-followup-btn'+( g.followup?' flagged':'')+'" data-qi="'+realIdx+'">'+( g.followup?'🔔 Flagged':'⚐ Follow up')+'</button>'+
-          '</div>'+
+          inlineConfirm+
+          (!g.pendingSent
+            ? '<div style="display:flex;gap:5px;margin-top:6px;flex-wrap:wrap">'+
+                (g.sent
+                  ? '<button class="iq-wa done iq-undo" data-qi="'+realIdx+'">✓ Sent</button>'
+                  : g.skipped
+                    ? '<button class="iq-unskip" data-qi="'+realIdx+'" style="padding:4px 8px;font-size:9px;background:none;border:1px solid var(--border);cursor:pointer;font-family:var(--sans);color:var(--muted)">Restore</button>'
+                    : '<button class="iq-send-single iq-wa" data-qi="'+realIdx+'" style="padding:4px 10px;font-size:9px">💬 Send</button>'+
+                      '<button class="iq-mark-skip" data-qi="'+realIdx+'" style="padding:4px 8px;font-size:9px;background:none;border:1px solid var(--border);cursor:pointer;font-family:var(--sans);color:var(--muted)">Skip</button>'
+                )+
+                '<button class="iq-note-btn'+( g.note?' has-note':'')+'" data-qi="'+realIdx+'">'+( g.note?'📝 Edit note':'+ Note')+'</button>'+
+                '<button class="iq-followup-btn'+( g.followup?' flagged':'')+'" data-qi="'+realIdx+'">'+( g.followup?'🔔 Flagged':'⚐ Follow up')+'</button>'+
+              '</div>'
+            : ''
+          )+
         '</div>'+
         '<button class="iq-remove" data-qi="'+realIdx+'" style="position:absolute;top:6px;right:8px;background:none;border:none;color:#888;font-size:18px;font-weight:300;cursor:pointer;padding:0;line-height:1;z-index:2">×</button>'+
       '</div>';
@@ -1147,10 +1161,12 @@ function renderImportQueue(){
         var waUrl = clean
           ? 'https://wa.me/'+clean+'?text='+encodeURIComponent(msg)
           : 'https://wa.me/?text='+encodeURIComponent(msg);
+        // Open WhatsApp directly in new tab — no confirmation prompt
+        window.open(waUrl, '_blank');
+        // Mark pending so inline confirm appears
         g.pendingSent = true;
         saveGuestMeta();
         renderRows(currentRenderFilter);
-        setTimeout(function(){ window.location.href = waUrl; }, 100);
       });
     });
 
@@ -1177,7 +1193,7 @@ function renderImportQueue(){
         var msg = buildMsg(firstName(g.name), g.type, g.lang||'en', url);
         var clean = (g.phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');
         var waUrl = clean ? 'https://wa.me/'+clean+'?text='+encodeURIComponent(msg) : 'https://wa.me/?text='+encodeURIComponent(msg);
-        window.location.href = waUrl;
+        window.open(waUrl, '_blank');
       };
     });
 
