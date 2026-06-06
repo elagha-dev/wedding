@@ -997,7 +997,8 @@ function renderImportQueue(){
     // Split into unsent and sent — kids always separate
     var unsentItems = items.filter(function(g){ return !isKidEntry(g.name) && !g.sent; });
     var sentItems   = items.filter(function(g){ return !isKidEntry(g.name) && g.sent; });
-    var kidItems    = items.filter(function(g){ return isKidEntry(g.name); });
+    var kidItems    = items.filter(function(g){ return isKidEntry(g.name) && !g.sent; });
+    var sentKidItems= items.filter(function(g){ return isKidEntry(g.name) && g.sent; });
 
     var html = '';
 
@@ -1092,10 +1093,14 @@ function renderImportQueue(){
     }
 
     // ── Sent guests (expanded at bottom) ──
-    if(sentItems.length){
-      html += '<div class="iq-family-header gh-sent" style="cursor:pointer;user-select:none" id="sentSectionHdr">✓ Sent ('+sentItems.length+') <span style="font-size:9px;opacity:.6">▼</span></div>';
+    if(sentItems.length || sentKidItems.length){
+      html += '<div class="iq-family-header gh-sent" style="cursor:pointer;user-select:none" id="sentSectionHdr">✓ Sent ('+(sentItems.length+sentKidItems.length)+') <span style="font-size:9px;opacity:.6">▼</span></div>';
       html += '<div id="sentSection">';
       renderGrouped(sentItems, 'gh-sent', 'opacity:.8');
+      if(sentKidItems.length){
+        html += '<div class="iq-family-header gh-sent" style="opacity:.8">Children</div>';
+        sentKidItems.forEach(function(g){ html += renderItem(g, true); });
+      }
       html += '</div>';
     }
 
@@ -1148,7 +1153,7 @@ function renderImportQueue(){
             body:JSON.stringify({names: isCollective ? g.collectiveWith : [g.name]})
           }).catch(function(){});
         }
-        save(); renderTracker(); renderRows(filter); updateGroupBar(); renderStats();
+        save(); saveGuestMeta(); renderTracker(); renderRows(filter); updateGroupBar(); renderStats();
       });
     });
 
