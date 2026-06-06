@@ -169,8 +169,8 @@ input::placeholder{color:#c0b5aa}
 .group-dropdown:focus{border-color:var(--ink)}
 
 /* Collective invite */
-.iq-row{display:flex;align-items:center;gap:10px;padding:10px 32px 10px 12px;background:var(--bg);border:1px solid var(--border);transition:opacity .2s,background .15s;cursor:pointer;user-select:none;position:relative}
-.iq-row.sent{opacity:.6}
+.iq-row{display:flex;align-items:center;gap:10px;padding:10px 32px 10px 12px;background:var(--bg);border:1px solid var(--border);transition:opacity .2s,background .15s;cursor:pointer;user-select:none;position:relative;-webkit-tap-highlight-color:transparent}
+.iq-row.sent{opacity:.6;cursor:default}
 .iq-row.pending-sent{background:#ffe0b2;border-color:#e65100;border-left:3px solid #e65100;opacity:1}
 .iq-row.pending-sent .iq-name{color:#bf360c;font-weight:500}
 .inline-confirm{display:flex;gap:6px;align-items:center;margin-top:8px;padding:8px 10px;background:#e65100;border:none;flex-wrap:wrap}
@@ -1132,29 +1132,25 @@ function renderImportQueue(){
 
     // Undo
     listEl.querySelectorAll('.iq-undo').forEach(function(btn){
-      btn.addEventListener('click', function(e){
+      function doUndo(e){
         e.stopPropagation();
-        var qi = parseInt(this.dataset.qi);
+        e.preventDefault();
+        var qi = parseInt(btn.dataset.qi);
         var g  = importQueue[qi]; if(!g) return;
-        var isCollective = g.collectiveWith && g.collectiveWith.length > 1;
-        importQueue.forEach(function(guest){
-          if(g.collectiveWith && g.collectiveWith.indexOf(guest.name)>-1){
-            guest.sent=false; guest.collectiveWith=null;
-          }
-        });
-        if(!isCollective){ g.sent=false; }
-        var url = buildUrl(g.name, '', g.type, g.lang||'en');
-        var existing = mem.findIndex(function(h){ return h.url===url; });
-        if(existing>-1){ mem[existing].tracked.waSent=null; }
-        var workerUrl = document.getElementById('workerUrl').value.trim();
-        if(workerUrl){
-          fetch(workerUrl+'/unsent', {
-            method:'POST', headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({names: isCollective ? g.collectiveWith : [g.name]})
-          }).catch(function(){});
+        g.sent = false;
+        g.pendingSent = false;
+        if(g.collectiveWith){
+          importQueue.forEach(function(guest){
+            if(g.collectiveWith.indexOf(guest.name)>-1){ guest.sent=false; guest.collectiveWith=null; }
+          });
+          g.collectiveWith = null;
         }
-        save(); saveGuestMeta(); renderTracker(); renderRows(filter); updateGroupBar(); renderStats();
-      });
+        saveGuestMeta();
+        renderImportQueue();
+        renderStats();
+      }
+      btn.addEventListener('click', doUndo);
+      btn.addEventListener('touchend', doUndo);
     });
 
     // Mark as skip
