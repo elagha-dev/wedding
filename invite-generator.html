@@ -270,6 +270,7 @@ input::placeholder{color:#c0b5aa}
 .stat-box.amber .stat-num{color:var(--amber)}
 .stat-box.blue .stat-num{color:#2a4a8a}
 .stat-box.red .stat-num{color:#c0392b}
+.stat-box[data-sf]:hover{border-color:var(--accent);box-shadow:0 2px 8px rgba(122,82,54,.12);}
 </style>
 </head>
 <body>
@@ -971,9 +972,13 @@ function renderImportQueue(){
 
   renderRows = function(filter){
     currentRenderFilter = filter;
-    var items = filter==='followup'
-      ? importQueue.filter(function(g){ return g.followup; })
-      : filter==='all' ? importQueue : importQueue.filter(function(g){ return g.sender===filter; });
+    var items;
+    if(filter==='followup')       items = importQueue.filter(function(g){ return g.followup; });
+    else if(filter==='sent')      items = importQueue.filter(function(g){ return g.sent; });
+    else if(filter==='pending')   items = importQueue.filter(function(g){ return !g.sent && !g.skipped; });
+    else if(filter==='Arina')     items = importQueue.filter(function(g){ return g.sender==='Arina'; });
+    else if(filter==='Elnur')     items = importQueue.filter(function(g){ return g.sender==='Elnur'; });
+    else                          items = importQueue;
     // Apply search filter
     if(searchQuery) {
       items = items.filter(function(g){ return g.name && g.name.toLowerCase().indexOf(searchQuery) > -1; });
@@ -1106,10 +1111,6 @@ function renderImportQueue(){
         var qi = parseInt(this.dataset.qi);
         var g  = importQueue[qi]; if(!g) return;
         var isCollective = g.collectiveWith && g.collectiveWith.length > 1;
-        var msg = isCollective
-          ? 'This will unmark '+g.collectiveWith.length+' guests as sent ('+g.collectiveWith.join(', ')+').\n\nContinue?'
-          : 'Unmark "'+g.name+'" as sent?';
-        if(!confirm(msg)) return;
         importQueue.forEach(function(guest){
           if(g.collectiveWith && g.collectiveWith.indexOf(guest.name)>-1){
             guest.sent=false; guest.collectiveWith=null;
@@ -1126,7 +1127,7 @@ function renderImportQueue(){
             body:JSON.stringify({names: isCollective ? g.collectiveWith : [g.name]})
           }).catch(function(){});
         }
-        save(); renderTracker(); renderRows(filter); updateGroupBar();
+        save(); renderTracker(); renderRows(filter); updateGroupBar(); renderStats();
       });
     });
 
@@ -1422,15 +1423,18 @@ function openNoteModal(qi) {
 
 // ── HARD RESET ───────────────────────────────────────────────
 document.getElementById('hardResetBtn').addEventListener('click', function(){
-  if(!confirm('This will delete all notes, follow-up flags, skipped state and tracker history.\n\nGuest sent status (in Cloudflare KV) is NOT affected.\n\nContinue?')) return;
+  if(!confirm('Reset everything back to original?\n\nThis clears all notes, flags, skipped state, sent status and tracker history.\n\nContinue?')) return;
   try{ localStorage.removeItem('ww_guest_meta'); }catch(e){}
   try{ localStorage.removeItem('ww_pending'); }catch(e){}
   try{ localStorage.removeItem('ww_history'); }catch(e){}
+  try{ localStorage.removeItem('wt'); }catch(e){}
   importQueue.forEach(function(g){
     g.note = '';
     g.followup = false;
     g.skipped = false;
     g.pendingSent = false;
+    g.sent = false;
+    g.collectiveWith = null;
   });
   mem = [];
   selectedIdxs = [];
@@ -1438,7 +1442,7 @@ document.getElementById('hardResetBtn').addEventListener('click', function(){
   renderImportQueue();
   renderTracker();
   renderStats();
-  alert('Reset done. Sent status in Cloudflare is unchanged.');
+  alert('Reset done.');
 });
 
 // ── SEARCH ────────────────────────────────────────────────────
@@ -1489,12 +1493,31 @@ function renderStats() {
   var elnur = importQueue.filter(function(g){ return g.sender==='Elnur' && !g.sent && !g.skipped; }).length;
 
   grid.innerHTML =
-    '<div class="stat-box green"><div class="stat-num">'+sent+'</div><div class="stat-lbl">✓ Sent</div></div>'+
-    '<div class="stat-box amber"><div class="stat-num">'+pending+'</div><div class="stat-lbl">⏳ Pending</div></div>'+
-    '<div class="stat-box green"><div class="stat-num">'+confirmed+'</div><div class="stat-lbl">💛 Confirmed RSVP</div></div>'+
-    '<div class="stat-box red"><div class="stat-num">'+followup+'</div><div class="stat-lbl">🔔 Follow Up</div></div>'+
-    '<div class="stat-box blue"><div class="stat-num">'+arina+'</div><div class="stat-lbl">Arina — Pending</div></div>'+
-    '<div class="stat-box blue"><div class="stat-num">'+elnur+'</div><div class="stat-lbl">Elnur — Pending</div></div>';
+    '<div class="stat-box green" data-sf="sent" style="cursor:pointer"><div class="stat-num">'+sent+'</div><div class="stat-lbl">✓ Sent</div></div>'+
+    '<div class="stat-box amber" data-sf="pending" style="cursor:pointer"><div class="stat-num">'+pending+'</div><div class="stat-lbl">⏳ Pending</div></div>'+
+    '<div class="stat-box green" data-sf="followup" style="cursor:pointer"><div class="stat-num">'+confirmed+'</div><div class="stat-lbl">💛 Confirmed RSVP</div></div>'+
+    '<div class="stat-box red" data-sf="followup" style="cursor:pointer"><div class="stat-num">'+followup+'</div><div class="stat-lbl">🔔 Follow Up</div></div>'+
+    '<div class="stat-box blue" data-sf="Arina" style="cursor:pointer"><div class="stat-num">'+arina+'</div><div class="stat-lbl">Arina — Pending</div></div>'+
+    '<div class="stat-box blue" data-sf="Elnur" style="cursor:pointer"><div class="stat-num">'+elnur+'</div><div class="stat-lbl">Elnur — Pending</div></div>';
+
+  // Wire up click-to-filter
+  grid.querySelectorAll('.stat-box[data-sf]').forEach(function(box){
+    box.addEventListener('click', function(){
+      var sf = this.dataset.sf;
+      importFilter = sf;
+      selectedIdxs = [];
+      // Sync the filter bar buttons
+      var filterBarEl = document.getElementById('importFilterBar');
+      if(filterBarEl) filterBarEl.querySelectorAll('.fbtn').forEach(function(b){
+        b.classList.toggle('on', b.dataset.f === sf);
+      });
+      if(renderRows) renderRows(sf);
+      updateGroupBar();
+      // Scroll to the list
+      var queueEl = document.getElementById('importQueue');
+      if(queueEl) queueEl.scrollIntoView({behavior:'smooth', block:'nearest'});
+    });
+  });
 }
 
 // Tracker collapsible
