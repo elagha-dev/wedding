@@ -1058,30 +1058,31 @@ function renderImportQueue(){
       '</div>';
     }
 
-    // Helper: group items into family buckets + unsorted
+    // Group by last name — every guest with a last name gets bucketed,
+    // single-word names go into a nameless bucket rendered without a header
     function groupByFamily(arr){
-      var families = {}, solo = [];
+      var families = {}, noLastName = [];
       arr.forEach(function(g){
         var ln = lastName(g.name);
-        if(ln && lastNameCount[ln] >= 2){
+        if(ln){
           if(!families[ln]) families[ln] = [];
           families[ln].push(g);
-        } else { solo.push(g); }
+        } else { noLastName.push(g); }
       });
-      return { families: families, solo: solo };
+      return { families: families, noLastName: noLastName };
     }
 
-    // ── Unsent guests (grouped by family) ──
-    var unsent = groupByFamily(unsentItems);
-    Object.keys(unsent.families).sort().forEach(function(ln){
-      html += '<div class="iq-family-header">'+ln+'</div>';
-      unsent.families[ln].forEach(function(g){ html += renderItem(g, false); });
-    });
-    if(unsent.solo.length){
-      if(Object.keys(unsent.families).length)
-        html += '<div class="iq-family-header" style="color:var(--muted)">Other</div>';
-      unsent.solo.forEach(function(g){ html += renderItem(g, false); });
+    function renderGrouped(arr, headerClass, headerStyle){
+      var grouped = groupByFamily(arr);
+      Object.keys(grouped.families).sort().forEach(function(ln){
+        html += '<div class="iq-family-header'+(headerClass?' '+headerClass:'')+'"'+(headerStyle?' style="'+headerStyle+'"':'')+'>'+ln+'</div>';
+        grouped.families[ln].forEach(function(g){ html += renderItem(g, false); });
+      });
+      grouped.noLastName.forEach(function(g){ html += renderItem(g, false); });
     }
+
+    // ── Unsent guests ──
+    renderGrouped(unsentItems, '', '');
 
     // ── Children ──
     if(kidItems.length){
@@ -1089,16 +1090,11 @@ function renderImportQueue(){
       kidItems.forEach(function(g){ html += renderItem(g, true); });
     }
 
-    // ── Sent guests (collapsed section at the bottom) ──
+    // ── Sent guests (collapsed at bottom) ──
     if(sentItems.length){
-      html += '<div class="iq-family-header gh-sent" style="cursor:pointer;user-select:none" id="sentSectionHdr">✓ Sent ('+sentItems.length+') <span style="font-size:9px;opacity:.6">▼</span></div>';
-      html += '<div id="sentSection">';
-      var sentGrouped = groupByFamily(sentItems);
-      Object.keys(sentGrouped.families).sort().forEach(function(ln){
-        html += '<div class="iq-family-header gh-sent" style="font-size:8px;opacity:.7">'+ln+'</div>';
-        sentGrouped.families[ln].forEach(function(g){ html += renderItem(g, false); });
-      });
-      sentGrouped.solo.forEach(function(g){ html += renderItem(g, false); });
+      html += '<div class="iq-family-header gh-sent" style="cursor:pointer;user-select:none" id="sentSectionHdr">✓ Sent ('+sentItems.length+') <span style="font-size:9px;opacity:.6">▶</span></div>';
+      html += '<div id="sentSection" style="display:none">';
+      renderGrouped(sentItems, 'gh-sent', 'opacity:.8');
       html += '</div>';
     }
 
@@ -1110,8 +1106,6 @@ function renderImportQueue(){
     var sentHdr = listEl.querySelector('#sentSectionHdr');
     var sentSec = listEl.querySelector('#sentSection');
     if(sentHdr && sentSec){
-      sentSec.style.display = 'none'; // collapsed by default
-      sentHdr.querySelector('span').textContent = '▶';
       sentHdr.addEventListener('click', function(){
         var collapsed = sentSec.style.display === 'none';
         sentSec.style.display = collapsed ? '' : 'none';
