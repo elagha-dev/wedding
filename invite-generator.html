@@ -26,7 +26,7 @@ header h1{font-size:10px;font-weight:600;letter-spacing:.25em;text-transform:upp
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
 .fg{display:flex;flex-direction:column;gap:5px}
 .fg label{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-input{font-family:var(--sans);font-size:14px;padding:9px 12px;border:1px solid var(--border);background:var(--bg);color:var(--ink);outline:none;width:100%;transition:border-color .18s}
+input{font-family:var(--sans);font-size:14px;padding:9px 12px;border:1px solid var(--border);background:var(--bg);color:var(--ink);outline:none;width:100%;transition:border-color .18s;box-sizing:border-box;height:40px}
 input:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(122,82,54,.1)}
 input::placeholder{color:#c0b5aa}
 .tlabel{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:9px;display:block}
@@ -44,6 +44,7 @@ input::placeholder{color:#c0b5aa}
 .lbtn.on{border-color:var(--accent);background:#fbf6f0;color:var(--accent)}
 .genbtn{width:100%;padding:13px;background:var(--accent);color:#fbf6f0;border:none;font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;transition:background .18s}
 .genbtn:hover{background:#8e6042}
+.sync-action-btn{padding:0 20px;background:var(--accent);color:#fbf6f0;border:none;font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;white-space:nowrap;align-self:flex-end;height:40px;box-sizing:border-box}
 
 /* output */
 .gtag{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;background:#e8e0d6;font-size:11px;font-weight:500;color:var(--muted);margin-bottom:12px}
@@ -336,7 +337,7 @@ input::placeholder{color:#c0b5aa}
       <label for="workerUrl">Cloudflare Worker URL</label>
       <input id="workerUrl" type="text" placeholder="https://wedding.your-name.workers.dev" value="https://guestlist.elnur-agha.workers.dev/" />
     </div>
-    <button class="genbtn" id="syncBtn" style="width:auto;padding:13px 20px;white-space:nowrap">⟳ Sync</button>
+    <button class="sync-action-btn" id="syncBtn">⟳ Sync</button>
   </div>
   <div id="syncStatus" style="font-size:11px;color:var(--muted);margin-bottom:10px"></div>
   <div id="statsInline" style="display:none;margin-bottom:14px">
@@ -1014,8 +1015,12 @@ function renderImportQueue(){
     var html = '';
     var lastHeader = null;
 
+    // Build index map once so indexOf works even after sync rebuilds objects
+    var guestIndexMap = new Map();
+    importQueue.forEach(function(g, i){ guestIndexMap.set(g, i); });
+
     function renderItem(g, isKid){
-      var realIdx     = importQueue.indexOf(g);
+      var realIdx = guestIndexMap.has(g) ? guestIndexMap.get(g) : importQueue.indexOf(g);
       var isSelected  = selectedIdxs.indexOf(realIdx)>-1;
       var senderClass = g.sender==='Elnur'?'chip-elnur':'chip-arina';
       var typeLabel   = g.type==='couple-party'?'Couple·Full'
@@ -1528,7 +1533,7 @@ function renderStats() {
 </script>
 <div style="margin:32px 0 12px;padding:12px 16px;background:#f5f0ea;border-radius:8px;font-size:10px;color:#a09080;font-family:monospace;line-height:1.7">
   <strong style="font-size:10px;letter-spacing:.06em;color:#7a6b5e">FILE INFO</strong><br>
-  📄 invite-generator.html — updated 06 Jun 2026, 04:33<br>
+  📄 invite-generator.html — updated 06 Jun 2026, 04:52<br>
   ☁️ cloudflare-worker.js — <a href="https://guestlist.elnur-agha.workers.dev/" style="color:#7a6b5e">guestlist.elnur-agha.workers.dev</a><br>
   🌐 BASE URL: <a href="https://www.arinaelnur.de/" style="color:#7a6b5e">arinaelnur.de</a><br>
   📅 Wedding: 16 October 2026 · Schlosskirche Düsseldorf · Rheinliebe am Deich<br>
