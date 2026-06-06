@@ -1044,7 +1044,12 @@ function renderImportQueue(){
           (!g.pendingSent
             ? '<div style="display:flex;gap:5px;margin-top:6px;flex-wrap:wrap">'+
                 (g.sent
-                  ? '<button class="iq-wa done iq-undo" data-qi="'+realIdx+'" title="Click to undo sent">✓ Sent</button>'
+                  ? (g.undoConfirm
+                      ? '<span style="font-size:10px;color:var(--muted);align-self:center">Undo sent?</span>'+
+                        '<button class="iq-undo-yes" data-qi="'+realIdx+'" style="padding:4px 10px;font-size:9px;background:#c0392b;color:#fff;border:none;cursor:pointer;font-family:var(--sans);font-weight:600">Yes</button>'+
+                        '<button class="iq-undo-no" data-qi="'+realIdx+'" style="padding:4px 9px;font-size:9px;background:none;border:1px solid var(--border);cursor:pointer;font-family:var(--sans);color:var(--muted)">Cancel</button>'
+                      : '<button class="iq-wa done iq-undo" data-qi="'+realIdx+'">✓ Sent</button>'
+                    )
                   : g.skipped
                     ? '<button class="iq-unskip" data-qi="'+realIdx+'" style="padding:4px 8px;font-size:9px;background:none;border:1px solid var(--border);cursor:pointer;font-family:var(--sans);color:var(--muted)">Restore</button>'
                     : '<button class="iq-send-single iq-wa" data-qi="'+realIdx+'" style="padding:4px 10px;font-size:9px">💬 Send</button>'+
@@ -1130,27 +1135,48 @@ function renderImportQueue(){
       });
     });
 
-    // Undo
+    // Undo — first tap shows confirm, second tap (Yes) actually undoes
+    function doUndoConfirm(e, qi){
+      e.stopPropagation(); e.preventDefault();
+      var g = importQueue[qi]; if(!g) return;
+      g.undoConfirm = true;
+      renderImportQueue();
+    }
     listEl.querySelectorAll('.iq-undo').forEach(function(btn){
-      function doUndo(e){
-        e.stopPropagation();
-        e.preventDefault();
-        var qi = parseInt(btn.dataset.qi);
-        var g  = importQueue[qi]; if(!g) return;
-        g.sent = false;
-        g.pendingSent = false;
-        if(g.collectiveWith){
-          importQueue.forEach(function(guest){
-            if(g.collectiveWith.indexOf(guest.name)>-1){ guest.sent=false; guest.collectiveWith=null; }
-          });
-          g.collectiveWith = null;
-        }
-        saveGuestMeta();
-        renderImportQueue();
-        renderStats();
+      btn.addEventListener('click', function(e){ doUndoConfirm(e, parseInt(this.dataset.qi)); });
+      btn.addEventListener('touchend', function(e){ doUndoConfirm(e, parseInt(this.dataset.qi)); });
+    });
+
+    // Undo Yes
+    function doUndoYes(e, qi){
+      e.stopPropagation(); e.preventDefault();
+      var g = importQueue[qi]; if(!g) return;
+      g.sent = false; g.pendingSent = false; g.undoConfirm = false;
+      if(g.collectiveWith){
+        importQueue.forEach(function(guest){
+          if(g.collectiveWith.indexOf(guest.name)>-1){ guest.sent=false; guest.collectiveWith=null; }
+        });
+        g.collectiveWith = null;
       }
-      btn.addEventListener('click', doUndo);
-      btn.addEventListener('touchend', doUndo);
+      saveGuestMeta();
+      renderImportQueue();
+      renderStats();
+    }
+    listEl.querySelectorAll('.iq-undo-yes').forEach(function(btn){
+      btn.addEventListener('click', function(e){ doUndoYes(e, parseInt(this.dataset.qi)); });
+      btn.addEventListener('touchend', function(e){ doUndoYes(e, parseInt(this.dataset.qi)); });
+    });
+
+    // Undo Cancel
+    function doUndoNo(e, qi){
+      e.stopPropagation(); e.preventDefault();
+      var g = importQueue[qi]; if(!g) return;
+      g.undoConfirm = false;
+      renderImportQueue();
+    }
+    listEl.querySelectorAll('.iq-undo-no').forEach(function(btn){
+      btn.addEventListener('click', function(e){ doUndoNo(e, parseInt(this.dataset.qi)); });
+      btn.addEventListener('touchend', function(e){ doUndoNo(e, parseInt(this.dataset.qi)); });
     });
 
     // Mark as skip
