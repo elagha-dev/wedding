@@ -1165,11 +1165,9 @@ function renderImportQueue(){
         var waUrl = clean
           ? 'https://wa.me/'+clean+'?text='+encodeURIComponent(msg)
           : 'https://wa.me/?text='+encodeURIComponent(msg);
-        // Mark pending BEFORE opening WA so DOM is ready
+        alert('Send clicked for ' + g.name + ', qi=' + qi);
         g.pendingSent = true;
-        // Open WhatsApp
         window.open(waUrl,'_blank');
-        // Show confirmation modal immediately — don't re-render first
         showConfirmSent([g], workerUrl, url, msg);
       });
     });
@@ -1180,7 +1178,9 @@ function renderImportQueue(){
         b.onclick = function(e){
           e.stopPropagation();
           e.preventDefault();
-          openNoteModal(parseInt(b.dataset.qi));
+          var qi = parseInt(b.dataset.qi);
+          alert('Note btn clicked, qi=' + qi + ', guest=' + (importQueue[qi] ? importQueue[qi].name : 'NOT FOUND'));
+          openNoteModal(qi);
         };
       })(btn);
     });
