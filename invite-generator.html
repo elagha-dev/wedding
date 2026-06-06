@@ -366,7 +366,7 @@ input::placeholder{color:#c0b5aa}
 
 <!-- Note modal -->
 <div class="note-modal-backdrop" id="noteModal" style="display:none">
-  <div class="note-modal">
+  <div class="note-modal" onclick="event.stopPropagation()">
     <div class="phone-modal-title" id="noteModalTitle">Add Note</div>
     <textarea id="noteModalText" placeholder="e.g. No WhatsApp, sending by post…"></textarea>
     <div class="note-modal-actions">
@@ -921,15 +921,11 @@ function sendGroupInvite(guestList, phone){
   var waUrl=clean
     ?'https://wa.me/'+clean+'?text='+encodeURIComponent(msg)
     :'https://wa.me/?text='+encodeURIComponent(msg);
-  window.open(waUrl,'_blank');
-
-  // Mark as pending (reddish) until confirmed
+  // Mark as pending, open WA, then show confirm modal
   guestList.forEach(function(g){ g.pendingSent=true; });
   selectedIdxs=[];
-  renderImportQueue();
-
-  // Show confirmation modal
   var workerUrl = document.getElementById('workerUrl').value.trim();
+  window.open(waUrl,'_blank');
   showConfirmSent(guestList, workerUrl, url, msg, names, entry);
 }
 
@@ -1169,12 +1165,11 @@ function renderImportQueue(){
         var waUrl = clean
           ? 'https://wa.me/'+clean+'?text='+encodeURIComponent(msg)
           : 'https://wa.me/?text='+encodeURIComponent(msg);
+        // Mark pending BEFORE opening WA so DOM is ready
+        g.pendingSent = true;
         // Open WhatsApp
         window.open(waUrl,'_blank');
-        // Mark as pending (reddish) until confirmed
-        g.pendingSent = true;
-        renderRows(currentRenderFilter);
-        // Show confirmation modal
+        // Show confirmation modal immediately — don't re-render first
         showConfirmSent([g], workerUrl, url, msg);
       });
     });
@@ -1533,7 +1528,7 @@ function renderStats() {
 </script>
 <div style="margin:32px 0 12px;padding:12px 16px;background:#f5f0ea;border-radius:8px;font-size:10px;color:#a09080;font-family:monospace;line-height:1.7">
   <strong style="font-size:10px;letter-spacing:.06em;color:#7a6b5e">FILE INFO</strong><br>
-  📄 invite-generator.html — updated 06 Jun 2026, 04:52<br>
+  📄 invite-generator.html — updated 06 Jun 2026, 04:57<br>
   ☁️ cloudflare-worker.js — <a href="https://guestlist.elnur-agha.workers.dev/" style="color:#7a6b5e">guestlist.elnur-agha.workers.dev</a><br>
   🌐 BASE URL: <a href="https://www.arinaelnur.de/" style="color:#7a6b5e">arinaelnur.de</a><br>
   📅 Wedding: 16 October 2026 · Schlosskirche Düsseldorf · Rheinliebe am Deich<br>
