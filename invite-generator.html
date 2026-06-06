@@ -171,8 +171,13 @@ input::placeholder{color:#c0b5aa}
 /* Collective invite */
 .iq-row{display:flex;align-items:center;gap:10px;padding:10px 32px 10px 12px;background:var(--bg);border:1px solid var(--border);transition:opacity .2s,background .15s;cursor:pointer;user-select:none;position:relative}
 .iq-row.sent{opacity:.38}
-.iq-row.pending-sent{background:#fff5f5;border-color:#ffcccc;opacity:1}
-.iq-row.pending-sent .iq-name{color:#c0392b}
+.iq-row.pending-sent{background:#fff8e1;border-color:#ffe082;opacity:1}
+.iq-row.pending-sent .iq-name{color:#b8860b}
+.inline-confirm{display:flex;gap:6px;align-items:center;margin-top:6px;padding:8px 10px;background:#fff3cd;border:1px solid #ffe082;flex-wrap:wrap}
+.inline-confirm-msg{font-size:11px;font-weight:600;color:#b8860b;flex:1;min-width:120px}
+.inline-confirm-yes{padding:6px 14px;background:#5a3e2b;color:#fff;border:none;font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
+.inline-confirm-resend{padding:6px 12px;background:none;border:1px solid #aaa;font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;color:#777}
+.inline-confirm-no{padding:6px 12px;background:none;border:none;font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;color:#bbb}
 .iq-row.selected{background:#f5ede4;border-color:var(--al)}
 .iq-check{width:18px;height:18px;border:1.5px solid var(--border);border-radius:0;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .15s;background:var(--card)}
 .iq-row.selected .iq-check{background:var(--accent);border-color:var(--accent);color:#fff}
@@ -361,31 +366,6 @@ input::placeholder{color:#c0b5aa}
       <button class="import-clear" id="importClear">Clear list</button>
       <button class="export-btn" id="exportBtn" style="flex:1">⬇ Export CSV</button>
     </div>
-  </div>
-</div>
-
-<!-- Note modal -->
-<div class="note-modal-backdrop" id="noteModal" style="display:none">
-  <div class="note-modal" onclick="event.stopPropagation()">
-    <div class="phone-modal-title" id="noteModalTitle">Add Note</div>
-    <textarea id="noteModalText" placeholder="e.g. No WhatsApp, sending by post…"></textarea>
-    <div class="note-modal-actions">
-      <button class="note-modal-cancel" id="noteModalCancel">Cancel</button>
-      <button class="note-modal-save" id="noteModalSave">Save Note</button>
-    </div>
-  </div>
-</div>
-
-<!-- Confirm sent modal — BLOCKING, cannot dismiss by clicking outside -->
-<div id="confirmSentModal" style="display:none;position:fixed;inset:0;background:rgba(30,20,15,.82);z-index:500;flex-direction:column;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(2px)">
-  <div style="background:#ebe2da;width:100%;max-width:400px;padding:28px 24px;border-top:3px solid #5a3e2b;text-align:center">
-    <div style="font-family:var(--serif);font-size:22px;font-weight:300;color:var(--ink);margin-bottom:8px">Did you send it?</div>
-    <div id="confirmSentSub" style="font-size:12px;color:var(--muted);margin-bottom:24px;letter-spacing:.03em"></div>
-    <div style="display:flex;gap:10px;margin-bottom:12px">
-      <button id="confirmSentYes" style="flex:1;padding:14px;background:#5a3e2b;color:#ebe2da;border:none;font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;cursor:pointer">✓ Yes, sent!</button>
-      <button id="confirmSentResend" style="flex:0;padding:14px 16px;background:none;border:1px solid var(--border);font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;color:var(--muted);white-space:nowrap">↺ Resend</button>
-    </div>
-    <button id="confirmSentNo" style="width:100%;padding:10px;background:none;border:1px solid #ccc;font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;color:#999">✕ Cancel — didn't send</button>
   </div>
 </div>
 
@@ -771,7 +751,8 @@ function saveGuestMeta(){
   try{
     var meta = {};
     importQueue.forEach(function(g){
-      if(g.note || g.followup || g.skipped) meta[g.name] = { note: g.note||'', followup: !!g.followup, skipped: !!g.skipped };
+      if(g.note || g.followup || g.skipped || g.pendingSent) 
+        meta[g.name] = { note: g.note||'', followup: !!g.followup, skipped: !!g.skipped, pendingSent: !!g.pendingSent };
     });
     localStorage.setItem('ww_guest_meta', JSON.stringify(meta));
   }catch(e){}
@@ -786,6 +767,7 @@ function applyGuestMeta(){
       g.note = meta[g.name].note;
       g.followup = meta[g.name].followup;
       g.skipped = meta[g.name].skipped;
+      g.pendingSent = meta[g.name].pendingSent || false;
     }
   });
 }
@@ -924,9 +906,9 @@ function sendGroupInvite(guestList, phone){
   // Mark as pending, open WA, then show confirm modal
   guestList.forEach(function(g){ g.pendingSent=true; });
   selectedIdxs=[];
-  var workerUrl = document.getElementById('workerUrl').value.trim();
-  window.open(waUrl,'_blank');
-  showConfirmSent(guestList, workerUrl, url, msg, names, entry);
+  saveGuestMeta();
+  renderImportQueue();
+  setTimeout(function(){ window.location.href = waUrl; }, 100);
 }
 
 // ── Group send button ─────────────────────────────────────────
@@ -1166,9 +1148,48 @@ function renderImportQueue(){
           ? 'https://wa.me/'+clean+'?text='+encodeURIComponent(msg)
           : 'https://wa.me/?text='+encodeURIComponent(msg);
         g.pendingSent = true;
-        window.open(waUrl,'_blank');
-        showConfirmSent([g], workerUrl, url, msg);
+        saveGuestMeta();
+        renderRows(currentRenderFilter);
+        setTimeout(function(){ window.location.href = waUrl; }, 100);
       });
+    });
+
+    // Inline confirm YES
+    listEl.querySelectorAll('.inline-confirm-yes').forEach(function(btn){
+      btn.onclick = function(e){
+        e.stopPropagation();
+        var qi = parseInt(this.dataset.qi);
+        var g = importQueue[qi]; if(!g) return;
+        g.sent = true; g.pendingSent = false;
+        var workerUrl = document.getElementById('workerUrl').value.trim();
+        if(workerUrl) fetch(workerUrl+'/sent',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({names:[g.name]})}).catch(function(){});
+        saveGuestMeta(); renderRows(currentRenderFilter); updateGroupBar(); renderStats();
+      };
+    });
+
+    // Inline confirm RESEND
+    listEl.querySelectorAll('.inline-confirm-resend').forEach(function(btn){
+      btn.onclick = function(e){
+        e.stopPropagation();
+        var qi = parseInt(this.dataset.qi);
+        var g = importQueue[qi]; if(!g) return;
+        var url = buildUrl(g.name, '', g.type, g.lang||'en');
+        var msg = buildMsg(firstName(g.name), g.type, g.lang||'en', url);
+        var clean = (g.phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');
+        var waUrl = clean ? 'https://wa.me/'+clean+'?text='+encodeURIComponent(msg) : 'https://wa.me/?text='+encodeURIComponent(msg);
+        window.location.href = waUrl;
+      };
+    });
+
+    // Inline confirm NO
+    listEl.querySelectorAll('.inline-confirm-no').forEach(function(btn){
+      btn.onclick = function(e){
+        e.stopPropagation();
+        var qi = parseInt(this.dataset.qi);
+        var g = importQueue[qi]; if(!g) return;
+        g.pendingSent = false;
+        renderRows(currentRenderFilter); updateGroupBar();
+      };
     });
 
     // Note button — delegated to avoid duplicate listeners on re-render
@@ -1364,99 +1385,40 @@ document.getElementById('importClear').addEventListener('click', function(){
 
 renderTracker();
 
-// ── NOTE MODAL ────────────────────────────────────────────────
-var noteModal = document.getElementById('noteModal');
-var noteModalText = document.getElementById('noteModalText');
-var noteModalTitle = document.getElementById('noteModalTitle');
-var noteModalSave = document.getElementById('noteModalSave');
-var noteModalCancel = document.getElementById('noteModalCancel');
-var noteTargetIdx = null;
-
+// ── NOTE — native prompt (works on all browsers incl Safari) ──
 function openNoteModal(qi) {
   var g = importQueue[qi];
   if(!g) return;
-  noteTargetIdx = qi;
-  noteModalTitle.textContent = g.name + ' — Note';
-  noteModalText.value = g.note || '';
-  noteModal.style.display = 'flex';
-  noteModalJustOpened = true;
-  setTimeout(function(){ noteModalText.focus(); }, 50);
-}
-noteModalCancel.addEventListener('click', function(){ noteModal.style.display = 'none'; });
-noteModalSave.addEventListener('click', function(){
-  if(noteTargetIdx === null) return;
-  var g = importQueue[noteTargetIdx];
-  if(g) g.note = noteModalText.value.trim();
-  noteModal.style.display = 'none';
+  var current = g.note || '';
+  var result = prompt(g.name + ' — Note:', current);
+  if(result === null) return; // cancelled
+  g.note = result.trim();
   saveGuestMeta();
-  renderImportQueue();
-});
-var noteModalJustOpened = false;
-noteModal.addEventListener('click', function(e){
-  if(noteModalJustOpened){ noteModalJustOpened=false; return; }
-  if(e.target===noteModal) noteModal.style.display='none';
-});
-
-// ── CONFIRM SENT MODAL ───────────────────────────────────────
-var confirmSentModal = document.getElementById('confirmSentModal');
-var confirmSentSub   = document.getElementById('confirmSentSub');
-var pendingConfirm   = null;
-
-function showConfirmSent(guestList, workerUrl, url, msg, names, entry) {
-  var nameStr = guestList.map(function(g){ return g.name; }).join(' & ');
-  confirmSentSub.textContent = 'Invite sent to ' + nameStr + '?';
-  pendingConfirm = { guestList: guestList, workerUrl: workerUrl, url: url, msg: msg, names: names||guestList.map(function(g){return g.name;}), entry: entry };
-  confirmSentModal.style.display = 'flex';
-  confirmSentModal.style.flexDirection = 'column';
+  renderRows(currentRenderFilter);
+  updateGroupBar();
 }
 
-document.getElementById('confirmSentYes').addEventListener('click', function(){
-  if(!pendingConfirm) return;
-  var p = pendingConfirm;
-  // Mark as actually sent
-  p.guestList.forEach(function(g){ g.sent=true; g.pendingSent=false; g.collectiveWith=p.names; });
-  if(p.entry) p.entry.tracked.waSent = ts();
-  if(p.workerUrl){
-    fetch(p.workerUrl+'/sent',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({names:p.names})}).catch(function(){});
-  }
-  // Add to tracker if not already
-  var ll = {en:'🇬🇧 EN',de:'🇩🇪 DE',ru:'🇷🇺 RU'};
-  if(!p.entry){
-    var existing = mem.findIndex(function(h){ return h.url===p.url; });
-    if(existing === -1){
-      var g0 = p.guestList[0];
-      mem.unshift({id:Date.now(),name:p.guestList.map(function(g){return firstName(g.name);}).join(' & '),
-        type:g0.type,lang:g0.lang||'en',ll:ll[g0.lang||'en']||'EN',url:p.url,msg:p.msg,
-        phone:g0.phone||'',isCouple:p.guestList.length>1,
-        hasParty:g0.type==='ceremony-party-single'||g0.type==='couple-party',
-        sender:g0.sender,created:dt(),tracked:{linkCopied:null,msgCopied:null,waSent:ts()}});
-    } else {
-      mem[existing].tracked.waSent = ts();
-    }
-  }
-  pendingConfirm = null;
-  confirmSentModal.style.display = 'none';
-  save(); renderTracker(); renderImportQueue(); renderStats();
-});
+// Inline confirm handled via row buttons — see renderRows listeners above
 
-document.getElementById('confirmSentNo').addEventListener('click', function(){
-  if(!pendingConfirm) return;
-  pendingConfirm.guestList.forEach(function(g){ g.pendingSent=false; });
-  pendingConfirm = null;
-  confirmSentModal.style.display = 'none';
+// ── HARD RESET ───────────────────────────────────────────────
+document.getElementById('hardResetBtn').addEventListener('click', function(){
+  if(!confirm('This will delete all notes, follow-up flags, skipped state and tracker history.\n\nGuest sent status (in Cloudflare KV) is NOT affected.\n\nContinue?')) return;
+  try{ localStorage.removeItem('ww_guest_meta'); }catch(e){}
+  try{ localStorage.removeItem('ww_pending'); }catch(e){}
+  try{ localStorage.removeItem('ww_history'); }catch(e){}
+  importQueue.forEach(function(g){
+    g.note = '';
+    g.followup = false;
+    g.skipped = false;
+    g.pendingSent = false;
+  });
+  mem = [];
+  selectedIdxs = [];
+  save();
   renderImportQueue();
-});
-
-document.getElementById('confirmSentResend').addEventListener('click', function(){
-  if(!pendingConfirm) return;
-  var p = pendingConfirm;
-  var g0 = p.guestList[0];
-  var clean = (g0.phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');
-  var waUrl = clean
-    ? 'https://wa.me/'+clean+'?text='+encodeURIComponent(p.msg)
-    : 'https://wa.me/?text='+encodeURIComponent(p.msg);
-  window.open(waUrl,'_blank');
-  // Keep modal open — they still need to confirm
+  renderTracker();
+  renderStats();
+  alert('Reset done. Sent status in Cloudflare is unchanged.');
 });
 
 // ── SEARCH ────────────────────────────────────────────────────
@@ -1529,9 +1491,13 @@ function renderStats() {
 
 
 </script>
-<div style="margin:32px 0 12px;padding:12px 16px;background:#f5f0ea;border-radius:8px;font-size:10px;color:#a09080;font-family:monospace;line-height:1.7">
+<div style="max-width:620px;width:100%;margin:24px 0 8px;display:flex;justify-content:flex-end">
+  <button id="hardResetBtn" style="padding:8px 16px;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;background:none;border:1px solid #ccc;color:#bbb;cursor:pointer;font-family:var(--sans)">⚠ Hard Reset</button>
+</div>
+
+<div style="margin:8px 0 12px;padding:12px 16px;background:#f5f0ea;border-radius:8px;font-size:10px;color:#a09080;font-family:monospace;line-height:1.7">
   <strong style="font-size:10px;letter-spacing:.06em;color:#7a6b5e">FILE INFO</strong><br>
-  📄 invite-generator.html — updated 06 Jun 2026, 05:46<br>
+  📄 invite-generator.html — updated 06 Jun 2026, 06:04<br>
   ☁️ cloudflare-worker.js — <a href="https://guestlist.elnur-agha.workers.dev/" style="color:#7a6b5e">guestlist.elnur-agha.workers.dev</a><br>
   🌐 BASE URL: <a href="https://www.arinaelnur.de/" style="color:#7a6b5e">arinaelnur.de</a><br>
   📅 Wedding: 16 October 2026 · Schlosskirche Düsseldorf · Rheinliebe am Deich<br>
