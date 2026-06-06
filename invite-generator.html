@@ -1091,10 +1091,10 @@ function renderImportQueue(){
       kidItems.forEach(function(g){ html += renderItem(g, true); });
     }
 
-    // ── Sent guests (collapsed at bottom) ──
+    // ── Sent guests (expanded at bottom) ──
     if(sentItems.length){
-      html += '<div class="iq-family-header gh-sent" style="cursor:pointer;user-select:none" id="sentSectionHdr">✓ Sent ('+sentItems.length+') <span style="font-size:9px;opacity:.6">▶</span></div>';
-      html += '<div id="sentSection" style="display:none">';
+      html += '<div class="iq-family-header gh-sent" style="cursor:pointer;user-select:none" id="sentSectionHdr">✓ Sent ('+sentItems.length+') <span style="font-size:9px;opacity:.6">▼</span></div>';
+      html += '<div id="sentSection">';
       renderGrouped(sentItems, 'gh-sent', 'opacity:.8');
       html += '</div>';
     }
@@ -1208,6 +1208,13 @@ function renderImportQueue(){
         var workerUrl = document.getElementById('workerUrl').value.trim();
         if(workerUrl) fetch(workerUrl+'/sent',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({names:[g.name]})}).catch(function(){});
         saveGuestMeta(); renderRows(currentRenderFilter); updateGroupBar(); renderStats();
+        // Auto-expand the sent section so the newly-sent guest is visible
+        var sentSec = listEl.querySelector('#sentSection');
+        var sentHdr = listEl.querySelector('#sentSectionHdr');
+        if(sentSec && sentSec.style.display === 'none'){
+          sentSec.style.display = '';
+          if(sentHdr){ var arrow = sentHdr.querySelector('span'); if(arrow) arrow.textContent = '▼'; }
+        }
       };
     });
 
