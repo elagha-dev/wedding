@@ -757,8 +757,8 @@ function saveGuestMeta(){
   try{
     var meta = {};
     importQueue.forEach(function(g){
-      if(g.note || g.followup || g.skipped || g.pendingSent) 
-        meta[g.name] = { note: g.note||'', followup: !!g.followup, skipped: !!g.skipped, pendingSent: !!g.pendingSent };
+      if(g.note || g.followup || g.skipped || g.pendingSent || g.sent)
+        meta[g.name] = { note: g.note||'', followup: !!g.followup, skipped: !!g.skipped, pendingSent: !!g.pendingSent, sent: !!g.sent };
     });
     localStorage.setItem('ww_guest_meta', JSON.stringify(meta));
   }catch(e){}
@@ -774,6 +774,7 @@ function applyGuestMeta(){
       g.followup = meta[g.name].followup;
       g.skipped = meta[g.name].skipped;
       g.pendingSent = meta[g.name].pendingSent || false;
+      if(meta[g.name].sent) g.sent = true;
     }
   });
 }
