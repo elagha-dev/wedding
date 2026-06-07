@@ -621,25 +621,16 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 <!-- Phone modal -->
 <div class="modal-bg" id="phoneModal" style="display:none">
   <div class="modal">
-    <div class="modal-title">Whose number?</div>
-    <div class="modal-sub" id="phoneModalSub"></div>
-    <div id="phoneModalOpts"></div>
-    <button class="modal-cancel" id="phoneModalCancel">Cancel</button>
-  </div>
-</div>
-
-<!-- Lang modal -->
-<!-- No-phone modal -->
-<div class="modal-bg" id="phoneModal" style="display:none">
-  <div class="modal">
     <div class="modal-title">No phone number</div>
-    <div class="modal-sub" id="phoneModalSub">Enter a number to send directly, or skip to pick from your WhatsApp contacts.</div>
-    <input type="tel" id="phoneModalInput" placeholder="+49 123 456 789" style="font-family:var(--sans);font-size:15px;padding:11px 14px;background:var(--cream);border:1.5px solid var(--parchment);border-radius:var(--r-sm);color:var(--ink);outline:none;width:100%;margin-bottom:10px;transition:border-color var(--ease)" />
+    <div class="modal-sub" id="phoneModalSub"></div>
+    <input type="tel" id="phoneModalInput" placeholder="+49 123 456 789" style="font-family:var(--sans);font-size:15px;padding:11px 14px;background:var(--cream);border:1.5px solid var(--parchment);border-radius:var(--r-sm);color:var(--ink);outline:none;width:100%;box-sizing:border-box;margin-bottom:10px;transition:border-color var(--ease)" />
     <button class="qf-send" id="phoneModalSend" style="margin-bottom:8px">Send to this number</button>
     <button class="modal-cancel" id="phoneModalSkip" style="background:var(--green-bg);color:var(--green);border-color:rgba(58,140,92,.3)">Skip — open WhatsApp contacts</button>
     <button class="modal-cancel" id="phoneModalCancel" style="margin-top:6px">Cancel</button>
   </div>
 </div>
+
+<!-- Lang modal -->
 <div class="modal-bg" id="langModal" style="display:none">
   <div class="modal">
     <div class="modal-title">Message language</div>
@@ -1043,13 +1034,18 @@ document.getElementById('langModalOpts').querySelectorAll('.lang-opt').forEach(f
   });
 });
 function openLangModal(g,ri){
-  function doOpen(){
+  function doLang(resolvedPhone){
     document.getElementById('langModalSub').textContent='For: '+g.name;
     document.getElementById('langModal').style.display='flex';
-    langModalCb=function(lang){g.msgLang=lang;saveGuestMeta();sendSingleWithLang(g,ri,lang);};
+    langModalCb=function(lang){g.msgLang=lang;saveGuestMeta();sendSingleWithLang(g,ri,lang,resolvedPhone);};
   }
-  if(g.sender&&g.sender!==sessionSender){showCrossSenderConfirm(g.sender,sessionSender,doOpen);return;}
-  doOpen();
+  function doPhone(){
+    var phone=(g.phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');
+    if(!phone){showPhoneModal(firstName(g.name),function(p){doLang(p);});return;}
+    doLang(phone);
+  }
+  if(g.sender&&g.sender!==sessionSender){showCrossSenderConfirm(g.sender,sessionSender,doPhone);return;}
+  doPhone();
 }
 
 /* ══ SORT ═════════════════════════════════════ */
@@ -1092,19 +1088,14 @@ function showPhoneModal(name,onPhone){
 }
 
 /* ══ SEND SINGLE ═════════════════════════════ */
-function sendSingleWithLang(g,ri,msgLang){
+function sendSingleWithLang(g,ri,msgLang,resolvedPhone){
   var type=g.type||'ceremony-single';var lang=g.lang||'en';
   var url=buildUrl(g.name,'',type,lang);
   var msg=buildMsg(firstName(g.name),type,msgLang||lang,url);
-  var phone=(g.phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');
-  function doSend(resolvedPhone){
-    var p=resolvedPhone!==undefined?resolvedPhone:phone;
-    window.open(p?'https://wa.me/'+p+'?text='+encodeURIComponent(msg):'https://wa.me/?text='+encodeURIComponent(msg),'_blank');
-    if(resolvedPhone!==undefined&&resolvedPhone)g.phone='+'+resolvedPhone;
-    g.pendingSent=true;g.followup=true;g.sentBy=sessionSender;saveGuestMeta();renderGuestList();
-  }
-  if(!phone){showPhoneModal(firstName(g.name),function(p){doSend(p);});return;}
-  doSend();
+  var phone=resolvedPhone!==undefined?resolvedPhone:(g.phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');
+  if(resolvedPhone)g.phone='+'+resolvedPhone;
+  window.open(phone?'https://wa.me/'+phone+'?text='+encodeURIComponent(msg):'https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+  g.pendingSent=true;g.followup=true;g.sentBy=sessionSender;saveGuestMeta();renderGuestList();
 }
 function showCrossSenderConfirm(assigned,active,onConfirm){
   var t=document.getElementById('undoToast'),btn=document.getElementById('undoToastBtn');
@@ -1143,12 +1134,13 @@ document.getElementById('bulkSend').addEventListener('click',function(){
   }
 });
 function openLangModalForBulk(guests,phone,names){
-  document.getElementById('langModalSub').textContent='For: '+names;
-  document.getElementById('langModal').style.display='flex';
-  langModalCb=function(lang){
-    guests.forEach(function(g){g.msgLang=lang;});
-    doGroupSend(guests,phone,lang);
-  };
+  function doLang(resolvedPhone){
+    document.getElementById('langModalSub').textContent='For: '+names;
+    document.getElementById('langModal').style.display='flex';
+    langModalCb=function(lang){guests.forEach(function(g){g.msgLang=lang;});doGroupSend(guests,resolvedPhone,lang);};
+  }
+  if(!phone){showPhoneModal(names,function(p){doLang(p);});return;}
+  doLang(phone);
 }
 function doGroupSend(guests,phone,msgLang){
   var type=guests[0].type||'ceremony-single';var lang=guests[0].lang||'en';
@@ -1157,13 +1149,9 @@ function doGroupSend(guests,phone,msgLang){
   var url=buildUrl(p1,p2,type,lang);
   var ml=msgLang||guests[0].msgLang||lang;
   var msg=buildMsg(dName,type,ml,url);
-  function send(resolvedPhone){
-    var clean=(resolvedPhone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');
-    window.open(clean?'https://wa.me/'+clean+'?text='+encodeURIComponent(msg):'https://wa.me/?text='+encodeURIComponent(msg),'_blank');
-    guests.forEach(function(g){g.pendingSent=true;g.followup=true;});selectedIdxs=[];saveGuestMeta();renderGuestList();renderDashboard();
-  }
-  if(!phone){showPhoneModal(dName,function(p){send(p);});return;}
-  send(phone);
+  var clean=(phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');
+  window.open(clean?'https://wa.me/'+clean+'?text='+encodeURIComponent(msg):'https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+  guests.forEach(function(g){g.pendingSent=true;g.followup=true;});selectedIdxs=[];saveGuestMeta();renderGuestList();renderDashboard();
 }
 
 /* ══ FAB + QUICK SEND ════════════════════════ */
