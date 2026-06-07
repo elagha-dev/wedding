@@ -249,7 +249,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-actions{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
 .ga-btn{width:32px;height:32px;border-radius:50%;font-size:15px;font-family:var(--sans);cursor:pointer;border:1.5px solid var(--parchment);background:var(--cream);color:var(--muted);transition:all var(--ease);display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative}
 .ga-btn:hover{border-color:var(--blush);color:var(--ink2);background:#fff}
-.ga-btn-wa{background:#25D366;border-color:#25D366;color:#fff;width:auto;border-radius:var(--r-pill);padding:0 14px;font-size:9.5px;font-weight:700;letter-spacing:.06em;height:32px}.ga-btn-wa:hover{background:#20BD5A;border-color:#20BD5A}.ga-btn-wa.done{background:var(--green);border-color:var(--green)}
+.ga-btn-wa{background:#25D366;border-color:#25D366;color:#fff;width:auto;border-radius:var(--r-pill);padding:0 14px;font-size:9.5px;font-weight:700;letter-spacing:.06em;height:32px;gap:5px;display:flex;align-items:center}.ga-btn-wa:hover{background:#20BD5A;border-color:#20BD5A}.ga-btn-wa.done{background:var(--green);border-color:var(--green)}
 .ga-btn-flag.flagged{background:var(--amber-bg);border-color:rgba(176,120,48,.3);color:var(--amber)}
 .ga-btn-note.has-note{border-color:rgba(176,120,48,.3);color:var(--amber)}
 .g-del{position:absolute;top:9px;right:9px;background:none;border:none;color:var(--soft);font-size:16px;cursor:pointer;padding:0;line-height:1;width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:all var(--ease)}.g-del:hover{color:var(--red);background:var(--red-bg)}
@@ -1009,10 +1009,10 @@ function buildGuestCard(g){
           +(g.note?'<div class="g-note">'+g.note+'</div>':'')
 
           +'<div class="g-actions">'
-            +'<button class="ga-btn ga-btn-wa'+(g.sent?' done':'')+'" data-qi="'+ri+'" data-action="wa" title="Send WhatsApp">'+(g.sent?'↩ Resend':'📤 Send')+'</button>'
-            +'<button class="ga-btn'+(claimedByMe?' ga-btn-flag flagged':claimedByOther?' ga-btn-flag':' ga-btn-flag')+(claimedBy&&!claimedByOther?' flagged':'')+'" data-qi="'+ri+'" data-action="claim" title="'+(claimedByMe?'Mine':claimedByOther?claimedBy:'Claim')+'">'+(claimedByMe?'🔒':claimedByOther?'🔒':'📌')+'</button>'
-            +'<button class="ga-btn ga-btn-flag'+(g.followup?' flagged':'')+'" data-qi="'+ri+'" data-action="flag" title="'+(g.followup?'Flagged':'Follow Up')+'">'+(g.followup?'🚩':'⚑')+'</button>'
-            +'<button class="ga-btn ga-btn-note'+(g.note?' has-note':'')+'" data-qi="'+ri+'" data-action="note" title="Note">📝</button>'
+            +'<button class="ga-btn ga-btn-wa'+(g.sent?' done':'')+'" data-qi="'+ri+'" data-action="wa" title="Send WhatsApp">'+(g.sent?'↩ Resend':'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/></svg> Send')+'</button>'
+            +'<button class="ga-btn'+(claimedByMe?' ga-btn-flag flagged':claimedByOther?' ga-btn-flag':' ga-btn-flag')+(claimedBy&&!claimedByOther?' flagged':'')+'" data-qi="'+ri+'" data-action="claim" title="'+(claimedByMe?'Mine':claimedByOther?claimedBy:'Claim')+'">'+(claimedByMe?'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>':claimedByOther?'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>':'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>')+'</button>'
+            +'<button class="ga-btn ga-btn-flag'+(g.followup?' flagged':'')+'" data-qi="'+ri+'" data-action="flag" title="'+(g.followup?'Flagged':'Follow Up')+'">'+(g.followup?'<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M4 3h16l-3 6 3 6H4V3z"/><rect x="3" y="3" width="2" height="18" rx="1"/></svg>':'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3h16l-3 6 3 6H4V3z"/><line x1="4" y1="21" x2="4" y2="3"/></svg>')+'</button>'
+            +'<button class="ga-btn ga-btn-note'+(g.note?' has-note':'')+'" data-qi="'+ri+'" data-action="note" title="Note"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>'
           +'</div>'
         +'</div>'
       +'</div>'
@@ -1067,16 +1067,17 @@ function attachSwipe(card){
       else if(!isSent&&dx<-threshold){cls+=' active-left';isActive=true;}
       bg.className=cls;
       // Update hint text and progress
-      if(Math.abs(dx)>10){
+      if(Math.abs(dx)>20){
         var label='';
         if(isSent&&dx<0) label='Undo';
         else if(!isSent&&dx>0) label='Sent ✓';
         else if(!isSent&&dx<0) label='Follow Up';
         hint.textContent=label;
-        hint.style.opacity=Math.min(pct*1.5,1).toFixed(2);
+        var appearPct=Math.min((Math.abs(dx)-20)/40,1); // fully visible after 60px
+        hint.style.opacity=appearPct.toFixed(2);
         hint.style.display=label?'flex':'none';
         wrap.classList.add('swiping-active');
-        hint.style.fontSize=isActive?'26px':'22px';
+        hint.style.fontSize=isActive?'28px':'24px';
       } else {
         hint.style.opacity='0';
       }
