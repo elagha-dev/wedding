@@ -1034,7 +1034,7 @@ function attachSwipe(card){
   if(!wrap)return;
   var bg=wrap.querySelector('.g-swipe-bg');
   // Full-width threshold = 85% of card width
-  function getThreshold(){return Math.round((wrap.offsetWidth||300)*0.82);}
+  function getThreshold(){return Math.round((wrap.offsetWidth||300)*0.45);}
 
   // Swipe labels (left + right anchored)
   var lblL=wrap.querySelector('.g-swipe-label-left');
@@ -1066,10 +1066,18 @@ function attachSwipe(card){
     if(bg){
       var cls='g-swipe-bg'+(isSent?' undo-bg':'');
       var isActive=false;
+      var wasActive=wrap.dataset.swipeActive==='1';
       if(isSent&&dx<-threshold){cls+=' active-right';isActive=true;}
       else if(!isSent&&dx>threshold){cls+=' active-right';isActive=true;}
       else if(!isSent&&dx<-threshold){cls+=' active-left';isActive=true;}
       bg.className=cls;
+      // Haptic bump when crossing threshold
+      if(isActive&&!wasActive){
+        wrap.dataset.swipeActive='1';
+        if(navigator.vibrate)navigator.vibrate(18);
+      } else if(!isActive){
+        wrap.dataset.swipeActive='0';
+      }
       // Update hint labels
       if(Math.abs(dx)>4){
         var isSentCard=isSent;
@@ -1091,6 +1099,7 @@ function attachSwipe(card){
     card.style.transform='';card.classList.remove('swiping');
     if(bg)bg.className='g-swipe-bg';
     wrap.classList.remove('sw-left','sw-right','swiping-active');
+    wrap.dataset.swipeActive='0';
     startX=null;
     if(!g)return;
     if(g.sent&&dx<-threshold){
