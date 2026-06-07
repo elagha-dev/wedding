@@ -226,7 +226,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-card.fup{border-left:3px solid var(--amber)}
 .g-card.sent{opacity:.55;border-left:3px solid var(--green)}
 .g-card.pending-sent{border-left:3px solid var(--rose)}
-.g-inner{padding:11px 14px 11px 16px;display:flex;align-items:flex-start}
+.g-inner{padding:11px 14px 14px 16px;display:flex;align-items:flex-start}
 .g-ring{width:20px;height:20px;border:1.5px solid var(--parchment);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;margin-right:11px;font-size:10px;color:#fff;background:transparent;transition:all var(--ease)}
 .g-card.sel .g-ring{background:var(--rose);border-color:var(--rose)}
 .g-main{flex:1;min-width:0}
@@ -246,16 +246,20 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .chip-child{background:#EAF0FA;color:#4A6EA8}
 .g-tags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:7px}
 .g-note{font-size:10.5px;color:var(--amber);margin-bottom:6px;font-style:italic}
-.g-actions{display:flex;gap:5px;flex-wrap:wrap}
-.ga-btn{padding:5px 12px;border-radius:var(--r-pill);font-size:9.5px;font-weight:600;font-family:var(--sans);letter-spacing:.06em;cursor:pointer;border:1.5px solid var(--parchment);background:var(--cream);color:var(--muted);transition:all var(--ease);white-space:nowrap}
-.ga-btn:hover{border-color:var(--blush);color:var(--ink2)}
-.ga-btn-wa{background:#25D366;border-color:#25D366;color:#fff}.ga-btn-wa:hover{background:#20BD5A;border-color:#20BD5A}.ga-btn-wa.done{background:var(--green);border-color:var(--green)}
+.g-actions{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+.ga-btn{width:32px;height:32px;border-radius:50%;font-size:15px;font-family:var(--sans);cursor:pointer;border:1.5px solid var(--parchment);background:var(--cream);color:var(--muted);transition:all var(--ease);display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative}
+.ga-btn:hover{border-color:var(--blush);color:var(--ink2);background:#fff}
+.ga-btn-wa{background:#25D366;border-color:#25D366;color:#fff;width:auto;border-radius:var(--r-pill);padding:0 14px;font-size:9.5px;font-weight:700;letter-spacing:.06em;height:32px}.ga-btn-wa:hover{background:#20BD5A;border-color:#20BD5A}.ga-btn-wa.done{background:var(--green);border-color:var(--green)}
 .ga-btn-flag.flagged{background:var(--amber-bg);border-color:rgba(176,120,48,.3);color:var(--amber)}
 .ga-btn-note.has-note{border-color:rgba(176,120,48,.3);color:var(--amber)}
 .g-del{position:absolute;top:9px;right:9px;background:none;border:none;color:var(--soft);font-size:16px;cursor:pointer;padding:0;line-height:1;width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:all var(--ease)}.g-del:hover{color:var(--red);background:var(--red-bg)}
 .g-corner-actions{position:absolute;top:9px;right:9px;display:flex;align-items:center;gap:5px}
 .chip-sender-corner{font-size:8px;padding:2px 7px;height:18px;opacity:.85}
 .g-corner-actions .g-del{position:static;top:auto;right:auto}
+/* Sender badge bottom-right */
+.g-sender-br{position:absolute;bottom:10px;right:12px;font-size:8px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:var(--r-pill);height:18px;display:inline-flex;align-items:center;opacity:.75}
+.g-sender-br.a{background:var(--arina-bg);color:var(--arina-txt)}
+.g-sender-br.e{background:var(--elnur-bg);color:var(--elnur-txt)}
 .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none;flex-shrink:0;z-index:1;transition:opacity .15s}
 .search-input.has-value ~ .search-icon, .search-wrap.has-value .search-icon{opacity:0}
 .g-confirm{display:flex;align-items:center;gap:7px;padding:9px 16px;background:linear-gradient(135deg,#FDF0E8,var(--blush));border-top:1px solid var(--rose-soft);flex-wrap:wrap}
@@ -267,9 +271,9 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .show-sent-btn{width:100%;padding:10px;background:none;border:1.5px dashed var(--parchment);border-radius:var(--r-sm);font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;transition:all var(--ease);margin-top:4px}
 .show-sent-btn:hover{border-color:var(--green);color:var(--green)}
 
-/* Swipe hint overlay */
-.g-swipe-hint{position:absolute;bottom:0;left:0;right:0;text-align:center;font-size:10px;font-weight:500;letter-spacing:.06em;color:rgba(255,255,255,.85);pointer-events:none;padding:5px 8px;z-index:5;opacity:0;transition:opacity .1s;text-shadow:0 1px 3px rgba(0,0,0,.25);display:none}
-.g-swipe-wrap.swiping-active .g-swipe-hint{display:block}
+.g-tags:empty{margin-bottom:0}
+.g-swipe-hint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:22px;font-weight:400;font-style:italic;letter-spacing:.01em;color:#fff;pointer-events:none;z-index:5;opacity:0;transition:opacity .1s;text-shadow:0 1px 6px rgba(0,0,0,.18)}
+.g-swipe-wrap.swiping-active .g-swipe-hint{display:flex}
 
 .empty-state{padding:36px 20px;text-align:center;color:var(--muted);font-family:var(--serif);font-style:italic;font-size:14px}
 .list-footer{display:flex;gap:8px;margin-top:4px}
@@ -962,37 +966,59 @@ function buildGuestCard(g){
   var claimedByMe=claimedBy===sessionSender;
   var claimedByOther=claimedBy&&claimedBy!==sessionSender;
   var cls='g-card'+(isSel?' sel':'')+(g.followup&&!g.sent?' fup':'')+(g.sent?' sent':'')+(isPending?' pending-sent':'')+(claimedByOther?' claimed-other':'');
+  var senderCls=g.sender==='Arina'?'a':'e';
   var sC=g.sender==='Arina'?'<span class="chip chip-a chip-sender-corner">Arina</span>':'<span class="chip chip-e chip-sender-corner">Elnur</span>';
+  var sBR=g.sender?('<span class="g-sender-br '+senderCls+'">'+(g.sender==='Arina'?'Arina':'Elnur')+'</span>'):'';
   var tC=(g.type==='ceremony-party-single'||g.type==='couple-party')?'<span class="chip chip-type">Full Day</span>':'<span class="chip chip-type">Ceremony</span>';
   var lC=g.lang&&g.lang!=='en'?'<span class="chip chip-lang">'+(g.lang==='de'?'DE':'RU')+'</span>':'';
   var rC=g.confirmed?'<span class="chip chip-rsvp">RSVP</span>':'';
   var cC=g.isChild?'<span class="chip chip-child">Child</span>':'';
   var claimC=claimedBy?('<span class="claim-badge claim-badge-'+(claimedBy==='Arina'?'a':'e')+'"><span class="claim-dot claim-dot-'+(claimedBy==='Arina'?'a':'e')+'"></span>'+(claimedByMe?'You':''+claimedBy)+'</span>'):'';
   var sentBy=g.sentBy?g.sentBy:'';var sentTime=g.sent&&g.sentAt?'<span class="g-sent-time">'+g.sentAt+(sentBy?' · '+sentBy:'')+'</span>':'';
+
+  // Sent cards: slim — just name, time, undo reset button + sender badge
+  if(g.sent){
+    return '<div class="g-swipe-wrap" data-qi="'+ri+'">'
+      +'<div class="g-swipe-bg" id="swbg'+ri+'">'
+      +'<div class="g-swipe-bg-left"><span class="g-swipe-bg-txt">↩ Undo</span></div>'
+      +'<div class="g-swipe-bg-right"><span class="g-swipe-bg-txt">↩ Undo</span></div>'
+      +'</div>'
+      +'<div class="'+cls+'" data-qi="'+ri+'">'
+        +'<div class="g-inner" style="padding:9px 14px 9px 16px">'
+          +'<div class="g-main">'
+            +'<div class="g-name-row" style="padding-right:60px"><span class="g-name" style="font-size:15px">'+g.name+'</span>'+sentTime+'</div>'
+          +'</div>'
+        +'</div>'
+        +sBR
+        +'<button class="g-del" data-qi="'+ri+'" data-action="del">×</button>'
+      +'</div>'
+    +'</div>';
+  }
+
   return '<div class="g-swipe-wrap" data-qi="'+ri+'">'
     +'<div class="g-swipe-bg" id="swbg'+ri+'">'
     +'<div class="g-swipe-bg-left"><span class="g-swipe-bg-txt">🚩 Follow Up</span></div>'
-    +'<div class="g-swipe-bg-right"><span class="g-swipe-bg-txt">'+(g.sent?'↩ Undo':'✓ Sent')+'</span></div>'
+    +'<div class="g-swipe-bg-right"><span class="g-swipe-bg-txt">✓ Sent</span></div>'
     +'</div>'
     +'<div class="'+cls+'" data-qi="'+ri+'">'
       +'<div class="g-inner">'
         +'<div class="g-ring">'+(isSel?'✓':'')+'</div>'
         +'<div class="g-main">'
-          +'<div class="g-name-row"><span class="g-name">'+g.name+'</span>'+tC+claimC+sentTime+'</div>'
+          +'<div class="g-name-row"><span class="g-name">'+g.name+'</span>'+tC+claimC+'</div>'
           +'<div class="g-tags">'+lC+rC+cC+'</div>'
           +(g.note?'<div class="g-note">'+g.note+'</div>':'')
 
           +'<div class="g-actions">'
-            +'<button class="ga-btn ga-btn-wa'+(g.sent?' done':'')+'" data-qi="'+ri+'" data-action="wa">'+(g.sent?'Resend':'Send')+'</button>'
-            +(g.sent?'<button class="ga-btn ga-btn-flag" data-qi="'+ri+'" data-action="unsent" style="color:var(--amber)">↩ Reset</button>':'')
-            +'<button class="ga-btn'+(claimedByMe?' ga-btn-flag flagged':claimedByOther?' ga-btn-flag':' ga-btn-flag')+(claimedBy&&!claimedByOther?' flagged':'')+'" data-qi="'+ri+'" data-action="claim">'+(claimedByMe?'🔒 Mine':claimedByOther?'🔒 '+claimedBy:'Claim')+'</button>'
-            +'<button class="ga-btn ga-btn-flag'+(g.followup?' flagged':'')+'" data-qi="'+ri+'" data-action="flag">'+(g.followup?'Flagged':'Follow Up')+'</button>'
-            +'<button class="ga-btn ga-btn-note'+(g.note?' has-note':'')+'" data-qi="'+ri+'" data-action="note">'+(g.note?'Note':'+ Note')+'</button>'
+            +'<button class="ga-btn ga-btn-wa'+(g.sent?' done':'')+'" data-qi="'+ri+'" data-action="wa" title="Send WhatsApp">'+(g.sent?'↩ Resend':'📤 Send')+'</button>'
+            +'<button class="ga-btn'+(claimedByMe?' ga-btn-flag flagged':claimedByOther?' ga-btn-flag':' ga-btn-flag')+(claimedBy&&!claimedByOther?' flagged':'')+'" data-qi="'+ri+'" data-action="claim" title="'+(claimedByMe?'Mine':claimedByOther?claimedBy:'Claim')+'">'+(claimedByMe?'🔒':claimedByOther?'🔒':'📌')+'</button>'
+            +'<button class="ga-btn ga-btn-flag'+(g.followup?' flagged':'')+'" data-qi="'+ri+'" data-action="flag" title="'+(g.followup?'Flagged':'Follow Up')+'">'+(g.followup?'🚩':'⚑')+'</button>'
+            +'<button class="ga-btn ga-btn-note'+(g.note?' has-note':'')+'" data-qi="'+ri+'" data-action="note" title="Note">📝</button>'
           +'</div>'
         +'</div>'
       +'</div>'
       +(isPending?'<div class="g-confirm"><span class="g-confirm-msg">Did you send it?</span><button class="g-confirm-yes" data-qi="'+ri+'" data-action="confirm-yes">Yes, sent</button><button class="g-confirm-no" data-qi="'+ri+'" data-action="confirm-no">Cancel</button></div>':'')
-      +'<div class="g-corner-actions">'+sC+'<button class="g-del" data-qi="'+ri+'" data-action="del">×</button></div>'
+      +sBR
+      +'<button class="g-del" data-qi="'+ri+'" data-action="del">×</button>'
     +'</div>'
   +'</div>';
 }
@@ -1043,18 +1069,14 @@ function attachSwipe(card){
       // Update hint text and progress
       if(Math.abs(dx)>10){
         var label='';
-        if(isSent&&dx<0) label='← Swipe fully to undo sent';
-        else if(!isSent&&dx>0) label='Swipe fully to mark sent →';
-        else if(!isSent&&dx<0) label='← Swipe fully to flag follow-up';
+        if(isSent&&dx<0) label='Undo';
+        else if(!isSent&&dx>0) label='Sent ✓';
+        else if(!isSent&&dx<0) label='Follow Up';
         hint.textContent=label;
-        hint.style.opacity=Math.min(pct*2,1).toFixed(2);
+        hint.style.opacity=Math.min(pct*1.5,1).toFixed(2);
         hint.style.display=label?'flex':'none';
-        hint.style.alignItems='center';
-        hint.style.justifyContent='center';
         wrap.classList.add('swiping-active');
-        // Turn green when past threshold
-        hint.style.color=isActive?'#fff':'rgba(255,255,255,.8)';
-        hint.style.fontWeight=isActive?'700':'500';
+        hint.style.fontSize=isActive?'26px':'22px';
       } else {
         hint.style.opacity='0';
       }
