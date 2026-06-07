@@ -179,13 +179,18 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .f-pill.on-f{background:var(--amber-bg);border-color:rgba(176,120,48,.3);color:var(--amber)}
 .search-filter-row{display:flex;gap:8px;margin-bottom:12px;align-items:stretch}
 .search-wrap{position:relative;flex:1;min-width:0}
-.search-wrap::before{content:'';position:absolute;left:12px;top:50%;transform:translateY(-50%);width:14px;height:14px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14' fill='none'%3E%3Ccircle cx='6' cy='6' r='4.5' stroke='%23C4AFA4' stroke-width='1.5'/%3E%3Cpath d='M9.5 9.5L12.5 12.5' stroke='%23C4AFA4' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-size:contain;pointer-events:none}
-.search-input{font-family:var(--sans);font-size:13px;padding:10px 14px 10px 36px;background:var(--cream);border:1.5px solid var(--parchment);border-radius:var(--r-sm);color:var(--ink);outline:none;width:100%;height:100%;transition:border-color var(--ease),box-shadow var(--ease)}
+.search-wrap::before{content:'';position:absolute;left:11px;top:50%;transform:translateY(-50%);width:13px;height:13px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14' fill='none'%3E%3Ccircle cx='6' cy='6' r='4.5' stroke='%23C4AFA4' stroke-width='1.5'/%3E%3Cpath d='M9.5 9.5L12.5 12.5' stroke='%23C4AFA4' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-size:contain;pointer-events:none}
+.search-input{font-family:var(--sans);font-size:13px;padding:10px 14px 10px 34px;background:var(--cream);border:1.5px solid var(--parchment);border-radius:var(--r-sm);color:var(--ink);outline:none;width:100%;height:100%;transition:border-color var(--ease),box-shadow var(--ease)}
 .search-input:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135,106,.1)}
 .search-input::placeholder{color:var(--soft)}
 .group-sel{padding:0 10px;font-size:12px;font-weight:500;border:1.5px solid var(--parchment);border-radius:var(--r-sm);background:var(--cream);color:var(--muted);cursor:pointer;font-family:var(--sans);outline:none;transition:border-color var(--ease);flex-shrink:0;width:110px;height:auto;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23C4AFA4' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:26px}
 .group-sel:focus{border-color:var(--rose)}
 
+
+/* ── SORT BUTTON ── */
+.sort-btn{flex-shrink:0;padding:0 12px;height:auto;border:1.5px solid var(--parchment);border-radius:var(--r-sm);background:var(--cream);color:var(--muted);font-family:var(--sans);font-size:11px;font-weight:600;cursor:pointer;transition:all var(--ease);white-space:nowrap;display:flex;align-items:center;gap:5px}
+.sort-btn:hover{border-color:var(--blush);color:var(--ink2)}
+.sort-btn.on{border-color:var(--rose);color:var(--rose-deep);background:var(--rose-soft)}
 /* ── BULK BAR ── */
 .bulk-bar{display:none;align-items:center;gap:8px;padding:10px 16px;background:linear-gradient(135deg,var(--rose),var(--rose-deep));border-radius:var(--r-sm);margin-bottom:12px;animation:slideDown .2s ease}
 @keyframes slideDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
@@ -451,6 +456,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
         <div class="search-filter-row">
           <div class="search-wrap"><input class="search-input" id="searchInput" type="text" placeholder="Search guest…"/></div>
           <select class="group-sel" id="groupSel" style="display:none"><option value="">All groups</option></select>
+          <button class="sort-btn" id="sortBtn" title="Sort">A–Z</button>
         </div>
         <div class="split-bar" id="splitBar" style="display:none">
           <span class="split-lbl">Quick split</span>
@@ -615,6 +621,29 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
     <div class="modal-sub" id="phoneModalSub"></div>
     <div id="phoneModalOpts"></div>
     <button class="modal-cancel" id="phoneModalCancel">Cancel</button>
+  </div>
+</div>
+
+<!-- Lang modal -->
+<div class="modal-bg" id="langModal" style="display:none">
+  <div class="modal">
+    <div class="modal-title">Message language</div>
+    <div class="modal-sub" id="langModalSub"></div>
+    <div id="langModalOpts" style="display:flex;gap:8px;margin:14px 0">
+      <button class="phone-opt lang-opt" data-l="en" style="flex:1;text-align:center;padding:12px 8px">
+        <div style="font-size:18px;margin-bottom:4px">🇬🇧</div>
+        <div style="font-size:11px;font-weight:700;color:var(--ink2)">English</div>
+      </button>
+      <button class="phone-opt lang-opt" data-l="de" style="flex:1;text-align:center;padding:12px 8px">
+        <div style="font-size:18px;margin-bottom:4px">🇩🇪</div>
+        <div style="font-size:11px;font-weight:700;color:var(--ink2)">Deutsch</div>
+      </button>
+      <button class="phone-opt lang-opt" data-l="ru" style="flex:1;text-align:center;padding:12px 8px">
+        <div style="font-size:18px;margin-bottom:4px">🇷🇺</div>
+        <div style="font-size:11px;font-weight:700;color:var(--ink2)">Русский</div>
+      </button>
+    </div>
+    <button class="modal-cancel" id="langModalCancel">Cancel</button>
   </div>
 </div>
 <!-- Note modal -->
@@ -798,7 +827,12 @@ function getFiltered(){
     if(importFilter==='sent')return g.sent;
     return true;
   }).filter(function(g){return!searchQuery||(g.name||'').toLowerCase().includes(searchQuery);})
-    .filter(function(g){return!groupFilter||(g.group||'')===groupFilter;});
+    .filter(function(g){return!groupFilter||(g.group||'')===groupFilter;})
+    .sort(function(a,b){
+      if(sortMode==='az')return(a.name||'').localeCompare(b.name||'');
+      if(sortMode==='za')return(b.name||'').localeCompare(a.name||'');
+      return 0;
+    });
 }
 
 function renderGuestList(){
@@ -840,8 +874,8 @@ function renderGuestList(){
   // Actions
   list.querySelectorAll('[data-action]').forEach(function(btn){
     btn.addEventListener('click',function(e){e.stopPropagation();var ri=parseInt(this.dataset.qi);var g=importQueue[ri];if(!g)return;var a=this.dataset.action;
-      if(a==='mlang'){g.msgLang=this.dataset.l;saveGuestMeta();renderGuestList();return;}
-      if(a==='wa')sendSingle(g,ri);
+      if(a==='wa'){openLangModal(g,ri);return;}
+      else if(a==='unsent'){var prevSentAt=g.sentAt;g.sent=false;g.sentAt='';g.pendingSent=false;todayCount=Math.max(0,todayCount-1);updateTodayBadge();saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();showUndo('Reset '+g.name+' to unsent',function(){g.sent=true;g.sentAt=prevSentAt;todayCount++;updateTodayBadge();saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();});return;}
       else if(a==='flag'){g.followup=!g.followup;saveGuestMeta();renderGuestList();renderDashboard();}
       else if(a==='claim'){claimGuest(g.name);}
       else if(a==='note')openNoteModal(ri);
@@ -888,9 +922,10 @@ function buildGuestCard(g){
           +'<div class="g-name-row"><span class="g-name">'+g.name+'</span>'+sC+claimC+sentTime+'</div>'
           +'<div class="g-tags">'+tC+lC+rC+cC+'</div>'
           +(g.note?'<div class="g-note">'+g.note+'</div>':'')
-          +(g.sent?'':'<div class="g-msg-lang"><button class="ml-btn'+(!g.msgLang||g.msgLang==='en'?' on':'')+' data-qi="'+ri+'" data-action="mlang" data-l="en">EN</button><button class="ml-btn'+(g.msgLang==='de'?' on':'')+' data-qi="'+ri+'" data-action="mlang" data-l="de">DE</button><button class="ml-btn'+(g.msgLang==='ru'?' on':'')+' data-qi="'+ri+'" data-action="mlang" data-l="ru">RU</button></div>')
+
           +'<div class="g-actions">'
             +'<button class="ga-btn ga-btn-wa'+(g.sent?' done':'')+'" data-qi="'+ri+'" data-action="wa">'+(g.sent?'Resend':'Send')+'</button>'
+            +(g.sent?'<button class="ga-btn ga-btn-flag" data-qi="'+ri+'" data-action="unsent" style="color:var(--amber)">↩ Reset</button>':'')
             +'<button class="ga-btn'+(claimedByMe?' ga-btn-flag flagged':claimedByOther?' ga-btn-flag':' ga-btn-flag')+(claimedBy&&!claimedByOther?' flagged':'')+'" data-qi="'+ri+'" data-action="claim">'+(claimedByMe?'🔒 Mine':claimedByOther?'🔒 '+claimedBy:'Claim')+'</button>'
             +'<button class="ga-btn ga-btn-flag'+(g.followup?' flagged':'')+'" data-qi="'+ri+'" data-action="flag">'+(g.followup?'Flagged':'Follow Up')+'</button>'
             +'<button class="ga-btn ga-btn-note'+(g.note?' has-note':'')+'" data-qi="'+ri+'" data-action="note">'+(g.note?'Note':'+ Note')+'</button>'
@@ -954,11 +989,42 @@ function attachSwipe(card){
   card.addEventListener('mouseup',onEnd);
 }
 
+/* ══ LANG MODAL ══════════════════════════════ */
+var langModalCb=null;
+document.getElementById('langModalCancel').addEventListener('click',function(){document.getElementById('langModal').style.display='none';langModalCb=null;});
+document.getElementById('langModalOpts').querySelectorAll('.lang-opt').forEach(function(b){
+  b.addEventListener('click',function(){
+    document.getElementById('langModal').style.display='none';
+    if(langModalCb)langModalCb(this.dataset.l);
+    langModalCb=null;
+  });
+});
+function openLangModal(g,ri){
+  document.getElementById('langModalSub').textContent='For: '+g.name;
+  document.getElementById('langModal').style.display='flex';
+  langModalCb=function(lang){
+    g.msgLang=lang;saveGuestMeta();
+    sendSingleWithLang(g,ri,lang);
+  };
+}
+
+/* ══ SORT ═════════════════════════════════════ */
+var sortMode='default'; // 'default' | 'az' | 'za'
+document.getElementById('sortBtn').addEventListener('click',function(){
+  if(sortMode==='default')sortMode='az';
+  else if(sortMode==='az')sortMode='za';
+  else sortMode='default';
+  var labels={default:'A–Z',az:'A→Z',za:'Z→A'};
+  this.textContent=labels[sortMode];
+  this.classList.toggle('on',sortMode!=='default');
+  renderGuestList();
+});
+
 /* ══ SEND SINGLE ═════════════════════════════ */
-function sendSingle(g,ri){
-  var type=g.type||'ceremony-single';var lang=g.lang||'en';var msgLang=g.msgLang||lang;
+function sendSingleWithLang(g,ri,msgLang){
+  var type=g.type||'ceremony-single';var lang=g.lang||'en';
   var url=buildUrl(g.name,'',type,lang);
-  var msg=buildMsg(firstName(g.name),type,msgLang,url);
+  var msg=buildMsg(firstName(g.name),type,msgLang||lang,url);
   var phone=(g.phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');
   window.open(phone?'https://wa.me/'+phone+'?text='+encodeURIComponent(msg):'https://wa.me/?text='+encodeURIComponent(msg),'_blank');
   g.pendingSent=true;saveGuestMeta();renderGuestList();
