@@ -272,7 +272,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .show-sent-btn:hover{border-color:var(--green);color:var(--green)}
 
 .g-tags:empty{margin-bottom:0}
-.g-swipe-hint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:22px;font-weight:400;font-style:italic;letter-spacing:.01em;color:#fff;pointer-events:none;z-index:5;opacity:0;transition:opacity .1s;text-shadow:0 1px 6px rgba(0,0,0,.18)}
+.g-swipe-hint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:26px;font-weight:600;font-style:italic;letter-spacing:.01em;color:#fff;pointer-events:none;z-index:5;opacity:0;text-shadow:0 2px 8px rgba(0,0,0,.22)}
 .g-swipe-wrap.swiping-active .g-swipe-hint{display:flex}
 
 .empty-state{padding:36px 20px;text-align:center;color:var(--muted);font-family:var(--serif);font-style:italic;font-size:14px}
@@ -1067,17 +1067,16 @@ function attachSwipe(card){
       else if(!isSent&&dx<-threshold){cls+=' active-left';isActive=true;}
       bg.className=cls;
       // Update hint text and progress
-      if(Math.abs(dx)>20){
+      if(Math.abs(dx)>4){
         var label='';
         if(isSent&&dx<0) label='Undo';
         else if(!isSent&&dx>0) label='Sent ✓';
         else if(!isSent&&dx<0) label='Follow Up';
         hint.textContent=label;
-        var appearPct=Math.min((Math.abs(dx)-20)/40,1); // fully visible after 60px
-        hint.style.opacity=appearPct.toFixed(2);
+        hint.style.opacity='1';
         hint.style.display=label?'flex':'none';
         wrap.classList.add('swiping-active');
-        hint.style.fontSize=isActive?'28px':'24px';
+        hint.style.fontSize=isActive?'30px':'26px';
       } else {
         hint.style.opacity='0';
       }
