@@ -629,6 +629,17 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 </div>
 
 <!-- Lang modal -->
+<!-- No-phone modal -->
+<div class="modal-bg" id="phoneModal" style="display:none">
+  <div class="modal">
+    <div class="modal-title">No phone number</div>
+    <div class="modal-sub" id="phoneModalSub">Enter a number to send directly, or skip to pick from your WhatsApp contacts.</div>
+    <input type="tel" id="phoneModalInput" placeholder="+49 123 456 789" style="font-family:var(--sans);font-size:15px;padding:11px 14px;background:var(--cream);border:1.5px solid var(--parchment);border-radius:var(--r-sm);color:var(--ink);outline:none;width:100%;margin-bottom:10px;transition:border-color var(--ease)" />
+    <button class="qf-send" id="phoneModalSend" style="margin-bottom:8px">Send to this number</button>
+    <button class="modal-cancel" id="phoneModalSkip" style="background:var(--green-bg);color:var(--green);border-color:rgba(58,140,92,.3)">Skip — open WhatsApp contacts</button>
+    <button class="modal-cancel" id="phoneModalCancel" style="margin-top:6px">Cancel</button>
+  </div>
+</div>
 <div class="modal-bg" id="langModal" style="display:none">
   <div class="modal">
     <div class="modal-title">Message language</div>
@@ -1054,17 +1065,45 @@ document.getElementById('sortBtn').addEventListener('click',function(){
   renderGuestList();
 });
 
+/* ══ PHONE MODAL ══════════════════════════════ */
+var phoneModalCb=null;
+document.getElementById('phoneModalCancel').addEventListener('click',function(){
+  document.getElementById('phoneModal').style.display='none';phoneModalCb=null;
+});
+document.getElementById('phoneModalSend').addEventListener('click',function(){
+  var val=document.getElementById('phoneModalInput').value.trim();
+  var clean=val.replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');
+  if(!clean){document.getElementById('phoneModalInput').style.borderColor='var(--red)';return;}
+  document.getElementById('phoneModal').style.display='none';
+  if(phoneModalCb)phoneModalCb(clean);phoneModalCb=null;
+});
+document.getElementById('phoneModalSkip').addEventListener('click',function(){
+  document.getElementById('phoneModal').style.display='none';
+  if(phoneModalCb)phoneModalCb('');phoneModalCb=null;
+});
+document.getElementById('phoneModalInput').addEventListener('input',function(){this.style.borderColor='';});
+function showPhoneModal(name,onPhone){
+  document.getElementById('phoneModalSub').textContent='No number saved for '+name+'. Enter one to send directly, or open WhatsApp contacts.';
+  document.getElementById('phoneModalInput').value='';
+  document.getElementById('phoneModalInput').style.borderColor='';
+  document.getElementById('phoneModal').style.display='flex';
+  phoneModalCb=onPhone;
+  setTimeout(function(){document.getElementById('phoneModalInput').focus();},120);
+}
+
 /* ══ SEND SINGLE ═════════════════════════════ */
 function sendSingleWithLang(g,ri,msgLang){
   var type=g.type||'ceremony-single';var lang=g.lang||'en';
   var url=buildUrl(g.name,'',type,lang);
   var msg=buildMsg(firstName(g.name),type,msgLang||lang,url);
   var phone=(g.phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');
-  function doSend(){
-    if(!phone){showToastWarn('No phone for '+firstName(g.name)+' — opening blank WA');}
-    window.open(phone?'https://wa.me/'+phone+'?text='+encodeURIComponent(msg):'https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+  function doSend(resolvedPhone){
+    var p=resolvedPhone!==undefined?resolvedPhone:phone;
+    window.open(p?'https://wa.me/'+p+'?text='+encodeURIComponent(msg):'https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+    if(resolvedPhone!==undefined&&resolvedPhone)g.phone='+'+resolvedPhone;
     g.pendingSent=true;g.followup=true;g.sentBy=sessionSender;saveGuestMeta();renderGuestList();
   }
+  if(!phone){showPhoneModal(firstName(g.name),function(p){doSend(p);});return;}
   doSend();
 }
 function showCrossSenderConfirm(assigned,active,onConfirm){
@@ -1118,9 +1157,13 @@ function doGroupSend(guests,phone,msgLang){
   var url=buildUrl(p1,p2,type,lang);
   var ml=msgLang||guests[0].msgLang||lang;
   var msg=buildMsg(dName,type,ml,url);
-  var clean=(phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');
-  window.open(clean?'https://wa.me/'+clean+'?text='+encodeURIComponent(msg):'https://wa.me/?text='+encodeURIComponent(msg),'_blank');
-  guests.forEach(function(g){g.pendingSent=true;g.followup=true;});selectedIdxs=[];saveGuestMeta();renderGuestList();renderDashboard();
+  function send(resolvedPhone){
+    var clean=(resolvedPhone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');
+    window.open(clean?'https://wa.me/'+clean+'?text='+encodeURIComponent(msg):'https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+    guests.forEach(function(g){g.pendingSent=true;g.followup=true;});selectedIdxs=[];saveGuestMeta();renderGuestList();renderDashboard();
+  }
+  if(!phone){showPhoneModal(dName,function(p){send(p);});return;}
+  send(phone);
 }
 
 /* ══ FAB + QUICK SEND ════════════════════════ */
