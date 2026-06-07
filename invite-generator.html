@@ -1047,9 +1047,23 @@ function sendSingleWithLang(g,ri,msgLang){
   var url=buildUrl(g.name,'',type,lang);
   var msg=buildMsg(firstName(g.name),type,msgLang||lang,url);
   var phone=(g.phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');
-  if(!phone){showToastWarn('No phone number for '+firstName(g.name)+' — opening blank WA');}
-  window.open(phone?'https://wa.me/'+phone+'?text='+encodeURIComponent(msg):'https://wa.me/?text='+encodeURIComponent(msg),'_blank');
-  g.pendingSent=true;g.followup=true;g.sentBy=sessionSender;saveGuestMeta();renderGuestList();
+  function doSend(){
+    if(!phone){showToastWarn('No phone for '+firstName(g.name)+' — opening blank WA');}
+    window.open(phone?'https://wa.me/'+phone+'?text='+encodeURIComponent(msg):'https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+    g.pendingSent=true;g.followup=true;g.sentBy=sessionSender;saveGuestMeta();renderGuestList();
+  }
+  if(g.sender&&g.sender!==sessionSender){showCrossSenderConfirm(g.sender,sessionSender,doSend);return;}
+  doSend();
+}
+function showCrossSenderConfirm(assigned,active,onConfirm){
+  var t=document.getElementById('undoToast'),btn=document.getElementById('undoToastBtn');
+  if(undoTimer)clearTimeout(undoTimer);
+  t.style.background='var(--amber)';
+  document.getElementById('undoToastMsg').textContent='This is '+assigned+'\u2019s guest — you\u2019re logged in as '+active+'. Send anyway?';
+  btn.style.display='';btn.textContent='Send';t.classList.add('show');
+  var cleanup=function(){t.classList.remove('show');t.style.background='';btn.textContent='Undo';undoAction=null;if(undoTimer){clearTimeout(undoTimer);undoTimer=null;}};
+  undoAction=function(){cleanup();onConfirm();};
+  undoTimer=setTimeout(function(){cleanup();},5000);
 }
 
 /* ══ BULK ════════════════════════════════════ */
