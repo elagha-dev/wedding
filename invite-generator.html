@@ -169,7 +169,8 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .sync-status{font-size:11px;color:var(--muted);margin-bottom:12px;min-height:18px}
 
 /* ── FILTERS ── */
-.filter-row{display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;margin-bottom:12px;padding-bottom:2px;scrollbar-width:none}
+.sticky-filters{position:sticky;top:52px;z-index:90;background:rgba(253,248,243,.96);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);padding:10px 16px 8px;margin:0 -16px;border-bottom:1px solid rgba(196,149,106,.1)}
+.filter-row{display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;margin-bottom:8px;padding-bottom:2px;scrollbar-width:none}
 .filter-row::-webkit-scrollbar{display:none}
 .f-pill{flex-shrink:0;padding:6px 14px;border-radius:var(--r-pill);font-size:10px;font-weight:600;letter-spacing:.06em;border:1.5px solid var(--parchment);background:var(--cream);color:var(--muted);cursor:pointer;font-family:var(--sans);transition:all var(--ease);white-space:nowrap}
 .f-pill:hover{border-color:var(--blush);color:var(--ink2)}
@@ -455,15 +456,17 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
   <!-- GUEST LIST -->
   <div class="sec" id="guestListSec">Guest List</div>
   <div class="card">
-    <div class="card-body" style="padding-top:20px">
+    <div class="card-body" style="padding-top:8px">
       <div id="guestArea" style="display:none">
-        <div class="filter-row" id="filterRow"></div>
-        <div class="search-filter-row">
-          <div class="search-wrap">
-            <svg class="search-icon" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="5.5" cy="5.5" r="4" stroke="#C4AFA4" stroke-width="1.5"/><path d="M9 9L12 12" stroke="#C4AFA4" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <input class="search-input" id="searchInput" type="text" placeholder=""/></div>
-          <select class="group-sel" id="groupSel" style="display:none"><option value="">All groups</option></select>
-          <button class="sort-btn" id="sortBtn" title="Sort">A–Z</button>
+        <div class="sticky-filters">
+          <div class="filter-row" id="filterRow"></div>
+          <div class="search-filter-row">
+            <div class="search-wrap">
+              <svg class="search-icon" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="5.5" cy="5.5" r="4" stroke="#C4AFA4" stroke-width="1.5"/><path d="M9 9L12 12" stroke="#C4AFA4" stroke-width="1.5" stroke-linecap="round"/></svg>
+              <input class="search-input" id="searchInput" type="text" placeholder=""/></div>
+            <select class="group-sel" id="groupSel" style="display:none"><option value="">All groups</option></select>
+            <button class="sort-btn" id="sortBtn" title="Sort">A–Z</button>
+          </div>
         </div>
         <div class="split-bar" id="splitBar" style="display:none">
           <span class="split-lbl">Quick split</span>
