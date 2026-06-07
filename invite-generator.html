@@ -67,19 +67,19 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .dash-subtitle{font-size:10px;color:var(--soft);letter-spacing:.04em}
 .dash-body{padding:16px 18px}
 /* Big progress ring area */
-.dash-top{display:flex;align-items:flex-start;gap:18px;margin-bottom:16px}
-.dash-ring-wrap{position:relative;flex-shrink:0;width:72px;height:72px}
+.dash-top{display:flex;align-items:stretch;gap:18px;margin-bottom:16px}
+.dash-ring-wrap{position:relative;flex-shrink:0;width:72px;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .dash-ring-wrap svg{transform:rotate(-90deg)}
 .dash-ring-bg{fill:none;stroke:var(--parchment);stroke-width:7}
 .dash-ring-fill{fill:none;stroke:url(#ringGrad);stroke-width:7;stroke-linecap:round;transition:stroke-dashoffset .8s cubic-bezier(.4,0,.2,1)}
 .dash-ring-label{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .dash-ring-pct{font-family:var(--serif);font-size:18px;font-weight:400;color:var(--rose-deep);line-height:1}
 .dash-ring-sub{font-size:7px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-.dash-right{flex:1;min-width:0}
+.dash-right{flex:1;min-width:0;display:flex;align-items:center}
 .dash-total{font-family:var(--serif);font-size:13px;color:var(--ink);margin-bottom:8px}
 .dash-total strong{font-size:22px;font-style:italic;color:var(--rose-deep)}
 /* Stat grid */
-.dash-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
+.dash-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
 .dash-cell{background:var(--cream);border-radius:var(--r-sm);padding:10px 12px;text-align:center;border:1.5px solid transparent;cursor:pointer;transition:all var(--ease)}
 .dash-cell:hover{border-color:var(--blush);transform:translateY(-1px)}
 .dash-cell.active{border-color:var(--rose-soft);background:var(--rose-soft)}
@@ -233,6 +233,10 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .chip{font-size:8.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:var(--r-pill);display:inline-flex;align-items:center;height:18px;white-space:nowrap;flex-shrink:0}
 .chip-a{background:var(--arina-bg);color:var(--arina-txt)}
 .chip-e{background:var(--elnur-bg);color:var(--elnur-txt)}
+.chip-dot{width:5px;height:5px;border-radius:50%;display:inline-block;flex-shrink:0;margin-right:3px;vertical-align:middle}
+.chip-dot-free{background:currentColor;opacity:.3}
+.chip-dot-mine{background:#3A8C5C;animation:blink 1.8s ease-in-out infinite}
+.chip-dot-locked{background:var(--red);animation:blink 1.8s ease-in-out infinite}
 .chip-type{background:var(--gold-pale);color:var(--rose-deep)}
 .chip-lang{background:var(--parchment);color:var(--muted)}
 .chip-rsvp{background:var(--green-bg);color:var(--green)}
@@ -339,12 +343,6 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 
 /* ── CLAIM LOCK ── */
 .g-card.claimed-other{opacity:.5;pointer-events:none}
-.g-card.claimed-other .g-inner{position:relative}
-.claim-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:var(--r-pill);font-size:8px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;white-space:nowrap;flex-shrink:0}
-.claim-badge-a{background:var(--arina-bg);color:var(--arina-txt)}
-.claim-badge-e{background:var(--elnur-bg);color:var(--elnur-txt)}
-.claim-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;animation:blink 1.8s ease-in-out infinite}
-.claim-dot-a{background:var(--arina-txt)}.claim-dot-e{background:var(--elnur-txt)}
 
 /* ── SPLIT BAR ── */
 .split-bar{display:flex;align-items:center;gap:8px;padding:10px 14px;background:linear-gradient(135deg,var(--cream2),var(--parchment));border:1.5px solid var(--blush);border-radius:var(--r-sm);margin-bottom:12px}
@@ -424,7 +422,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
           <div class="dash-ring-label"><div class="dash-ring-pct" id="dashPct">0%</div><div class="dash-ring-sub">sent</div></div>
         </div>
         <div class="dash-right">
-          <div class="dash-grid" id="dashGrid">
+          <div class="dash-grid" id="dashGrid" style="flex:1">
             <div class="dash-cell" data-sf="sent"><div class="dash-n g" id="dSent">0</div><div class="dash-l">Sent</div></div>
             <div class="dash-cell" data-sf="pending"><div class="dash-n a" id="dPending">0</div><div class="dash-l">Pending</div></div>
             <div class="dash-cell" data-sf="followup"><div class="dash-n r" id="dFollowup">0</div><div class="dash-l">Follow Up</div></div>
@@ -937,12 +935,14 @@ function buildGuestCard(g){
   var claimedByMe=claimedBy===sessionSender;
   var claimedByOther=claimedBy&&claimedBy!==sessionSender;
   var cls='g-card'+(isSel?' sel':'')+(g.followup&&!g.sent?' fup':'')+(g.sent?' sent':'')+(isPending?' pending-sent':'')+(claimedByOther?' claimed-other':'');
-  var sC=g.sender==='Arina'?'<span class="chip chip-a">Arina</span>':'<span class="chip chip-e">Elnur</span>';
+  var senderCls=g.sender==='Arina'?'chip-a':'chip-e';
+  var dotCls=claimedBy?(claimedByMe?'chip-dot-mine':'chip-dot-locked'):'chip-dot-free';
+  var sC='<span class="chip '+senderCls+'"><span class="chip-dot '+dotCls+'"></span>'+(g.sender||'')+'</span>';
   var tC=(g.type==='ceremony-party-single'||g.type==='couple-party')?'<span class="chip chip-type">Full Day</span>':'<span class="chip chip-type">Ceremony</span>';
   var lC=g.lang&&g.lang!=='en'?'<span class="chip chip-lang">'+(g.lang==='de'?'DE':'RU')+'</span>':'';
   var rC=g.confirmed?'<span class="chip chip-rsvp">RSVP</span>':'';
   var cC=g.isChild?'<span class="chip chip-child">Child</span>':'';
-  var claimC=claimedBy?('<span class="claim-badge claim-badge-'+(claimedBy==='Arina'?'a':'e')+'"><span class="claim-dot claim-dot-'+(claimedBy==='Arina'?'a':'e')+'"></span>'+(claimedByMe?'You':''+claimedBy)+'</span>'):'';
+  var claimC='';
   var sentBy=g.sentBy?g.sentBy:'';var sentTime=g.sent&&g.sentAt?'<span class="g-sent-time">'+g.sentAt+(sentBy?' · '+sentBy:'')+'</span>':'';
   return '<div class="g-swipe-wrap" data-qi="'+ri+'">'
     +'<div class="g-swipe-bg" id="swbg'+ri+'"><span class="g-swipe-bg-txt">'+(g.sent?'Undo':'✓ Sent')+'</span></div>'
