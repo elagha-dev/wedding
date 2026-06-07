@@ -746,10 +746,14 @@ function applyGuestMeta(){
 }
 function saveWorkerUrl(u){try{localStorage.setItem('ww_url',u);}catch(e){}}
 function loadWorkerUrl(){try{return localStorage.getItem('ww_url')||'';}catch(e){return '';}}
-function saveLastSettings(){try{localStorage.setItem('ww_last',JSON.stringify({type:selType,lang:selLang,sender:selSender}));}catch(e){}}
-function loadLastSettings(){try{var d=localStorage.getItem('ww_last');if(d){var s=JSON.parse(d);selType=s.type||selType;selLang=s.lang||selLang;}}catch(e){}}
+function saveLastSettings(){try{localStorage.setItem('ww_last',JSON.stringify({type:selType,lang:selLang,sender:selSender,sessionSender:sessionSender,sortMode:sortMode}));}catch(e){}}
+function loadLastSettings(){try{var d=localStorage.getItem('ww_last');if(d){var s=JSON.parse(d);selType=s.type||selType;selLang=s.lang||selLang;if(s.sessionSender)sessionSender=s.sessionSender;if(s.sortMode)sortMode=s.sortMode;}}catch(e){}}
 mem=load();
 loadLastSettings();
+// apply restored session sender to UI
+setSession(sessionSender);
+// apply restored sort mode to button
+(function(){var labels={default:'A–Z',az:'A→Z',za:'Z→A'};var btn=document.getElementById('sortBtn');if(btn){btn.textContent=labels[sortMode]||'A–Z';btn.classList.toggle('on',sortMode!=='default');}})();
 
 /* ══ MESSAGES ════════════════════════════════ */
 var msgs={
@@ -784,6 +788,7 @@ function setSession(who){
   // sync sender buttons in generator
   document.querySelectorAll('.s-btn').forEach(function(b){b.classList.remove('on');if(b.dataset.s===who)b.classList.add('on');});
   updateFabLabels();
+  saveLastSettings();
 }
 document.getElementById('sessA').addEventListener('click',function(){setSession('Arina');});
 document.getElementById('sessE').addEventListener('click',function(){setSession('Elnur');});
@@ -1038,6 +1043,7 @@ document.getElementById('sortBtn').addEventListener('click',function(){
   var labels={default:'A–Z',az:'A→Z',za:'Z→A'};
   this.textContent=labels[sortMode];
   this.classList.toggle('on',sortMode!=='default');
+  saveLastSettings();
   renderGuestList();
 });
 
