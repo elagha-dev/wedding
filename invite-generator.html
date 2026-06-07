@@ -1073,9 +1073,9 @@ function attachSwipe(card){
       // Update hint labels
       if(Math.abs(dx)>4){
         var isSentCard=isSent;
-        if(isSentCard&&dx<0){lblL.textContent='Undo';wrap.classList.add('sw-left');wrap.classList.remove('sw-right');}
-        else if(!isSentCard&&dx>0){lblR.textContent='Sent ✓';wrap.classList.add('sw-right');wrap.classList.remove('sw-left');}
-        else if(!isSentCard&&dx<0){lblL.textContent='Follow Up';wrap.classList.add('sw-left');wrap.classList.remove('sw-right');}
+        if(isSentCard&&dx<0){lblR.textContent='Undo';wrap.classList.add('sw-right');wrap.classList.remove('sw-left');}
+        else if(!isSentCard&&dx>0){lblL.textContent='Sent ✓';wrap.classList.add('sw-left');wrap.classList.remove('sw-right');}
+        else if(!isSentCard&&dx<0){lblR.textContent='Follow Up';wrap.classList.add('sw-right');wrap.classList.remove('sw-left');}
         else{wrap.classList.remove('sw-left','sw-right');}
       } else {
         wrap.classList.remove('sw-left','sw-right');
