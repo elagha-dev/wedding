@@ -169,7 +169,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .sync-status{font-size:11px;color:var(--muted);margin-bottom:12px;min-height:18px}
 
 /* ── FILTERS ── */
-.sticky-filters{position:sticky;top:52px;z-index:90;background:rgba(253,248,243,.96);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);padding:10px 16px 8px;margin:0 -16px;border-bottom:1px solid rgba(196,149,106,.1)}
+.sticky-filters{position:sticky;top:52px;z-index:90;background:rgba(253,248,243,.96);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);padding:8px 0 8px;border-bottom:1px solid rgba(196,149,106,.1);margin-bottom:8px}
 .filter-row{display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;margin-bottom:8px;padding-bottom:2px;scrollbar-width:none}
 .filter-row::-webkit-scrollbar{display:none}
 .f-pill{flex-shrink:0;padding:6px 14px;border-radius:var(--r-pill);font-size:10px;font-weight:600;letter-spacing:.06em;border:1.5px solid var(--parchment);background:var(--cream);color:var(--muted);cursor:pointer;font-family:var(--sans);transition:all var(--ease);white-space:nowrap}
@@ -456,11 +456,11 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
   <!-- GUEST LIST -->
   <div class="sec" id="guestListSec">Guest List</div>
   <div class="card">
-    <div class="card-body" style="padding-top:8px">
+    <div class="card-body" style="padding:0">
       <div id="guestArea" style="display:none">
         <div class="sticky-filters">
-          <div class="filter-row" id="filterRow"></div>
-          <div class="search-filter-row">
+          <div class="filter-row" id="filterRow" style="padding:0 16px"></div>
+          <div class="search-filter-row" style="padding:0 16px">
             <div class="search-wrap">
               <svg class="search-icon" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="5.5" cy="5.5" r="4" stroke="#C4AFA4" stroke-width="1.5"/><path d="M9 9L12 12" stroke="#C4AFA4" stroke-width="1.5" stroke-linecap="round"/></svg>
               <input class="search-input" id="searchInput" type="text" placeholder=""/></div>
@@ -479,8 +479,8 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
           <button class="bulk-desel" id="bulkDesel">✕ Deselect</button>
           <button class="bulk-send" id="bulkSend">Send Invite</button>
         </div>
-        <div class="guest-list" id="guestList"></div>
-        <div class="list-footer">
+        <div class="guest-list" id="guestList" style="padding:0 16px"></div>
+        <div class="list-footer" style="padding:0 16px 16px">
           <button class="list-btn dng" id="clearGuestBtn">Clear list</button>
           <button class="list-btn grow" id="exportBtn">Export CSV</button>
         </div>
