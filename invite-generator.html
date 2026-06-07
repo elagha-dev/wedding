@@ -868,11 +868,13 @@ function renderGuestList(){
   var sentGuests=guests.filter(function(g){return g.sent;});
 
   var sections={};
+  // preserve sorted order when bucketing into groups
   unsent.forEach(function(g){var grp=g.group||'_';if(!sections[grp])sections[grp]=[];sections[grp].push(g);});
 
   var html='';
-  // Render unsent grouped
-  Object.keys(sections).forEach(function(grp){
+  // Sort group keys: '_' first, then alphabetically; within each group preserve sorted order from getFiltered
+  var grpKeys=Object.keys(sections).sort(function(a,b){if(a==='_')return-1;if(b==='_')return 1;return a.localeCompare(b);});
+  grpKeys.forEach(function(grp){
     if(grp!=='_')html+='<div class="g-group-hdr">'+grp+' <span style="opacity:.4">('+sections[grp].length+')</span></div>';
     sections[grp].forEach(function(g){html+=buildGuestCard(g);});
   });
