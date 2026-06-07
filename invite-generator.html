@@ -46,9 +46,12 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .today-l{font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.7)}
 
 /* Sync pill */
-.sync-pill{display:flex;align-items:center;gap:6px;padding:7px 14px;background:var(--rose);color:#fff;border:none;border-radius:var(--r-pill);font-family:var(--sans);font-size:10.5px;font-weight:600;letter-spacing:.06em;cursor:pointer;transition:background var(--ease),transform var(--ease),box-shadow var(--ease);box-shadow:0 2px 12px rgba(160,97,74,.3);white-space:nowrap;flex-shrink:0}
+.sync-pill{display:flex;align-items:center;gap:6px;padding:7px 14px;background:var(--rose);color:#fff;border:none;border-radius:var(--r-pill);font-family:var(--sans);font-size:10.5px;font-weight:600;letter-spacing:.06em;cursor:pointer;transition:all var(--ease);box-shadow:0 2px 12px rgba(160,97,74,.3);white-space:nowrap;flex-shrink:0}
 .sync-pill:hover{background:var(--rose-deep);transform:translateY(-1px)}
+.sync-pill.synced{background:rgba(58,140,92,.15);color:var(--green);box-shadow:none;border:1.5px solid rgba(58,140,92,.22)}
+.sync-pill.synced:hover{background:rgba(58,140,92,.24);transform:none}
 .sync-dot{width:6px;height:6px;background:rgba(255,255,255,.75);border-radius:50%;flex-shrink:0}
+.sync-pill.synced .sync-dot{background:var(--green)}
 .sync-dot.live{animation:blink 2.2s ease-in-out infinite}
 @keyframes blink{0%,100%{opacity:1}55%{opacity:.3}}
 
@@ -174,13 +177,13 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .f-pill.on-a{background:var(--arina-bg);border-color:var(--arina-border);color:var(--arina-txt)}
 .f-pill.on-e{background:var(--elnur-bg);border-color:var(--elnur-border);color:var(--elnur-txt)}
 .f-pill.on-f{background:var(--amber-bg);border-color:rgba(176,120,48,.3);color:var(--amber)}
-.search-filter-row{display:flex;gap:8px;margin-bottom:12px;align-items:stretch}
+.search-filter-row{display:flex;gap:8px;margin-bottom:12px;align-items:center}
 .search-wrap{position:relative;flex:1;min-width:0}
 .search-wrap::before{content:'⌕';position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--soft);pointer-events:none;line-height:1}
-.search-input{font-family:var(--sans);font-size:13px;padding:9px 14px 9px 37px;background:var(--cream);border:1.5px solid var(--parchment);border-radius:var(--r-pill);color:var(--ink);outline:none;width:100%;height:100%;transition:border-color var(--ease),box-shadow var(--ease)}
+.search-input{font-family:var(--sans);font-size:13px;padding:9px 14px 9px 37px;background:var(--cream);border:1.5px solid var(--parchment);border-radius:var(--r-pill);color:var(--ink);outline:none;width:100%;transition:border-color var(--ease),box-shadow var(--ease)}
 .search-input:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135,106,.1)}
 .search-input::placeholder{color:var(--soft)}
-.group-sel{padding:9px 14px;font-size:12px;font-weight:500;letter-spacing:.02em;border:1.5px solid var(--parchment);border-radius:var(--r-pill);background:var(--cream);color:var(--muted);cursor:pointer;font-family:var(--sans);outline:none;transition:border-color var(--ease);flex-shrink:0;height:100%}
+.group-sel{padding:9px 12px;font-size:12px;font-weight:500;border:1.5px solid var(--parchment);border-radius:var(--r-pill);background:var(--cream);color:var(--muted);cursor:pointer;font-family:var(--sans);outline:none;transition:border-color var(--ease);flex-shrink:0;max-width:130px}
 .group-sel:focus{border-color:var(--rose)}
 
 /* ── BULK BAR ── */
@@ -429,11 +432,6 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
   <div class="sec">Guest List</div>
   <div class="card">
     <div class="card-body" style="padding-top:20px">
-      <div class="sync-row">
-        <input type="text" id="workerUrl" placeholder="https://your-worker.workers.dev"/>
-        <button class="btn-sync" id="syncBtn">Sync</button>
-      </div>
-      <div class="sync-status" id="syncStatus"></div>
       <div id="guestArea" style="display:none">
         <div class="filter-row" id="filterRow"></div>
         <div class="search-filter-row">
@@ -1118,12 +1116,28 @@ function splitHalf(){
 document.getElementById('splitArina').addEventListener('click',function(){splitAssign('Arina');});
 document.getElementById('splitElnur').addEventListener('click',function(){splitAssign('Elnur');});
 document.getElementById('splitHalf').addEventListener('click',splitHalf);
-var workerInput=document.getElementById('workerUrl');
-workerInput.value=loadWorkerUrl()||DEFAULT_WORKER;
-function setSyncStatus(msg,color){var el=document.getElementById('syncStatus');el.textContent=msg;el.style.color=color||'';}
+var workerUrl=loadWorkerUrl()||DEFAULT_WORKER;
+function setTopSynced(timeStr){
+  var pill=document.getElementById('topSyncBtn');
+  pill.classList.add('synced');
+  document.getElementById('topSyncLabel').textContent=timeStr;
+  var dot=document.getElementById('syncDot');dot.classList.remove('live');dot.style.background='';
+}
+function setTopSyncing(){
+  var pill=document.getElementById('topSyncBtn');
+  pill.classList.remove('synced');
+  document.getElementById('topSyncLabel').textContent='Syncing…';
+  var dot=document.getElementById('syncDot');dot.classList.add('live');dot.style.background='';
+}
+function setTopSyncFailed(){
+  var pill=document.getElementById('topSyncBtn');
+  pill.classList.remove('synced');
+  document.getElementById('topSyncLabel').textContent='Retry';
+  var dot=document.getElementById('syncDot');dot.classList.add('live');dot.style.background='var(--amber)';
+}
 function doSync(){
-  var url=workerInput.value.trim();if(!url)return;saveWorkerUrl(url);
-  document.getElementById('topSyncLabel').textContent='Syncing…';document.getElementById('syncDot').style.animation='none';setSyncStatus('Syncing…');
+  var url=workerUrl;if(!url)return;
+  setTopSyncing();
   fetch(url)
     .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
     .then(function(data){
@@ -1136,15 +1150,12 @@ function doSync(){
       });
       var now=ts();
       try{localStorage.setItem('ww_ls',now);localStorage.setItem('ww_pending',JSON.stringify(importQueue));}catch(e){}
-      setSyncStatus('Synced '+now+' — '+importQueue.length+' guests','var(--green)');
-      document.getElementById('topSyncLabel').textContent='Synced '+now;
-      document.getElementById('syncDot').style.animation='';
+      setTopSynced(now);
       document.getElementById('guestArea').style.display='';
       renderDashboard();renderFilterRow();renderGuestList();renderGroupDropdown();initSplitBar();
     })
-    .catch(function(err){setSyncStatus('⚠ '+err.message,'var(--amber)');document.getElementById('topSyncLabel').textContent='Sync failed';document.getElementById('syncDot').style.background='var(--amber)';});
+    .catch(function(err){setTopSyncFailed();});
 }
-document.getElementById('syncBtn').addEventListener('click',doSync);
 document.getElementById('topSyncBtn').addEventListener('click',doSync);
 
 // Restore on load
@@ -1154,10 +1165,9 @@ document.getElementById('topSyncBtn').addEventListener('click',doSync);
     if(saved){
       importQueue=JSON.parse(saved);applyGuestMeta();
       var last=localStorage.getItem('ww_ls');
-      if(last)setSyncStatus('Last synced: '+last);
+      if(last){setTopSynced(last);}
       document.getElementById('guestArea').style.display='';
       renderDashboard();renderFilterRow();renderGuestList();renderGroupDropdown();
-      document.getElementById('topSyncLabel').textContent=last?'Synced '+last:'Sync';
     }
   }catch(e){}
 })();
@@ -1275,7 +1285,7 @@ document.getElementById('hardResetBtn').addEventListener('click',function(){
   save();renderTracker();renderDashboard();
   document.getElementById('outCard').style.display='none';
   document.getElementById('guestArea').style.display='none';
-  setSyncStatus('');
+  var pill=document.getElementById('topSyncBtn');pill.classList.remove('synced');document.getElementById('topSyncLabel').textContent='Sync';var dot=document.getElementById('syncDot');dot.classList.add('live');dot.style.background='';
   var btn=this;btn.textContent='Done';setTimeout(function(){btn.textContent='Hard Reset';},2000);
 });
 </script>
