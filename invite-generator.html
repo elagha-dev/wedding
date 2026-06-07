@@ -204,9 +204,9 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 
 /* ── GUEST CARD ── */
 .guest-list{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
-.g-group-hdr{font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);padding:10px 2px 5px;display:flex;align-items:center;gap:8px;scroll-margin-top:145px}
+.g-group-hdr{font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);padding:16px 2px 5px;display:flex;align-items:center;gap:8px;scroll-margin-top:145px}
 .g-group-hdr::after{content:'';flex:1;height:1px;background:var(--parchment)}
-.guest-list{padding-top:4px}
+.guest-list{padding-top:8px;margin-top:0}
 .g-group-hdr.sent{color:var(--green)}
 
 /* Swipe wrapper */
@@ -762,7 +762,10 @@ setSession(sessionSender);
 // Scroll to guest list — dashboard is above, scroll up to reveal it
 setTimeout(function(){
   var el=document.getElementById('guestListSec');
-  if(el)el.scrollIntoView({behavior:'instant',block:'start'});
+  if(el){
+    var top=el.getBoundingClientRect().top+window.scrollY - 52;
+    window.scrollTo({top:top,behavior:'instant'});
+  }
 },100);
 // apply restored sort mode to button
 (function(){var labels={default:'A–Z',az:'A→Z',za:'Z→A'};var btn=document.getElementById('sortBtn');if(btn){btn.textContent=labels[sortMode]||'A–Z';btn.classList.toggle('on',sortMode!=='default');}})();
