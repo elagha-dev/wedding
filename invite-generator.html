@@ -182,7 +182,8 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .search-wrap{position:relative;flex:1;min-width:0}
 .search-wrap::before{display:none}
 .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none;flex-shrink:0;z-index:1}
-.search-input{font-family:var(--sans);font-size:13px;padding:10px 14px 10px 36px;background:var(--cream);border:1.5px solid var(--parchment);border-radius:var(--r-sm);color:var(--ink);outline:none;width:100%;height:100%;transition:border-color var(--ease),box-shadow var(--ease)}
+.search-input{font-family:var(--sans);font-size:13px;padding:10px 14px 10px 36px;background:var(--cream);border:1.5px solid var(--parchment);border-radius:var(--r-sm);color:var(--ink);outline:none;width:100%;height:100%;transition:border-color var(--ease),box-shadow var(--ease),padding-left .15s}
+.search-input.has-value{padding-left:14px}
 .search-input:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135,106,.1)}
 .search-input::placeholder{color:var(--soft)}
 .group-sel{padding:0 10px;font-size:12px;font-weight:500;border:1.5px solid var(--parchment);border-radius:var(--r-sm);background:var(--cream);color:var(--muted);cursor:pointer;font-family:var(--sans);outline:none;transition:border-color var(--ease);flex-shrink:0;width:110px;height:auto;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23C4AFA4' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:26px}
@@ -252,6 +253,11 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .ga-btn-flag.flagged{background:var(--amber-bg);border-color:rgba(176,120,48,.3);color:var(--amber)}
 .ga-btn-note.has-note{border-color:rgba(176,120,48,.3);color:var(--amber)}
 .g-del{position:absolute;top:9px;right:9px;background:none;border:none;color:var(--soft);font-size:16px;cursor:pointer;padding:0;line-height:1;width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:all var(--ease)}.g-del:hover{color:var(--red);background:var(--red-bg)}
+.g-corner-actions{position:absolute;top:9px;right:9px;display:flex;align-items:center;gap:5px}
+.chip-sender-corner{font-size:8px;padding:2px 7px;height:18px;opacity:.85}
+.g-corner-actions .g-del{position:static;top:auto;right:auto}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none;flex-shrink:0;z-index:1;transition:opacity .15s}
+.search-input.has-value ~ .search-icon, .search-wrap.has-value .search-icon{opacity:0}
 .g-confirm{display:flex;align-items:center;gap:7px;padding:9px 16px;background:linear-gradient(135deg,#FDF0E8,var(--blush));border-top:1px solid var(--rose-soft);flex-wrap:wrap}
 .g-confirm-msg{font-size:11px;font-weight:500;color:var(--rose-deep);flex:1;min-width:100px}
 .g-confirm-yes{padding:5px 14px;border-radius:var(--r-pill);background:var(--rose);color:#fff;border:none;font-family:var(--sans);font-size:9.5px;font-weight:700;cursor:pointer}
@@ -260,6 +266,10 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 /* Show sent toggle */
 .show-sent-btn{width:100%;padding:10px;background:none;border:1.5px dashed var(--parchment);border-radius:var(--r-sm);font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;transition:all var(--ease);margin-top:4px}
 .show-sent-btn:hover{border-color:var(--green);color:var(--green)}
+
+/* Swipe hint overlay */
+.g-swipe-hint{position:absolute;bottom:0;left:0;right:0;text-align:center;font-size:10px;font-weight:500;letter-spacing:.06em;color:rgba(255,255,255,.85);pointer-events:none;padding:5px 8px;z-index:5;opacity:0;transition:opacity .1s;text-shadow:0 1px 3px rgba(0,0,0,.25);display:none}
+.g-swipe-wrap.swiping-active .g-swipe-hint{display:block}
 
 .empty-state{padding:36px 20px;text-align:center;color:var(--muted);font-family:var(--serif);font-style:italic;font-size:14px}
 .list-footer{display:flex;gap:8px;margin-top:4px}
@@ -952,7 +962,7 @@ function buildGuestCard(g){
   var claimedByMe=claimedBy===sessionSender;
   var claimedByOther=claimedBy&&claimedBy!==sessionSender;
   var cls='g-card'+(isSel?' sel':'')+(g.followup&&!g.sent?' fup':'')+(g.sent?' sent':'')+(isPending?' pending-sent':'')+(claimedByOther?' claimed-other':'');
-  var sC=g.sender==='Arina'?'<span class="chip chip-a">Arina</span>':'<span class="chip chip-e">Elnur</span>';
+  var sC=g.sender==='Arina'?'<span class="chip chip-a chip-sender-corner">Arina</span>':'<span class="chip chip-e chip-sender-corner">Elnur</span>';
   var tC=(g.type==='ceremony-party-single'||g.type==='couple-party')?'<span class="chip chip-type">Full Day</span>':'<span class="chip chip-type">Ceremony</span>';
   var lC=g.lang&&g.lang!=='en'?'<span class="chip chip-lang">'+(g.lang==='de'?'DE':'RU')+'</span>':'';
   var rC=g.confirmed?'<span class="chip chip-rsvp">RSVP</span>':'';
@@ -968,8 +978,8 @@ function buildGuestCard(g){
       +'<div class="g-inner">'
         +'<div class="g-ring">'+(isSel?'✓':'')+'</div>'
         +'<div class="g-main">'
-          +'<div class="g-name-row"><span class="g-name">'+g.name+'</span>'+sC+claimC+sentTime+'</div>'
-          +'<div class="g-tags">'+tC+lC+rC+cC+'</div>'
+          +'<div class="g-name-row"><span class="g-name">'+g.name+'</span>'+tC+claimC+sentTime+'</div>'
+          +'<div class="g-tags">'+lC+rC+cC+'</div>'
           +(g.note?'<div class="g-note">'+g.note+'</div>':'')
 
           +'<div class="g-actions">'
@@ -982,17 +992,27 @@ function buildGuestCard(g){
         +'</div>'
       +'</div>'
       +(isPending?'<div class="g-confirm"><span class="g-confirm-msg">Did you send it?</span><button class="g-confirm-yes" data-qi="'+ri+'" data-action="confirm-yes">Yes, sent</button><button class="g-confirm-no" data-qi="'+ri+'" data-action="confirm-no">Cancel</button></div>':'')
-      +'<button class="g-del" data-qi="'+ri+'" data-action="del">×</button>'
+      +'<div class="g-corner-actions">'+sC+'<button class="g-del" data-qi="'+ri+'" data-action="del">×</button></div>'
     +'</div>'
   +'</div>';
 }
 
 /* ══ SWIPE TO MARK SENT / FOLLOW UP ══════════ */
 function attachSwipe(card){
-  var startX,startY,isDragging=false,threshold=72;
+  var startX,startY,isDragging=false;
   var wrap=card.closest('.g-swipe-wrap');
   if(!wrap)return;
   var bg=wrap.querySelector('.g-swipe-bg');
+  // Full-width threshold = 85% of card width
+  function getThreshold(){return Math.round((wrap.offsetWidth||300)*0.82);}
+
+  // Swipe hint overlay (label shown during drag)
+  var hint=wrap.querySelector('.g-swipe-hint');
+  if(!hint){
+    hint=document.createElement('div');
+    hint.className='g-swipe-hint';
+    wrap.appendChild(hint);
+  }
 
   function onStart(e){
     var t=e.touches?e.touches[0]:e;
@@ -1008,16 +1028,36 @@ function attachSwipe(card){
     e.preventDefault();
     var ri=parseInt(card.dataset.qi),g=importQueue[ri];
     var isSent=g&&g.sent;
-    // sent cards: only left swipe (undo); unsent: right=sent, left=follow up
-    var move=isSent?Math.max(0,-dx):dx;
+    var threshold=getThreshold();
     card.style.transform='translateX('+dx+'px)';
     card.classList.add('swiping');
+    // Show hint label
+    var pct=Math.min(Math.abs(dx)/threshold,1);
     if(bg){
       var cls='g-swipe-bg'+(isSent?' undo-bg':'');
-      if(isSent&&dx<-threshold)cls+=' active-right'; // undo = reveal right bg
-      else if(!isSent&&dx>threshold)cls+=' active-right';
-      else if(!isSent&&dx<-threshold)cls+=' active-left';
+      var isActive=false;
+      if(isSent&&dx<-threshold){cls+=' active-right';isActive=true;}
+      else if(!isSent&&dx>threshold){cls+=' active-right';isActive=true;}
+      else if(!isSent&&dx<-threshold){cls+=' active-left';isActive=true;}
       bg.className=cls;
+      // Update hint text and progress
+      if(Math.abs(dx)>10){
+        var label='';
+        if(isSent&&dx<0) label='← Swipe fully to undo sent';
+        else if(!isSent&&dx>0) label='Swipe fully to mark sent →';
+        else if(!isSent&&dx<0) label='← Swipe fully to flag follow-up';
+        hint.textContent=label;
+        hint.style.opacity=Math.min(pct*2,1).toFixed(2);
+        hint.style.display=label?'flex':'none';
+        hint.style.alignItems='center';
+        hint.style.justifyContent='center';
+        wrap.classList.add('swiping-active');
+        // Turn green when past threshold
+        hint.style.color=isActive?'#fff':'rgba(255,255,255,.8)';
+        hint.style.fontWeight=isActive?'700':'500';
+      } else {
+        hint.style.opacity='0';
+      }
     }
   }
   function onEnd(e){
@@ -1025,8 +1065,12 @@ function attachSwipe(card){
     var t=(e.changedTouches?e.changedTouches[0]:null)||e;
     var dx=t.clientX-startX;
     var ri=parseInt(card.dataset.qi),g=importQueue[ri];
+    var threshold=getThreshold();
     card.style.transform='';card.classList.remove('swiping');
     if(bg)bg.className='g-swipe-bg';
+    hint.style.opacity='0';
+    hint.style.display='none';
+    wrap.classList.remove('swiping-active');
     startX=null;
     if(!g)return;
     if(g.sent&&dx<-threshold){
@@ -1409,7 +1453,12 @@ function renderGroupDropdown(){
   sel.value=groupFilter||'';
   sel.onchange=function(){groupFilter=this.value;renderGuestList();};
 }
-document.getElementById('searchInput').addEventListener('input',function(){searchQuery=this.value.trim().toLowerCase();renderGuestList();});
+document.getElementById('searchInput').addEventListener('input',function(){
+  searchQuery=this.value.trim().toLowerCase();
+  this.classList.toggle('has-value',!!this.value);
+  this.closest('.search-wrap').classList.toggle('has-value',!!this.value);
+  renderGuestList();
+});
 document.getElementById('exportBtn').addEventListener('click',function(){
   var rows=[['Name','Phone','Type','Sender','Group','Sent','Sent At','Confirmed','Follow Up','Note']];
   importQueue.forEach(function(g){rows.push([g.name||'',g.phone||'',g.type||'',g.sender||'',g.group||'',g.sent?'Yes':'No',g.sentAt||'',g.confirmed?'Yes':'No',g.followup?'Yes':'No',(g.note||'').replace(/,/g,';')]);});
