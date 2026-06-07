@@ -180,8 +180,8 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .search-filter-row{display:flex;gap:8px;margin-bottom:12px;align-items:stretch}
 .search-wrap{position:relative;flex:1;min-width:0}
 .search-wrap::before{display:none}
-.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);pointer-events:none;flex-shrink:0}
-.search-input{font-family:var(--sans);font-size:13px;padding:10px 14px 10px 32px;background:var(--cream);border:1.5px solid var(--parchment);border-radius:var(--r-sm);color:var(--ink);outline:none;width:100%;height:100%;transition:border-color var(--ease),box-shadow var(--ease)}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none;flex-shrink:0;z-index:1}
+.search-input{font-family:var(--sans);font-size:13px;padding:10px 14px 10px 36px;background:var(--cream);border:1.5px solid var(--parchment);border-radius:var(--r-sm);color:var(--ink);outline:none;width:100%;height:100%;transition:border-color var(--ease),box-shadow var(--ease)}
 .search-input:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135,106,.1)}
 .search-input::placeholder{color:var(--soft)}
 .group-sel{padding:0 10px;font-size:12px;font-weight:500;border:1.5px solid var(--parchment);border-radius:var(--r-sm);background:var(--cream);color:var(--muted);cursor:pointer;font-family:var(--sans);outline:none;transition:border-color var(--ease);flex-shrink:0;width:110px;height:auto;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23C4AFA4' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:26px}
@@ -233,12 +233,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .chip{font-size:8.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:var(--r-pill);display:inline-flex;align-items:center;height:18px;white-space:nowrap;flex-shrink:0}
 .chip-a{background:var(--arina-bg);color:var(--arina-txt)}
 .chip-e{background:var(--elnur-bg);color:var(--elnur-txt)}
-.chip-dot{width:6px;height:6px;border-radius:50%;display:inline-block;flex-shrink:0;margin-right:4px;vertical-align:middle}
-.chip-dot-free{background:currentColor;opacity:.15}
-.chip-dot-mine{background:#fff;opacity:1;box-shadow:0 0 0 1.5px #3A8C5C;animation:blink 1.4s ease-in-out infinite}
-.chip-dot-locked{background:#fff;opacity:1;box-shadow:0 0 0 1.5px #fff;animation:blink 1.4s ease-in-out infinite}
-.chip.claimed-mine{background:#1A1A1A;color:#fff}
-.chip.claimed-other{background:#C0402E;color:#fff}
+
 .chip-type{background:var(--gold-pale);color:var(--rose-deep)}
 .chip-lang{background:var(--parchment);color:var(--muted)}
 .chip-rsvp{background:var(--green-bg);color:var(--green)}
@@ -345,6 +340,12 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 
 /* ── CLAIM LOCK ── */
 .g-card.claimed-other{opacity:.5;pointer-events:none}
+.g-card.claimed-other .g-inner{position:relative}
+.claim-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:var(--r-pill);font-size:8px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;white-space:nowrap;flex-shrink:0}
+.claim-badge-a{background:var(--arina-bg);color:var(--arina-txt)}
+.claim-badge-e{background:var(--elnur-bg);color:var(--elnur-txt)}
+.claim-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;animation:blink 1.8s ease-in-out infinite}
+.claim-dot-a{background:var(--arina-txt)}.claim-dot-e{background:var(--elnur-txt)}
 
 /* ── SPLIT BAR ── */
 .split-bar{display:flex;align-items:center;gap:8px;padding:10px 14px;background:linear-gradient(135deg,var(--cream2),var(--parchment));border:1.5px solid var(--blush);border-radius:var(--r-sm);margin-bottom:12px}
@@ -455,7 +456,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
       <div id="guestArea" style="display:none">
         <div class="filter-row" id="filterRow"></div>
         <div class="search-filter-row">
-          <div class="search-wrap" style="position:relative;display:flex;align-items:center">
+          <div class="search-wrap">
             <svg class="search-icon" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="5.5" cy="5.5" r="4" stroke="#C4AFA4" stroke-width="1.5"/><path d="M9 9L12 12" stroke="#C4AFA4" stroke-width="1.5" stroke-linecap="round"/></svg>
             <input class="search-input" id="searchInput" type="text" placeholder=""/></div>
           <select class="group-sel" id="groupSel" style="display:none"><option value="">All groups</option></select>
@@ -937,15 +938,12 @@ function buildGuestCard(g){
   var claimedByMe=claimedBy===sessionSender;
   var claimedByOther=claimedBy&&claimedBy!==sessionSender;
   var cls='g-card'+(isSel?' sel':'')+(g.followup&&!g.sent?' fup':'')+(g.sent?' sent':'')+(isPending?' pending-sent':'')+(claimedByOther?' claimed-other':'');
-  var senderCls=g.sender==='Arina'?'chip-a':'chip-e';
-  var dotCls=claimedBy?(claimedByMe?'chip-dot-mine':'chip-dot-locked'):'chip-dot-free';
-  var claimedCls=claimedBy?(claimedByMe?' claimed-mine':' claimed-other'):'';
-  var sC='<span class="chip '+senderCls+claimedCls+'"><span class="chip-dot '+dotCls+'"></span>'+(g.sender||'')+'</span>';
+  var sC=g.sender==='Arina'?'<span class="chip chip-a">Arina</span>':'<span class="chip chip-e">Elnur</span>';
   var tC=(g.type==='ceremony-party-single'||g.type==='couple-party')?'<span class="chip chip-type">Full Day</span>':'<span class="chip chip-type">Ceremony</span>';
   var lC=g.lang&&g.lang!=='en'?'<span class="chip chip-lang">'+(g.lang==='de'?'DE':'RU')+'</span>':'';
   var rC=g.confirmed?'<span class="chip chip-rsvp">RSVP</span>':'';
   var cC=g.isChild?'<span class="chip chip-child">Child</span>':'';
-  var claimC='';
+  var claimC=claimedBy?('<span class="claim-badge claim-badge-'+(claimedBy==='Arina'?'a':'e')+'"><span class="claim-dot claim-dot-'+(claimedBy==='Arina'?'a':'e')+'"></span>'+(claimedByMe?'You':''+claimedBy)+'</span>'):'';
   var sentBy=g.sentBy?g.sentBy:'';var sentTime=g.sent&&g.sentAt?'<span class="g-sent-time">'+g.sentAt+(sentBy?' · '+sentBy:'')+'</span>':'';
   return '<div class="g-swipe-wrap" data-qi="'+ri+'">'
     +'<div class="g-swipe-bg" id="swbg'+ri+'"><span class="g-swipe-bg-txt">'+(g.sent?'Undo':'✓ Sent')+'</span></div>'
