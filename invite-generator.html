@@ -272,7 +272,11 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .show-sent-btn:hover{border-color:var(--green);color:var(--green)}
 
 .g-tags:empty{margin-bottom:0}
-.g-swipe-hint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:26px;font-weight:600;font-style:italic;letter-spacing:.01em;color:#fff;pointer-events:none;z-index:5;opacity:0;text-shadow:0 2px 8px rgba(0,0,0,.22)}
+.g-swipe-hint{display:none}
+.g-swipe-label-left{position:absolute;inset:0;display:none;align-items:center;padding-left:20px;font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff;pointer-events:none;z-index:5}
+.g-swipe-label-right{position:absolute;inset:0;display:none;align-items:center;justify-content:flex-end;padding-right:20px;font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff;pointer-events:none;z-index:5}
+.g-swipe-wrap.sw-left .g-swipe-label-left{display:flex}
+.g-swipe-wrap.sw-right .g-swipe-label-right{display:flex}
 .g-swipe-wrap.swiping-active .g-swipe-hint{display:flex}
 
 .empty-state{padding:36px 20px;text-align:center;color:var(--muted);font-family:var(--serif);font-style:italic;font-size:14px}
@@ -1032,12 +1036,12 @@ function attachSwipe(card){
   // Full-width threshold = 85% of card width
   function getThreshold(){return Math.round((wrap.offsetWidth||300)*0.82);}
 
-  // Swipe hint overlay (label shown during drag)
-  var hint=wrap.querySelector('.g-swipe-hint');
-  if(!hint){
-    hint=document.createElement('div');
-    hint.className='g-swipe-hint';
-    wrap.appendChild(hint);
+  // Swipe labels (left + right anchored)
+  var lblL=wrap.querySelector('.g-swipe-label-left');
+  var lblR=wrap.querySelector('.g-swipe-label-right');
+  if(!lblL){
+    lblL=document.createElement('div');lblL.className='g-swipe-label-left';wrap.appendChild(lblL);
+    lblR=document.createElement('div');lblR.className='g-swipe-label-right';wrap.appendChild(lblR);
   }
 
   function onStart(e){
@@ -1066,19 +1070,15 @@ function attachSwipe(card){
       else if(!isSent&&dx>threshold){cls+=' active-right';isActive=true;}
       else if(!isSent&&dx<-threshold){cls+=' active-left';isActive=true;}
       bg.className=cls;
-      // Update hint text and progress
+      // Update hint labels
       if(Math.abs(dx)>4){
-        var label='';
-        if(isSent&&dx<0) label='Undo';
-        else if(!isSent&&dx>0) label='Sent ✓';
-        else if(!isSent&&dx<0) label='Follow Up';
-        hint.textContent=label;
-        hint.style.opacity='1';
-        hint.style.display=label?'flex':'none';
-        wrap.classList.add('swiping-active');
-        hint.style.fontSize=isActive?'30px':'26px';
+        var isSentCard=isSent;
+        if(isSentCard&&dx<0){lblL.textContent='Undo';wrap.classList.add('sw-left');wrap.classList.remove('sw-right');}
+        else if(!isSentCard&&dx>0){lblR.textContent='Sent ✓';wrap.classList.add('sw-right');wrap.classList.remove('sw-left');}
+        else if(!isSentCard&&dx<0){lblL.textContent='Follow Up';wrap.classList.add('sw-left');wrap.classList.remove('sw-right');}
+        else{wrap.classList.remove('sw-left','sw-right');}
       } else {
-        hint.style.opacity='0';
+        wrap.classList.remove('sw-left','sw-right');
       }
     }
   }
@@ -1090,9 +1090,7 @@ function attachSwipe(card){
     var threshold=getThreshold();
     card.style.transform='';card.classList.remove('swiping');
     if(bg)bg.className='g-swipe-bg';
-    hint.style.opacity='0';
-    hint.style.display='none';
-    wrap.classList.remove('swiping-active');
+    wrap.classList.remove('sw-left','sw-right','swiping-active');
     startX=null;
     if(!g)return;
     if(g.sent&&dx<-threshold){
