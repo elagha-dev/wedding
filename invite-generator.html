@@ -179,8 +179,9 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .f-pill.on-f{background:var(--amber-bg);border-color:rgba(176,120,48,.3);color:var(--amber)}
 .search-filter-row{display:flex;gap:8px;margin-bottom:12px;align-items:stretch}
 .search-wrap{position:relative;flex:1;min-width:0}
-.search-wrap::before{content:'';position:absolute;left:11px;top:50%;transform:translateY(-50%);width:13px;height:13px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14' fill='none'%3E%3Ccircle cx='6' cy='6' r='4.5' stroke='%23C4AFA4' stroke-width='1.5'/%3E%3Cpath d='M9.5 9.5L12.5 12.5' stroke='%23C4AFA4' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-size:contain;pointer-events:none}
-.search-input{font-family:var(--sans);font-size:13px;padding:10px 14px 10px 34px;background:var(--cream);border:1.5px solid var(--parchment);border-radius:var(--r-sm);color:var(--ink);outline:none;width:100%;height:100%;transition:border-color var(--ease),box-shadow var(--ease)}
+.search-wrap::before{display:none}
+.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);pointer-events:none;flex-shrink:0}
+.search-input{font-family:var(--sans);font-size:13px;padding:10px 14px 10px 32px;background:var(--cream);border:1.5px solid var(--parchment);border-radius:var(--r-sm);color:var(--ink);outline:none;width:100%;height:100%;transition:border-color var(--ease),box-shadow var(--ease)}
 .search-input:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135,106,.1)}
 .search-input::placeholder{color:var(--soft)}
 .group-sel{padding:0 10px;font-size:12px;font-weight:500;border:1.5px solid var(--parchment);border-radius:var(--r-sm);background:var(--cream);color:var(--muted);cursor:pointer;font-family:var(--sans);outline:none;transition:border-color var(--ease);flex-shrink:0;width:110px;height:auto;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23C4AFA4' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:26px}
@@ -454,7 +455,9 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
       <div id="guestArea" style="display:none">
         <div class="filter-row" id="filterRow"></div>
         <div class="search-filter-row">
-          <div class="search-wrap"><input class="search-input" id="searchInput" type="text" placeholder="Search guest…"/></div>
+          <div class="search-wrap" style="position:relative;display:flex;align-items:center">
+            <svg class="search-icon" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="5.5" cy="5.5" r="4" stroke="#C4AFA4" stroke-width="1.5"/><path d="M9 9L12 12" stroke="#C4AFA4" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <input class="search-input" id="searchInput" type="text" placeholder="Search guest…"/></div>
           <select class="group-sel" id="groupSel" style="display:none"><option value="">All groups</option></select>
           <button class="sort-btn" id="sortBtn" title="Sort">A–Z</button>
         </div>
@@ -748,7 +751,7 @@ var msgs={
 function firstName(n){var w=(n||'').trim().split(/[\s&]+/)[0];if(!w)return'';return w.charAt(0).toUpperCase()+w.slice(1).toLowerCase();}
 function buildUrl(p1,p2,type,lang){var n1=firstName(p1).toLowerCase(),n2=p2?firstName(p2).toLowerCase():'';var isP=type==='ceremony-party-single'||type==='couple-party';var q=new URLSearchParams();q.set('w',n2?n1+'-'+n2:n1);if(isP)q.set('v','1');if(lang&&lang!=='en')q.set('lang',lang);return BASE+'?'+q.toString();}
 function buildMsg(name,type,lang,url){var isP=type==='ceremony-party-single'||type==='couple-party';var l=msgs[lang]||msgs.en;return(isP?l.party:l.ceremony).replace('{n}',name).replace('{u}',url);}
-function ts(){return new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});}
+function ts(){var d=new Date();var day=d.getDate(),mon=d.toLocaleString('en-GB',{month:'short'});return day+' '+mon+' '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});}
 function dt(){return new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short'})+' '+ts();}
 function copyText(text,btn,reset){var done=function(){btn.textContent='✓ Copied';btn.classList.add('ok');setTimeout(function(){btn.textContent=reset;btn.classList.remove('ok');},2000);};if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(done).catch(fb);else fb();function fb(){var t=document.createElement('textarea');t.value=text;t.style.cssText='position:fixed;opacity:0';document.body.appendChild(t);t.focus();t.select();try{document.execCommand('copy');done();}catch(e){}document.body.removeChild(t);}}
 function updateTodayBadge(){document.getElementById('todayN').textContent=todayCount;}
@@ -1048,14 +1051,28 @@ document.getElementById('bulkSend').addEventListener('click',function(){
   var guests=selectedIdxs.map(function(i){return importQueue[i];}).filter(Boolean);
   if(!guests.length||guests.length>2)return;
   var wp=guests.filter(function(g){return g.phone;});
-  if(wp.length>1)showPhonePicker(guests,function(phone){doGroupSend(guests,phone);});
-  else doGroupSend(guests,wp.length?wp[0].phone:'');
+  var names=guests.map(function(g){return g.name;}).join(' & ');
+  if(wp.length>1){
+    showPhonePicker(guests,function(phone){openLangModalForBulk(guests,phone,names);});
+  } else {
+    openLangModalForBulk(guests,wp.length?wp[0].phone:'',names);
+  }
 });
-function doGroupSend(guests,phone){
+function openLangModalForBulk(guests,phone,names){
+  document.getElementById('langModalSub').textContent='For: '+names;
+  document.getElementById('langModal').style.display='flex';
+  langModalCb=function(lang){
+    guests.forEach(function(g){g.msgLang=lang;});
+    doGroupSend(guests,phone,lang);
+  };
+}
+function doGroupSend(guests,phone,msgLang){
   var type=guests[0].type||'ceremony-single';var lang=guests[0].lang||'en';
   var p1=guests[0].name,p2=guests[1]?guests[1].name:'';
   var dName=guests.length>1?firstName(p1)+' & '+firstName(p2):firstName(p1);
-  var url=buildUrl(p1,p2,type,lang);var msg=buildMsg(dName,type,lang,url);
+  var url=buildUrl(p1,p2,type,lang);
+  var ml=msgLang||guests[0].msgLang||lang;
+  var msg=buildMsg(dName,type,ml,url);
   var clean=(phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');
   window.open(clean?'https://wa.me/'+clean+'?text='+encodeURIComponent(msg):'https://wa.me/?text='+encodeURIComponent(msg),'_blank');
   guests.forEach(function(g){g.pendingSent=true;});selectedIdxs=[];saveGuestMeta();renderGuestList();renderDashboard();
