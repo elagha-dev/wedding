@@ -457,7 +457,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
         <div class="search-filter-row">
           <div class="search-wrap" style="position:relative;display:flex;align-items:center">
             <svg class="search-icon" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="5.5" cy="5.5" r="4" stroke="#C4AFA4" stroke-width="1.5"/><path d="M9 9L12 12" stroke="#C4AFA4" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <input class="search-input" id="searchInput" type="text" placeholder="Search guest…"/></div>
+            <input class="search-input" id="searchInput" type="text" placeholder=""/></div>
           <select class="group-sel" id="groupSel" style="display:none"><option value="">All groups</option></select>
           <button class="sort-btn" id="sortBtn" title="Sort">A–Z</button>
         </div>
@@ -711,8 +711,7 @@ function saveGuestMeta(){
   try{
     var m={};
     importQueue.forEach(function(g){
-      if(g.note||g.followup||g.skipped||g.pendingSent||g.sent||g.sentAt||g.msgLang)
-        m[g.name]={note:g.note||'',followup:!!g.followup,skipped:!!g.skipped,pendingSent:!!g.pendingSent,sent:!!g.sent,sentAt:g.sentAt||'',msgLang:g.msgLang||''};
+      m[g.name]={note:g.note||'',followup:!!g.followup,skipped:!!g.skipped,pendingSent:!!g.pendingSent,sent:!!g.sent,sentAt:g.sentAt||'',sentBy:g.sentBy||'',msgLang:g.msgLang||''};
     });
     localStorage.setItem('ww_gm',JSON.stringify(m));
   }catch(e){}
@@ -721,7 +720,17 @@ function loadGuestMeta(){try{return JSON.parse(localStorage.getItem('ww_gm')||'{
 function applyGuestMeta(){
   var m=loadGuestMeta();
   importQueue.forEach(function(g){
-    if(m[g.name]){g.note=m[g.name].note;g.followup=m[g.name].followup;g.skipped=m[g.name].skipped;g.pendingSent=m[g.name].pendingSent||false;if(m[g.name].sent)g.sent=true;g.sentAt=m[g.name].sentAt||'';g.msgLang=m[g.name].msgLang||'';}
+    var d=m[g.name];
+    if(d){
+      g.note=d.note||'';
+      g.followup=!!d.followup;
+      g.skipped=!!d.skipped;
+      g.pendingSent=!!d.pendingSent;
+      g.sent=!!d.sent;
+      g.sentAt=d.sentAt||'';
+      g.sentBy=d.sentBy||'';
+      g.msgLang=d.msgLang||'';
+    }
   });
 }
 function saveWorkerUrl(u){try{localStorage.setItem('ww_url',u);}catch(e){}}
@@ -884,11 +893,11 @@ function renderGuestList(){
       else if(a==='note')openNoteModal(ri);
       else if(a==='del'){importQueue.splice(ri,1);selectedIdxs=selectedIdxs.filter(function(i){return i!==ri;});saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();}
       else if(a==='confirm-yes'){
-        var prevSent=g.sent;g.pendingSent=false;g.sent=true;g.sentAt=ts();todayCount++;updateTodayBadge();
+        var prevSent=g.sent;var prevSentBy=g.sentBy||'';g.pendingSent=false;g.sent=true;g.sentAt=ts();g.sentBy=sessionSender;todayCount++;updateTodayBadge();
         // bridge to unified tracker
         bridgeGuestToTracker(g);
         saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();
-        showUndo('Marked '+g.name+' as sent',function(){g.sent=prevSent;g.sentAt='';if(!prevSent){todayCount=Math.max(0,todayCount-1);updateTodayBadge();}saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();});
+        showUndo('Marked '+g.name+' as sent',function(){g.sent=prevSent;g.sentAt='';g.sentBy=prevSentBy;if(!prevSent){todayCount=Math.max(0,todayCount-1);updateTodayBadge();}saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();});
       }
       else if(a==='confirm-no'){g.pendingSent=false;saveGuestMeta();renderGuestList();}
     });
@@ -915,7 +924,7 @@ function buildGuestCard(g){
   var rC=g.confirmed?'<span class="chip chip-rsvp">RSVP</span>':'';
   var cC=g.isChild?'<span class="chip chip-child">Child</span>':'';
   var claimC=claimedBy?('<span class="claim-badge claim-badge-'+(claimedBy==='Arina'?'a':'e')+'"><span class="claim-dot claim-dot-'+(claimedBy==='Arina'?'a':'e')+'"></span>'+(claimedByMe?'You':''+claimedBy)+'</span>'):'';
-  var sentTime=g.sent&&g.sentAt?'<span class="g-sent-time">Sent '+g.sentAt+'</span>':'';
+  var sentBy=g.sentBy?g.sentBy:'';var sentTime=g.sent&&g.sentAt?'<span class="g-sent-time">'+g.sentAt+(sentBy?' · '+sentBy:'')+'</span>':'';
   return '<div class="g-swipe-wrap" data-qi="'+ri+'">'
     +'<div class="g-swipe-bg" id="swbg'+ri+'"><span class="g-swipe-bg-txt">'+(g.sent?'Undo':'✓ Sent')+'</span></div>'
     +'<div class="'+cls+'" data-qi="'+ri+'">'
@@ -935,7 +944,7 @@ function buildGuestCard(g){
           +'</div>'
         +'</div>'
       +'</div>'
-      +(isPending?'<div class="g-confirm"><span class="g-confirm-msg">Did you send it?</span><button class="g-confirm-yes" data-qi="'+ri+'" data-action="confirm-yes">Yes, sent</button><button class="g-confirm-no" data-qi="'+ri+'" data-action="confirm-no">Not yet</button></div>':'')
+      +(isPending?'<div class="g-confirm"><span class="g-confirm-msg">Did you send it?</span><button class="g-confirm-yes" data-qi="'+ri+'" data-action="confirm-yes">Yes, sent</button><button class="g-confirm-no" data-qi="'+ri+'" data-action="confirm-no">Cancel</button></div>':'')
       +'<button class="g-del" data-qi="'+ri+'" data-action="del">×</button>'
     +'</div>'
   +'</div>';
@@ -979,7 +988,7 @@ function attachSwipe(card){
     if(move>threshold&&g){
       var wasSent=g.sent;
       if(g.sent){g.sent=false;g.sentAt='';todayCount=Math.max(0,todayCount-1);updateTodayBadge();}
-      else{g.sent=true;g.sentAt=ts();todayCount++;updateTodayBadge();bridgeGuestToTracker(g);
+      else{g.sent=true;g.sentAt=ts();g.sentBy=sessionSender;todayCount++;updateTodayBadge();bridgeGuestToTracker(g);
         showUndo('Marked '+g.name+' as sent',function(){g.sent=false;g.sentAt='';todayCount=Math.max(0,todayCount-1);updateTodayBadge();saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();});}
       saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();
     }
@@ -1030,7 +1039,7 @@ function sendSingleWithLang(g,ri,msgLang){
   var msg=buildMsg(firstName(g.name),type,msgLang||lang,url);
   var phone=(g.phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');
   window.open(phone?'https://wa.me/'+phone+'?text='+encodeURIComponent(msg):'https://wa.me/?text='+encodeURIComponent(msg),'_blank');
-  g.pendingSent=true;saveGuestMeta();renderGuestList();
+  g.pendingSent=true;g.sentBy=sessionSender;saveGuestMeta();renderGuestList();
 }
 
 /* ══ BULK ════════════════════════════════════ */
@@ -1254,7 +1263,7 @@ function doSync(){
       var oldMeta=loadGuestMeta();
       importQueue=guests.map(function(g){
         var name=g.name||g.Name||'';var meta=oldMeta[name]||{};
-        return{name:name,phone:g.phone||g.Phone||g['WhatsApp']||'',type:g.type||g.Type||g['Invite Type']||'ceremony-single',lang:g.lang||g.Lang||g['Language']||'en',sender:g.sender||g.Sender||'',group:g.group||g.Group||g['Family Group']||'',isChild:g.isChild||g['Is Child']||false,confirmed:g.confirmed||g.Confirmed||false,note:meta.note||'',followup:meta.followup||false,skipped:meta.skipped||false,pendingSent:meta.pendingSent||false,sent:meta.sent||false,sentAt:meta.sentAt||'',msgLang:meta.msgLang||''};
+        return{name:name,phone:g.phone||g.Phone||g['WhatsApp']||'',type:g.type||g.Type||g['Invite Type']||'ceremony-single',lang:g.lang||g.Lang||g['Language']||'en',sender:g.sender||g.Sender||'',group:g.group||g.Group||g['Family Group']||'',isChild:g.isChild||g['Is Child']||false,confirmed:g.confirmed||g.Confirmed||false,note:meta.note||'',followup:meta.followup||false,skipped:meta.skipped||false,pendingSent:meta.pendingSent||false,sent:meta.sent||false,sentAt:meta.sentAt||'',sentBy:meta.sentBy||'',msgLang:meta.msgLang||''};
       });
       var now=ts();
       try{localStorage.setItem('ww_ls',now);localStorage.setItem('ww_pending',JSON.stringify(importQueue));}catch(e){}
