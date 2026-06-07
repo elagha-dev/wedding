@@ -424,7 +424,6 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
           <div class="dash-ring-label"><div class="dash-ring-pct" id="dashPct">0%</div><div class="dash-ring-sub">sent</div></div>
         </div>
         <div class="dash-right">
-          <div class="dash-total" id="dashTotal"><strong>0</strong> guests total</div>
           <div class="dash-grid" id="dashGrid">
             <div class="dash-cell" data-sf="sent"><div class="dash-n g" id="dSent">0</div><div class="dash-l">Sent</div></div>
             <div class="dash-cell" data-sf="pending"><div class="dash-n a" id="dPending">0</div><div class="dash-l">Pending</div></div>
@@ -672,6 +671,7 @@ var DEFAULT_WORKER='https://guestlist.elnur-agha.workers.dev/';
 
 /* ══ STATE ═══════════════════════════════════ */
 var selType='ceremony-single',selLang='en',selSender='Arina',cur=null;
+var sortMode=(function(){try{return sessionStorage.getItem('ww_sort')||'default';}catch(e){return'default';}})();
 var mem=[],importQueue=[],selectedIdxs=[],importFilter='all',searchQuery='',groupFilter='';
 var sessionSender='Arina'; // active session
 var todayCount=0; // sent this session
@@ -790,8 +790,12 @@ function setSession(who){
   updateFabLabels();
   saveLastSettings();
 }
-document.getElementById('sessA').addEventListener('click',function(){setSession('Arina');});
-document.getElementById('sessE').addEventListener('click',function(){setSession('Elnur');});
+document.getElementById('sessA').addEventListener('click',function(){if(sessionSender!=='Arina'){setSession('Arina');showSessionToast('Arina');}});
+document.getElementById('sessE').addEventListener('click',function(){if(sessionSender!=='Elnur'){setSession('Elnur');showSessionToast('Elnur');}});
+function showSessionToast(who){
+  var other=who==='Arina'?'Elnur':'Arina';
+  showToastWarn('Switched to '+who+' — you’ll now send as '+who+'. '+other+'’s guests will warn before sending.');
+}
 
 /* ══ DASHBOARD ═══════════════════════════════ */
 function renderDashboard(){
@@ -811,8 +815,7 @@ function renderDashboard(){
   var circ=182,offset=circ-Math.round(circ*pct/100);
   document.getElementById('dashRingFill').style.strokeDashoffset=offset;
   document.getElementById('dashPct').textContent=pct+'%';
-  document.getElementById('dashTotal').innerHTML='<strong>'+total+'</strong> guests total';
-  document.getElementById('dashSubtitle').textContent=sent+' sent · '+pending+' pending';
+  document.getElementById('dashSubtitle').textContent=sent+' sent · '+pending+' pending · '+total+' total';
   // Grid cells
   document.getElementById('dSent').textContent=sent;
   document.getElementById('dPending').textContent=pending;
@@ -1038,7 +1041,7 @@ function openLangModal(g,ri){
 }
 
 /* ══ SORT ═════════════════════════════════════ */
-var sortMode=(function(){try{return sessionStorage.getItem('ww_sort')||'default';}catch(e){return'default';}})();
+// sortMode declared at top
 document.getElementById('sortBtn').addEventListener('click',function(){
   if(sortMode==='default')sortMode='az';
   else if(sortMode==='az')sortMode='za';
