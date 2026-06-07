@@ -233,10 +233,12 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .chip{font-size:8.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:var(--r-pill);display:inline-flex;align-items:center;height:18px;white-space:nowrap;flex-shrink:0}
 .chip-a{background:var(--arina-bg);color:var(--arina-txt)}
 .chip-e{background:var(--elnur-bg);color:var(--elnur-txt)}
-.chip-dot{width:5px;height:5px;border-radius:50%;display:inline-block;flex-shrink:0;margin-right:3px;vertical-align:middle}
-.chip-dot-free{background:currentColor;opacity:.3}
-.chip-dot-mine{background:#3A8C5C;animation:blink 1.8s ease-in-out infinite}
-.chip-dot-locked{background:var(--red);animation:blink 1.8s ease-in-out infinite}
+.chip-dot{width:4px;height:4px;border-radius:50%;display:inline-block;flex-shrink:0;margin-right:3px;vertical-align:middle}
+.chip-dot-free{background:currentColor;opacity:.12}
+.chip-dot-mine{background:#3A8C5C;opacity:1;animation:blink 1.8s ease-in-out infinite}
+.chip-dot-locked{background:var(--red);opacity:1;animation:blink 1.8s ease-in-out infinite}
+.chip.claimed-mine{background:var(--ink);color:#fff;border:none}
+.chip.claimed-other{background:var(--red);color:#fff;border:none}
 .chip-type{background:var(--gold-pale);color:var(--rose-deep)}
 .chip-lang{background:var(--parchment);color:var(--muted)}
 .chip-rsvp{background:var(--green-bg);color:var(--green)}
@@ -937,7 +939,8 @@ function buildGuestCard(g){
   var cls='g-card'+(isSel?' sel':'')+(g.followup&&!g.sent?' fup':'')+(g.sent?' sent':'')+(isPending?' pending-sent':'')+(claimedByOther?' claimed-other':'');
   var senderCls=g.sender==='Arina'?'chip-a':'chip-e';
   var dotCls=claimedBy?(claimedByMe?'chip-dot-mine':'chip-dot-locked'):'chip-dot-free';
-  var sC='<span class="chip '+senderCls+'"><span class="chip-dot '+dotCls+'"></span>'+(g.sender||'')+'</span>';
+  var claimedCls=claimedBy?(claimedByMe?' claimed-mine':' claimed-other'):'';
+  var sC='<span class="chip '+senderCls+claimedCls+'"><span class="chip-dot '+dotCls+'"></span>'+(g.sender||'')+'</span>';
   var tC=(g.type==='ceremony-party-single'||g.type==='couple-party')?'<span class="chip chip-type">Full Day</span>':'<span class="chip chip-type">Ceremony</span>';
   var lC=g.lang&&g.lang!=='en'?'<span class="chip chip-lang">'+(g.lang==='de'?'DE':'RU')+'</span>':'';
   var rC=g.confirmed?'<span class="chip chip-rsvp">RSVP</span>':'';
