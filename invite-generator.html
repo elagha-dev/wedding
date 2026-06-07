@@ -209,10 +209,13 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 
 /* Swipe wrapper */
 .g-swipe-wrap{position:relative;overflow:hidden;border-radius:var(--r-sm)}
-.g-swipe-bg{position:absolute;inset:0;background:var(--green);display:flex;align-items:center;justify-content:flex-end;padding-right:20px;border-radius:var(--r-sm)}
-.g-swipe-bg-txt{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff;opacity:0;transition:opacity .15s}
-.g-swipe-bg.active .g-swipe-bg-txt{opacity:1}
-.g-swipe-bg.undo-bg{background:var(--amber)}
+.g-swipe-bg{position:absolute;inset:0;border-radius:var(--r-sm);pointer-events:none}
+.g-swipe-bg-right{position:absolute;right:0;top:0;bottom:0;width:100%;background:var(--green);display:flex;align-items:center;justify-content:flex-end;padding-right:20px;border-radius:var(--r-sm)}
+.g-swipe-bg-left{position:absolute;left:0;top:0;bottom:0;width:100%;background:#E8A838;display:flex;align-items:center;padding-left:20px;border-radius:var(--r-sm)}
+.g-swipe-bg-txt{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff;opacity:0;transition:opacity .15s;display:flex;align-items:center;gap:5px}
+.g-swipe-bg.active-right .g-swipe-bg-right .g-swipe-bg-txt{opacity:1}
+.g-swipe-bg.active-left .g-swipe-bg-left .g-swipe-bg-txt{opacity:1}
+.g-swipe-bg.undo-bg .g-swipe-bg-right{background:var(--amber)}
 
 .g-card{background:#fff;border-radius:var(--r-sm);border:1.5px solid var(--parchment);box-shadow:var(--shadow-sm);overflow:hidden;cursor:pointer;transition:border-color var(--ease),box-shadow var(--ease);position:relative;touch-action:pan-y;will-change:transform}
 .g-card:not(.swiping):hover{box-shadow:var(--shadow)}
@@ -450,7 +453,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 <div class="prog-track" id="progTrack" style="display:none"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
 
   <!-- GUEST LIST -->
-  <div class="sec">Guest List</div>
+  <div class="sec" id="guestListSec">Guest List</div>
   <div class="card">
     <div class="card-body" style="padding-top:20px">
       <div id="guestArea" style="display:none">
@@ -755,6 +758,11 @@ mem=load();
 loadLastSettings();
 // apply restored session sender to UI
 setSession(sessionSender);
+// Scroll to guest list — dashboard is above, scroll up to reveal it
+setTimeout(function(){
+  var el=document.getElementById('guestListSec');
+  if(el)el.scrollIntoView({behavior:'instant',block:'start'});
+},100);
 // apply restored sort mode to button
 (function(){var labels={default:'A–Z',az:'A→Z',za:'Z→A'};var btn=document.getElementById('sortBtn');if(btn){btn.textContent=labels[sortMode]||'A–Z';btn.classList.toggle('on',sortMode!=='default');}})();
 
@@ -948,7 +956,10 @@ function buildGuestCard(g){
   var claimC=claimedBy?('<span class="claim-badge claim-badge-'+(claimedBy==='Arina'?'a':'e')+'"><span class="claim-dot claim-dot-'+(claimedBy==='Arina'?'a':'e')+'"></span>'+(claimedByMe?'You':''+claimedBy)+'</span>'):'';
   var sentBy=g.sentBy?g.sentBy:'';var sentTime=g.sent&&g.sentAt?'<span class="g-sent-time">'+g.sentAt+(sentBy?' · '+sentBy:'')+'</span>':'';
   return '<div class="g-swipe-wrap" data-qi="'+ri+'">'
-    +'<div class="g-swipe-bg" id="swbg'+ri+'"><span class="g-swipe-bg-txt">'+(g.sent?'Undo':'✓ Sent')+'</span></div>'
+    +'<div class="g-swipe-bg" id="swbg'+ri+'">'
+    +'<div class="g-swipe-bg-left"><span class="g-swipe-bg-txt">🚩 Follow Up</span></div>'
+    +'<div class="g-swipe-bg-right"><span class="g-swipe-bg-txt">'+(g.sent?'↩ Undo':'✓ Sent')+'</span></div>'
+    +'</div>'
     +'<div class="'+cls+'" data-qi="'+ri+'">'
       +'<div class="g-inner">'
         +'<div class="g-ring">'+(isSel?'✓':'')+'</div>'
@@ -972,7 +983,7 @@ function buildGuestCard(g){
   +'</div>';
 }
 
-/* ══ SWIPE TO MARK SENT ══════════════════════ */
+/* ══ SWIPE TO MARK SENT / FOLLOW UP ══════════ */
 function attachSwipe(card){
   var startX,startY,isDragging=false,threshold=72;
   var wrap=card.closest('.g-swipe-wrap');
@@ -987,32 +998,47 @@ function attachSwipe(card){
     if(!startX)return;
     var t=e.touches?e.touches[0]:e;
     var dx=t.clientX-startX,dy=t.clientY-startY;
-    if(!isDragging&&Math.abs(dy)>Math.abs(dx))return; // vertical scroll wins
+    if(!isDragging&&Math.abs(dy)>Math.abs(dx))return;
     if(Math.abs(dx)<6)return;
     isDragging=true;
     e.preventDefault();
     var ri=parseInt(card.dataset.qi),g=importQueue[ri];
-    var dir=g&&g.sent?-1:1; // sent: swipe left to undo; unsent: swipe right
-    var move=Math.max(0,dx*dir);
-    card.style.transform='translateX('+(move*dir)+'px)';
+    var isSent=g&&g.sent;
+    // sent cards: only left swipe (undo); unsent: right=sent, left=follow up
+    var move=isSent?Math.max(0,-dx):dx;
+    card.style.transform='translateX('+dx+'px)';
     card.classList.add('swiping');
-    if(bg){bg.className='g-swipe-bg'+(g&&g.sent?' undo-bg':'')+(move>threshold?' active':'');}}
+    if(bg){
+      var cls='g-swipe-bg'+(isSent?' undo-bg':'');
+      if(isSent&&dx<-threshold)cls+=' active-right'; // undo = reveal right bg
+      else if(!isSent&&dx>threshold)cls+=' active-right';
+      else if(!isSent&&dx<-threshold)cls+=' active-left';
+      bg.className=cls;
+    }
+  }
   function onEnd(e){
     if(!isDragging){startX=null;return;}
     var t=(e.changedTouches?e.changedTouches[0]:null)||e;
     var dx=t.clientX-startX;
     var ri=parseInt(card.dataset.qi),g=importQueue[ri];
-    var dir=g&&g.sent?-1:1;
-    var move=Math.max(0,dx*dir);
     card.style.transform='';card.classList.remove('swiping');
     if(bg)bg.className='g-swipe-bg';
     startX=null;
-    if(move>threshold&&g){
-      var wasSent=g.sent;
-      if(g.sent){g.sent=false;g.sentAt='';todayCount=Math.max(0,todayCount-1);updateTodayBadge();}
-      else{g.sent=true;g.sentAt=ts();g.sentBy=sessionSender;todayCount++;updateTodayBadge();bridgeGuestToTracker(g);
-        showUndo('Marked '+g.name+' as sent',function(){g.sent=false;g.sentAt='';todayCount=Math.max(0,todayCount-1);updateTodayBadge();saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();});}
+    if(!g)return;
+    if(g.sent&&dx<-threshold){
+      // undo sent
+      g.sent=false;g.sentAt='';todayCount=Math.max(0,todayCount-1);updateTodayBadge();
       saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();
+    } else if(!g.sent&&dx>threshold){
+      // mark sent
+      g.sent=true;g.sentAt=ts();g.sentBy=sessionSender;todayCount++;updateTodayBadge();bridgeGuestToTracker(g);
+      showUndo('Marked '+g.name+' as sent',function(){g.sent=false;g.sentAt='';todayCount=Math.max(0,todayCount-1);updateTodayBadge();saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();});
+      saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();
+    } else if(!g.sent&&dx<-threshold){
+      // flag follow up
+      g.followup=!g.followup;
+      showUndo((g.followup?'Flagged':'Unflagged')+' '+g.name+' for follow-up',function(){g.followup=!g.followup;saveGuestMeta();renderGuestList();renderFilterRow();});
+      saveGuestMeta();renderGuestList();renderFilterRow();
     }
   }
   card.addEventListener('touchstart',onStart,{passive:true});
