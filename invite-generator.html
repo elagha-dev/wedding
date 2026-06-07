@@ -692,6 +692,16 @@ setInterval(function(){claims=loadClaims();renderGuestList();},4000);
 
 /* ══ UNDO TOAST ═══════════════════════════════ */
 var undoTimer=null,undoAction=null;
+function showToastWarn(msg){
+  var t=document.getElementById('undoToast');
+  var btn=document.getElementById('undoToastBtn');
+  var origBg=t.style.background;
+  t.style.background='var(--amber)';
+  btn.style.display='none';
+  document.getElementById('undoToastMsg').textContent=msg;
+  t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');t.style.background=origBg;btn.style.display='';},3000);
+}
 function showUndo(msg,fn){
   undoAction=fn;
   document.getElementById('undoToastMsg').textContent=msg;
@@ -892,11 +902,11 @@ function renderGuestList(){
       else if(a==='note')openNoteModal(ri);
       else if(a==='del'){importQueue.splice(ri,1);selectedIdxs=selectedIdxs.filter(function(i){return i!==ri;});saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();}
       else if(a==='confirm-yes'){
-        var prevSent=g.sent;var prevSentBy=g.sentBy||'';g.pendingSent=false;g.sent=true;g.sentAt=ts();g.sentBy=sessionSender;todayCount++;updateTodayBadge();
+        var prevSent=g.sent;var prevSentBy=g.sentBy||'';var prevFollowup=g.followup;g.pendingSent=false;g.followup=false;g.sent=true;g.sentAt=ts();g.sentBy=sessionSender;todayCount++;updateTodayBadge();
         // bridge to unified tracker
         bridgeGuestToTracker(g);
         saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();
-        showUndo('Marked '+g.name+' as sent',function(){g.sent=prevSent;g.sentAt='';g.sentBy=prevSentBy;if(!prevSent){todayCount=Math.max(0,todayCount-1);updateTodayBadge();}saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();});
+        showUndo('Marked '+g.name+' as sent',function(){g.sent=prevSent;g.sentAt='';g.sentBy=prevSentBy;g.followup=prevFollowup;if(!prevSent){todayCount=Math.max(0,todayCount-1);updateTodayBadge();}saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();});
       }
       else if(a==='confirm-no'){g.pendingSent=false;saveGuestMeta();renderGuestList();}
     });
@@ -1037,8 +1047,9 @@ function sendSingleWithLang(g,ri,msgLang){
   var url=buildUrl(g.name,'',type,lang);
   var msg=buildMsg(firstName(g.name),type,msgLang||lang,url);
   var phone=(g.phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');
+  if(!phone){showToastWarn('No phone number for '+firstName(g.name)+' — opening blank WA');}
   window.open(phone?'https://wa.me/'+phone+'?text='+encodeURIComponent(msg):'https://wa.me/?text='+encodeURIComponent(msg),'_blank');
-  g.pendingSent=true;g.sentBy=sessionSender;saveGuestMeta();renderGuestList();
+  g.pendingSent=true;g.followup=true;g.sentBy=sessionSender;saveGuestMeta();renderGuestList();
 }
 
 /* ══ BULK ════════════════════════════════════ */
@@ -1060,6 +1071,14 @@ document.getElementById('bulkSend').addEventListener('click',function(){
   if(!guests.length||guests.length>2)return;
   var wp=guests.filter(function(g){return g.phone;});
   var names=guests.map(function(g){return g.name;}).join(' & ');
+  if(!wp.length){
+    var countEl=document.getElementById('bulkCount');
+    var bar=document.getElementById('bulkBar');
+    var orig=countEl.textContent,origCls=bar.className;
+    countEl.textContent='No phone numbers!';bar.className='bulk-bar vis err';
+    setTimeout(function(){countEl.textContent=orig;bar.className=origCls;},2500);
+    return;
+  }
   if(wp.length>1){
     showPhonePicker(guests,function(phone){openLangModalForBulk(guests,phone,names);});
   } else {
@@ -1083,7 +1102,7 @@ function doGroupSend(guests,phone,msgLang){
   var msg=buildMsg(dName,type,ml,url);
   var clean=(phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');
   window.open(clean?'https://wa.me/'+clean+'?text='+encodeURIComponent(msg):'https://wa.me/?text='+encodeURIComponent(msg),'_blank');
-  guests.forEach(function(g){g.pendingSent=true;});selectedIdxs=[];saveGuestMeta();renderGuestList();renderDashboard();
+  guests.forEach(function(g){g.pendingSent=true;g.followup=true;});selectedIdxs=[];saveGuestMeta();renderGuestList();renderDashboard();
 }
 
 /* ══ FAB + QUICK SEND ════════════════════════ */
