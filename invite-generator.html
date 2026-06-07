@@ -56,7 +56,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .kb-hint{position:fixed;bottom:88px;right:16px;font-size:9px;color:var(--soft);letter-spacing:.06em;z-index:10;pointer-events:none}
 
 /* ── DASHBOARD ── */
-#dashboard{display:none;margin-bottom:16px}
+#dashboard{display:none;margin-top:16px;margin-bottom:16px}
 #dashboard.show{display:block}
 .dash-panel{background:#fff;border-radius:var(--r);box-shadow:var(--shadow);border:1px solid rgba(196,149,106,.07);overflow:hidden}
 .dash-header{padding:14px 18px 10px;border-bottom:1px solid var(--parchment);display:flex;align-items:center;justify-content:space-between}
@@ -174,12 +174,14 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .f-pill.on-a{background:var(--arina-bg);border-color:var(--arina-border);color:var(--arina-txt)}
 .f-pill.on-e{background:var(--elnur-bg);border-color:var(--elnur-border);color:var(--elnur-txt)}
 .f-pill.on-f{background:var(--amber-bg);border-color:rgba(176,120,48,.3);color:var(--amber)}
-.search-wrap{position:relative;margin-bottom:12px}
+.search-filter-row{display:flex;gap:8px;margin-bottom:12px;align-items:stretch}
+.search-wrap{position:relative;flex:1;min-width:0}
 .search-wrap::before{content:'⌕';position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--soft);pointer-events:none;line-height:1}
-.search-input{font-family:var(--sans);font-size:13px;padding:9px 14px 9px 37px;background:var(--cream);border:1.5px solid var(--parchment);border-radius:var(--r-pill);color:var(--ink);outline:none;width:100%;transition:border-color var(--ease),box-shadow var(--ease)}
+.search-input{font-family:var(--sans);font-size:13px;padding:9px 14px 9px 37px;background:var(--cream);border:1.5px solid var(--parchment);border-radius:var(--r-pill);color:var(--ink);outline:none;width:100%;height:100%;transition:border-color var(--ease),box-shadow var(--ease)}
 .search-input:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135,106,.1)}
 .search-input::placeholder{color:var(--soft)}
-.group-sel{padding:8px 14px;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;border:1.5px solid var(--parchment);border-radius:var(--r-pill);background:var(--cream);color:var(--muted);cursor:pointer;font-family:var(--sans);outline:none;transition:border-color var(--ease);margin-bottom:12px}
+.group-sel{padding:9px 14px;font-size:12px;font-weight:500;letter-spacing:.02em;border:1.5px solid var(--parchment);border-radius:var(--r-pill);background:var(--cream);color:var(--muted);cursor:pointer;font-family:var(--sans);outline:none;transition:border-color var(--ease);flex-shrink:0;height:100%}
+.group-sel:focus{border-color:var(--rose)}
 
 /* ── BULK BAR ── */
 .bulk-bar{display:none;align-items:center;gap:8px;padding:10px 16px;background:linear-gradient(135deg,var(--rose),var(--rose-deep));border-radius:var(--r-sm);margin-bottom:12px;animation:slideDown .2s ease}
@@ -434,8 +436,10 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
       <div class="sync-status" id="syncStatus"></div>
       <div id="guestArea" style="display:none">
         <div class="filter-row" id="filterRow"></div>
-        <div class="search-wrap"><input class="search-input" id="searchInput" type="text" placeholder="Search guest…"/></div>
-        <select class="group-sel" id="groupSel" style="display:none"><option value="">All groups</option></select>
+        <div class="search-filter-row">
+          <div class="search-wrap"><input class="search-input" id="searchInput" type="text" placeholder="Search guest…"/></div>
+          <select class="group-sel" id="groupSel" style="display:none"><option value="">All groups</option></select>
+        </div>
         <div class="split-bar" id="splitBar" style="display:none">
           <span class="split-lbl">Quick split</span>
           <button class="split-btn split-btn-a" id="splitArina">→ Arina</button>
