@@ -747,7 +747,7 @@ function applyGuestMeta(){
 function saveWorkerUrl(u){try{localStorage.setItem('ww_url',u);}catch(e){}}
 function loadWorkerUrl(){try{return localStorage.getItem('ww_url')||'';}catch(e){return '';}}
 function saveLastSettings(){try{localStorage.setItem('ww_last',JSON.stringify({type:selType,lang:selLang,sender:selSender,sessionSender:sessionSender}));sessionStorage.setItem('ww_sort',sortMode);}catch(e){}}
-function loadLastSettings(){try{var d=localStorage.getItem('ww_last');if(d){var s=JSON.parse(d);selType=s.type||selType;selLang=s.lang||selLang;if(s.sessionSender)sessionSender=s.sessionSender;}var sm=sessionStorage.getItem('ww_sort');if(sm)sortMode=sm;}catch(e){}}
+function loadLastSettings(){try{var d=localStorage.getItem('ww_last');if(d){var s=JSON.parse(d);selType=s.type||selType;selLang=s.lang||selLang;if(s.sessionSender)sessionSender=s.sessionSender;}}catch(e){}}
 mem=load();
 loadLastSettings();
 // apply restored session sender to UI
@@ -1038,7 +1038,7 @@ function openLangModal(g,ri){
 }
 
 /* ══ SORT ═════════════════════════════════════ */
-var sortMode='default'; // 'default' | 'az' | 'za'
+var sortMode=(function(){try{return sessionStorage.getItem('ww_sort')||'default';}catch(e){return'default';}})();
 document.getElementById('sortBtn').addEventListener('click',function(){
   if(sortMode==='default')sortMode='az';
   else if(sortMode==='az')sortMode='za';
