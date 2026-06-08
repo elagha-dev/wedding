@@ -273,8 +273,8 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 
 .g-tags:empty{margin-bottom:0}
 .g-swipe-hint{display:none}
-@keyframes sw-snap{0%{transform:translateX(var(--snap-x,0px)) scale(1)}40%{transform:translateX(var(--snap-x,0px)) scale(1.013)}70%{transform:translateX(var(--snap-x,0px)) scale(0.997)}100%{transform:translateX(var(--snap-x,0px)) scale(1)}}
-.sw-snapping{animation:sw-snap 0.2s cubic-bezier(.36,.07,.19,.97) both}
+@keyframes sw-snap{0%{transform:translateX(var(--snap-x,0px)) scale(1)}25%{transform:translateX(var(--snap-x,0px)) scale(1.025) rotate(0.3deg)}55%{transform:translateX(var(--snap-x,0px)) scale(0.984) rotate(-0.15deg)}80%{transform:translateX(var(--snap-x,0px)) scale(1.006)}100%{transform:translateX(var(--snap-x,0px)) scale(1) rotate(0deg)}}
+.sw-snapping{animation:sw-snap 0.25s cubic-bezier(.22,.68,0,1.4) both}
 .g-swipe-label-left{position:absolute;inset:0;display:none;align-items:center;padding-left:20px;font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff;pointer-events:none;z-index:5}
 .g-swipe-label-right{position:absolute;inset:0;display:none;align-items:center;justify-content:flex-end;padding-right:20px;font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff;pointer-events:none;z-index:5}
 .g-swipe-wrap.sw-left .g-swipe-label-left{display:flex}
@@ -396,7 +396,65 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
   .row2{grid-template-columns:1fr}.type-grid{grid-template-columns:1fr}.msg-actions{grid-template-columns:1fr}
 }
 
-/* ── MSG LANG PICKER (guest card) ── */
+/* ── SETTINGS BTN ── */
+.settings-btn{width:36px;height:36px;border-radius:50%;background:var(--cream2);border:1.5px solid var(--parchment);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--ease)}
+.settings-btn:hover{border-color:var(--rose);color:var(--rose);transform:rotate(30deg)}
+
+/* ── SETTINGS DRAWER ── */
+.settings-overlay{position:fixed;inset:0;background:rgba(35,26,20,.35);backdrop-filter:blur(4px);z-index:299;opacity:0;pointer-events:none;transition:opacity .3s}
+.settings-overlay.open{opacity:1;pointer-events:all}
+.settings-drawer{position:fixed;bottom:0;left:0;right:0;max-width:640px;margin:0 auto;background:var(--cream);border-radius:24px 24px 0 0;z-index:300;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);max-height:88vh;display:flex;flex-direction:column;box-shadow:0 -8px 40px rgba(100,60,30,.18)}
+.settings-drawer.open{transform:translateY(0)}
+.settings-handle{width:36px;height:4px;background:var(--parchment);border-radius:2px;margin:10px auto 0;flex-shrink:0}
+.settings-head{display:flex;align-items:center;justify-content:space-between;padding:12px 20px 8px;flex-shrink:0}
+.settings-title{font-family:var(--serif);font-size:22px;font-weight:400;color:var(--ink)}
+.settings-close{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:4px 8px;border-radius:50%;transition:all var(--ease)}.settings-close:hover{color:var(--ink);background:var(--parchment)}
+.settings-body{overflow-y:auto;padding:4px 20px 40px;-webkit-overflow-scrolling:touch}
+
+/* Sections */
+.s-section{margin-bottom:24px}
+.s-section-label{font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--parchment)}
+.s-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid rgba(239,228,212,.5)}
+.s-row:last-child{border-bottom:none}
+.s-row-col{padding:8px 0;border-bottom:1px solid rgba(239,228,212,.5)}
+.s-row-col:last-child{border-bottom:none}
+.s-row-info{flex:1;min-width:0}
+.s-row-title{font-size:13px;font-weight:500;color:var(--ink);margin-bottom:1px}
+.s-row-sub{font-size:10.5px;color:var(--muted)}
+
+/* Inputs */
+.s-input{font-family:var(--sans);font-size:13px;padding:6px 10px;background:var(--cream2);border:1.5px solid var(--parchment);border-radius:var(--r-sm);color:var(--ink);outline:none;width:120px;text-align:right;transition:border-color var(--ease)}.s-input:focus{border-color:var(--rose)}
+.s-input-wide{width:100%;text-align:left;margin-top:6px}
+.s-mono{font-family:monospace;font-size:11px}
+.s-textarea{font-family:var(--sans);font-size:12px;padding:8px 10px;background:var(--cream2);border:1.5px solid var(--parchment);border-radius:var(--r-sm);color:var(--ink);outline:none;width:100%;resize:vertical;margin-top:6px;transition:border-color var(--ease);line-height:1.5}.s-textarea:focus{border-color:var(--rose)}
+.s-chip{font-size:8px;font-weight:700;letter-spacing:.08em;padding:1px 6px;border-radius:var(--r-pill);background:var(--parchment);color:var(--muted);vertical-align:middle}
+
+/* Segmented control */
+.s-seg{display:flex;background:var(--parchment);border-radius:var(--r-pill);padding:2px;gap:2px}
+.s-seg-btn{padding:4px 10px;border-radius:var(--r-pill);border:none;font-family:var(--sans);font-size:10px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted);transition:all var(--ease);white-space:nowrap}
+.s-seg-btn.active{background:var(--cream);color:var(--ink);box-shadow:var(--shadow-sm)}
+
+/* Toggle */
+.s-toggle{position:relative;display:inline-block;width:40px;height:22px;flex-shrink:0}
+.s-toggle input{opacity:0;width:0;height:0;position:absolute}
+.s-toggle-track{position:absolute;inset:0;background:var(--parchment);border-radius:var(--r-pill);cursor:pointer;transition:background var(--ease)}
+.s-toggle-track::after{content:'';position:absolute;width:16px;height:16px;left:3px;top:3px;background:#fff;border-radius:50%;transition:transform var(--ease);box-shadow:0 1px 4px rgba(0,0,0,.15)}
+.s-toggle input:checked + .s-toggle-track{background:var(--green)}
+.s-toggle input:checked + .s-toggle-track::after{transform:translateX(18px)}
+
+/* Groups */
+.s-groups-list{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
+.s-group-row{display:flex;align-items:center;gap:8px}
+.s-group-input{flex:1;font-family:var(--sans);font-size:13px;padding:6px 10px;background:var(--cream2);border:1.5px solid var(--parchment);border-radius:var(--r-sm);color:var(--ink);outline:none;transition:border-color var(--ease)}.s-group-input:focus{border-color:var(--rose)}
+.s-group-del{background:none;border:none;color:var(--soft);font-size:16px;cursor:pointer;padding:0 4px;transition:color var(--ease)}.s-group-del:hover{color:var(--red)}
+.s-add-btn{font-family:var(--sans);font-size:10.5px;font-weight:600;letter-spacing:.06em;padding:7px 14px;border-radius:var(--r-pill);border:1.5px dashed var(--parchment);background:none;color:var(--muted);cursor:pointer;transition:all var(--ease)}.s-add-btn:hover{border-color:var(--rose);color:var(--rose)}
+
+/* Danger + Save */
+.s-danger-btn{padding:6px 14px;border-radius:var(--r-pill);border:1.5px solid rgba(192,64,46,.3);background:none;color:var(--red);font-family:var(--sans);font-size:10.5px;font-weight:600;cursor:pointer;transition:all var(--ease);white-space:nowrap}.s-danger-btn:hover{background:var(--red-bg)}
+.s-section-sublabel{font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--rose);margin:14px 0 6px}
+.s-save-btn{padding:6px 14px;border-radius:var(--r-pill);background:var(--parchment);border:none;color:var(--soft);font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;cursor:default;transition:all var(--ease);display:block;pointer-events:none;opacity:.5}
+.s-save-btn.dirty{background:linear-gradient(135deg,var(--rose),var(--rose-deep));color:#fff;box-shadow:0 2px 10px rgba(160,97,74,.3);cursor:pointer;pointer-events:all;opacity:1}.s-save-btn.dirty:hover{transform:translateY(-1px)}.s-save-btn.dirty:active{transform:none}
+
 .g-msg-lang{display:flex;gap:4px;margin-bottom:6px}
 .ml-btn{padding:3px 10px;border-radius:var(--r-pill);font-size:9px;font-weight:700;letter-spacing:.08em;border:1.5px solid var(--parchment);background:var(--cream);color:var(--muted);cursor:pointer;font-family:var(--sans);transition:all var(--ease)}
 .ml-btn:hover{border-color:var(--blush);color:var(--ink2)}
@@ -429,6 +487,10 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
   <button class="sync-pill" id="topSyncBtn">
     <span class="sync-dot live" id="syncDot"></span>
     <span id="topSyncLabel">Sync</span>
+  </button>
+  <!-- Settings -->
+  <button class="settings-btn" id="settingsBtn" title="Settings">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
   </button>
 </div>
 
@@ -601,6 +663,153 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
     </div>
   </div>
 
+</div>
+
+<!-- SETTINGS DRAWER -->
+<div class="settings-overlay" id="settingsOverlay"></div>
+<div class="settings-drawer" id="settingsDrawer">
+  <div class="settings-handle"></div>
+  <div class="settings-head">
+    <span class="settings-title">Settings</span>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button class="s-save-btn" id="sSaveBtn">Save</button>
+      <button class="settings-close" id="settingsClose">✕</button>
+    </div>
+  </div>
+  <div class="settings-body">
+
+    <!-- SECTION: People -->
+    <div class="s-section">
+      <div class="s-section-label">People</div>
+      <div class="s-row">
+        <div class="s-row-info"><div class="s-row-title">Sender 1 name</div><div class="s-row-sub">Shown on cards and filters</div></div>
+        <input class="s-input" id="sNameA" value="Arina" maxlength="20"/>
+      </div>
+      <div class="s-row">
+        <div class="s-row-info"><div class="s-row-title">Sender 2 name</div><div class="s-row-sub">Shown on cards and filters</div></div>
+        <input class="s-input" id="sNameE" value="Elnur" maxlength="20"/>
+      </div>
+    </div>
+
+    <!-- SECTION: Event -->
+    <div class="s-section">
+      <div class="s-section-label">Event</div>
+
+      <div class="s-row">
+        <div class="s-row-info"><div class="s-row-title">Wedding date</div><div class="s-row-sub">Shown in invite messages</div></div>
+        <input class="s-input" id="sWeddingDate" value="16.10.2026" maxlength="12"/>
+      </div>
+
+      <div class="s-section-sublabel">Ceremony</div>
+      <div class="s-row">
+        <div class="s-row-info"><div class="s-row-title">Getting together</div><div class="s-row-sub">Pre-ceremony meetup time</div></div>
+        <input class="s-input" id="sGatherTime" value="" placeholder="e.g. 13:30" maxlength="8"/>
+      </div>
+      <div class="s-row">
+        <div class="s-row-info"><div class="s-row-title">Ceremony time</div></div>
+        <input class="s-input" id="sCeremonyTime" value="14:00" maxlength="8"/>
+      </div>
+      <div class="s-row-col">
+        <div class="s-row-info"><div class="s-row-title">Ceremony address</div><div class="s-row-sub">Full address for directions</div></div>
+        <input class="s-input s-input-wide" id="sCeremonyAddress" value="" placeholder="e.g. Königsteiner Str. 80, Frankfurt" maxlength="100"/>
+      </div>
+
+      <div class="s-section-sublabel">Party</div>
+      <div class="s-row">
+        <div class="s-row-info"><div class="s-row-title">Party start time</div><div class="s-row-sub">When doors open / arrivals from</div></div>
+        <input class="s-input" id="sVenueStart" value="" placeholder="e.g. 18:00" maxlength="8"/>
+      </div>
+      <div class="s-row-col">
+        <div class="s-row-info"><div class="s-row-title">Party venue</div><div class="s-row-sub">Location name</div></div>
+        <input class="s-input s-input-wide" id="sVenue" value="" placeholder="e.g. Villa Rothschild" maxlength="60"/>
+      </div>
+      <div class="s-row-col">
+        <div class="s-row-info"><div class="s-row-title">Party address</div><div class="s-row-sub">Full address for directions</div></div>
+        <input class="s-input s-input-wide" id="sPartyAddress" value="" placeholder="e.g. Hauptstr. 1, Frankfurt" maxlength="100"/>
+      </div>
+    </div>
+
+    <!-- SECTION: Message template -->
+    <div class="s-section">
+      <div class="s-section-label">Message Template</div>
+      <div class="s-row-col">
+        <div class="s-row-info"><div class="s-row-title">Ceremony only <span class="s-chip">EN</span></div></div>
+        <textarea class="s-textarea" id="sMsgCeremonyEn" rows="4"></textarea>
+      </div>
+      <div class="s-row-col">
+        <div class="s-row-info"><div class="s-row-title">Full day <span class="s-chip">EN</span></div></div>
+        <textarea class="s-textarea" id="sMsgPartyEn" rows="4"></textarea>
+      </div>
+      <div class="s-row-col">
+        <div class="s-row-info"><div class="s-row-title">Ceremony only <span class="s-chip">DE</span></div></div>
+        <textarea class="s-textarea" id="sMsgCeremonyDe" rows="4"></textarea>
+      </div>
+      <div class="s-row-col">
+        <div class="s-row-info"><div class="s-row-title">Full day <span class="s-chip">DE</span></div></div>
+        <textarea class="s-textarea" id="sMsgPartyDe" rows="4"></textarea>
+      </div>
+    </div>
+
+    <!-- SECTION: Guest Groups -->
+    <div class="s-section">
+      <div class="s-section-label">Guest Groups</div>
+      <div class="s-groups-list" id="sGroupsList"></div>
+      <button class="s-add-btn" id="sAddGroup">+ Add group</button>
+    </div>
+
+    <!-- SECTION: Swipe -->
+    <div class="s-section">
+      <div class="s-section-label">Swipe</div>
+      <div class="s-row">
+        <div class="s-row-info"><div class="s-row-title">Sensitivity</div><div class="s-row-sub">How far to swipe to confirm</div></div>
+        <div class="s-seg" id="sSwipeSens">
+          <button class="s-seg-btn" data-val="0.3">Low</button>
+          <button class="s-seg-btn active" data-val="0.45">Mid</button>
+          <button class="s-seg-btn" data-val="0.65">High</button>
+        </div>
+      </div>
+      <div class="s-row">
+        <div class="s-row-info"><div class="s-row-title">Sound on snap</div></div>
+        <label class="s-toggle"><input type="checkbox" id="sSnapSound" checked/><span class="s-toggle-track"></span></label>
+      </div>
+    </div>
+
+    <!-- SECTION: Appearance -->
+    <div class="s-section">
+      <div class="s-section-label">Appearance</div>
+      <div class="s-row">
+        <div class="s-row-info"><div class="s-row-title">Theme</div></div>
+        <div class="s-seg" id="sTheme">
+          <button class="s-seg-btn active" data-val="warm">Warm</button>
+          <button class="s-seg-btn" data-val="sage">Sage</button>
+          <button class="s-seg-btn" data-val="slate">Slate</button>
+        </div>
+      </div>
+      <div class="s-row">
+        <div class="s-row-info"><div class="s-row-title">Compact cards</div><div class="s-row-sub">Smaller card padding</div></div>
+        <label class="s-toggle"><input type="checkbox" id="sCompact"/><span class="s-toggle-track"></span></label>
+      </div>
+    </div>
+
+    <!-- SECTION: Sync -->
+    <div class="s-section">
+      <div class="s-section-label">Sync</div>
+      <div class="s-row-col">
+        <div class="s-row-info"><div class="s-row-title">Worker URL</div><div class="s-row-sub">Cloudflare sync endpoint</div></div>
+        <input class="s-input s-input-wide s-mono" id="sWorkerUrl" placeholder="https://your-worker.workers.dev"/>
+      </div>
+    </div>
+
+    <!-- SECTION: Danger -->
+    <div class="s-section">
+      <div class="s-section-label" style="color:var(--red)">Danger Zone</div>
+      <div class="s-row">
+        <div class="s-row-info"><div class="s-row-title">Reset all data</div><div class="s-row-sub">Wipes guest list and settings</div></div>
+        <button class="s-danger-btn" id="sHardReset">Reset</button>
+      </div>
+    </div>
+
+  </div>
 </div>
 
 <!-- FAB -->
@@ -1031,17 +1240,51 @@ function buildGuestCard(g){
 
 /* ══ SWIPE TO MARK SENT / FOLLOW UP ══════════ */
 function playTick(){
+  if(appSettings&&appSettings.snapSound===false)return;
   try{
     var ctx=new(window.AudioContext||window.webkitAudioContext)();
-    var osc=ctx.createOscillator();
-    var gain=ctx.createGain();
-    osc.connect(gain);gain.connect(ctx.destination);
-    osc.type='sine';osc.frequency.setValueAtTime(1200,ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(600,ctx.currentTime+0.06);
-    gain.gain.setValueAtTime(0.18,ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.06);
-    osc.start(ctx.currentTime);osc.stop(ctx.currentTime+0.06);
-    osc.onended=function(){ctx.close();};
+    var t=ctx.currentTime;
+
+    // Layer 1: sharp transient click (noise burst)
+    var bufSize=ctx.sampleRate*0.04;
+    var buf=ctx.createBuffer(1,bufSize,ctx.sampleRate);
+    var data=buf.getChannelData(0);
+    for(var i=0;i<bufSize;i++) data[i]=(Math.random()*2-1)*Math.pow(1-i/bufSize,6);
+    var noise=ctx.createBufferSource();
+    noise.buffer=buf;
+    var noiseFilter=ctx.createBiquadFilter();
+    noiseFilter.type='bandpass';
+    noiseFilter.frequency.value=3200;
+    noiseFilter.Q.value=0.8;
+    var noiseGain=ctx.createGain();
+    noiseGain.gain.setValueAtTime(0.55,t);
+    noiseGain.gain.exponentialRampToValueAtTime(0.001,t+0.04);
+    noise.connect(noiseFilter);noiseFilter.connect(noiseGain);noiseGain.connect(ctx.destination);
+    noise.start(t);noise.stop(t+0.04);
+
+    // Layer 2: low body thud
+    var osc1=ctx.createOscillator();
+    var g1=ctx.createGain();
+    osc1.type='sine';
+    osc1.frequency.setValueAtTime(180,t);
+    osc1.frequency.exponentialRampToValueAtTime(60,t+0.07);
+    g1.gain.setValueAtTime(0.5,t);
+    g1.gain.exponentialRampToValueAtTime(0.001,t+0.07);
+    osc1.connect(g1);g1.connect(ctx.destination);
+    osc1.start(t);osc1.stop(t+0.07);
+
+    // Layer 3: mid snap tone
+    var osc2=ctx.createOscillator();
+    var g2=ctx.createGain();
+    osc2.type='triangle';
+    osc2.frequency.setValueAtTime(900,t);
+    osc2.frequency.exponentialRampToValueAtTime(400,t+0.05);
+    g2.gain.setValueAtTime(0.25,t);
+    g2.gain.exponentialRampToValueAtTime(0.001,t+0.05);
+    osc2.connect(g2);g2.connect(ctx.destination);
+    osc2.start(t);osc2.stop(t+0.05);
+
+    setTimeout(function(){ctx.close();},200);
   }catch(e){}
 }
 function attachSwipe(card){
@@ -1050,7 +1293,7 @@ function attachSwipe(card){
   if(!wrap)return;
   var bg=wrap.querySelector('.g-swipe-bg');
   // Full-width threshold = 85% of card width
-  function getThreshold(){return Math.round((wrap.offsetWidth||300)*0.45);}
+  function getThreshold(){var pct=window._swipeThresholdPct||0.45;return Math.round((wrap.offsetWidth||300)*pct);}
 
   // Swipe labels (left + right anchored)
   var lblL=wrap.querySelector('.g-swipe-label-left');
@@ -1617,6 +1860,181 @@ document.getElementById('hardResetBtn').addEventListener('click',function(){
   var pill=document.getElementById('topSyncBtn');pill.classList.remove('synced');document.getElementById('topSyncLabel').textContent='Sync';var dot=document.getElementById('syncDot');dot.classList.add('live');dot.style.background='';
   var btn=this;btn.textContent='Done';setTimeout(function(){btn.textContent='Hard Reset';},2000);
 });
+
+/* ══ SETTINGS ════════════════════════════════ */
+var appSettings={
+  nameA:'Arina', nameE:'Elnur',
+  weddingDate:'16.10.2026', ceremonyTime:'14:00', gatherTime:'', venue:'',
+  venueStart:'', ceremonyAddress:'', partyAddress:'',
+  swipeSens:0.45, snapSound:true,
+  theme:'warm', compact:false,
+  workerUrl:''
+};
+
+function loadAppSettings(){
+  try{var s=JSON.parse(localStorage.getItem('ww_settings')||'{}');Object.assign(appSettings,s);}catch(e){}
+}
+function saveAppSettings(){
+  try{localStorage.setItem('ww_settings',JSON.stringify(appSettings));}catch(e){}
+}
+function applyAppSettings(){
+  // Swipe threshold
+  window._swipeThresholdPct=appSettings.swipeSens;
+  // Compact cards
+  document.body.classList.toggle('compact-cards',!!appSettings.compact);
+  // Theme
+  applyTheme(appSettings.theme);
+  // Sender names in topbar
+  var sa=document.getElementById('sessA'),se=document.getElementById('sessE');
+  if(sa)sa.textContent=appSettings.nameA;
+  if(se)se.textContent=appSettings.nameE;
+}
+function applyTheme(t){
+  var root=document.documentElement;
+  if(t==='sage'){
+    root.style.setProperty('--rose','#6B8F71');root.style.setProperty('--rose-deep','#4A6B50');
+    root.style.setProperty('--rose-soft','#D4E8D6');root.style.setProperty('--blush','#C8DEC9');
+    root.style.setProperty('--gold','#7A9E7E');root.style.setProperty('--parchment','#DDE8DE');
+  } else if(t==='slate'){
+    root.style.setProperty('--rose','#6B7F8F');root.style.setProperty('--rose-deep','#4A5F6B');
+    root.style.setProperty('--rose-soft','#D4DDE8');root.style.setProperty('--blush','#C8D4DE');
+    root.style.setProperty('--gold','#7A8E9E');root.style.setProperty('--parchment','#DDE2E8');
+  } else {
+    root.style.removeProperty('--rose');root.style.removeProperty('--rose-deep');
+    root.style.removeProperty('--rose-soft');root.style.removeProperty('--blush');
+    root.style.removeProperty('--gold');root.style.removeProperty('--parchment');
+  }
+}
+
+function openSettings(){
+  loadSettingsIntoUI();
+  document.getElementById('settingsOverlay').classList.add('open');
+  document.getElementById('settingsDrawer').classList.add('open');
+  // Reset dirty state on open
+  document.getElementById('sSaveBtn').classList.remove('dirty');
+  // Watch all inputs/textareas/checkboxes for changes
+  setTimeout(function(){
+    document.querySelectorAll('#settingsDrawer input, #settingsDrawer textarea').forEach(function(el){
+      el.addEventListener('input',markDirty);el.addEventListener('change',markDirty);
+    });
+  },100);
+}
+function markDirty(){document.getElementById('sSaveBtn').classList.add('dirty');}
+function closeSettings(){
+  document.getElementById('settingsOverlay').classList.remove('open');
+  document.getElementById('settingsDrawer').classList.remove('open');
+}
+
+function loadSettingsIntoUI(){
+  document.getElementById('sNameA').value=appSettings.nameA;
+  document.getElementById('sNameE').value=appSettings.nameE;
+  document.getElementById('sWeddingDate').value=appSettings.weddingDate;
+  document.getElementById('sCeremonyTime').value=appSettings.ceremonyTime;
+  document.getElementById('sGatherTime').value=appSettings.gatherTime||'';
+  document.getElementById('sVenue').value=appSettings.venue||'';
+  document.getElementById('sVenueStart').value=appSettings.venueStart||'';
+  document.getElementById('sCeremonyAddress').value=appSettings.ceremonyAddress||'';
+  document.getElementById('sPartyAddress').value=appSettings.partyAddress||'';
+  document.getElementById('sSnapSound').checked=appSettings.snapSound!==false;
+  document.getElementById('sCompact').checked=!!appSettings.compact;
+  document.getElementById('sWorkerUrl').value=appSettings.workerUrl||document.getElementById('workerUrlInput').value||'';
+  // Message templates
+  var l=msgs||{};
+  document.getElementById('sMsgCeremonyEn').value=(l.en&&l.en.ceremony)||'';
+  document.getElementById('sMsgPartyEn').value=(l.en&&l.en.party)||'';
+  document.getElementById('sMsgCeremonyDe').value=(l.de&&l.de.ceremony)||'';
+  document.getElementById('sMsgPartyDe').value=(l.de&&l.de.party)||'';
+  // Swipe seg
+  document.querySelectorAll('#sSwipeSens .s-seg-btn').forEach(function(b){b.classList.toggle('active',parseFloat(b.dataset.val)===appSettings.swipeSens);});
+  // Theme seg
+  document.querySelectorAll('#sTheme .s-seg-btn').forEach(function(b){b.classList.toggle('active',b.dataset.val===appSettings.theme);});
+  // Groups
+  renderSettingsGroups();
+}
+
+function renderSettingsGroups(){
+  var groups=[...new Set(importQueue.map(function(g){return g.group;}).filter(Boolean))];
+  var el=document.getElementById('sGroupsList');
+  el.innerHTML=groups.map(function(gr,i){
+    return '<div class="s-group-row"><input class="s-group-input" value="'+gr+'" data-orig="'+gr+'"/><button class="s-group-del" data-gr="'+gr+'">×</button></div>';
+  }).join('');
+  el.querySelectorAll('.s-group-del').forEach(function(b){
+    b.addEventListener('click',function(){
+      var gr=this.dataset.gr;
+      importQueue.forEach(function(g){if(g.group===gr)g.group='';});
+      saveGuestMeta();renderGuestList();renderGroupDropdown();renderSettingsGroups();
+    });
+  });
+  el.querySelectorAll('.s-group-input').forEach(function(inp){
+    inp.addEventListener('change',function(){
+      var orig=this.dataset.orig,nv=this.value.trim();
+      if(!nv||nv===orig)return;
+      importQueue.forEach(function(g){if(g.group===orig)g.group=nv;});
+      saveGuestMeta();renderGuestList();renderGroupDropdown();
+    });
+  });
+}
+
+document.getElementById('sAddGroup').addEventListener('click',function(){
+  var name=prompt('New group name:');
+  if(name&&name.trim())renderSettingsGroups();
+});
+
+// Seg buttons
+document.querySelectorAll('#sSwipeSens .s-seg-btn').forEach(function(b){
+  b.addEventListener('click',function(){
+    document.querySelectorAll('#sSwipeSens .s-seg-btn').forEach(function(x){x.classList.remove('active');});
+    b.classList.add('active');appSettings.swipeSens=parseFloat(b.dataset.val);markDirty();
+  });
+});
+document.querySelectorAll('#sTheme .s-seg-btn').forEach(function(b){
+  b.addEventListener('click',function(){
+    document.querySelectorAll('#sTheme .s-seg-btn').forEach(function(x){x.classList.remove('active');});
+    b.classList.add('active');appSettings.theme=b.dataset.val;applyTheme(b.dataset.val);markDirty();
+  });
+});
+
+document.getElementById('sSaveBtn').addEventListener('click',function(){
+  appSettings.nameA=document.getElementById('sNameA').value.trim()||'Arina';
+  appSettings.nameE=document.getElementById('sNameE').value.trim()||'Elnur';
+  appSettings.weddingDate=document.getElementById('sWeddingDate').value.trim();
+  appSettings.ceremonyTime=document.getElementById('sCeremonyTime').value.trim();
+  appSettings.gatherTime=document.getElementById('sGatherTime').value.trim();
+  appSettings.venue=document.getElementById('sVenue').value.trim();
+  appSettings.venueStart=document.getElementById('sVenueStart').value.trim();
+  appSettings.ceremonyAddress=document.getElementById('sCeremonyAddress').value.trim();
+  appSettings.partyAddress=document.getElementById('sPartyAddress').value.trim();
+  appSettings.snapSound=document.getElementById('sSnapSound').checked;
+  appSettings.compact=document.getElementById('sCompact').checked;
+  var wu=document.getElementById('sWorkerUrl').value.trim();
+  if(wu){appSettings.workerUrl=wu;document.getElementById('workerUrlInput').value=wu;try{localStorage.setItem('ww_url',wu);}catch(e){}}
+  // Message templates
+  if(msgs){
+    msgs.en.ceremony=document.getElementById('sMsgCeremonyEn').value;
+    msgs.en.party=document.getElementById('sMsgPartyEn').value;
+    if(msgs.de){msgs.de.ceremony=document.getElementById('sMsgCeremonyDe').value;msgs.de.party=document.getElementById('sMsgPartyDe').value;}
+  }
+  saveAppSettings();applyAppSettings();
+  var btn=document.getElementById('sSaveBtn');
+  btn.textContent='Saved ✓';btn.classList.remove('dirty');
+  setTimeout(function(){btn.textContent='Save';closeSettings();},1200);
+});
+
+document.getElementById('sHardReset').addEventListener('click',function(){
+  document.getElementById('hardResetBtn').click();
+  closeSettings();
+});
+
+document.getElementById('settingsBtn').addEventListener('click',openSettings);
+document.getElementById('settingsClose').addEventListener('click',closeSettings);
+document.getElementById('settingsOverlay').addEventListener('click',closeSettings);
+
+// Compact card CSS
+(function(){var style=document.createElement('style');style.textContent='.compact-cards .g-inner{padding-top:8px!important;padding-bottom:10px!important}.compact-cards .g-name{font-size:14px!important}';document.head.appendChild(style);})();
+
+// Init
+loadAppSettings();applyAppSettings();
+
 </script>
 </body>
 </html>
