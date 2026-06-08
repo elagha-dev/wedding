@@ -1016,7 +1016,8 @@ var msgs={
 };
 
 /* ══ HELPERS ═════════════════════════════════ */
-function firstName(n){var w=(n||'').trim().split(/[\s&]+/)[0];if(!w)return'';return w.charAt(0).toUpperCase()+w.slice(1).toLowerCase();}
+function toTitleCase(s){return(s||'').trim().replace(/\S+/g,function(w){return w.charAt(0).toUpperCase()+w.slice(1).toLowerCase();});}
+var w=(n||'').trim().split(/[\s&]+/)[0];if(!w)return'';return w.charAt(0).toUpperCase()+w.slice(1).toLowerCase();}
 function buildUrl(p1,p2,type,lang){var n1=firstName(p1).toLowerCase(),n2=p2?firstName(p2).toLowerCase():'';var isP=type==='ceremony-party-single'||type==='couple-party';var q=new URLSearchParams();q.set('w',n2?n1+'-'+n2:n1);if(isP)q.set('v','1');if(lang&&lang!=='en')q.set('lang',lang);return BASE+'?'+q.toString();}
 function buildMsg(name,type,lang,url){var isP=type==='ceremony-party-single'||type==='couple-party';var l=msgs[lang]||msgs.en;return(isP?l.party:l.ceremony).replace('{n}',name).replace('{u}',url);}
 function ts(){var d=new Date();var day=String(d.getDate()).padStart(2,'0'),mon=String(d.getMonth()+1).padStart(2,'0');return day+'.'+mon+' '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});}
@@ -1580,8 +1581,8 @@ document.getElementById('fabE').addEventListener('click',function(){openQuickFor
 document.getElementById('qfCancel').addEventListener('click',closeQuickForm);
 document.getElementById('qfBackdrop').addEventListener('click',closeQuickForm);
 document.getElementById('qfSend').addEventListener('click',function(){
-  var p1=document.getElementById('qfName').value.trim();
-  var p2=qfMode==='couple'?document.getElementById('qfName2').value.trim():'';
+  var p1=toTitleCase(document.getElementById('qfName').value.trim());
+  var p2=qfMode==='couple'?toTitleCase(document.getElementById('qfName2').value.trim()):'';
   var phone=document.getElementById('qfPhone').value.trim();
   var who=document.getElementById('quickForm').dataset.who||sessionSender;
   // Validate
@@ -1699,7 +1700,7 @@ function doSync(){
       var oldMeta=loadGuestMeta();
       importQueue=guests.map(function(g){
         var name=g.name||g.Name||'';var meta=oldMeta[name]||{};
-        return{name:name,phone:g.phone||g.Phone||g['WhatsApp']||'',type:g.type||g.Type||g['Invite Type']||'ceremony-single',lang:g.lang||g.Lang||g['Language']||'en',sender:g.sender||g.Sender||'',group:g.group||g.Group||g['Family Group']||'',isChild:g.isChild||g['Is Child']||false,confirmed:g.confirmed||g.Confirmed||false,note:meta.note||'',followup:meta.followup||false,skipped:meta.skipped||false,pendingSent:meta.pendingSent||false,sent:meta.sent||false,sentAt:meta.sentAt||'',sentBy:meta.sentBy||'',msgLang:meta.msgLang||''};
+        return{name:toTitleCase(name),phone:g.phone||g.Phone||g['WhatsApp']||'',type:g.type||g.Type||g['Invite Type']||'ceremony-single',lang:g.lang||g.Lang||g['Language']||'en',sender:g.sender||g.Sender||'',group:g.group||g.Group||g['Family Group']||'',isChild:g.isChild||g['Is Child']||false,confirmed:g.confirmed||g.Confirmed||false,note:meta.note||'',followup:meta.followup||false,skipped:meta.skipped||false,pendingSent:meta.pendingSent||false,sent:meta.sent||false,sentAt:meta.sentAt||'',sentBy:meta.sentBy||'',msgLang:meta.msgLang||''};
       });
       var now=ts();
       try{localStorage.setItem('ww_ls',now);localStorage.setItem('ww_pending',JSON.stringify(importQueue));}catch(e){}
@@ -1775,7 +1776,7 @@ document.querySelectorAll('.s-btn').forEach(function(b){b.addEventListener('clic
 })();
 
 document.getElementById('genBtn').addEventListener('click',function(){
-  var p1=document.getElementById('p1').value.trim(),p2=document.getElementById('p2').value.trim(),phone=document.getElementById('waPhone').value.trim();
+  var p1=toTitleCase(document.getElementById('p1').value.trim()),p2=toTitleCase(document.getElementById('p2').value.trim()),phone=document.getElementById('waPhone').value.trim();
   if(!p1){var el=document.getElementById('p1');el.style.borderColor='var(--red)';el.focus();setTimeout(function(){el.style.borderColor='';},1500);return;}
   var isCouple=selType==='couple-ceremony'||selType==='couple-party',hasParty=selType==='ceremony-party-single'||selType==='couple-party';
   var name=isCouple&&p2?p1+' & '+p2:p1;
