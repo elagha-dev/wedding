@@ -273,6 +273,8 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 
 .g-tags:empty{margin-bottom:0}
 .g-swipe-hint{display:none}
+@keyframes sw-snap{0%{transform:translateX(var(--snap-x,0px)) scale(1)}40%{transform:translateX(var(--snap-x,0px)) scale(1.013)}70%{transform:translateX(var(--snap-x,0px)) scale(0.997)}100%{transform:translateX(var(--snap-x,0px)) scale(1)}}
+.sw-snapping{animation:sw-snap 0.2s cubic-bezier(.36,.07,.19,.97) both}
 .g-swipe-label-left{position:absolute;inset:0;display:none;align-items:center;padding-left:20px;font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff;pointer-events:none;z-index:5}
 .g-swipe-label-right{position:absolute;inset:0;display:none;align-items:center;justify-content:flex-end;padding-right:20px;font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff;pointer-events:none;z-index:5}
 .g-swipe-wrap.sw-left .g-swipe-label-left{display:flex}
@@ -1028,6 +1030,20 @@ function buildGuestCard(g){
 }
 
 /* ══ SWIPE TO MARK SENT / FOLLOW UP ══════════ */
+function playTick(){
+  try{
+    var ctx=new(window.AudioContext||window.webkitAudioContext)();
+    var osc=ctx.createOscillator();
+    var gain=ctx.createGain();
+    osc.connect(gain);gain.connect(ctx.destination);
+    osc.type='sine';osc.frequency.setValueAtTime(1200,ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(600,ctx.currentTime+0.06);
+    gain.gain.setValueAtTime(0.18,ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.06);
+    osc.start(ctx.currentTime);osc.stop(ctx.currentTime+0.06);
+    osc.onended=function(){ctx.close();};
+  }catch(e){}
+}
 function attachSwipe(card){
   var startX,startY,isDragging=false;
   var wrap=card.closest('.g-swipe-wrap');
@@ -1075,6 +1091,13 @@ function attachSwipe(card){
       if(isActive&&!wasActive){
         wrap.dataset.swipeActive='1';
         if(navigator.vibrate)navigator.vibrate(18);
+        playTick();
+        // Snap animation — pass current translateX as CSS var
+        card.style.setProperty('--snap-x', dx+'px');
+        card.classList.remove('sw-snapping');
+        void card.offsetWidth; // reflow to restart animation
+        card.classList.add('sw-snapping');
+        card.addEventListener('animationend',function(){card.classList.remove('sw-snapping');},{once:true});
       } else if(!isActive){
         wrap.dataset.swipeActive='0';
       }
