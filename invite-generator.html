@@ -1024,6 +1024,15 @@ function saveGuestMeta(){
     if(importQueue.length)localStorage.setItem('ww_pending',JSON.stringify(importQueue));
   }catch(e){}
 }
+// Push followup/note changes for a single guest to worker KV
+function pushMetaToWorker(g){
+  var url=workerUrl;if(!url||!g||!g.name)return;
+  fetch(url.replace(/\/$/,'')+'/meta',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({name:g.name,followup:!!g.followup,note:g.note||''})
+  }).catch(function(){});// fire-and-forget, silent fail
+}
 function loadGuestMeta(){try{return JSON.parse(localStorage.getItem('ww_gm')||'{}');}catch(e){return{};}}
 function applyGuestMeta(){
   var m=loadGuestMeta();
@@ -1192,7 +1201,7 @@ function renderGuestList(){
     btn.addEventListener('click',function(e){e.stopPropagation();var ri=parseInt(this.dataset.qi);var g=importQueue[ri];if(!g)return;var a=this.dataset.action;
       if(a==='wa'){openLangModal(g,ri);return;}
       else if(a==='unsent'){var prevSentAt=g.sentAt;g.sent=false;g.sentAt='';g.pendingSent=false;todayCount=Math.max(0,todayCount-1);updateTodayBadge();saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();showUndo('Reset '+g.name+' to unsent',function(){g.sent=true;g.sentAt=prevSentAt;todayCount++;updateTodayBadge();saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();});return;}
-      else if(a==='flag'){g.followup=!g.followup;saveGuestMeta();renderGuestList();renderDashboard();}
+      else if(a==='flag'){g.followup=!g.followup;saveGuestMeta();pushMetaToWorker(g);renderGuestList();renderDashboard();}
       else if(a==='claim'){claimGuest(g.name);}
       else if(a==='note')openNoteModal(ri);
       else if(a==='del'){importQueue.splice(ri,1);selectedIdxs=selectedIdxs.filter(function(i){return i!==ri;});saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();}
@@ -1672,7 +1681,7 @@ function showPhonePicker(guests,cb){
 var noteModalBg=document.getElementById('noteModalBg'),noteTarget=-1;
 function openNoteModal(ri){noteTarget=ri;var g=importQueue[ri];document.getElementById('noteModalTitle').textContent='Note — '+g.name;document.getElementById('noteModalTA').value=g.note||'';noteModalBg.style.display='flex';setTimeout(function(){document.getElementById('noteModalTA').focus();},50);}
 document.getElementById('noteModalCancel').addEventListener('click',function(){noteModalBg.style.display='none';});
-document.getElementById('noteModalSave').addEventListener('click',function(){if(noteTarget>=0&&importQueue[noteTarget]){importQueue[noteTarget].note=document.getElementById('noteModalTA').value.trim();saveGuestMeta();renderGuestList();}noteModalBg.style.display='none';});
+document.getElementById('noteModalSave').addEventListener('click',function(){if(noteTarget>=0&&importQueue[noteTarget]){importQueue[noteTarget].note=document.getElementById('noteModalTA').value.trim();saveGuestMeta();pushMetaToWorker(importQueue[noteTarget]);renderGuestList();}noteModalBg.style.display='none';});
 
 /* ══ UNIFIED BRIDGE ══════════════════════════ */
 // When a guest list guest is marked sent, mirror it into the manual tracker
@@ -1743,7 +1752,12 @@ function doSync(){
       var oldMeta=loadGuestMeta();
       importQueue=guests.map(function(g){
         var name=g.name||g.Name||'';var meta=oldMeta[name]||{};
-        return{name:toTitleCase(name),phone:g.phone||g.Phone||g['WhatsApp']||'',type:g.type||g.Type||g['Invite Type']||'ceremony-single',lang:g.lang||g.Lang||g['Language']||'en',sender:g.sender||g.Sender||'',group:g.group||g.Group||g['Family Group']||'',isChild:g.isChild||g['Is Child']||false,confirmed:g.confirmed||g.Confirmed||false,note:meta.note||'',followup:meta.followup||false,skipped:meta.skipped||false,pendingSent:meta.pendingSent||false,sent:meta.sent||false,sentAt:meta.sentAt||'',sentBy:meta.sentBy||'',msgLang:meta.msgLang||''};
+        // Worker sentAt is the source of truth; fall back to local meta
+        var workerSentAt=g.sentAt||null;
+        var isSent=!!(workerSentAt||(meta.sent&&meta.sentAt));
+        var resolvedSentAt=workerSentAt||meta.sentAt||'';
+        // followup/note come from worker meta fields (already merged by worker GET /)
+        return{name:toTitleCase(name),phone:g.phone||g.Phone||g['WhatsApp']||'',type:g.type||g.Type||g['Invite Type']||'ceremony-single',lang:g.lang||g.Lang||g['Language']||'en',sender:g.sender||g.Sender||'',group:g.group||g.Group||g['Family Group']||'',isChild:g.isChild||g['Is Child']||false,confirmed:g.confirmed||g.Confirmed||false,note:g.note||meta.note||'',followup:!!(g.followup||meta.followup),skipped:meta.skipped||false,pendingSent:meta.pendingSent||false,sent:isSent,sentAt:resolvedSentAt,sentBy:g.sentBy||meta.sentBy||'',msgLang:meta.msgLang||''};
       });
       var now=ts();
       try{localStorage.setItem('ww_ls',now);localStorage.setItem('ww_pending',JSON.stringify(importQueue));}catch(e){}
