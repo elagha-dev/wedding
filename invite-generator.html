@@ -214,16 +214,16 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-swipe-wrap{position:relative;overflow:hidden;border-radius:var(--r-sm)}
 .g-swipe-bg{display:none}
 .g-swipe-bg-right,.g-swipe-bg-left,.g-swipe-bg-txt{display:none}
-/* WhatsApp-style: action buttons sit at fixed edges, card slides over them */
-.g-swipe-action-right{position:absolute;right:0;top:0;bottom:0;width:80px;z-index:1;background:var(--green);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;cursor:pointer;pointer-events:none}
-.g-swipe-action-left{position:absolute;left:0;top:0;bottom:0;width:80px;z-index:1;background:#E8A838;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;cursor:pointer;pointer-events:none}
+/* WhatsApp-style: action buttons hidden until card slides open */
+.g-swipe-action-right{position:absolute;right:0;top:0;bottom:0;width:80px;background:var(--green);display:none;align-items:center;justify-content:center;flex-direction:column;gap:4px;cursor:pointer;pointer-events:none}
+.g-swipe-action-left{position:absolute;left:0;top:0;bottom:0;width:80px;background:#E8A838;display:none;align-items:center;justify-content:center;flex-direction:column;gap:4px;cursor:pointer;pointer-events:none}
 .g-swipe-action-right.undo-action{background:var(--amber)}
 .g-swipe-action-left.undo-action{background:var(--amber)}
 .g-swipe-action-txt{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#fff;line-height:1}
 .g-swipe-action-icon{font-size:20px;line-height:1;color:#fff}
-/* Enable pointer events only when the card is open in that direction */
-.g-swipe-wrap.sw-open-left .g-swipe-action-right{pointer-events:all}
-.g-swipe-wrap.sw-open-right .g-swipe-action-left{pointer-events:all}
+/* Show only the relevant button when open, and enable pointer events */
+.g-swipe-wrap.sw-open-left .g-swipe-action-right{display:flex;pointer-events:all}
+.g-swipe-wrap.sw-open-right .g-swipe-action-left{display:flex;pointer-events:all}
 
 .g-card{background:#fff;border-radius:var(--r-sm);border:1.5px solid var(--parchment);box-shadow:var(--shadow-sm);overflow:hidden;cursor:pointer;transition:border-color var(--ease),box-shadow var(--ease);position:relative;z-index:2;touch-action:pan-y;will-change:transform}
 .g-card:not(.swiping):hover{box-shadow:var(--shadow)}
@@ -1456,11 +1456,12 @@ function attachSwipe(card){
     // If card is open, offset from open position
     var base = isOpen ? openDir * OPEN_X : 0;
     var raw = base + dx;
-    // Resist dragging past open on same side, allow closing drag
-    var g = getG();
-    var maxRight = g && !g.sent ? OPEN_X : OPEN_X; // both sides same
-    var clamped = Math.max(-maxRight * 1.3, Math.min(maxRight * 1.3, raw));
+    var clamped = Math.max(-OPEN_X * 1.3, Math.min(OPEN_X * 1.3, raw));
     card.style.transform = 'translateX('+clamped+'px)';
+    // Show the relevant action button during drag
+    wrap.classList.remove('sw-open-left','sw-open-right');
+    if(clamped > 8) wrap.classList.add('sw-open-right');
+    else if(clamped < -8) wrap.classList.add('sw-open-left');
   }
 
   function onEnd(e){
