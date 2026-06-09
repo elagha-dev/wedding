@@ -1020,12 +1020,30 @@ function saveClaims(){try{localStorage.setItem('ww_claims',JSON.stringify(claims
 function loadClaims(){try{return JSON.parse(localStorage.getItem('ww_claims')||'{}');}catch(e){return{};}}
 claims=loadClaims();
 function claimGuest(name){
-  if(claims[name]===sessionSender){delete claims[name];}// toggle off
-  else{claims[name]=sessionSender;}
+  if(claims[name]===sessionSender){
+    delete claims[name];
+    _pushWithRetry('/claims',{name:name,sender:''},'claim:'+name);
+  } else {
+    claims[name]=sessionSender;
+    _pushWithRetry('/claims',{name:name,sender:sessionSender},'claim:'+name);
+  }
   saveClaims();renderGuestList();
 }
-// poll every 4s to pick up other person's claims from same localStorage (same device) or just keep in sync
-setInterval(function(){claims=loadClaims();renderGuestList();},4000);
+function mergeRemoteClaims(remoteClaims){
+  // Remote wins for other person's claims; local wins for own claims (already pushed)
+  Object.keys(remoteClaims).forEach(function(name){
+    // Only update if not already locally set by this session
+    if(!claims[name]||claims[name]!==sessionSender){
+      if(remoteClaims[name]){claims[name]=remoteClaims[name];}
+      else{delete claims[name];}
+    }
+  });
+  // Remove local claims that were unclaimed remotely by the other person
+  Object.keys(claims).forEach(function(name){
+    if(claims[name]!==sessionSender&&!remoteClaims[name]){delete claims[name];}
+  });
+  saveClaims();
+}
 
 /* ══ UNDO TOAST ═══════════════════════════════ */
 var undoTimer=null,undoAction=null;
@@ -1953,9 +1971,15 @@ function doSync(){
   setTopSyncing();
   // Flush any queued failed pushes before fetching fresh state
   _flushRetryQueue();
-  fetch(url,{cache:'no-store'})
-    .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
-    .then(function(data){
+  // Fetch guests + claims in parallel
+  Promise.all([
+    fetch(url,{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}),
+    fetch(url.replace(/\/$/,'')+'/claims',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;})
+  ])
+    .then(function(results){
+      var data=results[0];
+      var claimsData=results[1];
+      if(claimsData&&claimsData.claims){mergeRemoteClaims(claimsData.claims);}
       var guests=Array.isArray(data)?data:(data.results||data.guests||[]);
       if(!guests.length)throw new Error('No guests returned');
       var prevCount=importQueue.length;
