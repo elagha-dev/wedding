@@ -409,7 +409,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 @keyframes spin{to{transform:rotate(360deg)}}
 .settings-btn{width:32px;height:32px;border-radius:50%;background:var(--cream2);border:1.5px solid var(--parchment);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--ease)}
 .settings-btn:hover{border-color:var(--rose);color:var(--rose);transform:rotate(30deg)}
-.stat-pill{display:flex;align-items:center;justify-content:center;min-width:36px;height:36px;padding:0 10px;border-radius:var(--r-pill);border:1.5px solid var(--parchment);background:var(--cream2);font-family:var(--sans);font-size:11px;font-weight:700;color:var(--muted);flex-shrink:0;transition:all var(--ease);line-height:1}
+.stat-pill{display:flex;align-items:center;justify-content:center;min-width:30px;height:32px;padding:0 8px;border-radius:var(--r-pill);border:1.5px solid var(--parchment);background:var(--cream2);font-family:var(--sans);font-size:10.5px;font-weight:700;color:var(--muted);flex-shrink:0;transition:all var(--ease);line-height:1}
 .stat-pill.total{color:var(--ink2);border-color:rgba(61,46,36,.18)}
 .stat-pill.sent{color:var(--green);border-color:rgba(58,140,92,.25);background:var(--green-bg)}
 .dev-btn{width:32px;height:32px;border-radius:50%;background:var(--cream2);border:1.5px solid var(--parchment);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--ease);font-size:11px;font-weight:700;font-family:var(--sans)}
@@ -2306,14 +2306,57 @@ applyAppSettings();
   var styleEl = document.createElement('style');
   styleEl.textContent = `
 /* ── DEV MODE ── */
-.dev-mode [class]{position:relative;}
-.dev-mode [class]::before{
+.dev-mode .g-card,
+.dev-mode .g-inner,
+.dev-mode .f-pill,
+.dev-mode .sess-btn,
+.dev-mode .sync-pill,
+.dev-mode .stat-pill,
+.dev-mode .ai-btn,
+.dev-mode .deploy-btn,
+.dev-mode .settings-btn,
+.dev-mode .dev-btn,
+.dev-mode .bulk-bar,
+.dev-mode .m-btn,
+.dev-mode .btn-primary,
+.dev-mode .sec,
+.dev-mode .chip,
+.dev-mode .ga-btn,
+.dev-mode .ga-btn-wa,
+.dev-mode .filter-row,
+.dev-mode .search-wrap,
+.dev-mode .topbar,
+.dev-mode .wrap,
+.dev-mode .overviewBar {
+  position:relative;
+}
+.dev-mode .g-card::before,
+.dev-mode .g-inner::before,
+.dev-mode .f-pill::before,
+.dev-mode .sess-btn::before,
+.dev-mode .sync-pill::before,
+.dev-mode .stat-pill::before,
+.dev-mode .ai-btn::before,
+.dev-mode .deploy-btn::before,
+.dev-mode .settings-btn::before,
+.dev-mode .dev-btn::before,
+.dev-mode .bulk-bar::before,
+.dev-mode .m-btn::before,
+.dev-mode .btn-primary::before,
+.dev-mode .sec::before,
+.dev-mode .chip::before,
+.dev-mode .ga-btn::before,
+.dev-mode .ga-btn-wa::before,
+.dev-mode .filter-row::before,
+.dev-mode .search-wrap::before,
+.dev-mode .topbar::before,
+.dev-mode .wrap::before {
   content:attr(class);
   position:absolute;
   top:0;left:0;
   font-size:8px;
   font-family:monospace;
-  background:rgba(30,20,10,.82);
+  background:rgba(20,10,5,.85);
   color:#FFD700;
   padding:1px 5px;
   border-radius:0 0 5px 0;
@@ -2324,11 +2367,30 @@ applyAppSettings();
   overflow:hidden;
   text-overflow:ellipsis;
   line-height:1.5;
-  backdrop-filter:blur(2px);
   opacity:0;
   transition:opacity .12s ease;
 }
-.dev-mode [class]:hover::before{
+.dev-mode .g-card:hover::before,
+.dev-mode .g-inner:hover::before,
+.dev-mode .f-pill:hover::before,
+.dev-mode .sess-btn:hover::before,
+.dev-mode .sync-pill:hover::before,
+.dev-mode .stat-pill:hover::before,
+.dev-mode .ai-btn:hover::before,
+.dev-mode .deploy-btn:hover::before,
+.dev-mode .settings-btn:hover::before,
+.dev-mode .dev-btn:hover::before,
+.dev-mode .bulk-bar:hover::before,
+.dev-mode .m-btn:hover::before,
+.dev-mode .btn-primary:hover::before,
+.dev-mode .sec:hover::before,
+.dev-mode .chip:hover::before,
+.dev-mode .ga-btn:hover::before,
+.dev-mode .ga-btn-wa:hover::before,
+.dev-mode .filter-row:hover::before,
+.dev-mode .search-wrap:hover::before,
+.dev-mode .topbar:hover::before,
+.dev-mode .wrap:hover::before {
   opacity:1;
 }
 `;
