@@ -2134,21 +2134,13 @@ document.getElementById('topSyncBtn').addEventListener('click',doSync);
   setTimeout(function(){ doSync(); }, 800);
 })();
 
-// ── AUTO-POLL: re-sync every 30s so both devices stay in sync ──
+// ── AUTO-POLL: disabled ──
 var _autoPollTimer=null;
 function startAutoPoll(){
-  if(_autoPollTimer)clearInterval(_autoPollTimer);
-  _autoPollTimer=setInterval(function(){
-    if(workerUrl&&document.visibilityState!=='hidden'){doSync();}
-  },30000);
+  // auto-poll disabled
 }
-startAutoPoll();
-// Sync immediately when tab becomes visible again (e.g. user switches back)
-document.addEventListener('visibilitychange',function(){
-  if(document.visibilityState==='visible'&&workerUrl){
-    doSync();
-  }
-});
+// startAutoPoll(); // disabled
+// visibilitychange auto-sync disabled
 
 function renderGroupDropdown(){
   var groups=[...new Set(importQueue.map(function(g){return g.group;}).filter(Boolean))];
@@ -2751,8 +2743,8 @@ function doSyncSilent(){
       .catch(function(){}); // silent fail
   }
 
-  // Start polling 5s after load, then every 8s
-  setTimeout(function(){ poll(); setInterval(poll, 8000); }, 5000);
+  // Activity polling disabled
+  // setTimeout(function(){ poll(); setInterval(poll, 8000); }, 5000);
 })();
 
 
