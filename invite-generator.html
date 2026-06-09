@@ -102,7 +102,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .dash-mini-fill{height:100%;border-radius:2px;transition:width .7s cubic-bezier(.4,0,.2,1)}
 .dash-mini-fill.a{background:linear-gradient(90deg,#F9CEDA,var(--arina-txt))}
 .dash-mini-fill.e{background:linear-gradient(90deg,#FDDFA8,var(--elnur-txt))}
-.prog-track{height:3px;background:var(--parchment);border-radius:2px;overflow:hidden;margin-bottom:20px}
+.prog-track{display:none!important}
 .prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--rose));border-radius:2px;transition:width .7s cubic-bezier(.4,0,.2,1)}
 
 /* ── SECTION ── */
@@ -253,12 +253,12 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .ga-btn-wa{background:#25D366;border-color:#25D366;color:#fff;width:auto;border-radius:var(--r-pill);padding:0 12px;font-size:9px;font-weight:700;letter-spacing:.06em;height:28px;gap:4px;display:flex;align-items:center}.ga-btn-wa svg{width:10px;height:10px}.ga-btn-wa:hover{background:#20BD5A;border-color:#20BD5A}.ga-btn-wa.done{background:var(--green);border-color:var(--green)}
 .ga-btn-flag.flagged{background:var(--amber-bg);border-color:rgba(176,120,48,.3);color:var(--amber)}
 .ga-btn-note.has-note{border-color:rgba(176,120,48,.3);color:var(--amber)}
-.g-del{position:absolute;bottom:8px;right:10px;width:16px;height:16px;border-radius:50%;border:none;background:none;color:var(--soft);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--ease);line-height:1;padding:0}.g-del:hover{color:var(--red);background:var(--red-bg)}
+.g-del{position:absolute;top:8px;right:8px;width:16px;height:16px;border-radius:50%;border:none;background:none;color:var(--soft);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--ease);line-height:1;padding:0}.g-del:hover{color:var(--red);background:var(--red-bg)}
 .g-corner-actions{position:absolute;top:9px;right:9px;display:flex;align-items:center;gap:5px}
 .chip-sender-corner{font-size:8px;padding:2px 7px;height:18px;opacity:.85}
 .g-corner-actions .g-del{position:static;top:auto;right:auto}
 /* Sender badge bottom-right */
-.g-sender-br{position:absolute;top:10px;right:34px;font-size:8px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 6px;border-radius:var(--r-pill);height:18px;display:inline-flex;align-items:center;opacity:.75}
+.g-sender-br{position:absolute;top:8px;right:28px;font-size:8px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 6px;border-radius:var(--r-pill);height:18px;display:inline-flex;align-items:center;opacity:.75}
 .g-sender-br.a{background:var(--arina-bg);color:var(--arina-txt)}
 .g-sender-br.e{background:var(--elnur-bg);color:var(--elnur-txt)}
 .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none;flex-shrink:0;z-index:1;transition:opacity .15s}
@@ -550,7 +550,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 
 <div class="wrap">
 
-<div class="prog-track" id="progTrack" style="display:none"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+<div class="prog-track" id="progTrack" style="display:none!important"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
 
   <!-- GUEST LIST -->
   <div class="sec" id="guestListSec">Guest List</div>
