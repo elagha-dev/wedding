@@ -2199,8 +2199,8 @@ function startAutoPoll(){
           renderDashboard();
           showActivityToast(
             changed.length===1
-              ? changed[0]+' updated by other device'
-              : changed.length+' guests updated by other device'
+              ? changed[0]+' updated by '+(sessionSender==='Arina'?'Elnur':'Arina')
+              : changed.length+' guests updated by '+(sessionSender==='Arina'?'Elnur':'Arina')
           );
         }
       })
