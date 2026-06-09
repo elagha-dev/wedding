@@ -198,7 +198,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .search-input.has-value{padding-left:14px}
 .search-input:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135,106,.1)}
 .search-input::placeholder{color:var(--soft)}
-.group-sel{padding:0 10px;font-size:12px;font-weight:500;border:1.5px solid var(--parchment);border-radius:var(--r-pill);background:var(--cream);color:var(--muted);cursor:pointer;font-family:var(--sans);outline:none;transition:border-color var(--ease);flex-shrink:0;width:110px;height:auto;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23C4AFA4' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:26px}
+.group-sel{padding:0 10px;font-size:12px;font-weight:500;border:1.5px solid var(--parchment);border-radius:var(--r-sm);background:var(--cream);color:var(--muted);cursor:pointer;font-family:var(--sans);outline:none;transition:border-color var(--ease);flex-shrink:0;width:110px;height:auto;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23C4AFA4' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:26px}
 .group-sel:focus{border-color:var(--rose)}
 
 
@@ -998,7 +998,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 <script>
 /* ══ CONFIG ══════════════════════════════════ */
 var BASE='https://www.arinaelnur.de/';
-var APP_VERSION='2026.06.09.6';
+var APP_VERSION='2026.06.09.7';
 var APP_UPDATE_URL='https://www.arinaelnur.de/invite-generator.html';
 
 /* ══ STATE ═══════════════════════════════════ */
@@ -1056,7 +1056,7 @@ function saveGuestMeta(){
   try{
     var m={};
     importQueue.forEach(function(g){
-      m[g.name]={note:g.note||'',followup:!!g.followup,skipped:!!g.skipped,pendingSent:!!g.pendingSent,sent:!!g.sent,sentAt:g.sentAt||'',sentBy:g.sentBy||'',msgLang:g.msgLang||''};
+      m[g.name]={note:g.note||'',followup:!!g.followup,skipped:!!g.skipped,pendingSent:!!g.pendingSent,sent:!!g.sent,sentAt:g.sentAt||'',sentBy:g.sentBy||'',msgLang:g.msgLang||'',bulkWith:g.bulkWith||''};
     });
     localStorage.setItem('ww_gm',JSON.stringify(m));
     // Also persist the full queue so actions survive reload without a re-sync
@@ -1102,6 +1102,7 @@ function applyGuestMeta(){
       g.sentAt=d.sentAt||'';
       g.sentBy=d.sentBy||'';
       g.msgLang=d.msgLang||'';
+      g.bulkWith=d.bulkWith||'';
     }
   });
 }
@@ -1198,7 +1199,6 @@ function renderFilterRow(){
   row.innerHTML = ''
     +'<span class="f-open-group'+(isOpen?' open-active':'')+'">'
       +'<button class="f-open-seg'+(isAll?' seg-on':'')+'" data-f="all">Open</button>'
-      +'<span class="f-open-divider"></span>'
       +'<button class="f-open-seg f-open-a'+(isA?' seg-on-a':'')+'" data-f="Arina">A</button>'
       +'<button class="f-open-seg f-open-e'+(isE?' seg-on-e':'')+'" data-f="Elnur">E</button>'
     +'</span>'
@@ -1249,20 +1249,34 @@ function renderGuestList(){
     sections[grp].forEach(function(g){html+=buildGuestCard(g);});
   });
 
-  // Sent: grouped by couples vs singles
+  // Sent: group bulk-with partners together, then split couples vs singles
   if(sentGuests.length){
     if(showSent){
-      var sentCouples=sentGuests.filter(function(g){return g.type==='couple-ceremony'||g.type==='couple-party';});
-      var sentSingles=sentGuests.filter(function(g){return g.type!=='couple-ceremony'&&g.type!=='couple-party';});
+      // Pair up guests that sent together (bulkWith)
+      var renderedNames={};
+      var sentOrdered=[];
+      sentGuests.forEach(function(g){
+        if(renderedNames[g.name])return;
+        renderedNames[g.name]=true;
+        if(g.bulkWith){
+          var partner=sentGuests.find(function(h){return h.name===g.bulkWith;});
+          if(partner&&!renderedNames[partner.name]){
+            renderedNames[partner.name]=true;
+            sentOrdered.push({type:'pair',guests:[g,partner]});
+            return;
+          }
+        }
+        sentOrdered.push({type:'single',guest:g});
+      });
+
       html+='<div class="g-group-hdr sent">Sent ('+sentGuests.length+')</div>';
-      if(sentCouples.length){
-        html+='<div class="g-group-hdr g-group-sub">Couples <span style="opacity:.4">('+sentCouples.length+')</span></div>';
-        sentCouples.forEach(function(g){html+=buildGuestCard(g);});
-      }
-      if(sentSingles.length){
-        html+='<div class="g-group-hdr g-group-sub">Singles <span style="opacity:.4">('+sentSingles.length+')</span></div>';
-        sentSingles.forEach(function(g){html+=buildGuestCard(g);});
-      }
+      sentOrdered.forEach(function(item){
+        if(item.type==='pair'){
+          html+=buildPairSentCard(item.guests[0],item.guests[1]);
+        } else {
+          html+=buildGuestCard(item.guest);
+        }
+      });
       html+='<button class="show-sent-btn" id="showSentBtn">Hide sent</button>';
     } else {
       html+='<button class="show-sent-btn" id="showSentBtn">Show '+sentGuests.length+' sent</button>';
@@ -1304,6 +1318,31 @@ function renderGuestList(){
 
   updateBulkBar();
   initSplitBar();
+}
+
+function buildPairSentCard(g1,g2){
+  var ri1=importQueue.indexOf(g1),ri2=importQueue.indexOf(g2);
+  var senderCls=g1.sender==='Arina'?'chip-a':'chip-e';
+  var senderLbl=g1.sender==='Arina'?'A':'E';
+  var senderChip=g1.sender?('<span class="chip '+senderCls+' chip-sender-corner">'+senderLbl+'</span>'):'';
+  var sentTime=g1.sentAt?'<span class="g-sent-time">'+g1.sentAt+(g1.sentBy?' · '+g1.sentBy:'')+'</span>':'';
+  return '<div class="g-swipe-wrap">'
+    +'<div class="g-card sent">'
+      +'<div class="g-inner" style="padding:9px 14px 9px 16px">'
+        +'<div class="g-main">'
+          +'<div class="g-name-row" style="padding-right:96px">'
+            +'<span class="g-name" style="font-size:15px">'+g1.name+' <span style="color:var(--soft);font-weight:400">&</span> '+g2.name+'</span>'
+            +sentTime
+          +'</div>'
+        +'</div>'
+      +'</div>'
+      +'<div class="g-corner-actions">'
+        +senderChip
+        +'<button class="g-undo-btn" data-qi="'+ri1+'" data-action="undo" title="Mark as unsent"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></button>'
+        +'<button class="g-del" data-qi="'+ri1+'" data-action="del">×</button>'
+      +'</div>'
+    +'</div>'
+  +'</div>';
 }
 
 function buildGuestCard(g){
@@ -1685,6 +1724,8 @@ function doGroupSend(guests,phone,msgLang){
   var msg=buildMsg(dName,type,ml,url);
   var clean=(phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');
   window.open(clean?'https://wa.me/'+clean+'?text='+encodeURIComponent(msg):'https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+  // Tag each guest with their partner so sent view can pair them
+  if(guests.length>1){guests[0].bulkWith=guests[1].name;guests[1].bulkWith=guests[0].name;}
   guests.forEach(function(g){g.pendingSent=true;g.followup=true;});selectedIdxs=[];saveGuestMeta();renderGuestList();renderDashboard();
 }
 
@@ -1872,7 +1913,7 @@ function doSync(){
         var isSent=!!(workerSentAt||(meta.sent&&meta.sentAt));
         var resolvedSentAt=workerSentAt||meta.sentAt||'';
         // followup/note come from worker meta fields (already merged by worker GET /)
-        return{name:toTitleCase(name),phone:g.phone||g.Phone||g['WhatsApp']||'',type:g.type||g.Type||g['Invite Type']||'ceremony-single',lang:g.lang||g.Lang||g['Language']||'en',sender:g.sender||g.Sender||'',group:g.group||g.Group||g['Family Group']||'',isChild:g.isChild||g['Is Child']||false,confirmed:g.confirmed||g.Confirmed||false,note:g.note||meta.note||'',followup:!!(g.followup||meta.followup),skipped:meta.skipped||false,pendingSent:meta.pendingSent||false,sent:isSent,sentAt:resolvedSentAt,sentBy:g.sentBy||meta.sentBy||'',msgLang:meta.msgLang||''};
+        return{name:toTitleCase(name),phone:g.phone||g.Phone||g['WhatsApp']||'',type:g.type||g.Type||g['Invite Type']||'ceremony-single',lang:g.lang||g.Lang||g['Language']||'en',sender:g.sender||g.Sender||'',group:g.group||g.Group||g['Family Group']||'',isChild:g.isChild||g['Is Child']||false,confirmed:g.confirmed||g.Confirmed||false,note:g.note||meta.note||'',followup:!!(g.followup||meta.followup),skipped:meta.skipped||false,pendingSent:meta.pendingSent||false,sent:isSent,sentAt:resolvedSentAt,sentBy:g.sentBy||meta.sentBy||'',msgLang:meta.msgLang||'',bulkWith:meta.bulkWith||''};
       });
       var now=ts();
       try{localStorage.setItem('ww_ls',now);localStorage.setItem('ww_pending',JSON.stringify(importQueue));}catch(e){}
@@ -2060,12 +2101,11 @@ async function deployToGitHub(silent){
 document.getElementById('deployBtn').addEventListener('click', function(){ deployToGitHub(false); });
 
 function checkForUpdate(){
-  // Try fetching the deployed file to compare versions
   fetch(APP_UPDATE_URL+'?nocache='+Date.now(), {cache:'no-store'})
     .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status); return r.text();})
     .then(function(html){
       var m=html.match(/APP_VERSION='([^']+)'/);
-      if(!m){console.warn('[update] version string not found in remote');return;}
+      if(!m)return;
       var remote=m[1];
       if(remote!==APP_VERSION){
         var banner=document.getElementById('updateBanner');
@@ -2080,7 +2120,7 @@ function checkForUpdate(){
         };
       }
     })
-    .catch(function(e){console.warn('[update] check failed:',e);});
+    .catch(function(){});
 }
 var _updateCheckerTimer = null;
 function restartUpdateChecker(){
