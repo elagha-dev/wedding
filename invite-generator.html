@@ -1072,7 +1072,7 @@ function pushMetaToWorker(g){
   fetch(url.replace(/\/$/,'')+'/meta',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({name:g.name,followup:!!g.followup,note:g.note||''})
+    body:JSON.stringify({name:g.name,followup:!!g.followup,note:g.note||'',by:sessionSender,deviceId:deviceId})
   }).catch(function(){});
 }
 function pushSentToWorker(name){
