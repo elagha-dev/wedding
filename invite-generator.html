@@ -180,11 +180,15 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .f-pill.on-f{background:var(--amber-bg);border-color:rgba(176,120,48,.3);color:var(--amber)}
 /* Open pill stays highlighted when A or E sub-filter is active — handled in JS via isOpen */
 .f-pill.f-pill-open.on{background:var(--rose);border-color:var(--rose);color:#fff;box-shadow:0 2px 8px rgba(201,135,106,.3)}
-.f-sub-group{display:inline-flex;align-items:center;gap:3px;background:var(--cream2);border:1.5px solid var(--parchment);border-radius:var(--r-pill);padding:2px 4px;margin-left:-4px}
-.f-pill.f-sub{border:none;background:transparent;padding:4px 10px;box-shadow:none;font-size:10px}
-.f-pill.f-sub:hover{background:var(--parchment);border:none;color:var(--ink2)}
-.f-pill.f-sub.on-a{background:var(--arina-bg);color:var(--arina-txt)}
-.f-pill.f-sub.on-e{background:var(--elnur-bg);color:var(--elnur-txt)}
+/* Segmented Open pill */
+.f-open-group{display:inline-flex;align-items:center;border-radius:var(--r-pill);border:1.5px solid var(--parchment);background:var(--cream);overflow:hidden;flex-shrink:0;transition:border-color var(--ease)}
+.f-open-group.open-active{border-color:var(--rose);box-shadow:0 2px 8px rgba(201,135,106,.2)}
+.f-open-seg{padding:6px 12px;border:none;background:transparent;font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.06em;color:var(--muted);cursor:pointer;transition:all var(--ease);white-space:nowrap}
+.f-open-seg:hover{color:var(--ink2)}
+.f-open-seg.seg-on{background:var(--rose);color:#fff}
+.f-open-seg.seg-on-a{background:var(--arina-bg);color:var(--arina-txt)}
+.f-open-seg.seg-on-e{background:var(--elnur-bg);color:var(--elnur-txt)}
+.f-open-divider{width:1px;height:16px;background:var(--parchment);flex-shrink:0}
 .f-pill.f-sent-pill.on{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 2px 8px rgba(58,140,92,.25)}
 .search-filter-row{display:flex;gap:8px;margin-bottom:12px;align-items:stretch}
 .search-wrap{position:relative;flex:1;min-width:0}
@@ -217,6 +221,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-group-hdr::after{content:'';flex:1;height:1px;background:var(--parchment)}
 .guest-list{padding-top:2px;margin-top:0}
 .g-group-hdr.sent{color:var(--green)}
+.g-group-hdr.g-group-sub{font-size:8px;opacity:.6;padding:4px 2px 3px;margin-top:2px}
 
 /* Swipe wrapper — carries the border so it wraps card + action buttons as one unit */
 .g-swipe-wrap{position:relative;border-radius:var(--r-sm);overflow:hidden;border:1.5px solid var(--parchment);box-shadow:var(--shadow-sm)}
@@ -272,7 +277,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .ga-btn-flag.flagged{background:var(--amber-bg);border-color:rgba(176,120,48,.3);color:var(--amber)}
 .ga-btn-note.has-note{border-color:rgba(176,120,48,.3);color:var(--amber)}
 .g-del{position:absolute;top:8px;right:8px;width:16px;height:16px;border-radius:50%;border:none;background:none;color:var(--soft);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--ease);line-height:1;padding:0}.g-del:hover{color:var(--red);background:var(--red-bg)}
-.g-undo-btn{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--parchment);background:var(--cream);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--ease);padding:0;flex-shrink:0;box-shadow:none}.g-undo-btn:hover{border-color:var(--amber);color:var(--amber);background:var(--amber-bg)}
+.g-undo-btn{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--parchment);background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--ease);padding:0;flex-shrink:0;box-shadow:none}.g-undo-btn:hover{border-color:var(--amber);color:var(--amber);background:var(--amber-bg)}
 .g-corner-actions{position:absolute;top:9px;right:9px;display:flex;align-items:center;gap:5px}
 .chip-sender-corner{font-size:8px;padding:2px 7px;height:18px;opacity:.85}
 .g-corner-actions .g-del{position:static;top:auto;right:auto}
@@ -1184,21 +1189,22 @@ function renderDashboard(){
 /* ══ FILTER ROW ══════════════════════════════ */
 function renderFilterRow(){
   var row=document.getElementById('filterRow');
-  var isOpen = importFilter==='all'||importFilter==='Arina'||importFilter==='Elnur';
-  var openCls = isOpen ? 'on' : '';
-  var aCls = importFilter==='Arina' ? 'on-a' : '';
-  var eCls = importFilter==='Elnur' ? 'on-e' : '';
+  var isAll = importFilter==='all';
+  var isA = importFilter==='Arina';
+  var isE = importFilter==='Elnur';
+  var isOpen = isAll||isA||isE;
   var fCls = importFilter==='followup' ? 'on-f' : '';
   var sCls = importFilter==='sent' ? 'on' : '';
   row.innerHTML = ''
-    +'<button class="f-pill f-pill-open '+openCls+'" data-f="all">Open</button>'
-    +'<span class="f-sub-group">'
-      +'<button class="f-pill f-sub '+aCls+'" data-f="Arina">A</button>'
-      +'<button class="f-pill f-sub '+eCls+'" data-f="Elnur">E</button>'
+    +'<span class="f-open-group'+(isOpen?' open-active':'')+'">'
+      +'<button class="f-open-seg'+(isAll?' seg-on':'')+'" data-f="all">Open</button>'
+      +'<span class="f-open-divider"></span>'
+      +'<button class="f-open-seg f-open-a'+(isA?' seg-on-a':'')+'" data-f="Arina">A</button>'
+      +'<button class="f-open-seg f-open-e'+(isE?' seg-on-e':'')+'" data-f="Elnur">E</button>'
     +'</span>'
     +'<button class="f-pill '+fCls+'" data-f="followup">Flag</button>'
     +'<button class="f-pill f-sent-pill '+sCls+'" data-f="sent">Sent</button>';
-  row.querySelectorAll('.f-pill').forEach(function(b){
+  row.querySelectorAll('[data-f]').forEach(function(b){
     b.addEventListener('click',function(){
       importFilter=this.dataset.f;
       selectedIdxs=[];renderFilterRow();renderGuestList();
@@ -1243,11 +1249,20 @@ function renderGuestList(){
     sections[grp].forEach(function(g){html+=buildGuestCard(g);});
   });
 
-  // Sent: collapsed by default
+  // Sent: grouped by couples vs singles
   if(sentGuests.length){
     if(showSent){
+      var sentCouples=sentGuests.filter(function(g){return g.type==='couple-ceremony'||g.type==='couple-party';});
+      var sentSingles=sentGuests.filter(function(g){return g.type!=='couple-ceremony'&&g.type!=='couple-party';});
       html+='<div class="g-group-hdr sent">Sent ('+sentGuests.length+')</div>';
-      sentGuests.forEach(function(g){html+=buildGuestCard(g);});
+      if(sentCouples.length){
+        html+='<div class="g-group-hdr g-group-sub">Couples <span style="opacity:.4">('+sentCouples.length+')</span></div>';
+        sentCouples.forEach(function(g){html+=buildGuestCard(g);});
+      }
+      if(sentSingles.length){
+        html+='<div class="g-group-hdr g-group-sub">Singles <span style="opacity:.4">('+sentSingles.length+')</span></div>';
+        sentSingles.forEach(function(g){html+=buildGuestCard(g);});
+      }
       html+='<button class="show-sent-btn" id="showSentBtn">Hide sent</button>';
     } else {
       html+='<button class="show-sent-btn" id="showSentBtn">Show '+sentGuests.length+' sent</button>';
