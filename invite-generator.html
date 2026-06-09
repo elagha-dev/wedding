@@ -213,12 +213,16 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 /* Swipe wrapper */
 .g-swipe-wrap{position:relative;overflow:hidden;border-radius:var(--r-sm)}
 .g-swipe-bg{position:absolute;inset:0;border-radius:var(--r-sm);pointer-events:none}
-.g-swipe-bg-right{position:absolute;right:0;top:0;bottom:0;width:100%;background:var(--green);display:flex;align-items:center;justify-content:flex-end;padding-right:20px;border-radius:var(--r-sm)}
-.g-swipe-bg-left{position:absolute;left:0;top:0;bottom:0;width:100%;background:#E8A838;display:flex;align-items:center;padding-left:20px;border-radius:var(--r-sm)}
-.g-swipe-bg-txt{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff;opacity:0;transition:opacity .15s;display:flex;align-items:center;gap:5px}
-.g-swipe-bg.active-right .g-swipe-bg-right .g-swipe-bg-txt{opacity:1}
-.g-swipe-bg.active-left .g-swipe-bg-left .g-swipe-bg-txt{opacity:1}
-.g-swipe-bg.undo-bg .g-swipe-bg-right{background:var(--amber)}
+/* WhatsApp-style: fixed-width action buttons revealed by sliding the card */
+.g-swipe-action-right{position:absolute;right:0;top:0;bottom:0;width:80px;background:var(--green);display:flex;align-items:center;justify-content:center;border-radius:0 var(--r-sm) var(--r-sm) 0;cursor:pointer;flex-direction:column;gap:3px}
+.g-swipe-action-left{position:absolute;left:0;top:0;bottom:0;width:80px;background:#E8A838;display:flex;align-items:center;justify-content:center;border-radius:var(--r-sm) 0 0 var(--r-sm);cursor:pointer;flex-direction:column;gap:3px}
+.g-swipe-action-right.undo-action{background:var(--amber)}
+.g-swipe-action-txt{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#fff;line-height:1}
+.g-swipe-action-icon{font-size:18px;line-height:1}
+/* keep old bg classes but make them no-ops — JS still sets them */
+.g-swipe-bg{display:none}
+.g-swipe-bg-right,.g-swipe-bg-left{display:none}
+.g-swipe-bg-txt{display:none}
 
 .g-card{background:#fff;border-radius:var(--r-sm);border:1.5px solid var(--parchment);box-shadow:var(--shadow-sm);overflow:hidden;cursor:pointer;transition:border-color var(--ease),box-shadow var(--ease);position:relative;touch-action:pan-y;will-change:transform}
 .g-card:not(.swiping):hover{box-shadow:var(--shadow)}
@@ -281,6 +285,11 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-swipe-wrap.sw-left .g-swipe-label-left{display:flex}
 .g-swipe-wrap.sw-right .g-swipe-label-right{display:flex}
 .g-swipe-wrap.swiping-active .g-swipe-hint{display:flex}
+/* Open states — make action buttons pointer-events active */
+.g-swipe-wrap.sw-open-right .g-swipe-action-left,.g-swipe-wrap.sw-open-left .g-swipe-action-right{pointer-events:all}
+.g-swipe-action-right,.g-swipe-action-left{pointer-events:none;transition:opacity .15s}
+/* Card itself needs position:relative and transition handled in JS */
+.g-swipe-wrap > [data-qi]{position:relative;z-index:2;background:var(--cream,#fff)}
 
 .empty-state{padding:36px 20px;text-align:center;color:var(--muted);font-family:var(--sans);font-size:14px}
 .list-footer{display:flex;gap:8px;margin-top:2px;margin-bottom:8px}
@@ -1279,10 +1288,8 @@ function buildGuestCard(g){
   // Sent cards: slim — just name, time, undo reset button + sender badge
   if(g.sent){
     return '<div class="g-swipe-wrap" data-qi="'+ri+'">'
-      +'<div class="g-swipe-bg" id="swbg'+ri+'">'
-      +'<div class="g-swipe-bg-left"><span class="g-swipe-bg-txt">↩ Undo</span></div>'
-      +'<div class="g-swipe-bg-right"><span class="g-swipe-bg-txt">↩ Undo</span></div>'
-      +'</div>'
+      +'<div class="g-swipe-action-right undo-action" data-swipe-action="undo"><span class="g-swipe-action-icon">↩</span><span class="g-swipe-action-txt">Undo</span></div>'
+      +'<div class="g-swipe-action-left undo-action" data-swipe-action="undo"><span class="g-swipe-action-icon">↩</span><span class="g-swipe-action-txt">Undo</span></div>'
       +'<div class="'+cls+'" data-qi="'+ri+'">'
         +'<div class="g-inner" style="padding:9px 14px 9px 16px">'
           +'<div class="g-main">'
@@ -1296,10 +1303,8 @@ function buildGuestCard(g){
   }
 
   return '<div class="g-swipe-wrap" data-qi="'+ri+'">'
-    +'<div class="g-swipe-bg" id="swbg'+ri+'">'
-    +'<div class="g-swipe-bg-left"><span class="g-swipe-bg-txt">🚩 Follow Up</span></div>'
-    +'<div class="g-swipe-bg-right"><span class="g-swipe-bg-txt">✓ Sent</span></div>'
-    +'</div>'
+    +'<div class="g-swipe-action-right" data-swipe-action="sent"><span class="g-swipe-action-icon">✓</span><span class="g-swipe-action-txt">Sent</span></div>'
+    +'<div class="g-swipe-action-left" data-swipe-action="followup"><span class="g-swipe-action-icon">🚩</span><span class="g-swipe-action-txt">Follow Up</span></div>'
     +'<div class="'+cls+'" data-qi="'+ri+'">'
       +'<div class="g-inner">'
         +'<div class="g-ring">'+(isSel?'✓':'')+'</div>'
@@ -1373,110 +1378,121 @@ function playTick(){
   }catch(e){}
 }
 function attachSwipe(card){
-  var startX,startY,isDragging=false;
-  var wrap=card.closest('.g-swipe-wrap');
-  if(!wrap)return;
-  var bg=wrap.querySelector('.g-swipe-bg');
-  // Full-width threshold = 85% of card width
-  function getThreshold(){var pct=window._swipeThresholdPct||0.45;return Math.round((wrap.offsetWidth||300)*pct);}
+  var wrap = card.closest('.g-swipe-wrap');
+  if(!wrap) return;
 
-  // Swipe labels (left + right anchored)
-  var lblL=wrap.querySelector('.g-swipe-label-left');
-  var lblR=wrap.querySelector('.g-swipe-label-right');
-  if(!lblL){
-    lblL=document.createElement('div');lblL.className='g-swipe-label-left';wrap.appendChild(lblL);
-    lblR=document.createElement('div');lblR.className='g-swipe-label-right';wrap.appendChild(lblR);
+  // How far to drag before snapping open (px)
+  var SNAP_THRESHOLD = 40;
+  // How far the card slides to reveal the 80px action button
+  var OPEN_X = 80;
+
+  var startX, startY, isDragging = false, isOpen = false, openDir = 0; // openDir: 1=right, -1=left
+
+  function getG(){ return importQueue[parseInt(card.dataset.qi)]; }
+
+  function snapTo(x, then){
+    card.style.transition = 'transform .2s cubic-bezier(.25,.8,.25,1)';
+    card.style.transform = x === 0 ? '' : 'translateX('+x+'px)';
+    if(then) setTimeout(then, 200);
+    setTimeout(function(){ card.style.transition = ''; }, 220);
   }
+
+  function closeCard(){
+    snapTo(0);
+    isOpen = false; openDir = 0;
+    wrap.classList.remove('sw-open-right','sw-open-left');
+  }
+
+  function openCard(dir){
+    // dir: 1 = slide right (reveals left action), -1 = slide left (reveals right action)
+    var x = dir * OPEN_X;
+    snapTo(x);
+    isOpen = true; openDir = dir;
+    wrap.classList.toggle('sw-open-right', dir === 1);
+    wrap.classList.toggle('sw-open-left', dir === -1);
+    if(navigator.vibrate) navigator.vibrate(18);
+  }
+
+  // Wire up action button clicks
+  wrap.querySelectorAll('[data-swipe-action]').forEach(function(btn){
+    btn.addEventListener('click', function(e){
+      e.stopPropagation();
+      var action = btn.dataset.swipeAction;
+      var g = getG(); if(!g) return;
+      closeCard();
+      if(action === 'sent'){
+        g.sent=true;g.sentAt=ts();g.sentBy=sessionSender;todayCount++;updateTodayBadge();bridgeGuestToTracker(g);
+        pushSentToWorker(g.name);
+        showUndo('Marked '+g.name+' as sent',function(){g.sent=false;g.sentAt='';todayCount=Math.max(0,todayCount-1);updateTodayBadge();pushUnsentToWorker(g.name);saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();});
+        saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();
+      } else if(action === 'undo'){
+        g.sent=false;g.sentAt='';todayCount=Math.max(0,todayCount-1);updateTodayBadge();
+        pushUnsentToWorker(g.name);
+        saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();
+      } else if(action === 'followup'){
+        g.followup=!g.followup;
+        showUndo((g.followup?'Flagged':'Unflagged')+' '+g.name+' for follow-up',function(){g.followup=!g.followup;saveGuestMeta();renderGuestList();renderFilterRow();});
+        saveGuestMeta();renderGuestList();renderFilterRow();
+      }
+    });
+  });
 
   function onStart(e){
-    var t=e.touches?e.touches[0]:e;
-    startX=t.clientX;startY=t.clientY;isDragging=false;
+    // If another card is open, close it first
+    document.querySelectorAll('.sw-open-right,.sw-open-left').forEach(function(w){
+      if(w === wrap) return;
+      w.classList.remove('sw-open-right','sw-open-left');
+      var c = w.querySelector('[data-qi]');
+      if(c){ c.style.transition='transform .2s cubic-bezier(.25,.8,.25,1)'; c.style.transform=''; setTimeout(function(){c.style.transition='';},220); }
+    });
+    var t = e.touches ? e.touches[0] : e;
+    startX = t.clientX; startY = t.clientY; isDragging = false;
   }
+
   function onMove(e){
-    if(!startX)return;
-    var t=e.touches?e.touches[0]:e;
-    var dx=t.clientX-startX,dy=t.clientY-startY;
-    if(!isDragging&&Math.abs(dy)>Math.abs(dx))return;
-    if(Math.abs(dx)<6)return;
-    isDragging=true;
+    if(startX == null) return;
+    var t = e.touches ? e.touches[0] : e;
+    var dx = t.clientX - startX, dy = t.clientY - startY;
+    if(!isDragging && Math.abs(dy) > Math.abs(dx)) return;
+    if(Math.abs(dx) < 4) return;
+    isDragging = true;
     e.preventDefault();
-    var ri=parseInt(card.dataset.qi),g=importQueue[ri];
-    var isSent=g&&g.sent;
-    var threshold=getThreshold();
-    card.style.transform='translateX('+dx+'px)';
-    card.classList.add('swiping');
-    // Show hint label
-    var pct=Math.min(Math.abs(dx)/threshold,1);
-    if(bg){
-      var cls='g-swipe-bg'+(isSent?' undo-bg':'');
-      var isActive=false;
-      var wasActive=wrap.dataset.swipeActive==='1';
-      if(isSent&&dx<-threshold){cls+=' active-right';isActive=true;}
-      else if(!isSent&&dx>threshold){cls+=' active-right';isActive=true;}
-      else if(!isSent&&dx<-threshold){cls+=' active-left';isActive=true;}
-      bg.className=cls;
-      // Haptic bump when crossing threshold
-      if(isActive&&!wasActive){
-        wrap.dataset.swipeActive='1';
-        if(navigator.vibrate)navigator.vibrate(18);
-        playTick();
-        // Snap animation — pass current translateX as CSS var
-        card.style.setProperty('--snap-x', dx+'px');
-        card.classList.remove('sw-snapping');
-        void card.offsetWidth; // reflow to restart animation
-        card.classList.add('sw-snapping');
-        card.addEventListener('animationend',function(){card.classList.remove('sw-snapping');},{once:true});
-      } else if(!isActive){
-        wrap.dataset.swipeActive='0';
-      }
-      // Update hint labels
-      if(Math.abs(dx)>4){
-        var isSentCard=isSent;
-        if(isSentCard&&dx<0){lblR.textContent='Undo';wrap.classList.add('sw-right');wrap.classList.remove('sw-left');}
-        else if(!isSentCard&&dx>0){lblL.textContent='Sent ✓';wrap.classList.add('sw-left');wrap.classList.remove('sw-right');}
-        else if(!isSentCard&&dx<0){lblR.textContent='Follow Up';wrap.classList.add('sw-right');wrap.classList.remove('sw-left');}
-        else{wrap.classList.remove('sw-left','sw-right');}
-      } else {
-        wrap.classList.remove('sw-left','sw-right');
-      }
-    }
+    // If card is open, offset from open position
+    var base = isOpen ? openDir * OPEN_X : 0;
+    var raw = base + dx;
+    // Resist dragging past open on same side, allow closing drag
+    var g = getG();
+    var maxRight = g && !g.sent ? OPEN_X : OPEN_X; // both sides same
+    var clamped = Math.max(-maxRight * 1.3, Math.min(maxRight * 1.3, raw));
+    card.style.transform = 'translateX('+clamped+'px)';
   }
+
   function onEnd(e){
-    if(!isDragging){startX=null;return;}
-    var t=(e.changedTouches?e.changedTouches[0]:null)||e;
-    var dx=t.clientX-startX;
-    var ri=parseInt(card.dataset.qi),g=importQueue[ri];
-    var threshold=getThreshold();
-    card.style.transform='';card.classList.remove('swiping');
-    if(bg)bg.className='g-swipe-bg';
-    wrap.classList.remove('sw-left','sw-right','swiping-active');
-    wrap.dataset.swipeActive='0';
-    startX=null;
-    if(!g)return;
-    if(g.sent&&dx<-threshold){
-      // undo sent
-      g.sent=false;g.sentAt='';todayCount=Math.max(0,todayCount-1);updateTodayBadge();
-      pushUnsentToWorker(g.name);
-      saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();
-    } else if(!g.sent&&dx>threshold){
-      // mark sent
-      g.sent=true;g.sentAt=ts();g.sentBy=sessionSender;todayCount++;updateTodayBadge();bridgeGuestToTracker(g);
-      pushSentToWorker(g.name);
-      showUndo('Marked '+g.name+' as sent',function(){g.sent=false;g.sentAt='';todayCount=Math.max(0,todayCount-1);updateTodayBadge();pushUnsentToWorker(g.name);saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();});
-      saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();
-    } else if(!g.sent&&dx<-threshold){
-      // flag follow up
-      g.followup=!g.followup;
-      showUndo((g.followup?'Flagged':'Unflagged')+' '+g.name+' for follow-up',function(){g.followup=!g.followup;saveGuestMeta();renderGuestList();renderFilterRow();});
-      saveGuestMeta();renderGuestList();renderFilterRow();
+    if(!isDragging){
+      // Tap on open card body → close
+      if(isOpen){ closeCard(); }
+      startX = null; return;
+    }
+    isDragging = false;
+    var t = (e.changedTouches ? e.changedTouches[0] : null) || e;
+    var dx = t.clientX - startX;
+    var base = isOpen ? openDir * OPEN_X : 0;
+    var net = base + dx; // net position from closed
+    startX = null;
+
+    if(Math.abs(net) > SNAP_THRESHOLD){
+      openCard(net > 0 ? 1 : -1);
+    } else {
+      closeCard();
     }
   }
-  card.addEventListener('touchstart',onStart,{passive:true});
-  card.addEventListener('touchmove',onMove,{passive:false});
-  card.addEventListener('touchend',onEnd);
-  card.addEventListener('mousedown',onStart);
-  document.addEventListener('mousemove',onMove);
-  card.addEventListener('mouseup',onEnd);
+
+  card.addEventListener('touchstart', onStart, {passive: true});
+  card.addEventListener('touchmove', onMove, {passive: false});
+  card.addEventListener('touchend', onEnd);
+  card.addEventListener('mousedown', onStart);
+  document.addEventListener('mousemove', onMove);
+  card.addEventListener('mouseup', onEnd);
 }
 
 /* ══ LANG MODAL ══════════════════════════════ */
