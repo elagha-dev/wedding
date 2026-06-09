@@ -584,7 +584,6 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
     <div class="guest-list" id="guestList"></div>
     <div class="list-footer">
       <button class="list-btn dng" id="clearGuestBtn">Clear list</button>
-      <button class="list-btn grow" id="exportBtn">Export CSV</button>
     </div>
   </div>
 
@@ -618,7 +617,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
   <div style="display:flex;justify-content:center;margin:24px 0 8px">
     <button id="toolsToggleBtn" style="display:flex;align-items:center;gap:7px;padding:9px 20px;background:var(--cream2);border:1.5px solid var(--parchment);border-radius:var(--r-pill);font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);cursor:pointer;transition:all var(--ease)">
       <svg id="toolsChevronIcon" width="10" height="10" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-      Tools
+      Extra
     </button>
   </div>
   <div id="toolsDrawer" style="display:none">
@@ -693,7 +692,8 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
         </div>
       </div>
     </div>
-    <div style="display:flex;justify-content:flex-end;margin-top:12px;margin-bottom:4px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;margin-bottom:4px">
+      <button class="list-btn grow" id="exportBtn" style="max-width:140px">Export CSV</button>
       <button class="btn-ghost-danger" id="hardResetBtn">Hard Reset</button>
     </div>
 
@@ -1047,7 +1047,23 @@ function pushMetaToWorker(g){
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({name:g.name,followup:!!g.followup,note:g.note||''})
-  }).catch(function(){});// fire-and-forget, silent fail
+  }).catch(function(){});
+}
+function pushSentToWorker(name){
+  var url=workerUrl;if(!url||!name)return;
+  fetch(url.replace(/\/$/,'')+'/sent',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({name:name,by:sessionSender})
+  }).catch(function(){});
+}
+function pushUnsentToWorker(name){
+  var url=workerUrl;if(!url||!name)return;
+  fetch(url.replace(/\/$/,'')+'/unsent',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({name:name,by:sessionSender})
+  }).catch(function(){});
 }
 function loadGuestMeta(){try{return JSON.parse(localStorage.getItem('ww_gm')||'{}');}catch(e){return{};}}
 function applyGuestMeta(){
@@ -1216,7 +1232,7 @@ function renderGuestList(){
   list.querySelectorAll('[data-action]').forEach(function(btn){
     btn.addEventListener('click',function(e){e.stopPropagation();var ri=parseInt(this.dataset.qi);var g=importQueue[ri];if(!g)return;var a=this.dataset.action;
       if(a==='wa'){openLangModal(g,ri);return;}
-      else if(a==='unsent'){var prevSentAt=g.sentAt;g.sent=false;g.sentAt='';g.pendingSent=false;todayCount=Math.max(0,todayCount-1);updateTodayBadge();saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();showUndo('Reset '+g.name+' to unsent',function(){g.sent=true;g.sentAt=prevSentAt;todayCount++;updateTodayBadge();saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();});return;}
+      else if(a==='unsent'){var prevSentAt=g.sentAt;g.sent=false;g.sentAt='';g.pendingSent=false;todayCount=Math.max(0,todayCount-1);updateTodayBadge();pushUnsentToWorker(g.name);saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();showUndo('Reset '+g.name+' to unsent',function(){g.sent=true;g.sentAt=prevSentAt;todayCount++;updateTodayBadge();pushSentToWorker(g.name);saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();});return;}
       else if(a==='flag'){g.followup=!g.followup;saveGuestMeta();pushMetaToWorker(g);renderGuestList();renderDashboard();}
       else if(a==='claim'){claimGuest(g.name);}
       else if(a==='note')openNoteModal(ri);
@@ -1225,8 +1241,9 @@ function renderGuestList(){
         var prevSent=g.sent;var prevSentBy=g.sentBy||'';var prevFollowup=g.followup;g.pendingSent=false;g.followup=false;g.sent=true;g.sentAt=ts();g.sentBy=sessionSender;todayCount++;updateTodayBadge();
         // bridge to unified tracker
         bridgeGuestToTracker(g);
+        pushSentToWorker(g.name);
         saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();
-        showUndo('Marked '+g.name+' as sent',function(){g.sent=prevSent;g.sentAt='';g.sentBy=prevSentBy;g.followup=prevFollowup;if(!prevSent){todayCount=Math.max(0,todayCount-1);updateTodayBadge();}saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();});
+        showUndo('Marked '+g.name+' as sent',function(){g.sent=prevSent;g.sentAt='';g.sentBy=prevSentBy;g.followup=prevFollowup;if(!prevSent){todayCount=Math.max(0,todayCount-1);updateTodayBadge();}pushUnsentToWorker(g.name);saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();});
       }
       else if(a==='confirm-no'){g.pendingSent=false;saveGuestMeta();renderGuestList();}
     });
@@ -1437,11 +1454,13 @@ function attachSwipe(card){
     if(g.sent&&dx<-threshold){
       // undo sent
       g.sent=false;g.sentAt='';todayCount=Math.max(0,todayCount-1);updateTodayBadge();
+      pushUnsentToWorker(g.name);
       saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();
     } else if(!g.sent&&dx>threshold){
       // mark sent
       g.sent=true;g.sentAt=ts();g.sentBy=sessionSender;todayCount++;updateTodayBadge();bridgeGuestToTracker(g);
-      showUndo('Marked '+g.name+' as sent',function(){g.sent=false;g.sentAt='';todayCount=Math.max(0,todayCount-1);updateTodayBadge();saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();});
+      pushSentToWorker(g.name);
+      showUndo('Marked '+g.name+' as sent',function(){g.sent=false;g.sentAt='';todayCount=Math.max(0,todayCount-1);updateTodayBadge();pushUnsentToWorker(g.name);saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();});
       saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();
     } else if(!g.sent&&dx<-threshold){
       // flag follow up
@@ -2352,6 +2371,80 @@ applyAppSettings();
     return 'Layout updated.';
   }
 })();
+
+/* ── ACTIVITY POLLER ── */
+// Polls /events every 30s. Shows a toast when another device makes a change.
+(function(){
+  var lastSeen = new Date().toISOString(); // only care about events after page load
+  var actionLabels = { sent:'marked sent', unsent:'undid sent', flag:'flagged', note:'added a note' };
+
+  function poll(){
+    var url = workerUrl; if(!url) return;
+    fetch(url.replace(/\/$/,'') + '/events?since=' + encodeURIComponent(lastSeen))
+      .then(function(r){ return r.json(); })
+      .then(function(data){
+        var events = data.events || [];
+        if(!events.length) return;
+        // Update lastSeen to newest event
+        lastSeen = events[0].ts;
+        // Show one combined toast for all new events
+        events.forEach(function(ev){
+          var who = ev.by || 'Someone';
+          var names = (ev.names||[]).join(', ');
+          var label = actionLabels[ev.action] || ev.action;
+          showActivityToast(who + ' ' + label + (names ? ': ' + names : ''));
+        });
+        // If any sent/unsent events, re-sync the guest list silently
+        var hasSentChange = events.some(function(ev){ return ev.action==='sent'||ev.action==='unsent'; });
+        if(hasSentChange) doSyncSilent();
+      })
+      .catch(function(){}); // silent fail
+  }
+
+  // Separate silent sync that doesn't flash the UI
+  function doSyncSilent(){
+    var url = workerUrl; if(!url) return;
+    fetch(url)
+      .then(function(r){ return r.json(); })
+      .then(function(data){
+        var guests = Array.isArray(data) ? data : (data.results||data.guests||[]);
+        if(!guests.length) return;
+        var oldMeta = loadGuestMeta();
+        importQueue = guests.map(function(g){
+          var name = g.name||g.Name||''; var meta = oldMeta[name]||{};
+          var workerSentAt = g.sentAt||null;
+          var isSent = !!(workerSentAt||(meta.sent&&meta.sentAt));
+          var resolvedSentAt = workerSentAt||meta.sentAt||'';
+          return{name:toTitleCase(name),phone:g.phone||g.Phone||g['WhatsApp']||'',type:g.type||g.Type||g['Invite Type']||'ceremony-single',lang:g.lang||g.Lang||g['Language']||'en',sender:g.sender||g.Sender||'',group:g.group||g.Group||g['Family Group']||'',isChild:g.isChild||g['Is Child']||false,confirmed:g.confirmed||g.Confirmed||false,note:g.note||meta.note||'',followup:!!(g.followup||meta.followup),skipped:meta.skipped||false,pendingSent:meta.pendingSent||false,sent:isSent,sentAt:resolvedSentAt,sentBy:g.sentBy||meta.sentBy||'',msgLang:meta.msgLang||''};
+        });
+        try{localStorage.setItem('ww_pending',JSON.stringify(importQueue));}catch(e){}
+        renderGuestList(); renderDashboard(); renderFilterRow();
+      })
+      .catch(function(){});
+  }
+
+  // Start polling 10s after load, then every 30s
+  setTimeout(function(){ poll(); setInterval(poll, 30000); }, 10000);
+})();
+
+/* ── ACTIVITY TOAST ── */
+function showActivityToast(msg){
+  var t = document.getElementById('activityToast');
+  if(!t){
+    t = document.createElement('div');
+    t.id = 'activityToast';
+    t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);z-index:300;background:var(--ink2);color:#fff;font-family:var(--sans);font-size:11px;font-weight:500;padding:9px 18px;border-radius:var(--r-pill);box-shadow:0 4px 20px rgba(0,0,0,.18);opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;white-space:nowrap;max-width:88vw;overflow:hidden;text-overflow:ellipsis';
+    document.body.appendChild(t);
+  }
+  t.textContent = '👀 ' + msg;
+  t.style.opacity = '1';
+  t.style.transform = 'translateX(-50%) translateY(0)';
+  if(t._timer) clearTimeout(t._timer);
+  t._timer = setTimeout(function(){
+    t.style.opacity = '0';
+    t.style.transform = 'translateX(-50%) translateY(20px)';
+  }, 4000);
+}
 
 /* ── TOOLS DRAWER TOGGLE ── */
 (function(){
