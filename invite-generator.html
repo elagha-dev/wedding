@@ -106,7 +106,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--rose));border-radius:2px;transition:width .7s cubic-bezier(.4,0,.2,1)}
 
 /* ── SECTION ── */
-.sec{font-size:9px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:10px;margin:4px 0 4px}
+.sec{font-size:9px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:10px;margin:0 0 4px}
 .sec::after{content:'';flex:1;height:0}
 
 /* ── CARD ── */
@@ -553,9 +553,9 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 <div class="prog-track" id="progTrack" style="display:none!important"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
 
   <!-- GUEST LIST -->
-  <div class="sec" id="guestListSec">Guest List</div>
   <div id="guestArea" style="display:none">
     <div class="sticky-filters">
+      <div class="sec" id="guestListSec" style="margin:0 0 6px">Guest List</div>
       <div class="filter-row" id="filterRow"></div>
       <div class="search-filter-row">
         <div class="search-wrap">
@@ -1043,14 +1043,7 @@ mem=load();
 loadLastSettings();
 // apply restored session sender to UI
 setSession(sessionSender);
-// Scroll to guest list — dashboard is above, scroll up to reveal it
-setTimeout(function(){
-  var el=document.getElementById('guestListSec');
-  if(el){
-    var top=el.getBoundingClientRect().top+window.scrollY - 52;
-    window.scrollTo({top:top,behavior:'instant'});
-  }
-},100);
+// auto-scroll removed
 // apply restored sort mode to button
 (function(){var labels={default:'A–Z',az:'A→Z',za:'Z→A'};var btn=document.getElementById('sortBtn');if(btn){btn.textContent=labels[sortMode]||'A–Z';btn.classList.toggle('on',sortMode!=='default');}})();
 
@@ -1734,7 +1727,7 @@ function doSync(){
       var now=ts();
       try{localStorage.setItem('ww_ls',now);localStorage.setItem('ww_pending',JSON.stringify(importQueue));}catch(e){}
       setTopSynced(now);
-      document.getElementById('guestArea').style.display='';
+      var _ga=document.getElementById('guestArea');_ga.style.display='';_ga.style.minHeight='';
       renderDashboard();renderFilterRow();renderGuestList();renderGroupDropdown();initSplitBar();
     })
     .catch(function(err){setTopSyncFailed();});
