@@ -409,6 +409,9 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 @keyframes spin{to{transform:rotate(360deg)}}
 .settings-btn{width:32px;height:32px;border-radius:50%;background:var(--cream2);border:1.5px solid var(--parchment);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--ease)}
 .settings-btn:hover{border-color:var(--rose);color:var(--rose);transform:rotate(30deg)}
+.stat-pill{display:flex;align-items:center;justify-content:center;min-width:36px;height:36px;padding:0 10px;border-radius:var(--r-pill);border:1.5px solid var(--parchment);background:var(--cream2);font-family:var(--sans);font-size:11px;font-weight:700;color:var(--muted);flex-shrink:0;transition:all var(--ease);line-height:1}
+.stat-pill.total{color:var(--ink2);border-color:rgba(61,46,36,.18)}
+.stat-pill.sent{color:var(--green);border-color:rgba(58,140,92,.25);background:var(--green-bg)}
 .dev-btn{width:32px;height:32px;border-radius:50%;background:var(--cream2);border:1.5px solid var(--parchment);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--ease);font-size:11px;font-weight:700;font-family:var(--sans)}
 .dev-btn:hover{border-color:var(--ink);color:var(--ink)}
 .dev-btn.on{background:var(--ink);border-color:var(--ink);color:#fff}
@@ -521,6 +524,9 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
     <button class="sess-btn on-a" id="sessA" data-who="Arina">Arina</button>
     <button class="sess-btn" id="sessE" data-who="Elnur">Elnur</button>
   </div>
+  <!-- Stats -->
+  <div class="stat-pill total" id="ovTotal" title="Total guests">0</div>
+  <div class="stat-pill sent" id="ovSent" title="Sent">0</div>
   <!-- Sync -->
   <button class="sync-pill" id="topSyncBtn">
     <span class="sync-dot live" id="syncDot"></span>
@@ -535,7 +541,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
   </button>
   <!-- Dev mode -->
-  <button class="dev-btn" id="devBtn" title="Dev mode">&lt;/&gt;</button>
+  <button class="dev-btn" id="devBtn" title="Dev mode"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
   <!-- Settings -->
   <button class="settings-btn" id="settingsBtn" title="Settings">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -543,18 +549,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 </div>
 
 <div class="wrap">
-<div id="overviewBar" style="display:none;margin:10px 0 6px;padding:0 2px">
-  <div style="display:flex;align-items:baseline;gap:6px;font-family:var(--sans)">
-    <span style="font-size:11px;font-weight:600;color:var(--ink2)" id="ovTotal">0</span>
-    <span style="font-size:11px;color:var(--muted);letter-spacing:.04em">total</span>
-    <span style="color:var(--blush);margin:0 2px">·</span>
-    <span style="font-size:11px;font-weight:600;color:var(--green)" id="ovSent">0</span>
-    <span style="font-size:11px;color:var(--muted);letter-spacing:.04em">sent</span>
-    <span style="color:var(--blush);margin:0 2px">·</span>
-    <span style="font-size:11px;font-weight:600;color:var(--amber)" id="ovPending">0</span>
-    <span style="font-size:11px;color:var(--muted);letter-spacing:.04em">pending</span>
-  </div>
-</div>
+
 <div class="prog-track" id="progTrack" style="display:none"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
 
   <!-- GUEST LIST -->
@@ -1104,15 +1099,14 @@ function showSessionToast(who){
 
 /* ══ OVERVIEW BAR ════════════════════════════ */
 function renderDashboard(){
-  var bar=document.getElementById('overviewBar'),pt=document.getElementById('progTrack');
-  if(!importQueue.length){bar.style.display='none';pt.style.display='none';return;}
-  bar.style.display='';pt.style.display='';
+  var pt=document.getElementById('progTrack');
+  if(!importQueue.length){pt.style.display='none';return;}
+  pt.style.display='';
   var total=importQueue.filter(function(g){return!g.skipped;}).length,
       sent=importQueue.filter(function(g){return g.sent;}).length,
       pending=total-sent;
   document.getElementById('ovTotal').textContent=total;
   document.getElementById('ovSent').textContent=sent;
-  document.getElementById('ovPending').textContent=pending;
   document.getElementById('progFill').style.width=(total?Math.round(sent/total*100):0)+'%';
 }
 
@@ -2319,18 +2313,23 @@ applyAppSettings();
   top:0;left:0;
   font-size:8px;
   font-family:monospace;
-  background:rgba(30,20,10,.72);
+  background:rgba(30,20,10,.82);
   color:#FFD700;
-  padding:1px 4px;
-  border-radius:0 0 4px 0;
+  padding:1px 5px;
+  border-radius:0 0 5px 0;
   pointer-events:none;
   z-index:9999;
   white-space:nowrap;
-  max-width:220px;
+  max-width:260px;
   overflow:hidden;
   text-overflow:ellipsis;
-  line-height:1.4;
+  line-height:1.5;
   backdrop-filter:blur(2px);
+  opacity:0;
+  transition:opacity .12s ease;
+}
+.dev-mode [class]:hover::before{
+  opacity:1;
 }
 `;
   btn.addEventListener('click', function(){
