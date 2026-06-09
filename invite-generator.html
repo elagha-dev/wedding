@@ -614,74 +614,90 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
     </div>
   </div>
 
-  <!-- TRACKER -->
-  <div class="sec">Invite Tracker</div>
-  <div class="card">
-    <div class="card-hdr" id="trackerToggle">
-      <span class="card-hdr-title">Manual History</span>
-      <div class="card-hdr-right">
-        <button style="font-size:10px;color:var(--soft);background:none;border:none;cursor:pointer;font-family:var(--sans)" id="clearTrackerBtn" onclick="event.stopPropagation()">Clear all</button>
-        <span id="trackerChevron" class="chevron">▼</span>
-      </div>
-    </div>
-    <div id="trackerBody" style="display:none">
-      <div class="card-divider"></div>
-      <div class="card-body">
-        <div id="trackerSummary"></div>
-        <div class="filter-row" id="trackerFilterBar" style="margin-bottom:14px"></div>
-        <div id="trackList"></div>
-      </div>
-    </div>
+  <!-- TOOLS DRAWER -->
+  <div style="display:flex;justify-content:center;margin:24px 0 8px">
+    <button id="toolsToggleBtn" style="display:flex;align-items:center;gap:7px;padding:9px 20px;background:var(--cream2);border:1.5px solid var(--parchment);border-radius:var(--r-pill);font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);cursor:pointer;transition:all var(--ease)">
+      <svg id="toolsChevronIcon" width="10" height="10" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      Tools
+    </button>
   </div>
+  <div id="toolsDrawer" style="display:none">
 
-  <!-- MANUAL GENERATOR — RESERVE -->
-  <div class="sec">Reserve · Manual Generator</div>
-  <div class="card">
-    <div class="card-hdr" id="genToggle">
-      <span class="card-hdr-title">Manual Generator</span>
-      <div class="card-hdr-right">
-        <span style="font-size:9px;color:var(--soft);letter-spacing:.06em;font-family:var(--sans)">fallback · use + for quick send</span>
-        <span id="genChevron" class="chevron">▼</span>
+    <!-- TRACKER -->
+    <div class="sec">Manual History</div>
+    <div class="card">
+      <div class="card-hdr" id="trackerToggle">
+        <span class="card-hdr-title">Invite Tracker</span>
+        <div class="card-hdr-right">
+          <button style="font-size:10px;color:var(--soft);background:none;border:none;cursor:pointer;font-family:var(--sans)" id="clearTrackerBtn" onclick="event.stopPropagation()">Clear all</button>
+          <span id="trackerChevron" class="chevron">▼</span>
+        </div>
+      </div>
+      <div id="trackerBody" style="display:none">
+        <div class="card-divider"></div>
+        <div class="card-body">
+          <div id="trackerSummary"></div>
+          <div class="filter-row" id="trackerFilterBar" style="margin-bottom:14px"></div>
+          <div id="trackList"></div>
+        </div>
       </div>
     </div>
-    <div id="genBody" style="display:none">
-      <div class="card-divider"></div>
-      <div class="card-body">
-        <div class="row2">
-          <div class="fg"><label for="p1">First Guest * <span style="font-size:9px;color:var(--soft);font-weight:400;text-transform:none;letter-spacing:0">(press N)</span></label><input id="p1" type="text" placeholder="e.g. Sarah"/></div>
-          <div class="fg"><label for="p2">Second Guest</label><input id="p2" type="text" placeholder="optional"/></div>
-        </div>
-        <div class="row2" style="margin-bottom:16px">
-          <div class="fg"><label for="waPhone">WhatsApp Number</label><input id="waPhone" type="tel" placeholder="+49 176 123 456"/></div>
-          <div class="fg"><label>Sender</label><div class="sender-row"><button class="s-btn arina on" data-s="Arina">Arina</button><button class="s-btn elnur" data-s="Elnur">Elnur</button></div></div>
-        </div>
-        <div class="sec" style="margin:0 0 10px">Invite Type</div>
-        <div class="type-grid">
-          <button class="t-btn on" data-type="ceremony-single"><div class="t-btn-title">Single · Ceremony</div><div class="t-btn-desc">Church only</div></button>
-          <button class="t-btn" data-type="couple-ceremony"><div class="t-btn-title">Couple · Ceremony</div><div class="t-btn-desc">Church only</div></button>
-          <button class="t-btn" data-type="ceremony-party-single"><div class="t-btn-title">Single · Full Day</div><div class="t-btn-desc">Church + evening</div></button>
-          <button class="t-btn" data-type="couple-party"><div class="t-btn-title">Couple · Full Day</div><div class="t-btn-desc">Church + evening</div></button>
-        </div>
-        <div class="sec" style="margin:0 0 10px">Language</div>
-        <div class="lang-row">
-          <button class="l-btn on" data-lang="en">English</button>
-          <button class="l-btn" data-lang="de">Deutsch</button>
-          <button class="l-btn" data-lang="ru">Русский</button>
-        </div>
-        <button class="btn-primary" id="genBtn">Generate Invite →</button>
-      </div>
-    </div>
-  </div>
 
-  <div class="bottom-row"><button class="btn-ghost-danger" id="hardResetBtn">Hard Reset</button></div>
-  <!-- WORKER URL REFERENCE -->
-  <div class="worker-ref">
-    <div class="worker-ref-lbl">Worker URL · Sync Endpoint</div>
-    <div class="worker-ref-row">
-      <input type="text" id="workerUrlInput" placeholder="https://your-worker.workers.dev"/>
-      <button class="worker-ref-save" id="workerUrlSave">Save</button>
+    <!-- MANUAL GENERATOR -->
+    <div class="sec" style="margin-top:14px">Manual Generator</div>
+    <div class="card">
+      <div class="card-hdr" id="genToggle">
+        <span class="card-hdr-title">Manual Generator</span>
+        <div class="card-hdr-right">
+          <span style="font-size:9px;color:var(--soft);letter-spacing:.06em;font-family:var(--sans)">fallback · use + for quick send</span>
+          <span id="genChevron" class="chevron">▼</span>
+        </div>
+      </div>
+      <div id="genBody" style="display:none">
+        <div class="card-divider"></div>
+        <div class="card-body">
+          <div class="row2">
+            <div class="fg"><label for="p1">First Guest * <span style="font-size:9px;color:var(--soft);font-weight:400;text-transform:none;letter-spacing:0">(press N)</span></label><input id="p1" type="text" placeholder="e.g. Sarah"/></div>
+            <div class="fg"><label for="p2">Second Guest</label><input id="p2" type="text" placeholder="optional"/></div>
+          </div>
+          <div class="row2" style="margin-bottom:16px">
+            <div class="fg"><label for="waPhone">WhatsApp Number</label><input id="waPhone" type="tel" placeholder="+49 176 123 456"/></div>
+            <div class="fg"><label>Sender</label><div class="sender-row"><button class="s-btn arina on" data-s="Arina">Arina</button><button class="s-btn elnur" data-s="Elnur">Elnur</button></div></div>
+          </div>
+          <div class="sec" style="margin:0 0 10px">Invite Type</div>
+          <div class="type-grid">
+            <button class="t-btn on" data-type="ceremony-single"><div class="t-btn-title">Single · Ceremony</div><div class="t-btn-desc">Church only</div></button>
+            <button class="t-btn" data-type="couple-ceremony"><div class="t-btn-title">Couple · Ceremony</div><div class="t-btn-desc">Church only</div></button>
+            <button class="t-btn" data-type="ceremony-party-single"><div class="t-btn-title">Single · Full Day</div><div class="t-btn-desc">Church + evening</div></button>
+            <button class="t-btn" data-type="couple-party"><div class="t-btn-title">Couple · Full Day</div><div class="t-btn-desc">Church + evening</div></button>
+          </div>
+          <div class="sec" style="margin:0 0 10px">Language</div>
+          <div class="lang-row">
+            <button class="l-btn on" data-lang="en">English</button>
+            <button class="l-btn" data-lang="de">Deutsch</button>
+            <button class="l-btn" data-lang="ru">Русский</button>
+          </div>
+          <button class="btn-primary" id="genBtn">Generate Invite →</button>
+        </div>
+      </div>
     </div>
-  </div>
+
+    <!-- WORKER URL + HARD RESET -->
+    <div class="sec" style="margin-top:14px">Config</div>
+    <div class="card">
+      <div class="card-body" style="padding-top:16px">
+        <div style="font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Worker URL</div>
+        <div class="worker-ref-row" style="margin-bottom:0">
+          <input type="text" id="workerUrlInput" placeholder="https://your-worker.workers.dev" style="flex:1;font-size:12px;padding:8px 12px;background:var(--cream);border:1.5px solid var(--parchment);border-radius:var(--r-sm);color:var(--muted);font-family:monospace;outline:none;transition:border-color var(--ease)"/>
+          <button class="worker-ref-save" id="workerUrlSave">Save</button>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-top:12px;margin-bottom:4px">
+      <button class="btn-ghost-danger" id="hardResetBtn">Hard Reset</button>
+    </div>
+
+  </div><!-- /toolsDrawer -->
 
 </div>
 
@@ -2335,6 +2351,21 @@ applyAppSettings();
     if(r.includes('remove')||r.includes('hide'))return 'Element hidden.';
     return 'Layout updated.';
   }
+})();
+
+/* ── TOOLS DRAWER TOGGLE ── */
+(function(){
+  var btn=document.getElementById('toolsToggleBtn');
+  var drawer=document.getElementById('toolsDrawer');
+  var icon=document.getElementById('toolsChevronIcon');
+  var open=false;
+  btn.addEventListener('click',function(){
+    open=!open;
+    drawer.style.display=open?'':'none';
+    icon.style.transform=open?'rotate(180deg)':'';
+    btn.style.color=open?'var(--rose-deep)':'';
+    btn.style.borderColor=open?'var(--rose-soft)':'';
+  });
 })();
 
 
