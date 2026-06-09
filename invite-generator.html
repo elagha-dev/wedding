@@ -1073,6 +1073,8 @@ document.getElementById('undoToastBtn').addEventListener('click',function(){if(u
 /* ══ PERSISTENCE ═════════════════════════════ */
 function save(){try{localStorage.setItem('wt',JSON.stringify(mem));}catch(e){}}
 function load(){try{var d=localStorage.getItem('wt');return d?JSON.parse(d):[];}catch(e){return[];}}
+/* 
+
 function saveGuestMeta(){
   try{
     var m={};
@@ -1083,6 +1085,44 @@ function saveGuestMeta(){
     // Also persist the full queue so actions survive reload without a re-sync
     if(importQueue.length)localStorage.setItem('ww_pending',JSON.stringify(importQueue));
   }catch(e){}
+} 
+  
+*/
+
+function saveGuestMeta() {
+  try {
+    localStorage.setItem('ww_gm', JSON.stringify(importQueue));
+    localStorage.setItem('ww_pending', JSON.stringify(importQueue));
+    localStorage.setItem('ww_ls', new Date().toISOString());
+  } catch (e) {
+    console.error("Local storage write exception:", e);
+  }
+
+  // FIX: Push local updates to the Worker immediately so laptop/phone stay matched
+  if (workerUrl) {
+    fetch(workerUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Device-Id': deviceId || 'shared_web_client'
+      },
+      body: JSON.stringify({
+        guests: importQueue,
+        deviceId: deviceId || 'shared_web_client',
+        updatedAt: new Date().toISOString()
+      })
+    })
+    .then(function(response) {
+      if (!response.ok) {
+        console.warn("Worker received the change but could not save it.");
+      } else {
+        console.log("Local changes successfully pushed to Cloudflare Worker!");
+      }
+    })
+    .catch(function(err) {
+      console.error("Failed to transmit sync updates to server:", err);
+    });
+  }
 }
 // ── Retry queue: persists failed pushes and retries on next sync ──
 var _retryQueue=[];
