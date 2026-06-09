@@ -212,19 +212,20 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 
 /* Swipe wrapper */
 .g-swipe-wrap{position:relative;overflow:hidden;border-radius:var(--r-sm)}
-.g-swipe-bg{position:absolute;inset:0;border-radius:var(--r-sm);pointer-events:none}
-/* WhatsApp-style: fixed-width action buttons revealed by sliding the card */
-.g-swipe-action-right{position:absolute;right:0;top:0;bottom:0;width:80px;background:var(--green);display:flex;align-items:center;justify-content:center;border-radius:0 var(--r-sm) var(--r-sm) 0;cursor:pointer;flex-direction:column;gap:3px}
-.g-swipe-action-left{position:absolute;left:0;top:0;bottom:0;width:80px;background:#E8A838;display:flex;align-items:center;justify-content:center;border-radius:var(--r-sm) 0 0 var(--r-sm);cursor:pointer;flex-direction:column;gap:3px}
-.g-swipe-action-right.undo-action{background:var(--amber)}
-.g-swipe-action-txt{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#fff;line-height:1}
-.g-swipe-action-icon{font-size:18px;line-height:1}
-/* keep old bg classes but make them no-ops — JS still sets them */
 .g-swipe-bg{display:none}
-.g-swipe-bg-right,.g-swipe-bg-left{display:none}
-.g-swipe-bg-txt{display:none}
+.g-swipe-bg-right,.g-swipe-bg-left,.g-swipe-bg-txt{display:none}
+/* WhatsApp-style: action buttons sit at fixed edges, card slides over them */
+.g-swipe-action-right{position:absolute;right:0;top:0;bottom:0;width:80px;z-index:1;background:var(--green);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;cursor:pointer;pointer-events:none}
+.g-swipe-action-left{position:absolute;left:0;top:0;bottom:0;width:80px;z-index:1;background:#E8A838;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;cursor:pointer;pointer-events:none}
+.g-swipe-action-right.undo-action{background:var(--amber)}
+.g-swipe-action-left.undo-action{background:var(--amber)}
+.g-swipe-action-txt{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#fff;line-height:1}
+.g-swipe-action-icon{font-size:20px;line-height:1;color:#fff}
+/* Enable pointer events only when the card is open in that direction */
+.g-swipe-wrap.sw-open-left .g-swipe-action-right{pointer-events:all}
+.g-swipe-wrap.sw-open-right .g-swipe-action-left{pointer-events:all}
 
-.g-card{background:#fff;border-radius:var(--r-sm);border:1.5px solid var(--parchment);box-shadow:var(--shadow-sm);overflow:hidden;cursor:pointer;transition:border-color var(--ease),box-shadow var(--ease);position:relative;touch-action:pan-y;will-change:transform}
+.g-card{background:#fff;border-radius:var(--r-sm);border:1.5px solid var(--parchment);box-shadow:var(--shadow-sm);overflow:hidden;cursor:pointer;transition:border-color var(--ease),box-shadow var(--ease);position:relative;z-index:2;touch-action:pan-y;will-change:transform}
 .g-card:not(.swiping):hover{box-shadow:var(--shadow)}
 .g-card.sel{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135,106,.12)}
 .g-card.fup{border-left:3px solid var(--amber)}
@@ -285,11 +286,6 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-swipe-wrap.sw-left .g-swipe-label-left{display:flex}
 .g-swipe-wrap.sw-right .g-swipe-label-right{display:flex}
 .g-swipe-wrap.swiping-active .g-swipe-hint{display:flex}
-/* Open states — make action buttons pointer-events active */
-.g-swipe-wrap.sw-open-right .g-swipe-action-left,.g-swipe-wrap.sw-open-left .g-swipe-action-right{pointer-events:all}
-.g-swipe-action-right,.g-swipe-action-left{pointer-events:none;transition:opacity .15s}
-/* Card itself needs position:relative and transition handled in JS */
-.g-swipe-wrap > [data-qi]{position:relative;z-index:2;background:var(--cream,#fff)}
 
 .empty-state{padding:36px 20px;text-align:center;color:var(--muted);font-family:var(--sans);font-size:14px}
 .list-footer{display:flex;gap:8px;margin-top:2px;margin-bottom:8px}
