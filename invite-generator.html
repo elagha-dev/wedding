@@ -1059,7 +1059,7 @@ function saveGuestMeta(){
   try{
     var m={};
     importQueue.forEach(function(g){
-      m[g.name]={note:g.note||'',followup:!!g.followup,skipped:!!g.skipped,pendingSent:!!g.pendingSent,sent:!!g.sent,sentAt:g.sentAt||'',sentBy:g.sentBy||'',msgLang:g.msgLang||'',bulkWith:g.bulkWith||'',sentGroupId:g.sentGroupId||''};
+      m[g.name]={note:g.note||'',followup:!!g.followup,skipped:!!g.skipped,pendingSent:!!g.pendingSent,sent:!!g.sent,sentAt:g.sentAt||'',sentBy:g.sentBy||'',msgLang:g.msgLang||'',bulkWith:g.bulkWith||'',sentGroupId:g.sentGroupId||'',sender:g.sender||'',phone:g.phone||'',type:g.type||'',lang:g.lang||'',group:g.group||''};
     });
     localStorage.setItem('ww_gm',JSON.stringify(m));
     // Also persist the full queue so actions survive reload without a re-sync
@@ -1133,6 +1133,12 @@ function applyGuestMeta(){
       g.msgLang=d.msgLang||'';
       g.bulkWith=d.bulkWith||'';
       g.sentGroupId=d.sentGroupId||'';
+      // locally-edited fields — only override if local has a value
+      if(d.sender)g.sender=d.sender;
+      if(d.phone)g.phone=d.phone;
+      if(d.type)g.type=d.type;
+      if(d.lang)g.lang=d.lang;
+      if(d.group)g.group=d.group;
     }
   });
 }
@@ -1977,11 +1983,12 @@ function doSync(){
         // followup/note come from worker KV (merged by worker GET /)
         return{
           name:titleName,
-          phone:g.phone||g.Phone||g['WhatsApp']||'',
-          type:g.type||g.Type||g['Invite Type']||'ceremony-single',
-          lang:g.lang||g.Lang||g['Language']||'en',
-          sender:g.sender||g.Sender||'',
-          group:g.group||g.Group||g['Family Group']||'',
+          // local edits win over Notion for these fields; fall back to Notion only if never locally set
+          phone:inMem.phone||localMeta.phone||g.phone||g.Phone||g['WhatsApp']||'',
+          type:inMem.type||localMeta.type||g.type||g.Type||g['Invite Type']||'ceremony-single',
+          lang:inMem.lang||localMeta.lang||g.lang||g.Lang||g['Language']||'en',
+          sender:inMem.sender||localMeta.sender||g.sender||g.Sender||'',
+          group:inMem.group||localMeta.group||g.group||g.Group||g['Family Group']||'',
           isChild:g.isChild||g['Is Child']||false,
           confirmed:g.confirmed||g.Confirmed||false,
           note:g.note||'',
@@ -2632,7 +2639,7 @@ function doSyncSilent(){
         // Worker sentAt is ALWAYS authoritative
         var workerSentAt = g.sentAt||null;
         var isSent = !!workerSentAt;
-        return{name:titleName,phone:g.phone||g.Phone||g['WhatsApp']||'',type:g.type||g.Type||g['Invite Type']||'ceremony-single',lang:g.lang||g.Lang||g['Language']||'en',sender:g.sender||g.Sender||'',group:g.group||g.Group||g['Family Group']||'',isChild:g.isChild||g['Is Child']||false,confirmed:g.confirmed||g.Confirmed||false,note:g.note||'',followup:!!g.followup,skipped:inMem.skipped||meta.skipped||false,pendingSent:inMem.pendingSent||meta.pendingSent||false,bulkWith:inMem.bulkWith||meta.bulkWith||'',sentGroupId:inMem.sentGroupId||meta.sentGroupId||'',sent:isSent,sentAt:workerSentAt||'',sentBy:g.sentBy||'',msgLang:inMem.msgLang||meta.msgLang||''};
+        return{name:titleName,phone:inMem.phone||meta.phone||g.phone||g.Phone||g['WhatsApp']||'',type:inMem.type||meta.type||g.type||g.Type||g['Invite Type']||'ceremony-single',lang:inMem.lang||meta.lang||g.lang||g.Lang||g['Language']||'en',sender:inMem.sender||meta.sender||g.sender||g.Sender||'',group:inMem.group||meta.group||g.group||g.Group||g['Family Group']||'',isChild:g.isChild||g['Is Child']||false,confirmed:g.confirmed||g.Confirmed||false,note:g.note||'',followup:!!g.followup,skipped:inMem.skipped||meta.skipped||false,pendingSent:inMem.pendingSent||meta.pendingSent||false,bulkWith:inMem.bulkWith||meta.bulkWith||'',sentGroupId:inMem.sentGroupId||meta.sentGroupId||'',sent:isSent,sentAt:workerSentAt||'',sentBy:g.sentBy||'',msgLang:inMem.msgLang||meta.msgLang||''};
       });
       var now=ts();
       try{localStorage.setItem('ww_pending',JSON.stringify(importQueue));localStorage.setItem('ww_ls',now);}catch(e){}
