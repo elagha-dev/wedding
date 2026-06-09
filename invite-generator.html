@@ -57,6 +57,8 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 
 /* Keyboard hint */
 .kb-hint{position:fixed;bottom:88px;right:16px;font-size:9px;color:var(--soft);letter-spacing:.06em;z-index:10;pointer-events:none}
+/* Version stamp */
+.ver-stamp{position:fixed;bottom:6px;right:10px;font-size:8px;color:var(--parchment);letter-spacing:.04em;z-index:10;pointer-events:none;font-family:monospace;opacity:.7}
 
 /* ── DASHBOARD ── */
 #dashboard{display:none;margin-top:16px;margin-bottom:16px}
@@ -991,12 +993,16 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 
 <!-- UNDO TOAST -->
 <div id="undoToast"><span id="undoToastMsg">Marked as sent</span><button id="undoToastBtn">Undo</button></div>
+<!-- VERSION STAMP -->
+<div class="ver-stamp" id="verStamp"></div>
 
 <script>
 /* ══ CONFIG ══════════════════════════════════ */
 var BASE='https://www.arinaelnur.de/';
 var APP_VERSION='2026.06.09.7';
 var APP_UPDATE_URL='https://www.arinaelnur.de/invite-generator.html';
+// Render version stamp bottom-right
+(function(){var el=document.getElementById('verStamp');if(el)el.textContent=APP_VERSION;})();
 
 /* ══ STATE ═══════════════════════════════════ */
 var selType='ceremony-single',selLang='en',selSender='Arina',cur=null;
@@ -2510,7 +2516,9 @@ function doSyncSilent(){
         var resolvedSentAt = workerSentAt||meta.sentAt||'';
         return{name:toTitleCase(name),phone:g.phone||g.Phone||g['WhatsApp']||'',type:g.type||g.Type||g['Invite Type']||'ceremony-single',lang:g.lang||g.Lang||g['Language']||'en',sender:g.sender||g.Sender||'',group:g.group||g.Group||g['Family Group']||'',isChild:g.isChild||g['Is Child']||false,confirmed:g.confirmed||g.Confirmed||false,note:g.note||meta.note||'',followup:!!(g.followup||meta.followup),skipped:meta.skipped||false,pendingSent:meta.pendingSent||false,sent:isSent,sentAt:resolvedSentAt,sentBy:g.sentBy||meta.sentBy||'',msgLang:meta.msgLang||''};
       });
-      try{localStorage.setItem('ww_pending',JSON.stringify(importQueue));}catch(e){}
+      var now=ts();
+      try{localStorage.setItem('ww_pending',JSON.stringify(importQueue));localStorage.setItem('ww_ls',now);}catch(e){}
+      setTopSynced(now);
       renderGuestList(); renderDashboard(); renderFilterRow();
     })
     .catch(function(){});
@@ -2548,7 +2556,8 @@ function doSyncSilent(){
         });
         // If any foreign sent/unsent events, re-sync the guest list silently
         var hasSentChange = foreignEvents.some(function(ev){ return ev.action==='sent'||ev.action==='unsent'; });
-        if(hasSentChange) doSyncSilent();
+        var hasMetaChange = foreignEvents.some(function(ev){ return ev.action==='flag'||ev.action==='note'||ev.action==='meta'; });
+        if(hasSentChange || hasMetaChange) doSyncSilent();
       })
       .catch(function(){}); // silent fail
   }
