@@ -178,17 +178,9 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .f-pill.on-a{background:var(--arina-bg);border-color:var(--arina-border);color:var(--arina-txt)}
 .f-pill.on-e{background:var(--elnur-bg);border-color:var(--elnur-border);color:var(--elnur-txt)}
 .f-pill.on-f{background:var(--amber-bg);border-color:rgba(176,120,48,.3);color:var(--amber)}
-/* Open pill stays highlighted when A or E sub-filter is active — handled in JS via isOpen */
-.f-pill.f-pill-open.on{background:var(--rose);border-color:var(--rose);color:#fff;box-shadow:0 2px 8px rgba(201,135,106,.3)}
-/* Segmented Open pill */
-.f-open-group{display:inline-flex;align-items:center;border-radius:var(--r-pill);border:1.5px solid var(--parchment);background:var(--cream);overflow:hidden;flex-shrink:0;transition:border-color var(--ease)}
-.f-open-group.open-active{border-color:var(--rose);box-shadow:0 2px 8px rgba(201,135,106,.2)}
-.f-open-seg{padding:6px 12px;border:none;background:transparent;font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.06em;color:var(--muted);cursor:pointer;transition:all var(--ease);white-space:nowrap}
-.f-open-seg:hover{color:var(--ink2)}
-.f-open-seg.seg-on{background:var(--rose);color:#fff}
-.f-open-seg.seg-on-a{background:var(--arina-bg);color:var(--arina-txt)}
-.f-open-seg.seg-on-e{background:var(--elnur-bg);color:var(--elnur-txt)}
-.f-open-divider{width:1px;height:16px;background:var(--parchment);flex-shrink:0}
+/* Open / A / E filter pills — plain toggles, no container box */
+.f-pill.on-a{background:var(--arina-bg);border-color:var(--arina-border);color:var(--arina-txt)}
+.f-pill.on-e{background:var(--elnur-bg);border-color:var(--elnur-border);color:var(--elnur-txt)}
 .f-pill.f-sent-pill.on{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 2px 8px rgba(58,140,92,.25)}
 .search-filter-row{display:flex;gap:8px;margin-bottom:12px;align-items:stretch}
 .search-wrap{position:relative;flex:1;min-width:0}
@@ -277,7 +269,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .ga-btn-flag.flagged{background:var(--amber-bg);border-color:rgba(176,120,48,.3);color:var(--amber)}
 .ga-btn-note.has-note{border-color:rgba(176,120,48,.3);color:var(--amber)}
 .g-del{position:absolute;top:8px;right:8px;width:16px;height:16px;border-radius:50%;border:none;background:none;color:var(--soft);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--ease);line-height:1;padding:0}.g-del:hover{color:var(--red);background:var(--red-bg)}
-.g-undo-btn{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--parchment);background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--ease);padding:0;flex-shrink:0;box-shadow:none}.g-undo-btn:hover{border-color:var(--amber);color:var(--amber);background:var(--amber-bg)}
+.g-undo-btn{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--parchment);background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--ease);padding:0;flex-shrink:0;box-shadow:none}.g-undo-btn:hover{border-color:var(--amber);color:var(--amber);background:var(--amber-bg)}
 .g-corner-actions{position:absolute;top:9px;right:9px;display:flex;align-items:center;gap:5px}
 .chip-sender-corner{font-size:8px;padding:2px 7px;height:18px;opacity:.85}
 .g-corner-actions .g-del{position:static;top:auto;right:auto}
@@ -1056,7 +1048,7 @@ function saveGuestMeta(){
   try{
     var m={};
     importQueue.forEach(function(g){
-      m[g.name]={note:g.note||'',followup:!!g.followup,skipped:!!g.skipped,pendingSent:!!g.pendingSent,sent:!!g.sent,sentAt:g.sentAt||'',sentBy:g.sentBy||'',msgLang:g.msgLang||'',bulkWith:g.bulkWith||''};
+      m[g.name]={note:g.note||'',followup:!!g.followup,skipped:!!g.skipped,pendingSent:!!g.pendingSent,sent:!!g.sent,sentAt:g.sentAt||'',sentBy:g.sentBy||'',msgLang:g.msgLang||'',bulkWith:g.bulkWith||'',sentGroupId:g.sentGroupId||''};
     });
     localStorage.setItem('ww_gm',JSON.stringify(m));
     // Also persist the full queue so actions survive reload without a re-sync
@@ -1103,6 +1095,7 @@ function applyGuestMeta(){
       g.sentBy=d.sentBy||'';
       g.msgLang=d.msgLang||'';
       g.bulkWith=d.bulkWith||'';
+      g.sentGroupId=d.sentGroupId||'';
     }
   });
 }
@@ -1197,11 +1190,9 @@ function renderFilterRow(){
   var fCls = importFilter==='followup' ? 'on-f' : '';
   var sCls = importFilter==='sent' ? 'on' : '';
   row.innerHTML = ''
-    +'<span class="f-open-group'+(isOpen?' open-active':'')+'">'
-      +'<button class="f-open-seg'+(isAll?' seg-on':'')+'" data-f="all">Open</button>'
-      +'<button class="f-open-seg f-open-a'+(isA?' seg-on-a':'')+'" data-f="Arina">A</button>'
-      +'<button class="f-open-seg f-open-e'+(isE?' seg-on-e':'')+'" data-f="Elnur">E</button>'
-    +'</span>'
+    +'<button class="f-pill'+(isAll?' on':'')+'" data-f="all">Open</button>'
+    +'<button class="f-pill'+(isA?' on-a':'')+'" data-f="Arina">A</button>'
+    +'<button class="f-pill'+(isE?' on-e':'')+'" data-f="Elnur">E</button>'
     +'<button class="f-pill '+fCls+'" data-f="followup">Flag</button>'
     +'<button class="f-pill f-sent-pill '+sCls+'" data-f="sent">Sent</button>';
   row.querySelectorAll('[data-f]').forEach(function(b){
@@ -1252,15 +1243,17 @@ function renderGuestList(){
   // Sent: group bulk-with partners together, then split couples vs singles
   if(sentGuests.length){
     if(showSent){
-      // Pair up guests that sent together (bulkWith)
+      // Pair up guests that sent together (by shared sentGroupId, falling back to bulkWith)
       var renderedNames={};
       var sentOrdered=[];
       sentGuests.forEach(function(g){
         if(renderedNames[g.name])return;
         renderedNames[g.name]=true;
-        if(g.bulkWith){
-          var partner=sentGuests.find(function(h){return h.name===g.bulkWith;});
-          if(partner&&!renderedNames[partner.name]){
+        // Try sentGroupId first (most reliable), then bulkWith
+        var partnerName=g.bulkWith||'';
+        if(partnerName){
+          var partner=sentGuests.find(function(h){return h.name===partnerName&&!renderedNames[h.name];});
+          if(partner){
             renderedNames[partner.name]=true;
             sentOrdered.push({type:'pair',guests:[g,partner]});
             return;
@@ -1724,8 +1717,12 @@ function doGroupSend(guests,phone,msgLang){
   var msg=buildMsg(dName,type,ml,url);
   var clean=(phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');
   window.open(clean?'https://wa.me/'+clean+'?text='+encodeURIComponent(msg):'https://wa.me/?text='+encodeURIComponent(msg),'_blank');
-  // Tag each guest with their partner so sent view can pair them
-  if(guests.length>1){guests[0].bulkWith=guests[1].name;guests[1].bulkWith=guests[0].name;}
+  // Tag each guest with their partner AND a shared sentGroupId so sent view can pair them
+  if(guests.length>1){
+    var groupId=Date.now().toString(36);
+    guests[0].bulkWith=guests[1].name;guests[1].bulkWith=guests[0].name;
+    guests[0].sentGroupId=groupId;guests[1].sentGroupId=groupId;
+  }
   guests.forEach(function(g){g.pendingSent=true;g.followup=true;});selectedIdxs=[];saveGuestMeta();renderGuestList();renderDashboard();
 }
 
