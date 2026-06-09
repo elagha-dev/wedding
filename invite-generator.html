@@ -999,7 +999,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 <script>
 /* ══ CONFIG ══════════════════════════════════ */
 var BASE='https://www.arinaelnur.de/';
-var APP_VERSION='2026.06.09.8';
+var APP_VERSION='2026.06.09.9';
 var APP_UPDATE_URL='https://www.arinaelnur.de/invite-generator.html';
 // Render version stamp bottom-right
 (function(){var el=document.getElementById('verStamp');if(el)el.textContent=APP_VERSION;})();
@@ -1066,44 +1066,70 @@ function saveGuestMeta(){
     if(importQueue.length)localStorage.setItem('ww_pending',JSON.stringify(importQueue));
   }catch(e){}
 }
+// ── Retry queue: persists failed pushes and retries on next sync ──
+var _retryQueue=[];
+(function(){try{var s=localStorage.getItem('ww_retry');if(s)_retryQueue=JSON.parse(s);}catch(e){}_retryQueue=_retryQueue||[];})();
+function _saveRetryQueue(){try{localStorage.setItem('ww_retry',JSON.stringify(_retryQueue.slice(0,40)));}catch(e){}}
+function _pushWithRetry(endpoint,payload,retryKey){
+  var url=workerUrl;if(!url)return;
+  var body=JSON.stringify(Object.assign({},payload,{by:sessionSender,deviceId:deviceId}));
+  fetch(url.replace(/\/$/,'')+endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:body})
+    .then(function(r){
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      // success — remove from retry queue if present
+      _retryQueue=_retryQueue.filter(function(item){return item.key!==retryKey;});
+      _saveRetryQueue();
+    })
+    .catch(function(){
+      // queue for retry on next sync
+      var existing=_retryQueue.find(function(item){return item.key===retryKey;});
+      if(!existing){_retryQueue.push({key:retryKey,endpoint:endpoint,payload:payload,ts:Date.now()});}
+      else{existing.payload=payload;existing.ts=Date.now();} // overwrite with latest
+      _saveRetryQueue();
+      // show visual warning in topbar
+      var dot=document.getElementById('syncDot');if(dot){dot.style.background='var(--amber)';}
+      document.getElementById('topSyncLabel').textContent='Push failed!';
+    });
+}
+function _flushRetryQueue(){
+  if(!_retryQueue.length||!workerUrl)return;
+  var copy=_retryQueue.slice();
+  copy.forEach(function(item){
+    var body=JSON.stringify(Object.assign({},item.payload,{by:sessionSender,deviceId:deviceId}));
+    fetch(workerUrl.replace(/\/$/,'')+item.endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:body})
+      .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);_retryQueue=_retryQueue.filter(function(i){return i.key!==item.key;});_saveRetryQueue();})
+      .catch(function(){});
+  });
+}
+
 // Push followup/note changes for a single guest to worker KV
 function pushMetaToWorker(g){
-  var url=workerUrl;if(!url||!g||!g.name)return;
-  fetch(url.replace(/\/$/,'')+'/meta',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({name:g.name,followup:!!g.followup,note:g.note||'',by:sessionSender,deviceId:deviceId})
-  }).catch(function(){});
+  if(!workerUrl||!g||!g.name)return;
+  _pushWithRetry('/meta',{name:g.name,followup:!!g.followup,note:g.note||''},'meta:'+g.name);
 }
 function pushSentToWorker(name){
-  var url=workerUrl;if(!url||!name)return;
-  fetch(url.replace(/\/$/,'')+'/sent',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({name:name,by:sessionSender,deviceId:deviceId})
-  }).catch(function(){});
+  if(!workerUrl||!name)return;
+  _pushWithRetry('/sent',{name:name},'sent:'+name);
 }
 function pushUnsentToWorker(name){
-  var url=workerUrl;if(!url||!name)return;
-  fetch(url.replace(/\/$/,'')+'/unsent',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({name:name,by:sessionSender,deviceId:deviceId})
-  }).catch(function(){});
+  if(!workerUrl||!name)return;
+  _pushWithRetry('/unsent',{name:name},'unsent:'+name);
 }
 function loadGuestMeta(){try{return JSON.parse(localStorage.getItem('ww_gm')||'{}');}catch(e){return{};}}
 function applyGuestMeta(){
+  // Only applies local-only fields (not sent/sentAt/followup/note which come from worker)
+  // This runs on initial load from localStorage cache before the first doSync() completes
   var m=loadGuestMeta();
   importQueue.forEach(function(g){
     var d=m[g.name];
     if(d){
-      g.note=d.note||'';
-      g.followup=!!d.followup;
+      // sent/sentAt/sentBy: use whichever has a value (cache may be the only thing we have on first load)
+      if(!g.sent&&d.sent){g.sent=!!d.sent;g.sentAt=d.sentAt||'';g.sentBy=d.sentBy||'';}
+      if(!g.note&&d.note)g.note=d.note;
+      if(!g.followup&&d.followup)g.followup=!!d.followup;
+      // local-only fields always from local:
       g.skipped=!!d.skipped;
       g.pendingSent=!!d.pendingSent;
-      g.sent=!!d.sent;
-      g.sentAt=d.sentAt||'';
-      g.sentBy=d.sentBy||'';
       g.msgLang=d.msgLang||'';
       g.bulkWith=d.bulkWith||'';
       g.sentGroupId=d.sentGroupId||'';
@@ -1910,10 +1936,18 @@ function setTopSyncFailed(){
   document.getElementById('topSyncLabel').textContent='Retry';
   var dot=document.getElementById('syncDot');dot.classList.add('live');dot.style.background='var(--amber)';
 }
+// Track last-known sent fingerprint so we can detect remote changes
+var _lastSyncFingerprint='';
+function _buildSyncFingerprint(guests){
+  return guests.map(function(g){return g.name+'='+(g.sentAt||'0')+'+'+(g.followup?'1':'0')+'+'+(g.note||'');}).join('|');
+}
+
 function doSync(){
   var url=workerUrl;if(!url)return;
   setTopSyncing();
-  fetch(url)
+  // Flush any queued failed pushes before fetching fresh state
+  _flushRetryQueue();
+  fetch(url,{cache:'no-store'})
     .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
     .then(function(data){
       var guests=Array.isArray(data)?data:(data.results||data.guests||[]);
@@ -1921,17 +1955,51 @@ function doSync(){
       var prevCount=importQueue.length;
       var prevNames=new Set(importQueue.map(function(g){return g.name.toLowerCase();}));
       var oldMeta=loadGuestMeta();
+
+      // ── SOURCE OF TRUTH: worker wins for sent/followup/note ──
+      // Local meta is only used for fields the worker doesn't store:
+      // skipped, pendingSent, msgLang, bulkWith, sentGroupId
       importQueue=guests.map(function(g){
-        var name=g.name||g.Name||'';var meta=oldMeta[name]||{};
-        // Worker sentAt is the source of truth; fall back to local meta
+        var name=g.name||g.Name||'';
+        var localMeta=oldMeta[name]||{};
+        // Worker sentAt is ALWAYS authoritative — never fall back to stale local
         var workerSentAt=g.sentAt||null;
-        var isSent=!!(workerSentAt||(meta.sent&&meta.sentAt));
-        var resolvedSentAt=workerSentAt||meta.sentAt||'';
-        // followup/note come from worker meta fields (already merged by worker GET /)
-        return{name:toTitleCase(name),phone:g.phone||g.Phone||g['WhatsApp']||'',type:g.type||g.Type||g['Invite Type']||'ceremony-single',lang:g.lang||g.Lang||g['Language']||'en',sender:g.sender||g.Sender||'',group:g.group||g.Group||g['Family Group']||'',isChild:g.isChild||g['Is Child']||false,confirmed:g.confirmed||g.Confirmed||false,note:g.note||meta.note||'',followup:!!(g.followup||meta.followup),skipped:meta.skipped||false,pendingSent:meta.pendingSent||false,sent:isSent,sentAt:resolvedSentAt,sentBy:g.sentBy||meta.sentBy||'',msgLang:meta.msgLang||'',bulkWith:meta.bulkWith||''};
+        var isSent=!!workerSentAt;
+        // followup/note come from worker KV (merged by worker GET /)
+        return{
+          name:toTitleCase(name),
+          phone:g.phone||g.Phone||g['WhatsApp']||'',
+          type:g.type||g.Type||g['Invite Type']||'ceremony-single',
+          lang:g.lang||g.Lang||g['Language']||'en',
+          sender:g.sender||g.Sender||'',
+          group:g.group||g.Group||g['Family Group']||'',
+          isChild:g.isChild||g['Is Child']||false,
+          confirmed:g.confirmed||g.Confirmed||false,
+          note:g.note||'',
+          followup:!!g.followup,
+          // local-only fields (not pushed to worker):
+          skipped:localMeta.skipped||false,
+          pendingSent:localMeta.pendingSent||false,
+          msgLang:localMeta.msgLang||'',
+          bulkWith:localMeta.bulkWith||'',
+          sentGroupId:localMeta.sentGroupId||'',
+          // resolved from worker:
+          sent:isSent,
+          sentAt:workerSentAt||'',
+          sentBy:g.sentBy||''
+        };
       });
+
       var now=ts();
       try{localStorage.setItem('ww_ls',now);localStorage.setItem('ww_pending',JSON.stringify(importQueue));}catch(e){}
+      // Also rewrite ww_gm so it's in sync with what we just received
+      saveGuestMeta();
+
+      // Check if remote state actually changed (another device did something)
+      var newFingerprint=_buildSyncFingerprint(importQueue);
+      var remoteChanged=(prevCount>0)&&(newFingerprint!==_lastSyncFingerprint)&&(_lastSyncFingerprint!=='');
+      _lastSyncFingerprint=newFingerprint;
+
       // Detect new guests added since last sync
       var newNames=importQueue.filter(function(g){return prevCount>0&&!prevNames.has(g.name.toLowerCase());});
       var newPill=document.getElementById('ovNew');
@@ -1939,18 +2007,33 @@ function doSync(){
         newPill.textContent='+'+newNames.length;
         newPill.title=newNames.map(function(g){return g.name;}).join(', ');
         newPill.style.display='';
-        // reset animation
         newPill.style.animation='none';
         requestAnimationFrame(function(){newPill.style.animation='';});
       } else {
         newPill.style.display='none';
       }
+
+      // Show toast if another device changed something
+      if(remoteChanged){
+        var changedGuests=importQueue.filter(function(g){
+          var prev=_prevSyncMap[g.name];
+          return prev&&(prev.sent!==g.sent||prev.followup!==g.followup||prev.note!==g.note);
+        });
+        if(changedGuests.length){
+          showActivityToast((changedGuests.length===1?changedGuests[0].name+' updated':changedGuests.length+' guests updated')+' by other device');
+        }
+      }
+      // Snapshot for next comparison
+      _prevSyncMap={};importQueue.forEach(function(g){_prevSyncMap[g.name]={sent:g.sent,followup:g.followup,note:g.note};});
+
       setTopSynced(now);
       var _ga=document.getElementById('guestArea');_ga.style.display='';_ga.style.minHeight='';
       renderDashboard();renderFilterRow();renderGuestList();renderGroupDropdown();initSplitBar();
     })
     .catch(function(err){setTopSyncFailed();});
 }
+var _prevSyncMap={};
+document.getElementById('topSyncBtn').addEventListener('click',doSync);
 document.getElementById('topSyncBtn').addEventListener('click',doSync);
 
 // Worker URL managed via Settings drawer
@@ -1970,6 +2053,22 @@ document.getElementById('topSyncBtn').addEventListener('click',doSync);
   // Always fetch fresh data from Worker on load — this is how Device B learns about Device A's changes
   setTimeout(function(){ doSync(); }, 800);
 })();
+
+// ── AUTO-POLL: re-sync every 30s so both devices stay in sync ──
+var _autoPollTimer=null;
+function startAutoPoll(){
+  if(_autoPollTimer)clearInterval(_autoPollTimer);
+  _autoPollTimer=setInterval(function(){
+    if(workerUrl&&document.visibilityState!=='hidden'){doSync();}
+  },30000);
+}
+startAutoPoll();
+// Sync immediately when tab becomes visible again (e.g. user switches back)
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState==='visible'&&workerUrl){
+    doSync();
+  }
+});
 
 function renderGroupDropdown(){
   var groups=[...new Set(importQueue.map(function(g){return g.group;}).filter(Boolean))];
