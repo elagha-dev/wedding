@@ -205,7 +205,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 
 /* ── GUEST CARD ── */
 .guest-list{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
-.g-group-hdr{font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);padding:6px 2px 5px;display:flex;align-items:center;gap:8px;scroll-margin-top:160px}
+.g-group-hdr{font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);padding:6px 2px 5px;display:flex;align-items:center;gap:8px;scroll-margin-top:200px}
 .g-group-hdr::after{content:'';flex:1;height:1px;background:var(--parchment)}
 .guest-list{padding-top:2px;margin-top:0}
 .g-group-hdr.sent{color:var(--green)}
@@ -413,6 +413,8 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .stat-pill.total{color:var(--ink2);border-color:rgba(61,46,36,.18)}
 .stat-pill.sent{color:var(--green);border-color:rgba(58,140,92,.25);background:var(--green-bg);cursor:pointer}
 .stat-pill.sent:hover{background:rgba(58,140,92,.18);border-color:rgba(58,140,92,.45)}
+.stat-pill.new-guests{color:#7C3AED;border-color:rgba(124,58,237,.3);background:rgba(124,58,237,.08);cursor:default;animation:newPulse 2.5s ease-in-out 3}
+@keyframes newPulse{0%,100%{box-shadow:none}50%{box-shadow:0 0 0 3px rgba(124,58,237,.15)}}
 .dev-btn{width:32px;height:32px;border-radius:50%;background:var(--cream2);border:1.5px solid var(--parchment);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--ease);font-size:11px;font-weight:700;font-family:var(--sans)}
 .dev-btn:hover{border-color:var(--ink);color:var(--ink)}
 .dev-btn.on{background:var(--ink);border-color:var(--ink);color:#fff}
@@ -528,6 +530,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
   <!-- Stats -->
   <div class="stat-pill total" id="ovTotal" title="Total guests">0</div>
   <div class="stat-pill sent" id="ovSent" title="Sent">0</div>
+  <div class="stat-pill new-guests" id="ovNew" title="New since last sync" style="display:none"></div>
   <!-- Sync -->
   <button class="sync-pill" id="topSyncBtn" style="margin-left:auto">
     <span class="sync-dot live" id="syncDot"></span>
@@ -1091,12 +1094,15 @@ document.getElementById('sessE').addEventListener('click',function(){if(sessionS
 document.getElementById('ovSent').addEventListener('click',function(){
   var ga=document.getElementById('guestArea');if(ga.style.display==='none')return;
   importFilter='sent';showSent=true;renderFilterRow();renderGuestList();
-  // scroll after render so DOM is ready, target the actual sent group header
-  requestAnimationFrame(function(){
+  requestAnimationFrame(function(){requestAnimationFrame(function(){
     var sentHdr=document.querySelector('.g-group-hdr.sent');
-    if(sentHdr)sentHdr.scrollIntoView({behavior:'smooth',block:'start'});
-    else document.getElementById('guestListSec').scrollIntoView({behavior:'smooth',block:'start'});
-  });
+    if(!sentHdr)return;
+    var topbar=document.querySelector('.topbar');
+    var filters=document.querySelector('.sticky-filters');
+    var offset=(topbar?topbar.offsetHeight:50)+(filters?filters.offsetHeight:110)+8;
+    var rect=sentHdr.getBoundingClientRect();
+    window.scrollBy({top:rect.top-offset,behavior:'smooth'});
+  });});
 });
 function showSessionToast(who){
   var other=who==='Arina'?'Elnur':'Arina';
@@ -1732,6 +1738,8 @@ function doSync(){
     .then(function(data){
       var guests=Array.isArray(data)?data:(data.results||data.guests||[]);
       if(!guests.length)throw new Error('No guests returned');
+      var prevCount=importQueue.length;
+      var prevNames=new Set(importQueue.map(function(g){return g.name.toLowerCase();}));
       var oldMeta=loadGuestMeta();
       importQueue=guests.map(function(g){
         var name=g.name||g.Name||'';var meta=oldMeta[name]||{};
@@ -1739,6 +1747,19 @@ function doSync(){
       });
       var now=ts();
       try{localStorage.setItem('ww_ls',now);localStorage.setItem('ww_pending',JSON.stringify(importQueue));}catch(e){}
+      // Detect new guests added since last sync
+      var newNames=importQueue.filter(function(g){return prevCount>0&&!prevNames.has(g.name.toLowerCase());});
+      var newPill=document.getElementById('ovNew');
+      if(newNames.length&&prevCount>0){
+        newPill.textContent='+'+newNames.length;
+        newPill.title=newNames.map(function(g){return g.name;}).join(', ');
+        newPill.style.display='';
+        // reset animation
+        newPill.style.animation='none';
+        requestAnimationFrame(function(){newPill.style.animation='';});
+      } else {
+        newPill.style.display='none';
+      }
       setTopSynced(now);
       var _ga=document.getElementById('guestArea');_ga.style.display='';_ga.style.minHeight='';
       renderDashboard();renderFilterRow();renderGuestList();renderGroupDropdown();initSplitBar();
