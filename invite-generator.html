@@ -178,6 +178,14 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .f-pill.on-a{background:var(--arina-bg);border-color:var(--arina-border);color:var(--arina-txt)}
 .f-pill.on-e{background:var(--elnur-bg);border-color:var(--elnur-border);color:var(--elnur-txt)}
 .f-pill.on-f{background:var(--amber-bg);border-color:rgba(176,120,48,.3);color:var(--amber)}
+/* Open pill stays highlighted when A or E sub-filter is active — handled in JS via isOpen */
+.f-pill.f-pill-open.on{background:var(--rose);border-color:var(--rose);color:#fff;box-shadow:0 2px 8px rgba(201,135,106,.3)}
+.f-sub-group{display:inline-flex;align-items:center;gap:3px;background:var(--cream2);border:1.5px solid var(--parchment);border-radius:var(--r-pill);padding:2px 4px;margin-left:-4px}
+.f-pill.f-sub{border:none;background:transparent;padding:4px 10px;box-shadow:none;font-size:10px}
+.f-pill.f-sub:hover{background:var(--parchment);border:none;color:var(--ink2)}
+.f-pill.f-sub.on-a{background:var(--arina-bg);color:var(--arina-txt)}
+.f-pill.f-sub.on-e{background:var(--elnur-bg);color:var(--elnur-txt)}
+.f-pill.f-sent-pill.on{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 2px 8px rgba(58,140,92,.25)}
 .search-filter-row{display:flex;gap:8px;margin-bottom:12px;align-items:stretch}
 .search-wrap{position:relative;flex:1;min-width:0}
 .search-wrap::before{display:none}
@@ -232,7 +240,9 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-card:not(.swiping):hover{box-shadow:none}
 .g-swipe-wrap:has(.g-card.sel){border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135,106,.12)}
 .g-swipe-wrap:has(.g-card.fup){border-left:3px solid var(--amber)}
-.g-swipe-wrap:has(.g-card.sent){opacity:.55;border-left:3px solid var(--green);box-shadow:none}
+.g-swipe-wrap:has(.g-card.sent){border-left:3px solid var(--green);box-shadow:none;border-color:transparent;border-left-color:var(--green)}
+.g-swipe-wrap:has(.g-card.sent) .g-card{background:#fafafa}
+.g-swipe-wrap:has(.g-card.sent) .g-name,.g-swipe-wrap:has(.g-card.sent) .g-sent-time{color:var(--soft)}
 .g-swipe-wrap:has(.g-card.pending-sent){border-left:3px solid var(--rose)}
 .g-inner{padding:11px 14px 14px 16px;display:flex;align-items:flex-start}
 .g-ring{width:20px;height:20px;border:1.5px solid var(--parchment);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;margin-right:11px;font-size:10px;color:#fff;background:transparent;transition:all var(--ease)}
@@ -1174,9 +1184,26 @@ function renderDashboard(){
 /* ══ FILTER ROW ══════════════════════════════ */
 function renderFilterRow(){
   var row=document.getElementById('filterRow');
-  var filters=[{k:'all',label:'All'},{k:'Arina',label:'A',cls:'on-a'},{k:'Elnur',label:'E',cls:'on-e'},{k:'followup',label:'Follow Up',cls:'on-f'},{k:'pending',label:'Pending'},{k:'sent',label:'Sent'}];
-  row.innerHTML=filters.map(function(f){var a=importFilter===f.k;return'<button class="f-pill '+(a?(f.cls||'on'):'')+'" data-f="'+f.k+'">'+f.label+'</button>';}).join('');
-  row.querySelectorAll('.f-pill').forEach(function(b){b.addEventListener('click',function(){importFilter=this.dataset.f;selectedIdxs=[];renderFilterRow();renderGuestList();});});
+  var isOpen = importFilter==='all'||importFilter==='Arina'||importFilter==='Elnur';
+  var openCls = isOpen ? 'on' : '';
+  var aCls = importFilter==='Arina' ? 'on-a' : '';
+  var eCls = importFilter==='Elnur' ? 'on-e' : '';
+  var fCls = importFilter==='followup' ? 'on-f' : '';
+  var sCls = importFilter==='sent' ? 'on' : '';
+  row.innerHTML = ''
+    +'<button class="f-pill f-pill-open '+openCls+'" data-f="all">Open</button>'
+    +'<span class="f-sub-group">'
+      +'<button class="f-pill f-sub '+aCls+'" data-f="Arina">A</button>'
+      +'<button class="f-pill f-sub '+eCls+'" data-f="Elnur">E</button>'
+    +'</span>'
+    +'<button class="f-pill '+fCls+'" data-f="followup">Flag</button>'
+    +'<button class="f-pill f-sent-pill '+sCls+'" data-f="sent">Sent</button>';
+  row.querySelectorAll('.f-pill').forEach(function(b){
+    b.addEventListener('click',function(){
+      importFilter=this.dataset.f;
+      selectedIdxs=[];renderFilterRow();renderGuestList();
+    });
+  });
 }
 
 /* ══ GUEST LIST ══════════════════════════════ */
