@@ -397,8 +397,16 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
   .row2{grid-template-columns:1fr}.type-grid{grid-template-columns:1fr}.msg-actions{grid-template-columns:1fr}
 }
 
-/* ── SETTINGS BTN ── */
-.settings-btn{width:36px;height:36px;border-radius:50%;background:var(--cream2);border:1.5px solid var(--parchment);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--ease)}
+.update-banner{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;border-radius:var(--r-pill);padding:10px 14px;display:none;align-items:center;gap:10px;z-index:400;box-shadow:0 4px 20px rgba(0,0,0,.25);opacity:0;transition:opacity .3s,transform .3s;white-space:nowrap}
+.update-banner.show{display:flex;opacity:1;transform:translateX(-50%) translateY(0)}
+.update-banner-txt{font-size:11px;font-weight:600;letter-spacing:.04em}
+.update-banner-btn{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:5px 12px;border-radius:var(--r-pill);background:var(--rose);border:none;color:#fff;cursor:pointer;transition:background var(--ease)}.update-banner-btn:hover{background:var(--rose-deep)}
+.update-banner-dismiss{background:none;border:none;color:rgba(255,255,255,.5);font-size:13px;cursor:pointer;padding:0;line-height:1;transition:color var(--ease)}.update-banner-dismiss:hover{color:#fff}
+.deploy-btn{width:36px;height:36px;border-radius:50%;background:var(--cream2);border:1.5px solid var(--parchment);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--ease)}
+.deploy-btn:hover{border-color:#25D366;color:#25D366}
+.deploy-btn.deploying{border-color:var(--amber);color:var(--amber);animation:spin .8s linear infinite}
+.deploy-btn.deployed{border-color:#25D366;color:#25D366}
+@keyframes spin{to{transform:rotate(360deg)}}border-radius:50%;background:var(--cream2);border:1.5px solid var(--parchment);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--ease)}
 .settings-btn:hover{border-color:var(--rose);color:var(--rose);transform:rotate(30deg)}
 
 /* ── SETTINGS DRAWER ── */
@@ -488,6 +496,10 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
   <button class="sync-pill" id="topSyncBtn">
     <span class="sync-dot live" id="syncDot"></span>
     <span id="topSyncLabel">Sync</span>
+  </button>
+  <!-- Deploy -->
+  <button class="deploy-btn" id="deployBtn" title="Deploy to GitHub">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
   </button>
   <!-- Settings -->
   <button class="settings-btn" id="settingsBtn" title="Settings">
@@ -813,6 +825,13 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
   </div>
 </div>
 
+<!-- UPDATE BANNER -->
+<div class="update-banner" id="updateBanner">
+  <span class="update-banner-txt">✦ Update available</span>
+  <button class="update-banner-btn" id="updateReloadBtn">Reload</button>
+  <button class="update-banner-dismiss" id="updateDismissBtn">✕</button>
+</div>
+
 <!-- FAB -->
 <div class="fab">
   <div class="fab-drawer" id="fabDrawer">
@@ -904,7 +923,8 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 <script>
 /* ══ CONFIG ══════════════════════════════════ */
 var BASE='https://www.arinaelnur.de/';
-var DEFAULT_WORKER='https://guestlist.elnur-agha.workers.dev/';
+var APP_VERSION='2026.06.09.1';
+var APP_UPDATE_URL='https://raw.githubusercontent.com/elagha-dev/wedding/main/invite-generator.html';'https://guestlist.elnur-agha.workers.dev/';
 
 /* ══ STATE ═══════════════════════════════════ */
 var selType='ceremony-single',selLang='en',selSender='Arina',cur=null;
@@ -1851,7 +1871,76 @@ function renderTracker(){
 }
 renderTracker();
 
-/* ══ HARD RESET ══════════════════════════════ */
+/* ══ DEPLOY TO GITHUB ════════════════════════ */
+document.getElementById('deployBtn').addEventListener('click', async function(){
+  var btn = this;
+  if(btn.classList.contains('deploying')) return;
+
+  if(!confirm('Deploy current version to GitHub Pages?')) return;
+
+  btn.classList.add('deploying');
+  btn.title = 'Deploying...';
+
+  try {
+    // Get the full HTML of this page
+    var html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+
+    var res = await fetch(workerUrl.replace(/\/$/, '') + '/deploy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        html: html,
+        message: 'Deploy invite-generator v' + APP_VERSION + ' — ' + new Date().toISOString().slice(0,16).replace('T',' ')
+      })
+    });
+
+    var data = await res.json();
+    btn.classList.remove('deploying');
+
+    if(data.ok) {
+      btn.classList.add('deployed');
+      btn.title = 'Deployed ✓';
+      showUndo('Deployed to GitHub ✓ — live in ~60s', function(){});
+      setTimeout(function(){ btn.classList.remove('deployed'); btn.title='Deploy to GitHub'; }, 5000);
+    } else {
+      btn.title = 'Deploy failed';
+      alert('Deploy failed: ' + (data.error || 'Unknown error') + (data.detail ? '\n\n' + data.detail : ''));
+    }
+  } catch(e) {
+    btn.classList.remove('deploying');
+    btn.title = 'Deploy failed';
+    alert('Deploy error: ' + e.message);
+  }
+});
+
+function checkForUpdate(){
+  fetch(APP_UPDATE_URL+'?nocache='+Date.now())
+    .then(function(r){return r.text();})
+    .then(function(html){
+      var m=html.match(/APP_VERSION='([^']+)'/);
+      if(!m)return;
+      var remote=m[1];
+      if(remote!==APP_VERSION){
+        // Newer version available
+        var banner=document.getElementById('updateBanner');
+        banner.style.display='flex';
+        setTimeout(function(){banner.classList.add('show');},50);
+        document.getElementById('updateReloadBtn').onclick=function(){
+          // Cache-bust reload
+          window.location.href=window.location.href.split('?')[0]+'?v='+remote;
+        };
+        document.getElementById('updateDismissBtn').onclick=function(){
+          banner.classList.remove('show');
+          setTimeout(function(){banner.style.display='none';},300);
+        };
+      }
+    })
+    .catch(function(){});// silently fail if offline
+}
+// Check on load after 3s, then every 5 minutes
+setTimeout(checkForUpdate, 3000);
+setInterval(checkForUpdate, 5*60*1000);
+
 document.getElementById('hardResetBtn').addEventListener('click',function(){
   if(!confirm('Hard reset? Clears ALL data.'))return;
   ['wt','ww_gm','ww_pending','ww_ls','ww_url','ww_last'].forEach(function(k){try{localStorage.removeItem(k);}catch(e){}});
