@@ -1957,17 +1957,26 @@ function doSync(){
       var oldMeta=loadGuestMeta();
 
       // ── SOURCE OF TRUTH: worker wins for sent/followup/note ──
-      // Local meta is only used for fields the worker doesn't store:
-      // skipped, pendingSent, msgLang, bulkWith, sentGroupId
+      // Local-only fields (pendingSent, bulkWith, sentGroupId, msgLang, skipped)
+      // are taken from the current in-memory importQueue first (most up-to-date),
+      // falling back to persisted ww_gm for guests not currently in memory.
+      // This prevents a background sync from overwriting in-flight local state
+      // (e.g. pendingSent:true set moments ago) with stale localStorage values.
+      var inMemoryMap={};
+      importQueue.forEach(function(g){ inMemoryMap[g.name]=g; });
+
       importQueue=guests.map(function(g){
         var name=g.name||g.Name||'';
-        var localMeta=oldMeta[name]||{};
+        var titleName=toTitleCase(name);
+        // Prefer in-memory state; fall back to persisted meta for local-only fields
+        var inMem=inMemoryMap[titleName]||{};
+        var localMeta=oldMeta[name]||oldMeta[titleName]||{};
         // Worker sentAt is ALWAYS authoritative — never fall back to stale local
         var workerSentAt=g.sentAt||null;
         var isSent=!!workerSentAt;
         // followup/note come from worker KV (merged by worker GET /)
         return{
-          name:toTitleCase(name),
+          name:titleName,
           phone:g.phone||g.Phone||g['WhatsApp']||'',
           type:g.type||g.Type||g['Invite Type']||'ceremony-single',
           lang:g.lang||g.Lang||g['Language']||'en',
@@ -1977,12 +1986,12 @@ function doSync(){
           confirmed:g.confirmed||g.Confirmed||false,
           note:g.note||'',
           followup:!!g.followup,
-          // local-only fields (not pushed to worker):
-          skipped:localMeta.skipped||false,
-          pendingSent:localMeta.pendingSent||false,
-          msgLang:localMeta.msgLang||'',
-          bulkWith:localMeta.bulkWith||'',
-          sentGroupId:localMeta.sentGroupId||'',
+          // local-only fields: in-memory is most authoritative, then persisted meta
+          skipped:inMem.skipped||localMeta.skipped||false,
+          pendingSent:inMem.pendingSent||localMeta.pendingSent||false,
+          msgLang:inMem.msgLang||localMeta.msgLang||'',
+          bulkWith:inMem.bulkWith||localMeta.bulkWith||'',
+          sentGroupId:inMem.sentGroupId||localMeta.sentGroupId||'',
           // resolved from worker:
           sent:isSent,
           sentAt:workerSentAt||'',
@@ -2610,16 +2619,20 @@ function doSyncSilent(){
       var guests = Array.isArray(data) ? data : (data.results||data.guests||[]);
       if(!guests.length) return;
       var oldMeta = loadGuestMeta();
-      // Preserve local-only fields (pendingSent, bulkWith, sentGroupId) that are never stored in KV
-      var localMap = {};
-      importQueue.forEach(function(g){ localMap[g.name] = g; });
+      // In-memory importQueue is the most up-to-date source for local-only fields.
+      // Using it prevents a background sync from wiping pendingSent/bulkWith/etc.
+      // that were set moments ago but not yet persisted to ww_gm.
+      var inMemoryMap = {};
+      importQueue.forEach(function(g){ inMemoryMap[g.name] = g; });
       importQueue = guests.map(function(g){
-        var name = g.name||g.Name||''; var meta = oldMeta[name]||{};
-        var local = localMap[toTitleCase(name)] || {};
+        var name = g.name||g.Name||'';
+        var titleName = toTitleCase(name);
+        var inMem = inMemoryMap[titleName] || {};
+        var meta = oldMeta[name]||oldMeta[titleName]||{};
+        // Worker sentAt is ALWAYS authoritative
         var workerSentAt = g.sentAt||null;
-        var isSent = !!(workerSentAt||(meta.sent&&meta.sentAt));
-        var resolvedSentAt = workerSentAt||meta.sentAt||'';
-        return{name:toTitleCase(name),phone:g.phone||g.Phone||g['WhatsApp']||'',type:g.type||g.Type||g['Invite Type']||'ceremony-single',lang:g.lang||g.Lang||g['Language']||'en',sender:g.sender||g.Sender||'',group:g.group||g.Group||g['Family Group']||'',isChild:g.isChild||g['Is Child']||false,confirmed:g.confirmed||g.Confirmed||false,note:g.note||meta.note||'',followup:!!(g.followup||meta.followup),skipped:meta.skipped||false,pendingSent:local.pendingSent||meta.pendingSent||false,bulkWith:local.bulkWith||meta.bulkWith||'',sentGroupId:local.sentGroupId||meta.sentGroupId||'',sent:isSent,sentAt:resolvedSentAt,sentBy:g.sentBy||meta.sentBy||'',msgLang:local.msgLang||meta.msgLang||''};
+        var isSent = !!workerSentAt;
+        return{name:titleName,phone:g.phone||g.Phone||g['WhatsApp']||'',type:g.type||g.Type||g['Invite Type']||'ceremony-single',lang:g.lang||g.Lang||g['Language']||'en',sender:g.sender||g.Sender||'',group:g.group||g.Group||g['Family Group']||'',isChild:g.isChild||g['Is Child']||false,confirmed:g.confirmed||g.Confirmed||false,note:g.note||'',followup:!!g.followup,skipped:inMem.skipped||meta.skipped||false,pendingSent:inMem.pendingSent||meta.pendingSent||false,bulkWith:inMem.bulkWith||meta.bulkWith||'',sentGroupId:inMem.sentGroupId||meta.sentGroupId||'',sent:isSent,sentAt:workerSentAt||'',sentBy:g.sentBy||'',msgLang:inMem.msgLang||meta.msgLang||''};
       });
       var now=ts();
       try{localStorage.setItem('ww_pending',JSON.stringify(importQueue));localStorage.setItem('ww_ls',now);}catch(e){}
