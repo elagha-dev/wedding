@@ -215,12 +215,12 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-swipe-bg{display:none}
 .g-swipe-bg-right,.g-swipe-bg-left,.g-swipe-bg-txt{display:none}
 /* WhatsApp-style: action buttons hidden until card slides open */
-.g-swipe-action-right{position:absolute;right:0;top:0;bottom:0;width:80px;background:var(--green);display:none;align-items:center;justify-content:center;flex-direction:column;gap:4px;cursor:pointer;pointer-events:none}
-.g-swipe-action-left{position:absolute;left:0;top:0;bottom:0;width:80px;background:#E8A838;display:none;align-items:center;justify-content:center;flex-direction:column;gap:4px;cursor:pointer;pointer-events:none}
+.g-swipe-action-right{position:absolute;right:0;top:4px;bottom:4px;width:80px;background:var(--green);display:none;align-items:center;justify-content:center;flex-direction:column;gap:5px;cursor:pointer;pointer-events:none;border-radius:0 10px 10px 0;overflow:hidden}
+.g-swipe-action-left{position:absolute;left:0;top:4px;bottom:4px;width:80px;background:#E8A838;display:none;align-items:center;justify-content:center;flex-direction:column;gap:5px;cursor:pointer;pointer-events:none;border-radius:10px 0 0 10px;overflow:hidden}
 .g-swipe-action-right.undo-action{background:var(--amber)}
 .g-swipe-action-left.undo-action{background:var(--amber)}
-.g-swipe-action-txt{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#fff;line-height:1}
-.g-swipe-action-icon{font-size:20px;line-height:1;color:#fff}
+.g-swipe-action-txt{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.9);line-height:1}
+.g-swipe-action-icon{font-size:22px;line-height:1}
 /* Show only the relevant button when open, and enable pointer events */
 .g-swipe-wrap.sw-open-left .g-swipe-action-right{display:flex;pointer-events:all}
 .g-swipe-wrap.sw-open-right .g-swipe-action-left{display:flex;pointer-events:all}
@@ -686,21 +686,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
       </div>
     </div>
 
-    <!-- WORKER URL + HARD RESET -->
-    <div class="sec" style="margin-top:14px">Config</div>
-    <div class="card">
-      <div class="card-body" style="padding-top:16px">
-        <div style="font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Worker URL</div>
-        <div class="worker-ref-row" style="margin-bottom:0">
-          <input type="text" id="workerUrlInput" placeholder="https://your-worker.workers.dev" style="flex:1;font-size:12px;padding:8px 12px;background:var(--cream);border:1.5px solid var(--parchment);border-radius:var(--r-sm);color:var(--muted);font-family:monospace;outline:none;transition:border-color var(--ease)"/>
-          <button class="worker-ref-save" id="workerUrlSave">Save</button>
-        </div>
-      </div>
-    </div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;margin-bottom:4px">
-      <button class="list-btn grow" id="exportBtn" style="max-width:140px">Export CSV</button>
-      <button class="btn-ghost-danger" id="hardResetBtn">Hard Reset</button>
-    </div>
+
 
   </div><!-- /toolsDrawer -->
 
@@ -1397,6 +1383,10 @@ function attachSwipe(card){
     snapTo(0);
     isOpen = false; openDir = 0;
     wrap.classList.remove('sw-open-right','sw-open-left');
+    wrap.querySelectorAll('.g-swipe-action-left,.g-swipe-action-right').forEach(function(b){
+      b.style.width=''; b.style.opacity='';
+      var ic = b.querySelector('.g-swipe-action-icon'); if(ic) ic.style.transform='';
+    });
   }
 
   function openCard(dir){
@@ -1406,6 +1396,10 @@ function attachSwipe(card){
     isOpen = true; openDir = dir;
     wrap.classList.toggle('sw-open-right', dir === 1);
     wrap.classList.toggle('sw-open-left', dir === -1);
+    // Reset inline styles so CSS takes over at full 80px
+    var btnSel = dir === 1 ? '.g-swipe-action-left' : '.g-swipe-action-right';
+    var btn = wrap.querySelector(btnSel);
+    if(btn){ btn.style.width=''; btn.style.opacity=''; btn.querySelector('.g-swipe-action-icon').style.transform=''; }
     if(navigator.vibrate) navigator.vibrate(18);
   }
 
@@ -1458,10 +1452,21 @@ function attachSwipe(card){
     var raw = base + dx;
     var clamped = Math.max(-OPEN_X * 1.3, Math.min(OPEN_X * 1.3, raw));
     card.style.transform = 'translateX('+clamped+'px)';
-    // Show the relevant action button during drag
+    // Show the relevant action button during drag, growing with drag distance
     wrap.classList.remove('sw-open-left','sw-open-right');
-    if(clamped > 8) wrap.classList.add('sw-open-right');
-    else if(clamped < -8) wrap.classList.add('sw-open-left');
+    var absDrag = Math.abs(clamped);
+    if(clamped > 8){
+      wrap.classList.add('sw-open-right');
+      var btn = wrap.querySelector('.g-swipe-action-left');
+      if(btn){ var w = Math.min(absDrag, OPEN_X); btn.style.width = w+'px'; var sc = Math.min(absDrag/OPEN_X, 1); btn.style.opacity = sc; btn.querySelector('.g-swipe-action-icon').style.transform = 'scale('+(.6+sc*.4)+')'; }
+    } else if(clamped < -8){
+      wrap.classList.add('sw-open-left');
+      var btn = wrap.querySelector('.g-swipe-action-right');
+      if(btn){ var w = Math.min(absDrag, OPEN_X); btn.style.width = w+'px'; var sc = Math.min(absDrag/OPEN_X, 1); btn.style.opacity = sc; btn.querySelector('.g-swipe-action-icon').style.transform = 'scale('+(.6+sc*.4)+')'; }
+    } else {
+      // reset both
+      ['.g-swipe-action-left','.g-swipe-action-right'].forEach(function(sel){ var b=wrap.querySelector(sel); if(b){b.style.width='';b.style.opacity='';} });
+    }
   }
 
   function onEnd(e){
@@ -1832,19 +1837,7 @@ function doSync(){
 }
 document.getElementById('topSyncBtn').addEventListener('click',doSync);
 
-// Worker URL reference panel
-(function(){
-  var inp=document.getElementById('workerUrlInput');
-  var btn=document.getElementById('workerUrlSave');
-  inp.value=workerUrl;
-  btn.addEventListener('click',function(){
-    var v=inp.value.trim();if(!v)return;
-    workerUrl=v;saveWorkerUrl(v);
-    btn.textContent='Saved ✓';btn.classList.add('ok');
-    setTimeout(function(){btn.textContent='Save';btn.classList.remove('ok');},2000);
-  });
-  inp.addEventListener('keydown',function(e){if(e.key==='Enter')btn.click();});
-})();
+// Worker URL managed via Settings drawer
 
 // Restore on load
 (function(){
@@ -1875,11 +1868,7 @@ document.getElementById('searchInput').addEventListener('input',function(){
   this.closest('.search-wrap').classList.toggle('has-value',!!this.value);
   renderGuestList();
 });
-document.getElementById('exportBtn').addEventListener('click',function(){
-  var rows=[['Name','Phone','Type','Sender','Group','Sent','Sent At','Confirmed','Follow Up','Note']];
-  importQueue.forEach(function(g){rows.push([g.name||'',g.phone||'',g.type||'',g.sender||'',g.group||'',g.sent?'Yes':'No',g.sentAt||'',g.confirmed?'Yes':'No',g.followup?'Yes':'No',(g.note||'').replace(/,/g,';')]);});
-  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([rows.map(function(r){return r.map(function(c){return'"'+c+'"';}).join(',');}).join('\n')],{type:'text/csv'}));a.download='guests-'+new Date().toISOString().slice(0,10)+'.csv';a.click();
-});
+
 document.getElementById('clearGuestBtn').addEventListener('click',function(){if(!importQueue.length)return;if(confirm('Clear guest list?')){importQueue=[];selectedIdxs=[];renderGuestList();renderDashboard();document.getElementById('guestArea').style.display='none';}});
 
 /* ══ GENERATOR ═══════════════════════════════ */
@@ -2038,7 +2027,8 @@ function checkForUpdate(){
 setTimeout(checkForUpdate, 3000);
 setInterval(checkForUpdate, 5*60*1000);
 
-document.getElementById('hardResetBtn').addEventListener('click',function(){
+// Hard reset logic — called from Settings drawer (sHardReset)
+function doHardReset(){
   if(!confirm('Hard reset? Clears ALL data.'))return;
   ['wt','ww_gm','ww_pending','ww_ls','ww_url','ww_last'].forEach(function(k){try{localStorage.removeItem(k);}catch(e){}});
   mem=[];cur=null;importQueue=[];selectedIdxs=[];todayCount=0;updateTodayBadge();
@@ -2046,8 +2036,7 @@ document.getElementById('hardResetBtn').addEventListener('click',function(){
   document.getElementById('outCard').style.display='none';
   document.getElementById('guestArea').style.display='none';
   var pill=document.getElementById('topSyncBtn');pill.classList.remove('synced');document.getElementById('topSyncLabel').textContent='Sync';var dot=document.getElementById('syncDot');dot.classList.add('live');dot.style.background='';
-  var btn=this;btn.textContent='Done';setTimeout(function(){btn.textContent='Hard Reset';},2000);
-});
+}
 
 /* ══ SETTINGS ════════════════════════════════ */
 var appSettings={
@@ -2125,7 +2114,7 @@ function loadSettingsIntoUI(){
   document.getElementById('sPartyAddress').value=appSettings.partyAddress||'';
   document.getElementById('sSnapSound').checked=appSettings.snapSound!==false;
   document.getElementById('sCompact').checked=!!appSettings.compact;
-  document.getElementById('sWorkerUrl').value=appSettings.workerUrl||document.getElementById('workerUrlInput').value||'';
+  document.getElementById('sWorkerUrl').value=appSettings.workerUrl||workerUrl||'';
   // Message templates
   var l=msgs||{};
   document.getElementById('sMsgCeremonyEn').value=(l.en&&l.en.ceremony)||'';
@@ -2195,7 +2184,7 @@ document.getElementById('sSaveBtn').addEventListener('click',function(){
   appSettings.snapSound=document.getElementById('sSnapSound').checked;
   appSettings.compact=document.getElementById('sCompact').checked;
   var wu=document.getElementById('sWorkerUrl').value.trim();
-  if(wu){appSettings.workerUrl=wu;workerUrl=wu;document.getElementById('workerUrlInput').value=wu;try{localStorage.setItem('ww_url',wu);}catch(e){}}
+  if(wu){appSettings.workerUrl=wu;workerUrl=wu;try{localStorage.setItem('ww_url',wu);}catch(e){}}
   // Message templates
   if(msgs){
     msgs.en.ceremony=document.getElementById('sMsgCeremonyEn').value;
@@ -2209,7 +2198,7 @@ document.getElementById('sSaveBtn').addEventListener('click',function(){
 });
 
 document.getElementById('sHardReset').addEventListener('click',function(){
-  document.getElementById('hardResetBtn').click();
+  doHardReset();
   closeSettings();
 });
 
