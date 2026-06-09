@@ -33,10 +33,10 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .wrap{position:relative;z-index:1;max-width:640px;margin:0 auto;padding:0 16px 40px}
 
 /* ── TOPBAR ── */
-.topbar{position:sticky;top:0;z-index:100;background:rgba(253,248,243,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(196,149,106,.14);padding:6px 10px;display:flex;align-items:stretch;gap:5px;height:50px}
+.topbar{position:sticky;top:0;z-index:100;background:rgba(253,248,243,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(196,149,106,.14);padding:6px 10px;display:flex;align-items:center;gap:5px;height:50px}
 /* Session toggle */
-.session-toggle{display:flex;flex:0 0 auto;background:var(--parchment);border-radius:var(--r-pill);padding:3px;gap:2px}
-.sess-btn{width:28px;height:28px;border-radius:50%;border:none;font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer;transition:all var(--ease);background:transparent;color:var(--muted);text-align:center;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.session-toggle{display:flex;align-items:center;flex:0 0 auto;align-self:center;background:var(--parchment);border-radius:var(--r-pill);padding:2px;gap:2px;height:32px;box-sizing:border-box}
+.sess-btn{width:26px;height:26px;border-radius:50%;border:none;font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer;transition:all var(--ease);background:transparent;color:var(--muted);text-align:center;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .sess-btn.on-a{background:var(--arina-bg);color:var(--arina-txt);box-shadow:var(--shadow-sm)}
 .sess-btn.on-e{background:var(--elnur-bg);color:var(--elnur-txt);box-shadow:var(--shadow-sm)}
 
@@ -46,7 +46,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .today-l{font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.7)}
 
 /* Sync pill */
-.sync-pill{display:flex;align-items:center;justify-content:center;gap:5px;min-width:32px;height:32px;padding:0 10px;background:var(--rose);color:#fff;border:none;border-radius:var(--r-pill);cursor:pointer;transition:all var(--ease);box-shadow:0 2px 12px rgba(160,97,74,.3);flex-shrink:0}
+.sync-pill{display:flex;align-items:center;justify-content:center;gap:5px;min-width:32px;height:32px;padding:0 10px;background:var(--rose);color:#fff;border:none;border-radius:var(--r-pill);cursor:pointer;transition:all var(--ease);box-shadow:0 2px 12px rgba(160,97,74,.3);flex-shrink:0;align-self:center}
 .sync-pill:hover{background:var(--rose-deep);transform:translateY(-1px)}
 .sync-pill.synced{background:var(--cream2);color:var(--green);box-shadow:none;border:1.5px solid rgba(58,140,92,.3)}
 .sync-pill.synced:hover{background:rgba(58,140,92,.24);transform:none}
@@ -528,7 +528,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
   <div class="stat-pill total" id="ovTotal" title="Total guests">0</div>
   <div class="stat-pill sent" id="ovSent" title="Sent">0</div>
   <!-- Sync -->
-  <button class="sync-pill" id="topSyncBtn">
+  <button class="sync-pill" id="topSyncBtn" style="margin-left:auto">
     <span class="sync-dot live" id="syncDot"></span>
     <span id="topSyncLabel" style="font-size:9px;font-weight:600;letter-spacing:.04em"></span>
   </button>
@@ -1016,6 +1016,8 @@ function saveGuestMeta(){
       m[g.name]={note:g.note||'',followup:!!g.followup,skipped:!!g.skipped,pendingSent:!!g.pendingSent,sent:!!g.sent,sentAt:g.sentAt||'',sentBy:g.sentBy||'',msgLang:g.msgLang||''};
     });
     localStorage.setItem('ww_gm',JSON.stringify(m));
+    // Also persist the full queue so actions survive reload without a re-sync
+    if(importQueue.length)localStorage.setItem('ww_pending',JSON.stringify(importQueue));
   }catch(e){}
 }
 function loadGuestMeta(){try{return JSON.parse(localStorage.getItem('ww_gm')||'{}');}catch(e){return{};}}
@@ -1974,10 +1976,10 @@ function applyAppSettings(){
   document.body.classList.toggle('compact-cards',!!appSettings.compact);
   // Theme
   applyTheme(appSettings.theme);
-  // Sender names in topbar
+  // Sender names in topbar — always show A/E
   var sa=document.getElementById('sessA'),se=document.getElementById('sessE');
-  if(sa)sa.textContent=appSettings.nameA;
-  if(se)se.textContent=appSettings.nameE;
+  if(sa)sa.textContent='A';
+  if(se)se.textContent='E';
 }
 function applyTheme(t){
   var root=document.documentElement;
