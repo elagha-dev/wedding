@@ -999,7 +999,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 <script>
 /* ══ CONFIG ══════════════════════════════════ */
 var BASE='https://www.arinaelnur.de/';
-var APP_VERSION='2026.06.09.7';
+var APP_VERSION='2026.06.09.8';
 var APP_UPDATE_URL='https://www.arinaelnur.de/invite-generator.html';
 // Render version stamp bottom-right
 (function(){var el=document.getElementById('verStamp');if(el)el.textContent=APP_VERSION;})();
@@ -1955,7 +1955,7 @@ document.getElementById('topSyncBtn').addEventListener('click',doSync);
 
 // Worker URL managed via Settings drawer
 
-// Restore on load
+// Restore on load — show stale data instantly, then immediately fetch fresh from Worker
 (function(){
   try{
     var saved=localStorage.getItem('ww_pending');
@@ -1967,6 +1967,8 @@ document.getElementById('topSyncBtn').addEventListener('click',doSync);
       renderDashboard();renderFilterRow();renderGuestList();renderGroupDropdown();
     }
   }catch(e){}
+  // Always fetch fresh data from Worker on load — this is how Device B learns about Device A's changes
+  setTimeout(function(){ doSync(); }, 800);
 })();
 
 function renderGroupDropdown(){
@@ -2509,12 +2511,16 @@ function doSyncSilent(){
       var guests = Array.isArray(data) ? data : (data.results||data.guests||[]);
       if(!guests.length) return;
       var oldMeta = loadGuestMeta();
+      // Preserve local-only fields (pendingSent, bulkWith, sentGroupId) that are never stored in KV
+      var localMap = {};
+      importQueue.forEach(function(g){ localMap[g.name] = g; });
       importQueue = guests.map(function(g){
         var name = g.name||g.Name||''; var meta = oldMeta[name]||{};
+        var local = localMap[toTitleCase(name)] || {};
         var workerSentAt = g.sentAt||null;
         var isSent = !!(workerSentAt||(meta.sent&&meta.sentAt));
         var resolvedSentAt = workerSentAt||meta.sentAt||'';
-        return{name:toTitleCase(name),phone:g.phone||g.Phone||g['WhatsApp']||'',type:g.type||g.Type||g['Invite Type']||'ceremony-single',lang:g.lang||g.Lang||g['Language']||'en',sender:g.sender||g.Sender||'',group:g.group||g.Group||g['Family Group']||'',isChild:g.isChild||g['Is Child']||false,confirmed:g.confirmed||g.Confirmed||false,note:g.note||meta.note||'',followup:!!(g.followup||meta.followup),skipped:meta.skipped||false,pendingSent:meta.pendingSent||false,sent:isSent,sentAt:resolvedSentAt,sentBy:g.sentBy||meta.sentBy||'',msgLang:meta.msgLang||''};
+        return{name:toTitleCase(name),phone:g.phone||g.Phone||g['WhatsApp']||'',type:g.type||g.Type||g['Invite Type']||'ceremony-single',lang:g.lang||g.Lang||g['Language']||'en',sender:g.sender||g.Sender||'',group:g.group||g.Group||g['Family Group']||'',isChild:g.isChild||g['Is Child']||false,confirmed:g.confirmed||g.Confirmed||false,note:g.note||meta.note||'',followup:!!(g.followup||meta.followup),skipped:meta.skipped||false,pendingSent:local.pendingSent||meta.pendingSent||false,bulkWith:local.bulkWith||meta.bulkWith||'',sentGroupId:local.sentGroupId||meta.sentGroupId||'',sent:isSent,sentAt:resolvedSentAt,sentBy:g.sentBy||meta.sentBy||'',msgLang:local.msgLang||meta.msgLang||''};
       });
       var now=ts();
       try{localStorage.setItem('ww_pending',JSON.stringify(importQueue));localStorage.setItem('ww_ls',now);}catch(e){}
@@ -2562,8 +2568,8 @@ function doSyncSilent(){
       .catch(function(){}); // silent fail
   }
 
-  // Start polling 5s after load, then every 10s
-  setTimeout(function(){ poll(); setInterval(poll, 10000); }, 5000);
+  // Start polling 5s after load, then every 8s
+  setTimeout(function(){ poll(); setInterval(poll, 8000); }, 5000);
 })();
 
 
