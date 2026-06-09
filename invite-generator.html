@@ -1886,19 +1886,16 @@ function renderTracker(){
 renderTracker();
 
 /* ══ DEPLOY TO GITHUB ════════════════════════ */
-document.getElementById('deployBtn').addEventListener('click', async function(){
-  var btn = this;
+async function deployToGitHub(silent){
+  var btn = document.getElementById('deployBtn');
   if(btn.classList.contains('deploying')) return;
-
-  if(!confirm('Deploy current version to GitHub Pages?')) return;
+  if(!silent && !confirm('Deploy current version to GitHub Pages?')) return;
 
   btn.classList.add('deploying');
   btn.title = 'Deploying...';
 
   try {
-    // Get the full HTML of this page
     var html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-
     var res = await fetch(workerUrl.replace(/\/$/, '') + '/deploy', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -1907,25 +1904,26 @@ document.getElementById('deployBtn').addEventListener('click', async function(){
         message: 'Deploy invite-generator v' + APP_VERSION + ' — ' + new Date().toISOString().slice(0,16).replace('T',' ')
       })
     });
-
     var data = await res.json();
     btn.classList.remove('deploying');
-
     if(data.ok) {
       btn.classList.add('deployed');
       btn.title = 'Deployed ✓';
-      showUndo('Deployed to GitHub ✓ — live in ~60s', function(){});
+      if(!silent) showUndo('Deployed to GitHub ✓ — live in ~60s', function(){});
       setTimeout(function(){ btn.classList.remove('deployed'); btn.title='Deploy to GitHub'; }, 5000);
     } else {
       btn.title = 'Deploy failed';
-      alert('Deploy failed: ' + (data.error || 'Unknown error') + (data.detail ? '\n\n' + data.detail : ''));
+      if(!silent) alert('Deploy failed: ' + (data.error || 'Unknown error') + (data.detail ? '\n\n' + data.detail : ''));
+      else showToastWarn('Auto-deploy failed: ' + (data.error || 'Unknown'));
     }
   } catch(e) {
     btn.classList.remove('deploying');
     btn.title = 'Deploy failed';
-    alert('Deploy error: ' + e.message);
+    if(!silent) alert('Deploy error: ' + e.message);
   }
-});
+}
+
+document.getElementById('deployBtn').addEventListener('click', function(){ deployToGitHub(false); });
 
 function checkForUpdate(){
   fetch(APP_UPDATE_URL+'?nocache='+Date.now())
@@ -2280,8 +2278,9 @@ applyAppSettings();
 
       if(reply.trim().startsWith('<style')){
         applyNewHTML(reply);
-        addMsg('system','✓ Change applied');
+        addMsg('system','✓ Change applied — saving...');
         addMsg('assistant','Done! '+describeChange(text));
+        deployToGitHub(true);
       } else {
         addMsg('assistant',reply.trim());
       }
