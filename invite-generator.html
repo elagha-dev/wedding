@@ -46,7 +46,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .today-l{font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.7)}
 
 /* Sync pill */
-.sync-pill{display:flex;align-items:center;justify-content:center;width:32px;height:32px;padding:0;background:var(--rose);color:#fff;border:none;border-radius:50%;cursor:pointer;transition:all var(--ease);box-shadow:0 2px 12px rgba(160,97,74,.3);flex-shrink:0}
+.sync-pill{display:flex;align-items:center;justify-content:center;gap:5px;min-width:32px;height:32px;padding:0 10px;background:var(--rose);color:#fff;border:none;border-radius:var(--r-pill);cursor:pointer;transition:all var(--ease);box-shadow:0 2px 12px rgba(160,97,74,.3);flex-shrink:0}
 .sync-pill:hover{background:var(--rose-deep);transform:translateY(-1px)}
 .sync-pill.synced{background:var(--cream2);color:var(--green);box-shadow:none;border:1.5px solid rgba(58,140,92,.3)}
 .sync-pill.synced:hover{background:rgba(58,140,92,.24);transform:none}
@@ -106,7 +106,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--rose));border-radius:2px;transition:width .7s cubic-bezier(.4,0,.2,1)}
 
 /* ── SECTION ── */
-.sec{font-size:9px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:10px;margin:24px 0 12px}
+.sec{font-size:9px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:10px;margin:8px 0 6px}
 .sec::after{content:'';flex:1;height:0}
 
 /* ── CARD ── */
@@ -253,12 +253,12 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .ga-btn-wa{background:#25D366;border-color:#25D366;color:#fff;width:auto;border-radius:var(--r-pill);padding:0 12px;font-size:9px;font-weight:700;letter-spacing:.06em;height:28px;gap:4px;display:flex;align-items:center}.ga-btn-wa svg{width:10px;height:10px}.ga-btn-wa:hover{background:#20BD5A;border-color:#20BD5A}.ga-btn-wa.done{background:var(--green);border-color:var(--green)}
 .ga-btn-flag.flagged{background:var(--amber-bg);border-color:rgba(176,120,48,.3);color:var(--amber)}
 .ga-btn-note.has-note{border-color:rgba(176,120,48,.3);color:var(--amber)}
-.g-del{position:absolute;top:9px;right:9px;background:none;border:none;color:var(--soft);font-size:16px;cursor:pointer;padding:0;line-height:1;width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:all var(--ease)}.g-del:hover{color:var(--red);background:var(--red-bg)}
+.g-del{position:absolute;bottom:8px;right:10px;width:16px;height:16px;border-radius:50%;border:none;background:none;color:var(--soft);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--ease);line-height:1;padding:0}.g-del:hover{color:var(--red);background:var(--red-bg)}
 .g-corner-actions{position:absolute;top:9px;right:9px;display:flex;align-items:center;gap:5px}
 .chip-sender-corner{font-size:8px;padding:2px 7px;height:18px;opacity:.85}
 .g-corner-actions .g-del{position:static;top:auto;right:auto}
 /* Sender badge bottom-right */
-.g-sender-br{position:absolute;bottom:10px;right:12px;font-size:8px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:var(--r-pill);height:18px;display:inline-flex;align-items:center;opacity:.75}
+.g-sender-br{position:absolute;top:10px;right:34px;font-size:8px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 6px;border-radius:var(--r-pill);height:18px;display:inline-flex;align-items:center;opacity:.75}
 .g-sender-br.a{background:var(--arina-bg);color:var(--arina-txt)}
 .g-sender-br.e{background:var(--elnur-bg);color:var(--elnur-txt)}
 .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none;flex-shrink:0;z-index:1;transition:opacity .15s}
@@ -521,8 +521,8 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 <div class="topbar">
   <!-- Session toggle -->
   <div class="session-toggle">
-    <button class="sess-btn on-a" id="sessA" data-who="Arina">Arina</button>
-    <button class="sess-btn" id="sessE" data-who="Elnur">Elnur</button>
+    <button class="sess-btn on-a" id="sessA" data-who="Arina">A</button>
+    <button class="sess-btn" id="sessE" data-who="Elnur">E</button>
   </div>
   <!-- Stats -->
   <div class="stat-pill total" id="ovTotal" title="Total guests">0</div>
@@ -530,7 +530,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
   <!-- Sync -->
   <button class="sync-pill" id="topSyncBtn">
     <span class="sync-dot live" id="syncDot"></span>
-    <span id="topSyncLabel" style="display:none"></span>
+    <span id="topSyncLabel" style="font-size:9px;font-weight:600;letter-spacing:.04em"></span>
   </button>
   <!-- AI Assistant -->
   <button class="ai-btn" id="aiBtn" title="AI Assistant">
@@ -1113,7 +1113,7 @@ function renderDashboard(){
 /* ══ FILTER ROW ══════════════════════════════ */
 function renderFilterRow(){
   var row=document.getElementById('filterRow');
-  var filters=[{k:'all',label:'All'},{k:'Arina',label:'Arina',cls:'on-a'},{k:'Elnur',label:'Elnur',cls:'on-e'},{k:'followup',label:'Follow Up',cls:'on-f'},{k:'pending',label:'Pending'},{k:'sent',label:'Sent'}];
+  var filters=[{k:'all',label:'All'},{k:'Arina',label:'A',cls:'on-a'},{k:'Elnur',label:'E',cls:'on-e'},{k:'followup',label:'Follow Up',cls:'on-f'},{k:'pending',label:'Pending'},{k:'sent',label:'Sent'}];
   row.innerHTML=filters.map(function(f){var a=importFilter===f.k;return'<button class="f-pill '+(a?(f.cls||'on'):'')+'" data-f="'+f.k+'">'+f.label+'</button>';}).join('');
   row.querySelectorAll('.f-pill').forEach(function(b){b.addEventListener('click',function(){importFilter=this.dataset.f;selectedIdxs=[];renderFilterRow();renderGuestList();});});
 }
@@ -1211,8 +1211,8 @@ function buildGuestCard(g){
   var claimedByOther=claimedBy&&claimedBy!==sessionSender;
   var cls='g-card'+(isSel?' sel':'')+(g.followup&&!g.sent?' fup':'')+(g.sent?' sent':'')+(isPending?' pending-sent':'')+(claimedByOther?' claimed-other':'');
   var senderCls=g.sender==='Arina'?'a':'e';
-  var sC=g.sender==='Arina'?'<span class="chip chip-a chip-sender-corner">Arina</span>':'<span class="chip chip-e chip-sender-corner">Elnur</span>';
-  var sBR=g.sender?('<span class="g-sender-br '+senderCls+'">'+(g.sender==='Arina'?'Arina':'Elnur')+'</span>'):'';
+  var sC=g.sender==='Arina'?'<span class="chip chip-a chip-sender-corner">A</span>':'<span class="chip chip-e chip-sender-corner">E</span>';
+  var sBR=g.sender?('<span class="g-sender-br '+senderCls+'">'+(g.sender==='Arina'?'A':'E')+'</span>'):'';
   var tC=(g.type==='ceremony-party-single'||g.type==='couple-party')?'<span class="chip chip-type">Full Day</span>':'<span class="chip chip-type">Ceremony</span>';
   var lC=g.lang&&g.lang!=='en'?'<span class="chip chip-lang">'+(g.lang==='de'?'DE':'RU')+'</span>':'';
   var rC=g.confirmed?'<span class="chip chip-rsvp">RSVP</span>':'';
@@ -1868,7 +1868,7 @@ function renderTracker(){
   var pct=filtered.length?Math.round(sent.length/filtered.length*100):0;
   sumEl.innerHTML='<div class="track-sum"><div class="ts-cell s"><div class="ts-n">'+sent.length+'</div><div class="ts-l">Sent</div></div><div class="ts-cell u"><div class="ts-n">'+unsent.length+'</div><div class="ts-l">Pending</div></div><div class="ts-cell"><div class="ts-n">'+filtered.length+'</div><div class="ts-l">Total</div></div></div><div class="prog-sm"><div class="prog-sm-fill" style="width:'+pct+'%"></div></div>';
   function bPip(h,i,k,label){var done=!!(h.tracked||{})[k];return'<div class="pip'+(done?' done':'')+'" data-i="'+i+'" data-k="'+k+'"><span class="pip-lbl">'+label+'</span><span class="pip-time">'+(done?h.tracked[k]:'—')+'</span></div>';}
-  function bGroup(items){return items.map(function(h){var i=mem.indexOf(h);return'<div class="track-card '+(!!h.tracked.waSent?'sent-row':'unsent-row')+'"><div class="track-top"><span class="track-name">'+h.name+'</span>'+(h.sender==='Elnur'?'<span class="chip chip-e">Elnur</span>':'<span class="chip chip-a">Arina</span>')+(h.hasParty?'<span class="chip chip-type">Full Day</span>':'')+'<span class="chip chip-lang">'+h.ll+'</span></div><div class="pip-row">'+bPip(h,i,'linkCopied','Link')+bPip(h,i,'msgCopied','Copied')+bPip(h,i,'waSent','Sent')+'</div><div class="track-footer"><span class="track-url">'+h.url+'</span><div class="track-acts"><button class="t-act resend" data-i="'+i+'">Resend</button><button class="t-act del" data-i="'+i+'">✕</button></div></div></div>';}).join('');}
+  function bGroup(items){return items.map(function(h){var i=mem.indexOf(h);return'<div class="track-card '+(!!h.tracked.waSent?'sent-row':'unsent-row')+'"><div class="track-top"><span class="track-name">'+h.name+'</span>'+(h.sender==='Elnur'?'<span class="chip chip-e">E</span>':'<span class="chip chip-a">A</span>')+(h.hasParty?'<span class="chip chip-type">Full Day</span>':'')+'<span class="chip chip-lang">'+h.ll+'</span></div><div class="pip-row">'+bPip(h,i,'linkCopied','Link')+bPip(h,i,'msgCopied','Copied')+bPip(h,i,'waSent','Sent')+'</div><div class="track-footer"><span class="track-url">'+h.url+'</span><div class="track-acts"><button class="t-act resend" data-i="'+i+'">Resend</button><button class="t-act del" data-i="'+i+'">✕</button></div></div></div>';}).join('');}
   var html='';
   if(unsent.length)html+='<div class="g-group-hdr">Pending ('+unsent.length+')</div>'+bGroup(unsent);
   if(sent.length)html+='<div class="g-group-hdr sent">Sent ('+sent.length+')</div>'+bGroup(sent);
