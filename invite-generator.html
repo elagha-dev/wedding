@@ -1985,12 +1985,14 @@ var workerUrl=loadWorkerUrl()||DEFAULT_WORKER;
 function setTopSynced(timeStr){
   var pill=document.getElementById('topSyncBtn');
   pill.classList.add('synced');
+  pill.style.background='';pill.style.boxShadow='';pill.title='';
   document.getElementById('topSyncLabel').textContent=timeStr;
   var dot=document.getElementById('syncDot');dot.classList.remove('live');dot.style.background='';
 }
 function setTopSyncing(){
   var pill=document.getElementById('topSyncBtn');
   pill.classList.remove('synced');
+  pill.style.background='';pill.style.boxShadow='';pill.title='';
   document.getElementById('topSyncLabel').textContent='Syncing…';
   var dot=document.getElementById('syncDot');dot.classList.add('live');dot.style.background='';
 }
@@ -2130,8 +2132,7 @@ document.getElementById('topSyncBtn').addEventListener('click',doSync);
       renderDashboard();renderFilterRow();renderGuestList();renderGroupDropdown();
     }
   }catch(e){}
-  // Always fetch fresh data from Worker on load — this is how Device B learns about Device A's changes
-  setTimeout(function(){ doSync(); }, 800);
+  // Auto-sync on load disabled — sync manually only
 })();
 
 // ── AUTO-POLL: disabled ──
@@ -2141,6 +2142,102 @@ function startAutoPoll(){
 }
 // startAutoPoll(); // disabled
 // visibilitychange auto-sync disabled
+
+// ── KV STATE POLLER: every 30s, merges sent/meta/claims from other device ──
+// Never touches Notion, never overwrites phones/types/groups or in-flight local state.
+(function(){
+  var _lastStateTs='';
+  function pollState(){
+    var url=workerUrl;
+    if(!url||!importQueue.length)return; // only after first manual sync
+    fetch(url.replace(/\/$/,'')+'/state',{cache:'no-store'})
+      .then(function(r){if(!r.ok)throw new Error();return r.json();})
+      .then(function(data){
+        if(!data.state)return;
+        if(data.ts===_lastStateTs)return; // nothing changed
+        var state=data.state;
+        var changed=[];
+        importQueue.forEach(function(g){
+          var remote=state[g.name];
+          if(!remote)return;
+          var dirty=false;
+          // Only merge fields the other device owns — never overwrite pending local sends
+          if(!g.pendingSent){
+            var newSent=!!(remote.sentAt);
+            if(newSent!==g.sent||(remote.sentAt||'')!==(g.sentAt||'')){
+              g.sent=newSent;
+              g.sentAt=remote.sentAt||'';
+              dirty=true;
+            }
+          }
+          if(remote.followup!==undefined&&remote.followup!==g.followup){
+            g.followup=remote.followup;dirty=true;
+          }
+          if(remote.note!==undefined&&remote.note!==g.note){
+            g.note=remote.note;dirty=true;
+          }
+          if(remote.claim!==undefined&&remote.claim!==g.claim){
+            g.claim=remote.claim;dirty=true;
+          }
+          if(dirty)changed.push(g.name);
+        });
+        if(changed.length){
+          _lastStateTs=data.ts;
+          try{localStorage.setItem('ww_pending',JSON.stringify(importQueue));}catch(e){}
+          saveGuestMeta();
+          renderGuestList();
+          renderDashboard();
+          showActivityToast(
+            changed.length===1
+              ? changed[0]+' updated by other device'
+              : changed.length+' guests updated by other device'
+          );
+        }
+      })
+      .catch(function(){}); // silent fail
+  }
+  // Start 10s after load, then every 30s
+  setTimeout(function(){
+    pollState();
+    setInterval(pollState, 30000);
+  }, 10000);
+})();
+
+// ── NOTION CHANGE CHECKER: every 12h, notifies if guest list changed ──
+(function(){
+  function checkForNotionChanges(){
+    var url=workerUrl;
+    if(!url||!_lastSyncFingerprint)return;
+    fetch(url,{cache:'no-store'})
+      .then(function(r){if(!r.ok)throw new Error();return r.json();})
+      .then(function(data){
+        var guests=Array.isArray(data)?data:(data.results||data.guests||[]);
+        if(!guests.length)return;
+        var remoteFingerprint=guests.map(function(g){
+          var name=g.name||g.Name||'';
+          return name+'='+(g.sentAt||'0')+'+'+(g.followup?'1':'0')+'+'+(g.note||'');
+        }).join('|');
+        if(remoteFingerprint!==_lastSyncFingerprint){
+          var pill=document.getElementById('topSyncBtn');
+          var label=document.getElementById('topSyncLabel');
+          var dot=document.getElementById('syncDot');
+          if(pill&&!pill.classList.contains('syncing')){
+            pill.style.background='var(--amber)';
+            pill.style.boxShadow='0 2px 12px rgba(176,120,48,.4)';
+            if(label)label.textContent='Update';
+            if(dot){dot.classList.add('live');dot.style.background='rgba(255,255,255,.85)';}
+            pill.title='Notion has new changes — tap to sync';
+          }
+        }
+      })
+      .catch(function(){});
+  }
+  // Start 30s after load, then every 12 hours
+  setTimeout(function(){
+    checkForNotionChanges();
+    setInterval(checkForNotionChanges, 12 * 60 * 60 * 1000);
+  }, 30000);
+})();
 
 function renderGroupDropdown(){
   var groups=[...new Set(importQueue.map(function(g){return g.group;}).filter(Boolean))];
