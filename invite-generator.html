@@ -1093,7 +1093,7 @@ function saveGuestMeta() {
   try {
     localStorage.setItem('ww_gm', JSON.stringify(importQueue));
     localStorage.setItem('ww_pending', JSON.stringify(importQueue));
-    localStorage.setItem('ww_ls', new Date().toISOString());
+    localStorage.setItem('ww_ls', ts());
   } catch (e) {
     console.error("Local storage write exception:", e);
   }
@@ -2136,7 +2136,7 @@ document.getElementById('topSyncBtn').addEventListener('click',doSync);
     if(saved){
       importQueue=JSON.parse(saved);applyGuestMeta();
       var last=localStorage.getItem('ww_ls');
-      if(last){setTopSynced(last);}
+      if(last){var lastFmt=last;try{if(last.includes('T')){var d=new Date(last);lastFmt=String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0')+' '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});}}catch(e){}setTopSynced(lastFmt);}
       document.getElementById('guestArea').style.display='';
       renderDashboard();renderFilterRow();renderGuestList();renderGroupDropdown();
     }
@@ -2209,7 +2209,7 @@ function startAutoPoll(){
   // Start 10s after load, then every 30s
   setTimeout(function(){
     pollState();
-    setInterval(pollState, 30000);
+    setInterval(pollState, 5000);
   }, 10000);
 })();
 
