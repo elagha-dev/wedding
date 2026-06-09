@@ -1163,14 +1163,21 @@ function _flushRetryQueue(){
 // Push followup/note changes for a single guest to worker KV
 function pushMetaToWorker(g){
   if(!workerUrl||!g||!g.name)return;
+  _localWrites[g.name]=_localWrites[g.name]||{};
+  _localWrites[g.name].followup=!!g.followup;
+  _localWrites[g.name].note=g.note||'';
   _pushWithRetry('/meta',{name:g.name,followup:!!g.followup,note:g.note||''},'meta:'+g.name);
 }
 function pushSentToWorker(name){
   if(!workerUrl||!name)return;
+  _localWrites[name]=_localWrites[name]||{};
+  _localWrites[name].sent=true;
   _pushWithRetry('/sent',{name:name},'sent:'+name);
 }
 function pushUnsentToWorker(name){
   if(!workerUrl||!name)return;
+  _localWrites[name]=_localWrites[name]||{};
+  _localWrites[name].sent=false;
   _pushWithRetry('/unsent',{name:name},'unsent:'+name);
 }
 function loadGuestMeta(){try{return JSON.parse(localStorage.getItem('ww_gm')||'{}');}catch(e){return{};}}
@@ -2004,6 +2011,7 @@ function setTopSyncFailed(){
 }
 // Track last-known sent fingerprint so we can detect remote changes
 var _lastSyncFingerprint='';
+var _localWrites={};
 function _buildSyncFingerprint(guests){
   return guests.map(function(g){return g.name+'='+(g.sentAt||'0')+'+'+(g.followup?'1':'0')+'+'+(g.note||'');}).join('|');
 }
@@ -2107,6 +2115,7 @@ function doSync(){
       }
       // Snapshot for next comparison
       _prevSyncMap={};importQueue.forEach(function(g){_prevSyncMap[g.name]={sent:g.sent,followup:g.followup,note:g.note};});
+      _localWrites={}; // full sync accepted — clear echo-guard
 
       setTopSynced(now);
       var _ga=document.getElementById('guestArea');_ga.style.display='';_ga.style.minHeight='';
@@ -2160,20 +2169,21 @@ function startAutoPoll(){
         importQueue.forEach(function(g){
           var remote=state[g.name];
           if(!remote)return;
+          var local=_localWrites[g.name]||{};
           var dirty=false;
-          // Only merge fields the other device owns — never overwrite pending local sends
-          if(!g.pendingSent){
+          // Skip fields this device already wrote — avoids echo-back
+          if(!g.pendingSent&&local.sent===undefined){
             var newSent=!!(remote.sentAt);
-            if(newSent!==g.sent||(remote.sentAt||'')!==(g.sentAt||'')){
+            if(newSent!==g.sent){
               g.sent=newSent;
               g.sentAt=remote.sentAt||'';
               dirty=true;
             }
           }
-          if(remote.followup!==undefined&&remote.followup!==g.followup){
+          if(remote.followup!==undefined&&local.followup===undefined&&remote.followup!==g.followup){
             g.followup=remote.followup;dirty=true;
           }
-          if(remote.note!==undefined&&remote.note!==g.note){
+          if(remote.note!==undefined&&local.note===undefined&&remote.note!==g.note){
             g.note=remote.note;dirty=true;
           }
           if(remote.claim!==undefined&&remote.claim!==g.claim){
