@@ -105,12 +105,12 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .prog-track{display:none!important}
 .prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--rose));border-radius:2px;transition:width .7s cubic-bezier(.4,0,.2,1)}
 
-/* ── SECTION ── */
-.sec{font-size:9px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:10px;margin:0 0 4px}
+.sec{font-size:9px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:10px;margin:16px 0 4px}
 .sec::after{content:'';flex:1;height:0}
+.sec:first-child{margin-top:8px}
 
 /* ── CARD ── */
-.card{background:#fff;border-radius:var(--r);box-shadow:var(--shadow);margin-bottom:12px;overflow:hidden;border:1px solid rgba(196,149,106,.07)}
+.card{background:#fff;border-radius:var(--r);box-shadow:var(--shadow);margin-bottom:8px;overflow:hidden;border:1px solid rgba(196,149,106,.07)}
 .card-hdr{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;cursor:pointer;user-select:none;transition:background var(--ease)}
 .card-hdr:hover{background:rgba(196,149,106,.03)}
 .card-hdr-title{font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
@@ -283,7 +283,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-swipe-wrap.swiping-active .g-swipe-hint{display:flex}
 
 .empty-state{padding:36px 20px;text-align:center;color:var(--muted);font-family:var(--sans);font-size:14px}
-.list-footer{display:flex;gap:8px;margin-top:4px}
+.list-footer{display:flex;gap:8px;margin-top:2px;margin-bottom:8px}
 .list-btn{padding:9px 16px;border-radius:var(--r-pill);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;border:1.5px solid var(--parchment);background:var(--cream);color:var(--muted);cursor:pointer;font-family:var(--sans);transition:all var(--ease);white-space:nowrap}
 .list-btn:hover{border-color:var(--rose);color:var(--rose)}.list-btn.dng:hover{border-color:var(--red);color:var(--red)}.list-btn.grow{flex:1}
 
@@ -411,7 +411,8 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .settings-btn:hover{border-color:var(--rose);color:var(--rose);transform:rotate(30deg)}
 .stat-pill{display:flex;align-items:center;justify-content:center;min-width:30px;height:32px;padding:0 8px;border-radius:var(--r-pill);border:1.5px solid var(--parchment);background:var(--cream2);font-family:var(--sans);font-size:10.5px;font-weight:700;color:var(--muted);flex-shrink:0;transition:all var(--ease);line-height:1}
 .stat-pill.total{color:var(--ink2);border-color:rgba(61,46,36,.18)}
-.stat-pill.sent{color:var(--green);border-color:rgba(58,140,92,.25);background:var(--green-bg)}
+.stat-pill.sent{color:var(--green);border-color:rgba(58,140,92,.25);background:var(--green-bg);cursor:pointer}
+.stat-pill.sent:hover{background:rgba(58,140,92,.18);border-color:rgba(58,140,92,.45)}
 .dev-btn{width:32px;height:32px;border-radius:50%;background:var(--cream2);border:1.5px solid var(--parchment);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--ease);font-size:11px;font-weight:700;font-family:var(--sans)}
 .dev-btn:hover{border-color:var(--ink);color:var(--ink)}
 .dev-btn.on{background:var(--ink);border-color:var(--ink);color:#fff}
@@ -631,7 +632,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
   </div>
 
   <!-- MANUAL GENERATOR — RESERVE -->
-  <div class="sec" style="margin-top:32px">Reserve · Manual Generator</div>
+  <div class="sec">Reserve · Manual Generator</div>
   <div class="card">
     <div class="card-hdr" id="genToggle">
       <span class="card-hdr-title">Manual Generator</span>
@@ -1073,7 +1074,7 @@ function buildMsg(name,type,lang,url){var isP=type==='ceremony-party-single'||ty
 function ts(){var d=new Date();var day=String(d.getDate()).padStart(2,'0'),mon=String(d.getMonth()+1).padStart(2,'0');return day+'.'+mon+' '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});}
 function dt(){return new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short'})+' '+ts();}
 function copyText(text,btn,reset){var done=function(){btn.textContent='✓ Copied';btn.classList.add('ok');setTimeout(function(){btn.textContent=reset;btn.classList.remove('ok');},2000);};if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(done).catch(fb);else fb();function fb(){var t=document.createElement('textarea');t.value=text;t.style.cssText='position:fixed;opacity:0';document.body.appendChild(t);t.focus();t.select();try{document.execCommand('copy');done();}catch(e){}document.body.removeChild(t);}}
-function updateTodayBadge(){document.getElementById('todayN').textContent=todayCount;}
+function updateTodayBadge(){var el=document.getElementById('todayN');if(el)el.textContent=todayCount;}
 
 /* ══ SESSION TOGGLE ══════════════════════════ */
 function setSession(who){
@@ -1081,12 +1082,17 @@ function setSession(who){
   document.getElementById('sessA').className='sess-btn'+(who==='Arina'?' on-a':'');
   document.getElementById('sessE').className='sess-btn'+(who==='Elnur'?' on-e':'');
   // sync sender buttons in generator
-  document.querySelectorAll('.s-btn').forEach(function(b){b.classList.remove('on');if(b.dataset.s===who)b.classList.add('on');});
+  document.querySelectorAll('.s-btn').forEach(function(b){b.classList.remove('on');if(b.dataset.s===who){b.classList.add('on');b.classList.add(who==='Arina'?'arina':'elnur');}});
   updateFabLabels();
   saveLastSettings();
 }
 document.getElementById('sessA').addEventListener('click',function(){if(sessionSender!=='Arina'){setSession('Arina');showSessionToast('Arina');}});
 document.getElementById('sessE').addEventListener('click',function(){if(sessionSender!=='Elnur'){setSession('Elnur');showSessionToast('Elnur');}});
+document.getElementById('ovSent').addEventListener('click',function(){
+  var ga=document.getElementById('guestArea');if(ga.style.display==='none')return;
+  importFilter='sent';showSent=true;renderFilterRow();renderGuestList();
+  document.getElementById('guestListSec').scrollIntoView({behavior:'smooth',block:'start'});
+});
 function showSessionToast(who){
   var other=who==='Arina'?'Elnur':'Arina';
   showToastWarn('Now sending as '+who+'. Sending '+other+'’s guests will require confirmation.');
