@@ -215,12 +215,12 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-swipe-bg{display:none}
 .g-swipe-bg-right,.g-swipe-bg-left,.g-swipe-bg-txt{display:none}
 /* WhatsApp-style: action buttons hidden until card slides open */
-.g-swipe-action-right{position:absolute;right:0;top:4px;bottom:4px;width:80px;background:var(--green);display:none;align-items:center;justify-content:center;flex-direction:column;gap:5px;cursor:pointer;pointer-events:none;border-radius:0 10px 10px 0;overflow:hidden}
-.g-swipe-action-left{position:absolute;left:0;top:4px;bottom:4px;width:80px;background:#E8A838;display:none;align-items:center;justify-content:center;flex-direction:column;gap:5px;cursor:pointer;pointer-events:none;border-radius:10px 0 0 10px;overflow:hidden}
+.g-swipe-action-right{position:absolute;right:0;top:0;bottom:0;width:88px;background:var(--green);display:none;align-items:center;justify-content:center;flex-direction:column;gap:6px;cursor:pointer;pointer-events:none;border-radius:0 var(--r-sm) var(--r-sm) 0;overflow:hidden}
+.g-swipe-action-left{position:absolute;left:0;top:0;bottom:0;width:88px;background:#E8A838;display:none;align-items:center;justify-content:center;flex-direction:column;gap:6px;cursor:pointer;pointer-events:none;border-radius:var(--r-sm) 0 0 var(--r-sm);overflow:hidden}
 .g-swipe-action-right.undo-action{background:var(--amber)}
 .g-swipe-action-left.undo-action{background:var(--amber)}
 .g-swipe-action-txt{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.9);line-height:1}
-.g-swipe-action-icon{font-size:22px;line-height:1}
+.g-swipe-action-icon{width:26px;height:26px;display:flex;align-items:center;justify-content:center;color:#fff}
 /* Show only the relevant button when open, and enable pointer events */
 .g-swipe-wrap.sw-open-left .g-swipe-action-right{display:flex;pointer-events:all}
 .g-swipe-wrap.sw-open-right .g-swipe-action-left{display:flex;pointer-events:all}
@@ -1270,8 +1270,8 @@ function buildGuestCard(g){
   // Sent cards: slim — just name, time, undo reset button + sender badge
   if(g.sent){
     return '<div class="g-swipe-wrap" data-qi="'+ri+'">'
-      +'<div class="g-swipe-action-right undo-action" data-swipe-action="undo"><span class="g-swipe-action-icon">↩</span><span class="g-swipe-action-txt">Undo</span></div>'
-      +'<div class="g-swipe-action-left undo-action" data-swipe-action="undo"><span class="g-swipe-action-icon">↩</span><span class="g-swipe-action-txt">Undo</span></div>'
+      +'<div class="g-swipe-action-right undo-action" data-swipe-action="undo"><span class="g-swipe-action-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></span><span class="g-swipe-action-txt">Undo</span></div>'
+      +'<div class="g-swipe-action-left undo-action" data-swipe-action="undo"><span class="g-swipe-action-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></span><span class="g-swipe-action-txt">Undo</span></div>'
       +'<div class="'+cls+'" data-qi="'+ri+'">'
         +'<div class="g-inner" style="padding:9px 14px 9px 16px">'
           +'<div class="g-main">'
@@ -1285,8 +1285,8 @@ function buildGuestCard(g){
   }
 
   return '<div class="g-swipe-wrap" data-qi="'+ri+'">'
-    +'<div class="g-swipe-action-right" data-swipe-action="sent"><span class="g-swipe-action-icon">✓</span><span class="g-swipe-action-txt">Sent</span></div>'
-    +'<div class="g-swipe-action-left" data-swipe-action="followup"><span class="g-swipe-action-icon">🚩</span><span class="g-swipe-action-txt">Follow Up</span></div>'
+    +'<div class="g-swipe-action-right" data-swipe-action="sent"><span class="g-swipe-action-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="g-swipe-action-txt">Sent</span></div>'
+    +'<div class="g-swipe-action-left" data-swipe-action="followup"><span class="g-swipe-action-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg></span><span class="g-swipe-action-txt">Follow Up</span></div>'
     +'<div class="'+cls+'" data-qi="'+ri+'">'
       +'<div class="g-inner">'
         +'<div class="g-ring">'+(isSel?'✓':'')+'</div>'
@@ -1366,7 +1366,7 @@ function attachSwipe(card){
   // How far to drag before snapping open (px)
   var SNAP_THRESHOLD = 40;
   // How far the card slides to reveal the 80px action button
-  var OPEN_X = 80;
+  var OPEN_X = 88;
 
   var startX, startY, isDragging = false, isOpen = false, openDir = 0; // openDir: 1=right, -1=left
 
