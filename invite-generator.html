@@ -2189,6 +2189,9 @@ function startAutoPoll(){
           if(remote.claim!==undefined&&remote.claim!==g.claim){
             g.claim=remote.claim;dirty=true;
           }
+          if(remote.sentBy!==undefined&&remote.sentBy!==g.sentBy){
+            g.sentBy=remote.sentBy;
+          }
           if(dirty)changed.push(g.name);
         });
         if(changed.length){
@@ -2197,10 +2200,17 @@ function startAutoPoll(){
           saveGuestMeta();
           renderGuestList();
           renderDashboard();
+          // Find who made the change — use sentBy from remote state if available
+          var changedBy='';
+          for(var _ci=0;_ci<changed.length;_ci++){
+            var _cg=importQueue.find(function(g){return g.name===changed[_ci];});
+            if(_cg&&_cg.sentBy){changedBy=_cg.sentBy;break;}
+          }
+          if(!changedBy)changedBy=sessionSender==='Arina'?'Elnur':'Arina';
           showActivityToast(
             changed.length===1
-              ? changed[0]+' updated by '+(sessionSender==='Arina'?'Elnur':'Arina')
-              : changed.length+' guests updated by '+(sessionSender==='Arina'?'Elnur':'Arina')
+              ? changed[0]+' updated by '+changedBy+' on another device'
+              : changed.length+' guests updated by '+changedBy+' on another device'
           );
         }
       })
