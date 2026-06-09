@@ -2399,15 +2399,23 @@ function doSyncSilent(){
 }
 
 (function(){
-  var lastSeen = new Date().toISOString(); // only care about events after page load
+  var lastSeen = null; // null on first poll — we just record the watermark, no toasting
+  var initialized = false;
   var actionLabels = { sent:'marked sent', unsent:'undid sent', flag:'flagged', note:'added a note' };
 
   function poll(){
     var url = workerUrl; if(!url) return;
-    fetch(url.replace(/\/$/,'') + '/events?since=' + encodeURIComponent(lastSeen))
+    var qs = lastSeen ? '?since=' + encodeURIComponent(lastSeen) : '';
+    fetch(url.replace(/\/$/,'') + '/events' + qs)
       .then(function(r){ return r.json(); })
       .then(function(data){
         var events = data.events || [];
+        // First poll: just set the watermark so we only react to future events
+        if(!initialized){
+          initialized = true;
+          if(events.length) lastSeen = events[0].ts;
+          return;
+        }
         if(!events.length) return;
         // Update lastSeen to newest event
         lastSeen = events[0].ts;
