@@ -538,43 +538,16 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 </div>
 
 <div class="wrap">
-<div id="dashboard">
-  <div class="dash-panel">
-    <div class="dash-header">
-      <span class="dash-title">Overview</span>
-      <span class="dash-subtitle" id="dashSubtitle">—</span>
-    </div>
-    <div class="dash-body">
-      <svg width="0" height="0" style="position:absolute"><defs><linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#C4956A"/><stop offset="100%" stop-color="#C9876A"/></linearGradient></defs></svg>
-      <div class="dash-top">
-        <div class="dash-ring-wrap">
-          <svg width="72" height="72" viewBox="0 0 72 72">
-            <circle class="dash-ring-bg" cx="36" cy="36" r="29"/>
-            <circle class="dash-ring-fill" id="dashRingFill" cx="36" cy="36" r="29" stroke-dasharray="182" stroke-dashoffset="182"/>
-          </svg>
-          <div class="dash-ring-label"><div class="dash-ring-pct" id="dashPct">0%</div><div class="dash-ring-sub">sent</div></div>
-        </div>
-        <div class="dash-right">
-          <div class="dash-grid" id="dashGrid" style="flex:1">
-            <div class="dash-cell" data-sf="sent"><div class="dash-n g" id="dSent">0</div><div class="dash-l">Sent</div></div>
-            <div class="dash-cell" data-sf="pending"><div class="dash-n a" id="dPending">0</div><div class="dash-l">Pending</div></div>
-            <div class="dash-cell" data-sf="followup"><div class="dash-n r" id="dFollowup">0</div><div class="dash-l">Follow Up</div></div>
-          </div>
-        </div>
-      </div>
-      <div class="dash-split" id="dashSplit">
-        <div class="dash-person a" data-sf="Arina">
-          <div class="dash-person-name">Arina</div>
-          <div class="dash-person-stats"><span class="dash-person-n" id="dArinaSent">0</span><span class="dash-person-detail" id="dArinaDetail">of 0 sent</span></div>
-          <div class="dash-mini-bar"><div class="dash-mini-fill a" id="dArinaBar" style="width:0%"></div></div>
-        </div>
-        <div class="dash-person e" data-sf="Elnur">
-          <div class="dash-person-name">Elnur</div>
-          <div class="dash-person-stats"><span class="dash-person-n" id="dElnurSent">0</span><span class="dash-person-detail" id="dElnurDetail">of 0 sent</span></div>
-          <div class="dash-mini-bar"><div class="dash-mini-fill e" id="dElnurBar" style="width:0%"></div></div>
-        </div>
-      </div>
-    </div>
+<div id="overviewBar" style="display:none;margin:10px 0 6px;padding:0 2px">
+  <div style="display:flex;align-items:baseline;gap:6px;font-family:var(--sans)">
+    <span style="font-size:22px;font-weight:300;color:var(--ink2)" id="ovTotal">0</span>
+    <span style="font-size:11px;color:var(--muted);letter-spacing:.04em">total</span>
+    <span style="color:var(--blush);margin:0 2px">·</span>
+    <span style="font-size:22px;font-weight:300;color:var(--green)" id="ovSent">0</span>
+    <span style="font-size:11px;color:var(--muted);letter-spacing:.04em">sent</span>
+    <span style="color:var(--blush);margin:0 2px">·</span>
+    <span style="font-size:22px;font-weight:300;color:var(--amber)" id="ovPending">0</span>
+    <span style="font-size:11px;color:var(--muted);letter-spacing:.04em">pending</span>
   </div>
 </div>
 <div class="prog-track" id="progTrack" style="display:none"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
@@ -1124,44 +1097,18 @@ function showSessionToast(who){
   showToastWarn('Now sending as '+who+'. Sending '+other+'’s guests will require confirmation.');
 }
 
-/* ══ DASHBOARD ═══════════════════════════════ */
+/* ══ OVERVIEW BAR ════════════════════════════ */
 function renderDashboard(){
-  var dash=document.getElementById('dashboard'),pt=document.getElementById('progTrack');
-  if(!importQueue.length){dash.classList.remove('show');pt.style.display='none';return;}
-  dash.classList.add('show');pt.style.display='';
-  var total=importQueue.length,
+  var bar=document.getElementById('overviewBar'),pt=document.getElementById('progTrack');
+  if(!importQueue.length){bar.style.display='none';pt.style.display='none';return;}
+  bar.style.display='';pt.style.display='';
+  var total=importQueue.filter(function(g){return!g.skipped;}).length,
       sent=importQueue.filter(function(g){return g.sent;}).length,
-      pending=total-sent,
-      followup=importQueue.filter(function(g){return g.followup&&!g.sent;}).length,
-      aTotal=importQueue.filter(function(g){return g.sender==='Arina'&&!g.skipped;}).length,
-      aSent=importQueue.filter(function(g){return g.sender==='Arina'&&g.sent;}).length,
-      eTotal=importQueue.filter(function(g){return g.sender==='Elnur'&&!g.skipped;}).length,
-      eSent=importQueue.filter(function(g){return g.sender==='Elnur'&&g.sent;}).length;
-  var pct=total?Math.round(sent/total*100):0;
-  // Ring
-  var circ=182,offset=circ-Math.round(circ*pct/100);
-  document.getElementById('dashRingFill').style.strokeDashoffset=offset;
-  document.getElementById('dashPct').textContent=pct+'%';
-  document.getElementById('dashSubtitle').textContent=sent+' sent · '+pending+' pending · '+total+' total';
-  // Grid cells
-  document.getElementById('dSent').textContent=sent;
-  document.getElementById('dPending').textContent=pending;
-  document.getElementById('dFollowup').textContent=followup;
-  // Per-person
-  document.getElementById('dArinaSent').textContent=aSent;
-  document.getElementById('dArinaDetail').textContent='of '+aTotal+' sent';
-  document.getElementById('dArinaBar').style.width=(aTotal?Math.round(aSent/aTotal*100):0)+'%';
-  document.getElementById('dElnurSent').textContent=eSent;
-  document.getElementById('dElnurDetail').textContent='of '+eTotal+' sent';
-  document.getElementById('dElnurBar').style.width=(eTotal?Math.round(eSent/eTotal*100):0)+'%';
-  document.getElementById('progFill').style.width=pct+'%';
-  // Cell click → filter
-  document.getElementById('dashGrid').querySelectorAll('.dash-cell').forEach(function(c){
-    c.addEventListener('click',function(){importFilter=this.dataset.sf;selectedIdxs=[];renderFilterRow();renderGuestList();document.getElementById('guestArea').scrollIntoView({behavior:'smooth',block:'nearest'});});
-  });
-  document.getElementById('dashSplit').querySelectorAll('.dash-person').forEach(function(c){
-    c.addEventListener('click',function(){importFilter=this.dataset.sf;selectedIdxs=[];renderFilterRow();renderGuestList();document.getElementById('guestArea').scrollIntoView({behavior:'smooth',block:'nearest'});});
-  });
+      pending=total-sent;
+  document.getElementById('ovTotal').textContent=total;
+  document.getElementById('ovSent').textContent=sent;
+  document.getElementById('ovPending').textContent=pending;
+  document.getElementById('progFill').style.width=(total?Math.round(sent/total*100):0)+'%';
 }
 
 /* ══ FILTER ROW ══════════════════════════════ */
@@ -2270,15 +2217,37 @@ applyAppSettings();
   }
 
 
+  var AI_UNLOCKED = false;
+  var AI_PASSWORD = 'ae2026';
+
+  function showPasswordGate(){
+    hideThinking();
+    var old=document.getElementById('aiPwPrompt');if(old)old.remove();
+    var div=document.createElement('div');
+    div.id='aiPwPrompt';
+    div.style.cssText='background:#fff;border:1.5px solid rgba(124,58,237,.2);border-radius:14px;padding:14px;margin:0;box-shadow:0 2px 12px rgba(124,58,237,.1)';
+    div.innerHTML='<div style="font-size:12px;font-weight:600;color:#7C3AED;margin-bottom:8px">Enter password to use AI</div>'
+      +'<div style="display:flex;gap:8px"><input id="aiPwInput" type="password" placeholder="Password" style="flex:1;font-size:13px;padding:8px 10px;border:1.5px solid #EFE4D4;border-radius:10px;font-family:inherit;outline:none;background:#FDF8F3"/>'
+      +'<button id="aiPwSave" style="padding:8px 14px;background:linear-gradient(135deg,#7C3AED,#A855F7);color:#fff;border:none;border-radius:10px;font-size:11px;font-weight:700;cursor:pointer">OK</button></div>';
+    aiMessages.appendChild(div);
+    aiMessages.scrollTop=aiMessages.scrollHeight;
+    var inp=document.getElementById('aiPwInput');
+    inp.focus();
+    function tryPw(){
+      var v=inp.value.trim();
+      if(v===AI_PASSWORD){AI_UNLOCKED=true;div.remove();addMsg('assistant','Ready! Ask me to change anything.');}
+      else{inp.value='';inp.style.borderColor='#C0402E';inp.placeholder='Wrong password';}
+    }
+    document.getElementById('aiPwSave').onclick=tryPw;
+    inp.addEventListener('keydown',function(e){if(e.key==='Enter')tryPw();});
+  }
+
   async function callClaude(text){
     var systemPrompt='You are an AI assistant embedded inside a wedding invite generator web app called "A & E · Invites". Your job is to modify the app\'s CSS based on the user\'s request.\n\nRespond with ONLY a <style> tag containing CSS overrides. No explanation, no markdown, no code fences.\n\nRules:\n- Use !important or high-specificity selectors to override existing styles.\n- To change colors use: :root { --varname: newvalue; }\n- To remove/hide elements use: display:none !important\n- Keep changes minimal and targeted.\n- If truly impossible via CSS alone, respond with 2-3 sentences of plain text (no <style> tag) explaining why.\n\nCSS variables in use: --rose:#C9876A, --rose-deep:#A0614A, --cream:#FDF8F3, --cream2:#F9F1E7, --parchment:#EFE4D4, --ink:#231A14, --muted:#9C8070, --gold:#C4956A, --green:#3A8C5C, --red:#C0402E';
 
-    var payload={model:'claude-sonnet-4-20250514',max_tokens:800,system:systemPrompt,messages:[{role:'user',content:text}]};
-
-    // Always use worker /ai proxy — no API key fallback
     var base=(typeof workerUrl!=='undefined'?workerUrl:'')||'https://guestlist.elnur-agha.workers.dev';
     var proxyUrl=base.replace(/\/$/,'')+'/ai';
-    var r=await fetch(proxyUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    var r=await fetch(proxyUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system:systemPrompt,message:text})});
     if(!r.ok){
       var errBody=await r.json().catch(function(){return {};});
       throw new Error((errBody.error&&errBody.error.message)||'Worker error '+r.status);
@@ -2289,6 +2258,7 @@ applyAppSettings();
   async function sendMessage(){
     var text=aiInput.value.trim();
     if(!text)return;
+    if(!AI_UNLOCKED){showPasswordGate();return;}
     aiInput.value='';aiInput.style.height='auto';
     aiSend.disabled=true;
     aiSuggestions.style.display='none';
@@ -2299,8 +2269,8 @@ applyAppSettings();
     try{
       var data=await callClaude(text);
       hideThinking();
-      if(!data){aiSend.disabled=false;return;} // key prompt shown
-      var reply=data.content&&data.content.map(function(c){return c.text||'';}).join('');
+      if(!data){aiSend.disabled=false;return;}
+      var reply=data.reply||(data.content&&data.content.map(function(c){return c.text||'';}).join(''));
       if(!reply){addMsg('error','No response');aiSend.disabled=false;return;}
 
       if(reply.trim().startsWith('<style')){
