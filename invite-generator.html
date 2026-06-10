@@ -243,11 +243,11 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-swipe-wrap:has(.g-card.sent) .g-card{background:#fafafa}
 .g-swipe-wrap:has(.g-card.sent) .g-name,.g-swipe-wrap:has(.g-card.sent) .g-sent-time{color:var(--soft)}
 .g-swipe-wrap:has(.g-card.pending-sent){border-left:3px solid var(--rose)}
-.g-inner{padding:11px 14px 14px 16px;display:flex;align-items:flex-start}
+.g-inner{padding:11px 14px 11px 16px;display:flex;align-items:flex-start}
 .g-ring{width:20px;height:20px;border:1.5px solid var(--parchment);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;margin-right:11px;font-size:10px;color:#fff;background:transparent;transition:all var(--ease)}
 .g-card.sel .g-ring{background:var(--rose);border-color:var(--rose)}
 .g-main{flex:1;min-width:0}
-.g-name-row{display:flex;align-items:center;gap:7px;margin-bottom:4px;flex-wrap:wrap;padding-right:28px}
+.g-name-row{display:flex;align-items:center;gap:7px;margin-bottom:4px;flex-wrap:nowrap;padding-right:28px}
 .g-name{font-family:var(--sans);font-size:15px;font-weight:600;color:var(--ink);line-height:1.2}
 .g-card.sent .g-name{color:var(--muted)}
 /* Sent timestamp */
@@ -684,10 +684,10 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
           </div>
           <div class="sec" style="margin:0 0 10px">Invite Type</div>
           <div class="type-grid">
-            <button class="t-btn on" data-type="ceremony-single"><div class="t-btn-title">Single · Ceremony</div><div class="t-btn-desc">Church only</div></button>
-            <button class="t-btn" data-type="couple-ceremony"><div class="t-btn-title">Couple · Ceremony</div><div class="t-btn-desc">Church only</div></button>
-            <button class="t-btn" data-type="ceremony-party-single"><div class="t-btn-title">Single · Full Day</div><div class="t-btn-desc">Church + evening</div></button>
-            <button class="t-btn" data-type="couple-party"><div class="t-btn-title">Couple · Full Day</div><div class="t-btn-desc">Church + evening</div></button>
+            <button class="t-btn on" data-type="ceremony-single"><div class="t-btn-title">Single · Church</div><div class="t-btn-desc">Church only</div></button>
+            <button class="t-btn" data-type="couple-ceremony"><div class="t-btn-title">Couple · Church</div><div class="t-btn-desc">Church only</div></button>
+            <button class="t-btn" data-type="ceremony-party-single"><div class="t-btn-title">Single · Party</div><div class="t-btn-desc">Church + evening</div></button>
+            <button class="t-btn" data-type="couple-party"><div class="t-btn-title">Couple · Party</div><div class="t-btn-desc">Church + evening</div></button>
           </div>
           <div class="sec" style="margin:0 0 10px">Language</div>
           <div class="lang-row">
@@ -932,8 +932,8 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
       <button class="qc-btn" id="qfCoupleBtn" data-mode="couple">Couple</button>
     </div>
     <div class="qf-couple-toggle" style="margin-bottom:12px">
-      <button class="qc-btn" id="qfCeremonyBtn" data-scope="ceremony">⛪ Ceremony</button>
-      <button class="qc-btn" id="qfPartyBtn" data-scope="party">🎉 Full Day</button>
+      <button class="qc-btn" id="qfCeremonyBtn" data-scope="ceremony">⛪ Church</button>
+      <button class="qc-btn" id="qfPartyBtn" data-scope="party">🎉 Party</button>
     </div>
     <button class="qf-send" id="qfSend">Send via WhatsApp →</button>
     <button class="qf-cancel" id="qfCancel">Cancel</button>
@@ -1462,7 +1462,7 @@ function buildGuestCard(g){
   var senderCls=g.sender==='Arina'?'a':'e';
   var sC=g.sender==='Arina'?'<span class="chip chip-a chip-sender-corner">A</span>':'<span class="chip chip-e chip-sender-corner">E</span>';
   var sBR=g.sender?('<span class="g-sender-br '+senderCls+'">'+(g.sender==='Arina'?'A':'E')+'</span>'):'';
-  var tC=(g.type==='ceremony-party-single'||g.type==='couple-party')?'<span class="chip chip-type">Full Day</span>':'<span class="chip chip-type">Ceremony</span>';
+  var tC=(g.type==='ceremony-party-single'||g.type==='couple-party')?'<span class="chip chip-type">Party</span>':'<span class="chip chip-type">Church</span>';
   var lC=g.lang&&g.lang!=='en'?'<span class="chip chip-lang">'+(g.lang==='de'?'DE':'RU')+'</span>':'';
   var rC=g.confirmed?'<span class="chip chip-rsvp">RSVP</span>':'';
   var cC=g.isChild?'<span class="chip chip-child">Child</span>':'';
@@ -1495,16 +1495,17 @@ function buildGuestCard(g){
       +'<div class="g-inner">'
         +'<div class="g-ring">'+(isSel?'✓':'')+'</div>'
         +'<div class="g-main">'
-          +'<div class="g-name-row"><span class="g-name">'+g.name+'</span>'+tC+claimC+'</div>'
+          +'<div class="g-name-row" style="padding-right:0;flex-wrap:nowrap">'
+            +'<span class="g-name" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+g.name+'</span>'
+            +tC+claimC
+            +'<div class="g-inline-btns" style="display:flex;gap:4px;flex-shrink:0;margin-left:6px">'
+              +'<button class="ga-btn ga-btn-wa'+(g.sent?' done':'')+'" data-qi="'+ri+'" data-action="wa" title="Send WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.556 4.121 1.528 5.855L.057 23.882a.5.5 0 0 0 .614.612l6.094-1.597A11.937 11.937 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.808 9.808 0 0 1-5.032-1.384l-.36-.214-3.733.979.995-3.63-.234-.374A9.808 9.808 0 0 1 2.182 12C2.182 6.57 6.57 2.182 12 2.182c5.43 0 9.818 4.388 9.818 9.818 0 5.43-4.388 9.818-9.818 9.818z"/></svg></button>'
+              +'<button class="ga-btn'+(claimedByMe?' ga-btn-flag flagged':claimedByOther?' ga-btn-flag':' ga-btn-flag')+(claimedBy&&!claimedByOther?' flagged':'')+'" data-qi="'+ri+'" data-action="claim" title="'+(claimedByMe?'Mine':claimedByOther?claimedBy:'Claim')+'">'+(claimedByMe?'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>':claimedByOther?'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>':'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>')+'</button>'
+              +'<button class="ga-btn ga-btn-flag'+(g.followup?' flagged':'')+'" data-qi="'+ri+'" data-action="flag" title="'+(g.followup?'Flagged':'Follow Up')+'">'+(g.followup?'<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M4 3h16l-3 6 3 6H4V3z"/><rect x="3" y="3" width="2" height="18" rx="1"/></svg>':'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3h16l-3 6 3 6H4V3z"/><line x1="4" y1="21" x2="4" y2="3"/></svg>')+'</button>'
+            +'</div>'
+          +'</div>'
           +'<div class="g-tags">'+lC+rC+cC+'</div>'
           +(g.note?'<div class="g-note">'+g.note+'</div>':'')
-
-          +'<div class="g-actions">'
-            +'<button class="ga-btn ga-btn-wa'+(g.sent?' done':'')+'" data-qi="'+ri+'" data-action="wa" title="Send WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.556 4.121 1.528 5.855L.057 23.882a.5.5 0 0 0 .614.612l6.094-1.597A11.937 11.937 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.808 9.808 0 0 1-5.032-1.384l-.36-.214-3.733.979.995-3.63-.234-.374A9.808 9.808 0 0 1 2.182 12C2.182 6.57 6.57 2.182 12 2.182c5.43 0 9.818 4.388 9.818 9.818 0 5.43-4.388 9.818-9.818 9.818z"/></svg></button>'
-            +'<button class="ga-btn'+(claimedByMe?' ga-btn-flag flagged':claimedByOther?' ga-btn-flag':' ga-btn-flag')+(claimedBy&&!claimedByOther?' flagged':'')+'" data-qi="'+ri+'" data-action="claim" title="'+(claimedByMe?'Mine':claimedByOther?claimedBy:'Claim')+'">'+(claimedByMe?'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>':claimedByOther?'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>':'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>')+'</button>'
-            +'<button class="ga-btn ga-btn-flag'+(g.followup?' flagged':'')+'" data-qi="'+ri+'" data-action="flag" title="'+(g.followup?'Flagged':'Follow Up')+'">'+(g.followup?'<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M4 3h16l-3 6 3 6H4V3z"/><rect x="3" y="3" width="2" height="18" rx="1"/></svg>':'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3h16l-3 6 3 6H4V3z"/><line x1="4" y1="21" x2="4" y2="3"/></svg>')+'</button>'
-            +'<button class="ga-btn ga-btn-note'+(g.note?' has-note':'')+'" data-qi="'+ri+'" data-action="note" title="Note"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>'
-          +'</div>'
         +'</div>'
       +'</div>'
       +(isPending?'<div class="g-confirm"><span class="g-confirm-msg">Did you send it?</span><button class="g-confirm-yes" data-qi="'+ri+'" data-action="confirm-yes">Yes, sent</button><button class="g-confirm-no" data-qi="'+ri+'" data-action="confirm-no">Cancel</button></div>':'')
@@ -1827,7 +1828,17 @@ function openLangModalForBulk(guests,phone,names){
 function doGroupSend(guests,phone,msgLang){
   var type=guests[0].type||'ceremony-single';var lang=guests[0].lang||'en';
   var p1=guests[0].name,p2=guests[1]?guests[1].name:'';
-  var dName=guests.length>1?firstName(p1)+' & '+firstName(p2):firstName(p1);
+  var dName;
+  if(guests.length>1){
+    var ln1=lastName(p1),ln2=lastName(p2);
+    if(ln1&&ln2&&ln1.toLowerCase()===ln2.toLowerCase()){
+      dName=firstName(p1)+' & '+firstName(p2)+' '+ln1;
+    } else {
+      dName=firstName(p1)+' & '+firstName(p2);
+    }
+  } else {
+    dName=firstName(p1);
+  }
   var url=buildUrl(p1,p2,type,lang);
   var ml=msgLang||guests[0].msgLang||lang;
   var msg=buildMsg(dName,type,ml,url);
@@ -1847,7 +1858,7 @@ function doGroupSend(guests,phone,msgLang){
 var fabOpen=false;
 function updateFabLabels(){
   var ll={en:'EN',de:'DE',ru:'RU'};
-  var typeShort={'ceremony-single':'Single·Ch','couple-ceremony':'Couple·Ch','ceremony-party-single':'Single·Full','couple-party':'Couple·Full'};
+  var typeShort={'ceremony-single':'Single·Ch','couple-ceremony':'Couple·Ch','ceremony-party-single':'Single·Party','couple-party':'Couple·Party'};
   var desc=(typeShort[selType]||selType)+' · '+ll[selLang];
   document.getElementById('fabLastLabel').textContent='Arina: '+desc;
   document.getElementById('fabELabel').textContent='Elnur: '+desc;
@@ -1866,13 +1877,13 @@ function setQfMode(mode){
   document.getElementById('qfSingleBtn').classList.toggle('on',mode==='single');
   document.getElementById('qfCoupleBtn').classList.toggle('on',mode==='couple');
   document.getElementById('qfP2Wrap').style.display=mode==='couple'?'':'none';
-  document.getElementById('qfTitle').textContent=(mode==='couple'?'Couple':'Single')+' · '+(qfScope==='party'?'Full Day':'Ceremony');
+  document.getElementById('qfTitle').textContent=(mode==='couple'?'Couple':'Single')+' · '+(qfScope==='party'?'Party':'Church');
 }
 function setQfScope(scope){
   qfScope=scope;
   document.getElementById('qfCeremonyBtn').classList.toggle('on',scope==='ceremony');
   document.getElementById('qfPartyBtn').classList.toggle('on',scope==='party');
-  document.getElementById('qfTitle').textContent=(qfMode==='couple'?'Couple':'Single')+' · '+(scope==='party'?'Full Day':'Ceremony');
+  document.getElementById('qfTitle').textContent=(qfMode==='couple'?'Couple':'Single')+' · '+(scope==='party'?'Party':'Church');
 }
 function openQuickForm(who){
   fabOpen=false;document.getElementById('fabDrawer').className='fab-drawer';document.getElementById('fabMain').textContent='+';
@@ -2313,7 +2324,7 @@ document.getElementById('genBtn').addEventListener('click',function(){
   cur=entry;save();renderTracker();
   var oc=document.getElementById('outCard'),ob=document.getElementById('outBody');
   oc.style.display='block';ob.style.display='';document.getElementById('outChevron').classList.add('open');
-  document.getElementById('outBadge').innerHTML='<div class="out-badge">'+name+(hasParty?' · Full Day':' · Ceremony')+' · '+(ll[selLang]||'EN')+'</div>';
+  document.getElementById('outBadge').innerHTML='<div class="out-badge">'+name+(hasParty?' · Party':' · Church')+' · '+(ll[selLang]||'EN')+'</div>';
   document.getElementById('urlTxt').textContent=url;
   document.getElementById('previewLink').href=url;
   document.getElementById('msgBox').value=msg;
@@ -2362,7 +2373,7 @@ function renderTracker(){
   var pct=filtered.length?Math.round(sent.length/filtered.length*100):0;
   sumEl.innerHTML='<div class="track-sum"><div class="ts-cell s"><div class="ts-n">'+sent.length+'</div><div class="ts-l">Sent</div></div><div class="ts-cell u"><div class="ts-n">'+unsent.length+'</div><div class="ts-l">Pending</div></div><div class="ts-cell"><div class="ts-n">'+filtered.length+'</div><div class="ts-l">Total</div></div></div><div class="prog-sm"><div class="prog-sm-fill" style="width:'+pct+'%"></div></div>';
   function bPip(h,i,k,label){var done=!!(h.tracked||{})[k];return'<div class="pip'+(done?' done':'')+'" data-i="'+i+'" data-k="'+k+'"><span class="pip-lbl">'+label+'</span><span class="pip-time">'+(done?h.tracked[k]:'—')+'</span></div>';}
-  function bGroup(items){return items.map(function(h){var i=mem.indexOf(h);return'<div class="track-card '+(!!h.tracked.waSent?'sent-row':'unsent-row')+'"><div class="track-top"><span class="track-name">'+h.name+'</span>'+(h.sender==='Elnur'?'<span class="chip chip-e">E</span>':'<span class="chip chip-a">A</span>')+(h.hasParty?'<span class="chip chip-type">Full Day</span>':'')+'<span class="chip chip-lang">'+h.ll+'</span></div><div class="pip-row">'+bPip(h,i,'linkCopied','Link')+bPip(h,i,'msgCopied','Copied')+bPip(h,i,'waSent','Sent')+'</div><div class="track-footer"><span class="track-url">'+h.url+'</span><div class="track-acts"><button class="t-act resend" data-i="'+i+'">Resend</button><button class="t-act del" data-i="'+i+'">✕</button></div></div></div>';}).join('');}
+  function bGroup(items){return items.map(function(h){var i=mem.indexOf(h);return'<div class="track-card '+(!!h.tracked.waSent?'sent-row':'unsent-row')+'"><div class="track-top"><span class="track-name">'+h.name+'</span>'+(h.sender==='Elnur'?'<span class="chip chip-e">E</span>':'<span class="chip chip-a">A</span>')+(h.hasParty?'<span class="chip chip-type">Party</span>':'')+'<span class="chip chip-lang">'+h.ll+'</span></div><div class="pip-row">'+bPip(h,i,'linkCopied','Link')+bPip(h,i,'msgCopied','Copied')+bPip(h,i,'waSent','Sent')+'</div><div class="track-footer"><span class="track-url">'+h.url+'</span><div class="track-acts"><button class="t-act resend" data-i="'+i+'">Resend</button><button class="t-act del" data-i="'+i+'">✕</button></div></div></div>';}).join('');}
   var html='';
   if(unsent.length)html+='<div class="g-group-hdr">Pending ('+unsent.length+')</div>'+bGroup(unsent);
   if(sent.length)html+='<div class="g-group-hdr sent">Sent ('+sent.length+')</div>'+bGroup(sent);
@@ -2420,18 +2431,29 @@ function checkForUpdate(){
       var m=html.match(/APP_VERSION='([^']+)'/);
       if(!m)return;
       var remote=m[1];
-      if(remote!==APP_VERSION){
-        var banner=document.getElementById('updateBanner');
-        banner.style.display='flex';
-        setTimeout(function(){banner.classList.add('show');},50);
-        document.getElementById('updateReloadBtn').onclick=function(){
+      if(remote===APP_VERSION)return;
+      // Major version = everything up to the last segment (e.g. "2026.06.09" from "2026.06.09.9")
+      function majorVer(v){var parts=v.split('.');return parts.slice(0,3).join('.');}
+      var localMajor=majorVer(APP_VERSION),remoteMajor=majorVer(remote);
+      if(remoteMajor!==localMajor){
+        // Major change → force reload silently after a brief delay
+        showActivityToast('Major update detected — reloading…');
+        setTimeout(function(){
           window.location.href=window.location.href.split('?')[0]+'?v='+remote;
-        };
-        document.getElementById('updateDismissBtn').onclick=function(){
-          banner.classList.remove('show');
-          setTimeout(function(){banner.style.display='none';},300);
-        };
+        }, 2500);
+        return;
       }
+      // Minor change → show banner as before
+      var banner=document.getElementById('updateBanner');
+      banner.style.display='flex';
+      setTimeout(function(){banner.classList.add('show');},50);
+      document.getElementById('updateReloadBtn').onclick=function(){
+        window.location.href=window.location.href.split('?')[0]+'?v='+remote;
+      };
+      document.getElementById('updateDismissBtn').onclick=function(){
+        banner.classList.remove('show');
+        setTimeout(function(){banner.style.display='none';},300);
+      };
     })
     .catch(function(){});
 }
