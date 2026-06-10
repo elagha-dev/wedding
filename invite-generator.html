@@ -218,12 +218,12 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-group-hdr.g-group-sub{font-size:8px;opacity:.6;padding:4px 2px 3px;margin-top:2px}
 
 /* Swipe wrapper — carries the border so it wraps card + action buttons as one unit */
-.g-swipe-wrap{position:relative;border-radius:var(--r-sm);overflow:hidden;border:1.5px solid var(--parchment);box-shadow:var(--shadow-sm)}
+.g-swipe-wrap{position:relative;border-radius:var(--r-sm);overflow:hidden;border:1.5px solid var(--parchment);box-shadow:var(--shadow-sm);background:#fff}
 .g-swipe-bg{display:none}
 .g-swipe-bg-right,.g-swipe-bg-left,.g-swipe-bg-txt{display:none}
 /* Action panels sit behind the card — same height, flush edges, radius only on the exposed corners */
-.g-swipe-action-right{position:absolute;right:0;top:0;bottom:0;width:68px;background:var(--green);display:none;align-items:center;justify-content:center;flex-direction:column;gap:3px;cursor:pointer;pointer-events:none;border-radius:0 var(--r-sm) var(--r-sm) 0;overflow:hidden}
-.g-swipe-action-left{position:absolute;left:0;top:0;bottom:0;width:68px;background:#E8A838;display:none;align-items:center;justify-content:center;flex-direction:column;gap:3px;cursor:pointer;pointer-events:none;border-radius:var(--r-sm) 0 0 var(--r-sm);overflow:hidden}
+.g-swipe-action-right{position:absolute;right:0;top:0;bottom:0;width:68px;background:var(--green);display:none;align-items:center;justify-content:center;flex-direction:column;gap:3px;cursor:pointer;pointer-events:none;overflow:hidden}
+.g-swipe-action-left{position:absolute;left:0;top:0;bottom:0;width:68px;background:#E8A838;display:none;align-items:center;justify-content:center;flex-direction:column;gap:3px;cursor:pointer;pointer-events:none;overflow:hidden}
 .g-swipe-action-right.undo-action{background:var(--amber)}
 .g-swipe-action-left.undo-action{background:var(--amber)}
 .g-swipe-action-txt{font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.9);line-height:1}
