@@ -276,7 +276,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .chip-sender-corner{font-size:8px;padding:2px 7px;height:18px;opacity:.85}
 .g-corner-actions .g-del{position:static;top:auto;right:auto}
 /* Sender badge bottom-right */
-.g-sender-br{position:absolute;top:8px;right:28px;font-size:8px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 6px;border-radius:var(--r-pill);height:18px;display:inline-flex;align-items:center;opacity:.75}
+.g-sender-br{position:static;font-size:8px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 6px;border-radius:var(--r-pill);height:18px;display:inline-flex;align-items:center;opacity:.75}
 .g-sender-br.a{background:var(--arina-bg);color:var(--arina-txt)}
 .g-sender-br.e{background:var(--elnur-bg);color:var(--elnur-txt)}
 .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none;flex-shrink:0;z-index:1;transition:opacity .15s}
@@ -1495,13 +1495,15 @@ function buildGuestCard(g){
       +'<div class="g-inner">'
         +'<div class="g-ring">'+(isSel?'✓':'')+'</div>'
         +'<div class="g-main">'
-          +'<div class="g-name-row" style="padding-right:0;flex-wrap:nowrap">'
+          +'<div class="g-name-row" style="padding-right:0;flex-wrap:nowrap;align-items:center">'
             +'<span class="g-name" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+g.name+'</span>'
             +tC+claimC
-            +'<div class="g-inline-btns" style="display:flex;gap:4px;flex-shrink:0;margin-left:6px">'
+            +'<div style="display:flex;gap:4px;flex-shrink:0;align-items:center;margin-left:8px">'
+              +(g.sender?'<span class="g-sender-br '+senderCls+'">'+(g.sender==='Arina'?'A':'E')+'</span>':'')
               +'<button class="ga-btn ga-btn-wa'+(g.sent?' done':'')+'" data-qi="'+ri+'" data-action="wa" title="Send WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.556 4.121 1.528 5.855L.057 23.882a.5.5 0 0 0 .614.612l6.094-1.597A11.937 11.937 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.808 9.808 0 0 1-5.032-1.384l-.36-.214-3.733.979.995-3.63-.234-.374A9.808 9.808 0 0 1 2.182 12C2.182 6.57 6.57 2.182 12 2.182c5.43 0 9.818 4.388 9.818 9.818 0 5.43-4.388 9.818-9.818 9.818z"/></svg></button>'
               +'<button class="ga-btn'+(claimedByMe?' ga-btn-flag flagged':claimedByOther?' ga-btn-flag':' ga-btn-flag')+(claimedBy&&!claimedByOther?' flagged':'')+'" data-qi="'+ri+'" data-action="claim" title="'+(claimedByMe?'Mine':claimedByOther?claimedBy:'Claim')+'">'+(claimedByMe?'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>':claimedByOther?'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>':'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>')+'</button>'
               +'<button class="ga-btn ga-btn-flag'+(g.followup?' flagged':'')+'" data-qi="'+ri+'" data-action="flag" title="'+(g.followup?'Flagged':'Follow Up')+'">'+(g.followup?'<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M4 3h16l-3 6 3 6H4V3z"/><rect x="3" y="3" width="2" height="18" rx="1"/></svg>':'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3h16l-3 6 3 6H4V3z"/><line x1="4" y1="21" x2="4" y2="3"/></svg>')+'</button>'
+              +'<button class="g-del" data-qi="'+ri+'" data-action="del" style="position:static;width:16px;height:16px">×</button>'
             +'</div>'
           +'</div>'
           +'<div class="g-tags">'+lC+rC+cC+'</div>'
@@ -1509,8 +1511,6 @@ function buildGuestCard(g){
         +'</div>'
       +'</div>'
       +(isPending?'<div class="g-confirm"><span class="g-confirm-msg">Did you send it?</span><button class="g-confirm-yes" data-qi="'+ri+'" data-action="confirm-yes">Yes, sent</button><button class="g-confirm-no" data-qi="'+ri+'" data-action="confirm-no">Cancel</button></div>':'')
-      +sBR
-      +'<button class="g-del" data-qi="'+ri+'" data-action="del">×</button>'
     +'</div>'
   +'</div>';
 }
