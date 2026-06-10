@@ -3176,22 +3176,17 @@ function showActivityToast(msg){
     }
 
     var reversed = rows.slice().reverse();
-    // Classify: "both" = attending church AND party, "church" = church only
+    function isTruthy(v){ var s=(v||'').toString().trim().toLowerCase(); return s==='yes'||s==='true'||s==='1'||s===1; }
     var both = reversed.filter(function(r){
-      var church = (r['Church'] || r['Ceremony Attendance'] || '').toString().trim().toLowerCase();
-      var party  = (r['Party'] || r['Party Attending'] || '').toString().trim().toLowerCase();
-      // if dedicated columns exist, use them; otherwise fall back to single attendance field
       if(r['Church'] !== undefined || r['Party'] !== undefined){
-        return (church === 'yes' || church === 'true') && (party === 'yes' || party === 'true');
+        return isTruthy(r['Church']) && isTruthy(r['Party']);
       }
       var att = (r['Ceremony Attendance'] || r['Party Attending'] || r.attendance || '').toString().toLowerCase();
       return att.indexOf('both') !== -1 || att.indexOf('party') !== -1;
     });
     var churchOnly = reversed.filter(function(r){
-      var church = (r['Church'] || r['Ceremony Attendance'] || '').toString().trim().toLowerCase();
-      var party  = (r['Party'] || r['Party Attending'] || '').toString().trim().toLowerCase();
       if(r['Church'] !== undefined || r['Party'] !== undefined){
-        return (church === 'yes' || church === 'true') && !(party === 'yes' || party === 'true');
+        return isTruthy(r['Church']) && !isTruthy(r['Party']);
       }
       var att = (r['Ceremony Attendance'] || r['Party Attending'] || r.attendance || '').toString().toLowerCase();
       return att.indexOf('church') !== -1 && att.indexOf('both') === -1;
