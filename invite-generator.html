@@ -3193,32 +3193,47 @@ function showActivityToast(msg){
       var att = (r['Ceremony Attendance'] || r['Party Attending'] || r.attendance || '').toString().toLowerCase();
       return att.indexOf('church') !== -1 && att.indexOf('both') === -1;
     });
+    var categorised = both.concat(churchOnly);
+    var uncategorised = reversed.filter(function(r){
+      return categorised.indexOf(r) === -1;
+    });
 
-    var html = '';
-
-    html += '<div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:4px 2px 8px;display:flex;align-items:center;gap:8px">'
-      + 'Church &amp; Party'
-      + '<span style="flex:1;height:1px;background:var(--parchment);display:inline-block"></span>'
-      + '<span style="background:var(--green-bg);color:var(--green);border-radius:100px;padding:1px 8px;font-size:9px;font-weight:700">' + both.length + '</span>'
-      + '</div>';
-    if(both.length){
-      html += both.map(entryHtml).join('');
-    } else {
-      html += '<div class="rsvp-empty" style="padding:16px 8px;font-size:12px">None yet</div>';
+    function sectionHtml(id, label, items, badgeBg, badgeColor, topPad){
+      var entriesHtml = items.length
+        ? items.map(entryHtml).join('')
+        : '<div class="rsvp-empty" style="padding:16px 8px;font-size:12px">None yet</div>';
+      return '<div>'
+        + '<div class="rsvp-sec-hdr" data-sec="' + id + '" '
+        + 'style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:' + (topPad||'4px') + ' 2px 8px;display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none">'
+        + label
+        + '<span style="flex:1;height:1px;background:var(--parchment);display:inline-block"></span>'
+        + '<span style="background:' + badgeBg + ';color:' + badgeColor + ';border-radius:100px;padding:1px 8px;font-size:9px;font-weight:700">' + items.length + '</span>'
+        + '<span class="rsvp-chev" style="font-size:8px;color:var(--soft);transition:transform .2s;display:inline-block;line-height:1">&#9650;</span>'
+        + '</div>'
+        + '<div class="rsvp-sec-body" id="rsvp-sec-' + id + '">' + entriesHtml + '</div>'
+        + '</div>';
     }
 
-    html += '<div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:16px 2px 8px;display:flex;align-items:center;gap:8px;margin-top:4px">'
-      + 'Church Only'
-      + '<span style="flex:1;height:1px;background:var(--parchment);display:inline-block"></span>'
-      + '<span style="background:var(--amber-bg);color:var(--amber);border-radius:100px;padding:1px 8px;font-size:9px;font-weight:700">' + churchOnly.length + '</span>'
-      + '</div>';
-    if(churchOnly.length){
-      html += churchOnly.map(entryHtml).join('');
-    } else {
-      html += '<div class="rsvp-empty" style="padding:16px 8px;font-size:12px">None yet</div>';
+    var html = '';
+    html += sectionHtml('both',   'Church &amp; Party',    both,          'var(--green-bg)',  'var(--green)',  '4px');
+    html += sectionHtml('church', 'Church Only',            churchOnly,    'var(--amber-bg)',  'var(--amber)',  '16px');
+    if(uncategorised.length){
+      html += sectionHtml('other', 'Other / Uncategorised', uncategorised, 'var(--cream2)', 'var(--muted)', '16px');
     }
 
     body.innerHTML = html;
+
+    // Wire collapse toggles
+    body.querySelectorAll('.rsvp-sec-hdr').forEach(function(hdr){
+      hdr.addEventListener('click', function(){
+        var sec = document.getElementById('rsvp-sec-' + hdr.dataset.sec);
+        var chev = hdr.querySelector('.rsvp-chev');
+        if(!sec) return;
+        var open = sec.style.display !== 'none';
+        sec.style.display = open ? 'none' : '';
+        if(chev) chev.style.transform = open ? 'rotate(180deg)' : 'rotate(0deg)';
+      });
+    });
   }
 
   // Poll for changes
