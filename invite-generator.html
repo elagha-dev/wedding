@@ -431,6 +431,8 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 @keyframes spin{to{transform:rotate(360deg)}}
 .settings-btn{width:32px;height:32px;border-radius:50%;background:var(--cream2);border:1.5px solid var(--parchment);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--ease)}
 .settings-btn:hover{border-color:var(--rose);color:var(--rose);transform:rotate(30deg)}
+.rsvp-btn{width:32px;height:32px;border-radius:50%;background:#FF6B00;border:1.5px solid #E55A00;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--ease);text-decoration:none;box-shadow:0 2px 10px rgba(255,107,0,.35)}
+.rsvp-btn:hover{background:#E55A00;transform:translateY(-1px);box-shadow:0 4px 16px rgba(255,107,0,.5)}
 .stat-pill{display:flex;align-items:center;justify-content:center;min-width:30px;height:32px;padding:0 8px;border-radius:var(--r-pill);border:1.5px solid var(--parchment);background:var(--cream2);font-family:var(--sans);font-size:10.5px;font-weight:700;color:var(--muted);flex-shrink:0;transition:all var(--ease);line-height:1}
 .stat-pill.total{color:var(--ink2);border-color:rgba(61,46,36,.18)}
 .stat-pill.sent{color:var(--green);border-color:rgba(58,140,92,.25);background:var(--green-bg);cursor:pointer}
@@ -568,10 +570,21 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
   </button>
   <!-- Dev mode -->
   <button class="dev-btn" id="devBtn" title="Dev mode"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+  <!-- RSVP List -->
+  <a class="rsvp-btn" id="rsvpBtn" href="https://docs.google.com/spreadsheets/d/1plydb1KSGgwbxCZzmSD8e12f-Rzzm9-dOlFml4ivUKQ/edit?usp=drivesdk" target="_blank" rel="noreferrer" title="RSVP &amp; B&amp;S List">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+  </a>
   <!-- Settings -->
   <button class="settings-btn" id="settingsBtn" title="Settings">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
   </button>
+</div>
+
+<!-- SYNC INFO BANNER -->
+<div id="syncInfoBanner" style="display:flex;background:linear-gradient(135deg,#F2D8CC,#EDD5C5);color:var(--ink2);padding:9px 14px 9px 16px;font-family:var(--sans);font-size:11.5px;font-weight:500;line-height:1.4;align-items:center;gap:10px;border-bottom:1px solid rgba(201,135,106,.2)">
+  <span style="font-size:15px;flex-shrink:0">🔄</span>
+  <span style="flex:1">Changes sync across all devices in <strong style="color:var(--rose-deep)">~30 seconds</strong> — both ways. What you change here will appear on other devices shortly.</span>
+  <button onclick="(function(){var b=document.getElementById('syncInfoBanner');b.style.opacity='0';b.style.transition='opacity .3s';setTimeout(function(){b.style.display='none';try{sessionStorage.setItem('syncBannerDismissed','1')}catch(e){}},300)})()" style="background:rgba(160,97,74,.15);border:1px solid rgba(160,97,74,.3);color:var(--rose-deep);border-radius:50%;width:22px;height:22px;font-size:14px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:var(--sans);transition:background .2s" onmouseover="this.style.background='rgba(160,97,74,.25)'" onmouseout="this.style.background='rgba(160,97,74,.15)'">×</button>
 </div>
 
 <div class="wrap">
@@ -882,6 +895,10 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
           <option value="30">30 min</option>
           <option value="60">1 hour</option>
         </select>
+      </div>
+      <div class="s-row">
+        <div class="s-row-info"><div class="s-row-title">RSVP &amp; B&amp;S List</div><div class="s-row-sub">Opens from the ✓ button in toolbar</div></div>
+        <a href="https://docs.google.com/spreadsheets/d/1plydb1KSGgwbxCZzmSD8e12f-Rzzm9-dOlFml4ivUKQ/edit?usp=drivesdk" target="_blank" rel="noreferrer" style="font-size:10.5px;font-weight:600;color:var(--green);text-decoration:none;padding:5px 12px;border-radius:var(--r-pill);background:var(--green-bg);border:1.5px solid rgba(58,140,92,.3);white-space:nowrap;transition:all var(--ease)" onmouseover="this.style.background='rgba(58,140,92,.18)'" onmouseout="this.style.background='var(--green-bg)'">Open Sheet ↗</a>
       </div>
     </div>
 
@@ -2899,6 +2916,11 @@ function doSyncSilent(){
 })();
 
 
+/* ── SYNC INFO BANNER ── */
+(function(){
+  try{ if(sessionStorage.getItem('syncBannerDismissed')){ document.getElementById('syncInfoBanner').style.display='none'; } } catch(e){}
+})();
+
 /* ── ACTIVITY TOAST ── */
 function showActivityToast(msg){
   var t = document.getElementById('activityToast');
@@ -3042,6 +3064,57 @@ function showActivityToast(msg){
       document.body.classList.remove('dev-mode');
     }
   });
+})();
+
+/* ── RSVP CHANGE NOTIFIER ── */
+(function(){
+  var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwTXSvlokP2p8Htn2K4BuuxpfEix2xJckTKjp068hjSkpk0mTut9DNs130KfofyZcM9QA/exec';
+  var POLL_INTERVAL = 30000;
+  var STORAGE_KEY = 'rsvpLastCount';
+
+  var banner = document.createElement('div');
+  banner.id = 'rsvpChangeBanner';
+  banner.style.cssText = 'display:none;background:linear-gradient(135deg,#FDE8EE,#F9D4E0);color:#9B1A44;padding:9px 14px 9px 16px;font-family:var(--sans);font-size:11.5px;font-weight:500;line-height:1.4;align-items:center;gap:10px;border-bottom:1px solid rgba(155,26,68,.15)';
+  banner.innerHTML = '<span style="font-size:15px;flex-shrink:0">\uD83C\uDF89</span><span id="rsvpBannerText" style="flex:1"></span><a href="https://docs.google.com/spreadsheets/d/1plydb1KSGgwbxCZzmSD8e12f-Rzzm9-dOlFml4ivUKQ/edit" target="_blank" style="color:#9B1A44;font-weight:700;text-decoration:none;white-space:nowrap;padding:3px 10px;border-radius:100px;background:rgba(155,26,68,.1);border:1px solid rgba(155,26,68,.2);margin-right:6px">View \u2197</a><button onclick="document.getElementById(\'rsvpChangeBanner\').style.display=\'none\'" style="background:rgba(155,26,68,.12);border:1px solid rgba(155,26,68,.2);color:#9B1A44;border-radius:50%;width:22px;height:22px;font-size:14px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center">\u00D7</button>';
+
+  var syncBanner = document.getElementById('syncInfoBanner');
+  if(syncBanner && syncBanner.parentNode){
+    syncBanner.parentNode.insertBefore(banner, syncBanner.nextSibling);
+  }
+
+  function getCount(){
+    return fetch(SCRIPT_URL + '?action=stats')
+      .then(function(r){ return r.json(); })
+      .then(function(d){ return (d.rsvpCount !== undefined) ? d.rsvpCount : null; })
+      .catch(function(){ return null; });
+  }
+
+  function showBanner(newCount, oldCount){
+    var diff = newCount - oldCount;
+    var txt = document.getElementById('rsvpBannerText');
+    txt.innerHTML = diff > 0
+      ? '<strong>' + diff + ' new RSVP' + (diff > 1 ? 's' : '') + '</strong> just came in \u2014 ' + newCount + ' total responses'
+      : 'RSVP sheet was updated \u2014 <strong>' + newCount + ' total responses</strong>';
+    banner.style.display = 'flex';
+  }
+
+  function poll(){
+    getCount().then(function(count){
+      if(count === null) return;
+      var stored = localStorage.getItem(STORAGE_KEY);
+      if(stored === null){
+        localStorage.setItem(STORAGE_KEY, count);
+      } else {
+        var prev = parseInt(stored, 10);
+        if(count !== prev){
+          showBanner(count, prev);
+          localStorage.setItem(STORAGE_KEY, count);
+        }
+      }
+    });
+  }
+
+  setTimeout(function(){ poll(); setInterval(poll, POLL_INTERVAL); }, 5000);
 })();
 
 </script>
