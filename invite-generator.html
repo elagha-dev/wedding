@@ -267,7 +267,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .ga-btn{width:28px;height:28px;border-radius:50%;font-size:12px;font-family:var(--sans);cursor:pointer;border:1.5px solid var(--parchment);background:var(--cream);color:var(--muted);transition:all var(--ease);display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative}
 .ga-btn:hover{border-color:var(--blush);color:var(--ink2);background:#fff}
 .ga-btn svg{width:11px;height:11px}
-.ga-btn-wa{background:#25D366;border-color:#25D366;color:#fff;width:auto;border-radius:var(--r-pill);padding:0 12px;font-size:9px;font-weight:700;letter-spacing:.06em;height:28px;gap:4px;display:flex;align-items:center}.ga-btn-wa svg{width:10px;height:10px}.ga-btn-wa:hover{background:#20BD5A;border-color:#20BD5A}.ga-btn-wa.done{background:var(--green);border-color:var(--green)}
+.ga-btn-wa{background:#fff;border-color:#25D366;color:#25D366}.ga-btn-wa svg{width:14px;height:14px}.ga-btn-wa:hover{background:#25D366;border-color:#25D366;color:#fff}.ga-btn-wa.done{border-color:var(--green);color:var(--green)}.ga-btn-wa.done:hover{background:var(--green);color:#fff}
 .ga-btn-flag.flagged{background:var(--amber-bg);border-color:rgba(176,120,48,.3);color:var(--amber)}
 .ga-btn-note.has-note{border-color:rgba(176,120,48,.3);color:var(--amber)}
 .g-del{position:absolute;top:8px;right:8px;width:16px;height:16px;border-radius:50%;border:none;background:none;color:var(--soft);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--ease);line-height:1;padding:0}.g-del:hover{color:var(--red);background:var(--red-bg)}
@@ -1240,6 +1240,7 @@ function toTitleCase(s){return(s||'').trim().replace(/\S+/g,function(w){return w
 function firstName(n){var w=(n||'').trim().split(/[\s&]+/)[0];if(!w)return'';return w.charAt(0).toUpperCase()+w.slice(1).toLowerCase();}
 function lastName(n){var parts=(n||'').trim().split(/\s+/);return parts.length>1?parts[parts.length-1]:'';}
 function pairDisplayName(n1,n2){var ln1=lastName(n1),ln2=lastName(n2);if(ln1&&ln2&&ln1.toLowerCase()===ln2.toLowerCase())return firstName(n1)+' & '+firstName(n2)+' '+ln1;return n1+' & '+n2;}
+function fmtSentAt(s){if(!s)return'';try{var d=new Date(s);if(isNaN(d))return s;var day=String(d.getDate()).padStart(2,'0'),mon=String(d.getMonth()+1).padStart(2,'0');return day+'.'+mon;}catch(e){return s;}}
 function buildUrl(p1,p2,type,lang){var n1=firstName(p1).toLowerCase(),n2=p2?firstName(p2).toLowerCase():'';var isP=type==='ceremony-party-single'||type==='couple-party';var q=new URLSearchParams();q.set('w',n2?n1+'-'+n2:n1);if(isP)q.set('v','1');if(lang&&lang!=='en')q.set('lang',lang);return BASE+'?'+q.toString();}
 function buildMsg(name,type,lang,url){var isP=type==='ceremony-party-single'||type==='couple-party';var l=msgs[lang]||msgs.en;return(isP?l.party:l.ceremony).replace('{n}',name).replace('{u}',url);}
 function ts(){var d=new Date();var day=String(d.getDate()).padStart(2,'0'),mon=String(d.getMonth()+1).padStart(2,'0');return day+'.'+mon+' '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});}
@@ -1428,8 +1429,8 @@ function buildPairSentCard(g1,g2){
   var senderCls=g1.sender==='Arina'?'chip-a':'chip-e';
   var senderLbl=g1.sender==='Arina'?'A':'E';
   var senderChip=g1.sender?('<span class="chip '+senderCls+' chip-sender-corner">'+senderLbl+'</span>'):'';
-  var sentLetter=g1.sentBy==='Arina'?'A':g1.sentBy==='Elnur'?'E':'';
-  var sentTime=g1.sentAt?'<span class="g-sent-time">'+g1.sentAt+(sentLetter?' · '+sentLetter:'')+'</span>':'';
+  var sentLetter1=g1.sentBy==='Arina'?'A':g1.sentBy==='Elnur'?'E':'';
+  var sentTime=g1.sentAt?'<span class="g-sent-time">'+fmtSentAt(g1.sentAt)+(sentLetter1?' · '+sentLetter1:'')+'</span>':'';
   var pairName=pairDisplayName(g1.name,g2.name);
   return '<div class="g-swipe-wrap">'
     +'<div class="g-card sent">'
@@ -1466,7 +1467,7 @@ function buildGuestCard(g){
   var rC=g.confirmed?'<span class="chip chip-rsvp">RSVP</span>':'';
   var cC=g.isChild?'<span class="chip chip-child">Child</span>':'';
   var claimC=claimedBy?('<span class="claim-badge claim-badge-'+(claimedBy==='Arina'?'a':'e')+'"><span class="claim-dot claim-dot-'+(claimedBy==='Arina'?'a':'e')+'"></span>'+(claimedByMe?'You':''+claimedBy)+'</span>'):'';
-  var sentBy=g.sentBy?g.sentBy:'';var sentLetter=sentBy==='Arina'?'A':sentBy==='Elnur'?'E':'';var sentTime=g.sent&&g.sentAt?'<span class="g-sent-time">'+g.sentAt+(sentLetter?' · '+sentLetter:'')+'</span>':'';
+  var sentBy=g.sentBy?g.sentBy:'';var sentLetter=sentBy==='Arina'?'A':sentBy==='Elnur'?'E':'';var sentTime=g.sent&&g.sentAt?'<span class="g-sent-time">'+fmtSentAt(g.sentAt)+(sentLetter?' · '+sentLetter:'')+'</span>':'';
 
   // Sent cards: slim — just name, time, undo button in corner, no swipe
   if(g.sent){
@@ -1499,7 +1500,7 @@ function buildGuestCard(g){
           +(g.note?'<div class="g-note">'+g.note+'</div>':'')
 
           +'<div class="g-actions">'
-            +'<button class="ga-btn ga-btn-wa'+(g.sent?' done':'')+'" data-qi="'+ri+'" data-action="wa" title="Send WhatsApp">'+(g.sent?'↩ Resend':'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/></svg> Send')+'</button>'
+            +'<button class="ga-btn ga-btn-wa'+(g.sent?' done':'')+'" data-qi="'+ri+'" data-action="wa" title="Send WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.556 4.121 1.528 5.855L.057 23.882a.5.5 0 0 0 .614.612l6.094-1.597A11.937 11.937 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.808 9.808 0 0 1-5.032-1.384l-.36-.214-3.733.979.995-3.63-.234-.374A9.808 9.808 0 0 1 2.182 12C2.182 6.57 6.57 2.182 12 2.182c5.43 0 9.818 4.388 9.818 9.818 0 5.43-4.388 9.818-9.818 9.818z"/></svg></button>'
             +'<button class="ga-btn'+(claimedByMe?' ga-btn-flag flagged':claimedByOther?' ga-btn-flag':' ga-btn-flag')+(claimedBy&&!claimedByOther?' flagged':'')+'" data-qi="'+ri+'" data-action="claim" title="'+(claimedByMe?'Mine':claimedByOther?claimedBy:'Claim')+'">'+(claimedByMe?'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>':claimedByOther?'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>':'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>')+'</button>'
             +'<button class="ga-btn ga-btn-flag'+(g.followup?' flagged':'')+'" data-qi="'+ri+'" data-action="flag" title="'+(g.followup?'Flagged':'Follow Up')+'">'+(g.followup?'<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M4 3h16l-3 6 3 6H4V3z"/><rect x="3" y="3" width="2" height="18" rx="1"/></svg>':'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3h16l-3 6 3 6H4V3z"/><line x1="4" y1="21" x2="4" y2="3"/></svg>')+'</button>'
             +'<button class="ga-btn ga-btn-note'+(g.note?' has-note':'')+'" data-qi="'+ri+'" data-action="note" title="Note"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>'
@@ -1839,6 +1840,7 @@ function doGroupSend(guests,phone,msgLang){
     guests[0].sentGroupId=groupId;guests[1].sentGroupId=groupId;
   }
   guests.forEach(function(g){g.pendingSent=true;g.followup=true;});selectedIdxs=[];saveGuestMeta();renderGuestList();renderDashboard();
+  if(guests.length>1){guests.forEach(function(g){_pushWithRetry('/meta',{name:g.name,bulkWith:g.bulkWith,sentGroupId:g.sentGroupId},'meta:'+g.name);});}
 }
 
 /* ══ FAB + QUICK SEND ════════════════════════ */
@@ -2167,7 +2169,9 @@ function startAutoPoll(){
       .then(function(r){if(!r.ok)throw new Error();return r.json();})
       .then(function(data){
         if(!data.state)return;
-        if(data.ts===_lastStateTs)return; // nothing changed
+        var _stateHash=JSON.stringify(data.state);
+        if(_stateHash===_lastStateTs)return;
+        _lastStateTs=_stateHash;
         var state=data.state;
         var changed=[];
         importQueue.forEach(function(g){
@@ -2193,13 +2197,14 @@ function startAutoPoll(){
           if(remote.claim!==undefined&&remote.claim!==g.claim){
             g.claim=remote.claim;dirty=true;
           }
+          if(remote.bulkWith!==undefined&&remote.bulkWith&&!g.bulkWith){g.bulkWith=remote.bulkWith;dirty=true;}
+          if(remote.sentGroupId!==undefined&&remote.sentGroupId&&!g.sentGroupId){g.sentGroupId=remote.sentGroupId;dirty=true;}
           if(remote.sentBy!==undefined&&remote.sentBy!==g.sentBy){
             g.sentBy=remote.sentBy;
           }
           if(dirty)changed.push(g.name);
         });
         if(changed.length){
-          _lastStateTs=data.ts;
           try{localStorage.setItem('ww_pending',JSON.stringify(importQueue));}catch(e){}
           saveGuestMeta();
           renderGuestList();
@@ -2210,12 +2215,11 @@ function startAutoPoll(){
             var _cg=importQueue.find(function(g){return g.name===changed[_ci];});
             if(_cg&&_cg.sentBy){changedBy=_cg.sentBy;break;}
           }
-          if(!changedBy)changedBy=sessionSender==='Arina'?'Elnur':'Arina';
-          showActivityToast(
-            changed.length===1
-              ? changed[0]+' updated by '+changedBy+' on another device'
-              : changed.length+' guests updated by '+changedBy+' on another device'
-          );
+          if(changedBy&&changedBy!==sessionSender){
+            showActivityToast(changed.length===1?changed[0]+' updated by '+changedBy+' on another device':changed.length+' guests updated by '+changedBy+' on another device');
+          } else if(!changedBy){
+            showActivityToast(changed.length===1?changed[0]+' updated on another device':changed.length+' guests updated on another device');
+          }
         }
       })
       .catch(function(){}); // silent fail
