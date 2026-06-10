@@ -3179,24 +3179,23 @@ function showActivityToast(msg){
 
     var reversed = rows.slice().reverse();
     function isTruthy(v){ var s=(v||'').toString().trim().toLowerCase(); return s==='yes'||s==='true'||s==='1'||s===1; }
-    var both = reversed.filter(function(r){
-      if(r['Church'] !== undefined || r['Party'] !== undefined){
-        return isTruthy(r['Church']) && isTruthy(r['Party']);
-      }
+
+    // "Invited to Party=Yes" means church+venue; "No" means church only.
+    // Fall back to Church/Party booleans or attendance string for older schemas.
+    var withVenue = reversed.filter(function(r){
+      if(r['Invited to Party'] !== undefined) return isTruthy(r['Invited to Party']);
+      if(r['Church'] !== undefined || r['Party'] !== undefined) return isTruthy(r['Church']) && isTruthy(r['Party']);
       var att = (r['Ceremony Attendance'] || r['Party Attending'] || r.attendance || '').toString().toLowerCase();
-      return att.indexOf('both') !== -1 || att.indexOf('party') !== -1;
+      return att.indexOf('both') !== -1 || att.indexOf('party') !== -1 || att.indexOf('venue') !== -1;
     });
     var churchOnly = reversed.filter(function(r){
-      if(r['Church'] !== undefined || r['Party'] !== undefined){
-        return isTruthy(r['Church']) && !isTruthy(r['Party']);
-      }
+      if(r['Invited to Party'] !== undefined) return !isTruthy(r['Invited to Party']);
+      if(r['Church'] !== undefined || r['Party'] !== undefined) return isTruthy(r['Church']) && !isTruthy(r['Party']);
       var att = (r['Ceremony Attendance'] || r['Party Attending'] || r.attendance || '').toString().toLowerCase();
       return att.indexOf('church') !== -1 && att.indexOf('both') === -1;
     });
-    var categorised = both.concat(churchOnly);
-    var uncategorised = reversed.filter(function(r){
-      return categorised.indexOf(r) === -1;
-    });
+    var categorised = withVenue.concat(churchOnly);
+    var uncategorised = reversed.filter(function(r){ return categorised.indexOf(r) === -1; });
 
     function sectionHtml(id, label, items, badgeBg, badgeColor, topPad){
       var entriesHtml = items.length
@@ -3215,10 +3214,10 @@ function showActivityToast(msg){
     }
 
     var html = '';
-    html += sectionHtml('both',   'Church &amp; Party',    both,          'var(--green-bg)',  'var(--green)',  '4px');
-    html += sectionHtml('church', 'Church Only',            churchOnly,    'var(--amber-bg)',  'var(--amber)',  '16px');
+    html += sectionHtml('venue',  'Church &amp; Venue', withVenue,     'var(--green-bg)',  'var(--green)',  '4px');
+    html += sectionHtml('church', 'Church Only',         churchOnly,    'var(--amber-bg)',  'var(--amber)',  '16px');
     if(uncategorised.length){
-      html += sectionHtml('other', 'Other / Uncategorised', uncategorised, 'var(--cream2)', 'var(--muted)', '16px');
+      html += sectionHtml('other', 'Other',              uncategorised, 'var(--cream2)',    'var(--muted)',  '16px');
     }
 
     body.innerHTML = html;
