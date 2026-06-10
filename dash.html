@@ -1069,7 +1069,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 /* ══ CONFIG ══════════════════════════════════ */
 var BASE='https://www.arinaelnur.de/';
 var APP_VERSION='2026.06.09.9';
-var APP_UPDATE_URL='https://www.arinaelnur.de/invite-generator.html';
+var APP_UPDATE_URL='https://www.arinaelnur.de/dash.html';
 // Render version stamp bottom-right
 (function(){var el=document.getElementById('verStamp');if(el)el.textContent=APP_VERSION;})();
 
@@ -2479,7 +2479,7 @@ async function deployToGitHub(silent){
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         html: html,
-        message: 'Deploy invite-generator v' + APP_VERSION + ' — ' + new Date().toISOString().slice(0,16).replace('T',' ')
+        message: 'Deploy dash v' + APP_VERSION + ' — ' + new Date().toISOString().slice(0,16).replace('T',' ')
       })
     });
     var data = await res.json();
