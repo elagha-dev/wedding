@@ -3170,18 +3170,25 @@ function showActivityToast(msg){
       var name = r['Full Name'] || r['First Name'] || r.name || '—';
       var date = fmtDate(r['Date & Time'] || r.timestamp || '');
       var rawDump = Object.keys(r).map(function(k){ return k + '=' + JSON.stringify(r[k]); }).join(' | ');
+      var detailId = 'rsvp-det-' + Math.random().toString(36).slice(2);
       return '<div class="rsvp-entry">'
+        + '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer" onclick="(function(el){var d=document.getElementById('' + detailId + '');var chev=el.querySelector('.det-chev');var open=d.style.display!=='none';d.style.display=open?'none':'';chev.style.transform=open?'rotate(0deg)':' rotate(180deg)'})(this)">'
+        + '<div>'
         + '<div class="rsvp-entry-name">' + name + '</div>'
         + (date ? '<div class="rsvp-entry-meta">' + date + '</div>' : '')
-        + '<div class="rsvp-entry-meta" style="font-size:9px;color:var(--soft);word-break:break-all;margin-top:3px">' + rawDump + '</div>'
+        + '</div>'
+        + '<span class="det-chev" style="font-size:8px;color:var(--soft);transition:transform .2s;flex-shrink:0;line-height:1">&#9660;</span>'
+        + '</div>'
+        + '<div id="' + detailId + '" style="display:none;margin-top:6px;padding-top:6px;border-top:1px solid var(--parchment)">'
+        + '<div style="font-size:9px;color:var(--soft);word-break:break-all;line-height:1.6">' + rawDump + '</div>'
+        + '</div>'
         + '</div>';
     }
 
     var reversed = rows.slice().reverse();
     function isTruthy(v){ var s=(v||'').toString().trim().toLowerCase(); return s==='yes'||s==='true'||s==='1'||s===1; }
 
-    // "Invited to Party=Yes" means church+venue; "No" means church only.
-    // Fall back to Church/Party booleans or attendance string for older schemas.
+    // "Invited to Party=Yes" = church+venue; "No" = church only
     var withVenue = reversed.filter(function(r){
       if(r['Invited to Party'] !== undefined) return isTruthy(r['Invited to Party']);
       if(r['Church'] !== undefined || r['Party'] !== undefined) return isTruthy(r['Church']) && isTruthy(r['Party']);
@@ -3197,27 +3204,54 @@ function showActivityToast(msg){
     var categorised = withVenue.concat(churchOnly);
     var uncategorised = reversed.filter(function(r){ return categorised.indexOf(r) === -1; });
 
+    // Yes/No counts
+    function yesNo(arr){
+      var yes = arr.filter(function(r){
+        var att = (r['Ceremony Attendance'] || '').toString().toLowerCase();
+        return att === 'yes' || att === 'true' || att === '1';
+      }).length;
+      return { yes: yes, no: arr.length - yes };
+    }
+
     function sectionHtml(id, label, items, badgeBg, badgeColor, topPad){
+      var yn = yesNo(items);
+      var subBadges = items.length
+        ? '<span style="display:flex;align-items:center;gap:4px;flex-shrink:0">'
+          + '<span style="background:var(--green-bg);color:var(--green);border-radius:100px;padding:1px 7px;font-size:9px;font-weight:700">' + yn.yes + ' yes</span>'
+          + '<span style="background:var(--red-bg);color:var(--red);border-radius:100px;padding:1px 7px;font-size:9px;font-weight:700">' + yn.no + ' no</span>'
+          + '</span>'
+        : '';
       var entriesHtml = items.length
         ? items.map(entryHtml).join('')
-        : '<div class="rsvp-empty" style="padding:16px 8px;font-size:12px">None yet</div>';
+        : '<div class="rsvp-empty" style="padding:12px 8px;font-size:12px">None yet</div>';
       return '<div>'
         + '<div class="rsvp-sec-hdr" data-sec="' + id + '" '
-        + 'style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:' + (topPad||'4px') + ' 2px 8px;display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none">'
-        + label
+        + 'style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:' + (topPad||'4px') + ' 2px 8px;display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none">'
+        + '<span style="flex-shrink:0">' + label + '</span>'
         + '<span style="flex:1;height:1px;background:var(--parchment);display:inline-block"></span>'
-        + '<span style="background:' + badgeBg + ';color:' + badgeColor + ';border-radius:100px;padding:1px 8px;font-size:9px;font-weight:700">' + items.length + '</span>'
-        + '<span class="rsvp-chev" style="font-size:8px;color:var(--soft);transition:transform .2s;display:inline-block;line-height:1">&#9650;</span>'
+        + subBadges
+        + '<span style="background:' + badgeBg + ';color:' + badgeColor + ';border-radius:100px;padding:1px 8px;font-size:9px;font-weight:700;flex-shrink:0">' + items.length + '</span>'
+        + '<span class="rsvp-chev" style="font-size:8px;color:var(--soft);transition:transform .2s;display:inline-block;line-height:1;flex-shrink:0">&#9650;</span>'
         + '</div>'
         + '<div class="rsvp-sec-body" id="rsvp-sec-' + id + '">' + entriesHtml + '</div>'
         + '</div>';
     }
 
-    var html = '';
+    // Search bar + total
+    var searchId = 'rsvpSearch_' + Date.now();
+    var totalHtml = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">'
+      + '<div style="position:relative;flex:1">'
+      + '<svg style="position:absolute;left:9px;top:50%;transform:translateY(-50%);pointer-events:none" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--soft)" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>'
+      + '<input id="' + searchId + '" type="text" placeholder="Search guests…" style="width:100%;font-family:var(--sans);font-size:12px;padding:7px 10px 7px 28px;background:var(--cream2);border:1.5px solid var(--parchment);border-radius:var(--r-pill);color:var(--ink);outline:none" oninput="(function(q){document.querySelectorAll('.rsvp-entry').forEach(function(el){var name=el.querySelector('.rsvp-entry-name');el.style.display=(name&&name.textContent.toLowerCase().indexOf(q)!==-1)||!q?'':' none'})})(this.value.toLowerCase())">'
+      + '</div>'
+      + '<span style="font-size:10px;font-weight:700;color:var(--muted);white-space:nowrap;flex-shrink:0">' + rows.length + ' total</span>'
+      + '</div>';
+
+    var html = totalHtml;
     html += sectionHtml('venue',  'Church &amp; Venue', withVenue,     'var(--green-bg)',  'var(--green)',  '4px');
-    html += sectionHtml('church', 'Church Only',         churchOnly,    'var(--amber-bg)',  'var(--amber)',  '16px');
+    html += sectionHtml('church', 'Church Only',         churchOnly,    'var(--amber-bg)',  'var(--amber)',  '12px');
     if(uncategorised.length){
-      html += sectionHtml('other', 'Other',              uncategorised, 'var(--cream2)',    'var(--muted)',  '16px');
+      html += sectionHtml('other', 'Other',              uncategorised, 'var(--cream2)',    'var(--muted)',  '12px');
     }
 
     body.innerHTML = html;
