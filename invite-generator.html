@@ -218,7 +218,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-group-hdr.g-group-sub{font-size:8px;opacity:.6;padding:4px 2px 3px;margin-top:2px}
 
 /* Swipe wrapper — no overflow:hidden so action panels peek out from behind sliding card */
-.g-swipe-wrap{position:relative;border-radius:var(--r-sm);border:none;box-shadow:var(--shadow-sm);background:#fff}
+.g-swipe-wrap{position:relative;border-radius:var(--r-sm);border:none;box-shadow:var(--shadow-sm);background:#fff;overflow:hidden}
 .g-swipe-bg{display:none}
 .g-swipe-bg-right,.g-swipe-bg-left,.g-swipe-bg-txt{display:none}
 /* Action panels: fixed 88px wide, pinned to their edge, visible behind sliding card */
@@ -233,7 +233,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-swipe-wrap.sw-open-right .g-swipe-action-left{display:flex;pointer-events:all}
 
 /* Card sits above panels, slides to reveal them */
-.g-card{background:#fff;border-radius:var(--r-sm);border:none;box-shadow:none;overflow:hidden;cursor:pointer;transition:border-color var(--ease),box-shadow var(--ease);position:relative;z-index:1;touch-action:pan-y;will-change:transform}
+.g-card{background:#fff;border-radius:var(--r-sm);border:none;box-shadow:none;overflow:visible;cursor:pointer;transition:border-color var(--ease),box-shadow var(--ease);position:relative;z-index:1;touch-action:pan-y;will-change:transform}
 .g-swipe-wrap.sw-open-left .g-card{border-radius:0}
 .g-swipe-wrap.sw-open-right .g-card{border-radius:0}
 .g-card:not(.swiping):hover{box-shadow:none}
