@@ -217,17 +217,17 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-group-hdr.sent{color:var(--green)}
 .g-group-hdr.g-group-sub{font-size:8px;opacity:.6;padding:4px 2px 3px;margin-top:2px}
 
-/* Swipe wrapper — carries the border so it wraps card + action buttons as one unit */
-.g-swipe-wrap{position:relative;border-radius:var(--r-sm);overflow:hidden;border:1.5px solid var(--parchment);box-shadow:var(--shadow-sm);background:#fff}
+/* Swipe wrapper — no border, shadow only */
+.g-swipe-wrap{position:relative;border-radius:var(--r-sm);overflow:hidden;border:none;box-shadow:var(--shadow-sm);background:#fff}
 .g-swipe-bg{display:none}
 .g-swipe-bg-right,.g-swipe-bg-left,.g-swipe-bg-txt{display:none}
-/* Action panels sit behind the card — same height, flush edges, radius only on the exposed corners */
-.g-swipe-action-right{position:absolute;right:0;top:0;bottom:0;width:100%;background:var(--green);display:none;align-items:center;justify-content:flex-end;padding-right:24px;flex-direction:column;justify-content:center;gap:3px;cursor:pointer;pointer-events:none;overflow:hidden}
-.g-swipe-action-left{position:absolute;left:0;top:0;bottom:0;width:100%;background:#E8A838;display:none;align-items:center;justify-content:flex-start;padding-left:24px;flex-direction:column;justify-content:center;gap:3px;cursor:pointer;pointer-events:none;overflow:hidden}
+/* Action panels sit behind the card — same height, flush edges */
+.g-swipe-action-right{position:absolute;right:0;top:0;bottom:0;width:100%;background:var(--green);display:none;align-items:center;justify-content:flex-end;padding-right:24px;flex-direction:column;justify-content:center;gap:3px;cursor:pointer;pointer-events:none;z-index:1}
+.g-swipe-action-left{position:absolute;left:0;top:0;bottom:0;width:100%;background:#E8A838;display:none;align-items:center;justify-content:flex-start;padding-left:24px;flex-direction:column;justify-content:center;gap:3px;cursor:pointer;pointer-events:none;z-index:1}
 .g-swipe-action-right.undo-action{background:var(--amber)}
 .g-swipe-action-left.undo-action{background:var(--amber)}
-.g-swipe-action-txt{font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.9);line-height:1}
-.g-swipe-action-icon{width:18px;height:18px;display:flex;align-items:center;justify-content:center;color:#fff}
+.g-swipe-action-txt{font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#fff;line-height:1;position:relative;z-index:2}
+.g-swipe-action-icon{width:18px;height:18px;display:flex;align-items:center;justify-content:center;color:#fff;position:relative;z-index:2}
 /* Show only the relevant button when open, and enable pointer events */
 .g-swipe-wrap.sw-open-left .g-swipe-action-right{display:flex;pointer-events:all}
 .g-swipe-wrap.sw-open-right .g-swipe-action-left{display:flex;pointer-events:all}
@@ -237,12 +237,12 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-swipe-wrap.sw-open-left .g-card{border-radius:0}
 .g-swipe-wrap.sw-open-right .g-card{border-radius:0}
 .g-card:not(.swiping):hover{box-shadow:none}
-.g-swipe-wrap:has(.g-card.sel){border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135,106,.12)}
-.g-swipe-wrap:has(.g-card.fup){border-left:3px solid var(--amber)}
-.g-swipe-wrap:has(.g-card.sent){border-left:3px solid var(--green);box-shadow:none;border-color:transparent;border-left-color:var(--green)}
+.g-swipe-wrap:has(.g-card.sel){box-shadow:0 0 0 3px rgba(201,135,106,.18)}
+.g-swipe-wrap:has(.g-card.fup){box-shadow:inset 3px 0 0 var(--amber),var(--shadow-sm)}
+.g-swipe-wrap:has(.g-card.sent){box-shadow:inset 3px 0 0 var(--green)}
 .g-swipe-wrap:has(.g-card.sent) .g-card{background:#fafafa}
 .g-swipe-wrap:has(.g-card.sent) .g-name,.g-swipe-wrap:has(.g-card.sent) .g-sent-time{color:var(--soft)}
-.g-swipe-wrap:has(.g-card.pending-sent){border-left:3px solid var(--rose)}
+.g-swipe-wrap:has(.g-card.pending-sent){box-shadow:inset 3px 0 0 var(--rose),var(--shadow-sm)}
 /* ── SPLIT CARD LAYOUT ── */
 .g-inner{padding:0;display:flex;align-items:stretch}
 .g-inner-left{flex:1;min-width:0;padding:11px 12px 11px 16px;display:flex;align-items:center;gap:11px}
