@@ -1238,6 +1238,8 @@ var msgs={
 /* ══ HELPERS ═════════════════════════════════ */
 function toTitleCase(s){return(s||'').trim().replace(/\S+/g,function(w){return w.charAt(0).toUpperCase()+w.slice(1).toLowerCase();});}
 function firstName(n){var w=(n||'').trim().split(/[\s&]+/)[0];if(!w)return'';return w.charAt(0).toUpperCase()+w.slice(1).toLowerCase();}
+function lastName(n){var parts=(n||'').trim().split(/\s+/);return parts.length>1?parts[parts.length-1]:'';}
+function pairDisplayName(n1,n2){var ln1=lastName(n1),ln2=lastName(n2);if(ln1&&ln2&&ln1.toLowerCase()===ln2.toLowerCase())return firstName(n1)+' & '+firstName(n2)+' '+ln1;return n1+' & '+n2;}
 function buildUrl(p1,p2,type,lang){var n1=firstName(p1).toLowerCase(),n2=p2?firstName(p2).toLowerCase():'';var isP=type==='ceremony-party-single'||type==='couple-party';var q=new URLSearchParams();q.set('w',n2?n1+'-'+n2:n1);if(isP)q.set('v','1');if(lang&&lang!=='en')q.set('lang',lang);return BASE+'?'+q.toString();}
 function buildMsg(name,type,lang,url){var isP=type==='ceremony-party-single'||type==='couple-party';var l=msgs[lang]||msgs.en;return(isP?l.party:l.ceremony).replace('{n}',name).replace('{u}',url);}
 function ts(){var d=new Date();var day=String(d.getDate()).padStart(2,'0'),mon=String(d.getMonth()+1).padStart(2,'0');return day+'.'+mon+' '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});}
@@ -1426,13 +1428,15 @@ function buildPairSentCard(g1,g2){
   var senderCls=g1.sender==='Arina'?'chip-a':'chip-e';
   var senderLbl=g1.sender==='Arina'?'A':'E';
   var senderChip=g1.sender?('<span class="chip '+senderCls+' chip-sender-corner">'+senderLbl+'</span>'):'';
-  var sentTime=g1.sentAt?'<span class="g-sent-time">'+g1.sentAt+(g1.sentBy?' · '+g1.sentBy:'')+'</span>':'';
+  var sentLetter=g1.sentBy==='Arina'?'A':g1.sentBy==='Elnur'?'E':'';
+  var sentTime=g1.sentAt?'<span class="g-sent-time">'+g1.sentAt+(sentLetter?' · '+sentLetter:'')+'</span>':'';
+  var pairName=pairDisplayName(g1.name,g2.name);
   return '<div class="g-swipe-wrap">'
     +'<div class="g-card sent">'
       +'<div class="g-inner" style="padding:9px 14px 9px 16px">'
         +'<div class="g-main">'
           +'<div class="g-name-row" style="padding-right:96px">'
-            +'<span class="g-name" style="font-size:15px">'+g1.name+' <span style="color:var(--soft);font-weight:400">&</span> '+g2.name+'</span>'
+            +'<span class="g-name" style="font-size:15px">'+pairName+'</span>'
             +sentTime
           +'</div>'
         +'</div>'
@@ -1462,7 +1466,7 @@ function buildGuestCard(g){
   var rC=g.confirmed?'<span class="chip chip-rsvp">RSVP</span>':'';
   var cC=g.isChild?'<span class="chip chip-child">Child</span>':'';
   var claimC=claimedBy?('<span class="claim-badge claim-badge-'+(claimedBy==='Arina'?'a':'e')+'"><span class="claim-dot claim-dot-'+(claimedBy==='Arina'?'a':'e')+'"></span>'+(claimedByMe?'You':''+claimedBy)+'</span>'):'';
-  var sentBy=g.sentBy?g.sentBy:'';var sentTime=g.sent&&g.sentAt?'<span class="g-sent-time">'+g.sentAt+(sentBy?' · '+sentBy:'')+'</span>':'';
+  var sentBy=g.sentBy?g.sentBy:'';var sentLetter=sentBy==='Arina'?'A':sentBy==='Elnur'?'E':'';var sentTime=g.sent&&g.sentAt?'<span class="g-sent-time">'+g.sentAt+(sentLetter?' · '+sentLetter:'')+'</span>':'';
 
   // Sent cards: slim — just name, time, undo button in corner, no swipe
   if(g.sent){
