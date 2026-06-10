@@ -222,8 +222,8 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-swipe-bg{display:none}
 .g-swipe-bg-right,.g-swipe-bg-left,.g-swipe-bg-txt{display:none}
 /* Action panels sit behind the card — same height, flush edges, radius only on the exposed corners */
-.g-swipe-action-right{position:absolute;right:0;top:0;bottom:0;width:68px;background:var(--green);display:none;align-items:center;justify-content:center;flex-direction:column;gap:3px;cursor:pointer;pointer-events:none;overflow:hidden}
-.g-swipe-action-left{position:absolute;left:0;top:0;bottom:0;width:68px;background:#E8A838;display:none;align-items:center;justify-content:center;flex-direction:column;gap:3px;cursor:pointer;pointer-events:none;overflow:hidden}
+.g-swipe-action-right{position:absolute;right:0;top:0;bottom:0;width:100%;background:var(--green);display:none;align-items:center;justify-content:flex-end;padding-right:24px;flex-direction:column;justify-content:center;gap:3px;cursor:pointer;pointer-events:none;overflow:hidden}
+.g-swipe-action-left{position:absolute;left:0;top:0;bottom:0;width:100%;background:#E8A838;display:none;align-items:center;justify-content:flex-start;padding-left:24px;flex-direction:column;justify-content:center;gap:3px;cursor:pointer;pointer-events:none;overflow:hidden}
 .g-swipe-action-right.undo-action{background:var(--amber)}
 .g-swipe-action-left.undo-action{background:var(--amber)}
 .g-swipe-action-txt{font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.9);line-height:1}
