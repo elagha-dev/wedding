@@ -431,9 +431,9 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 @keyframes spin{to{transform:rotate(360deg)}}
 .settings-btn{width:32px;height:32px;border-radius:50%;background:var(--cream2);border:1.5px solid var(--parchment);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--ease)}
 .settings-btn:hover{border-color:var(--rose);color:var(--rose);transform:rotate(30deg)}
-.rsvp-count-btn{height:32px;padding:0 11px;border-radius:100px;background:linear-gradient(135deg,#FF7A1A,#FF6B00);border:1.5px solid #E55A00;color:#fff;cursor:pointer;display:flex;align-items:center;gap:6px;flex-shrink:0;transition:all var(--ease);font-family:var(--sans);font-size:11px;font-weight:700;box-shadow:0 2px 8px rgba(255,107,0,.3);align-self:center;box-sizing:border-box}
+.rsvp-count-btn{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#FF7A1A,#FF6B00);border:1.5px solid #E55A00;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--ease);font-family:var(--sans);box-shadow:0 2px 8px rgba(255,107,0,.3);align-self:center;box-sizing:border-box;padding:0}
 .rsvp-count-btn:hover{background:linear-gradient(135deg,#FF8C30,#FF7A1A);transform:translateY(-1px);box-shadow:0 4px 14px rgba(255,107,0,.45)}
-.rsvp-count-btn .rc-num{font-size:13px;font-weight:800}
+.rsvp-count-btn .rc-num{font-size:12px;font-weight:800;line-height:1}
 #rsvpDrawer{position:fixed;top:0;right:0;bottom:0;width:320px;max-width:95vw;background:var(--cream);z-index:300;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);border-left:1px solid var(--parchment);display:flex;flex-direction:column;box-shadow:-4px 0 24px rgba(0,0,0,.08)}
 #rsvpDrawer.open{transform:translateX(0)}
 .rsvp-drawer-hdr{padding:14px 16px;border-bottom:1px solid var(--parchment);display:flex;align-items:center;gap:10px;flex-shrink:0}
@@ -585,8 +585,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
   <button class="dev-btn" id="devBtn" style="display:none" title="Dev mode"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
   <!-- RSVP Combined -->
   <button class="rsvp-count-btn" id="rsvpCountBtn" title="RSVP Responses">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-    <span class="rc-num" id="rsvpCountNum">—</span><span>RSVPs</span>
+    <span class="rc-num" id="rsvpCountNum">—</span>
   </button>
   <!-- Settings -->
   <button class="settings-btn" id="settingsBtn" title="Settings">
@@ -3153,22 +3152,76 @@ function showActivityToast(msg){
     if(!body) return;
     var rows = (data && Array.isArray(data.rsvpRows)) ? data.rsvpRows : [];
     var count = (data && data.rsvpCount != null) ? data.rsvpCount : rows.length;
-    if(countEl) countEl.textContent = count + ' response' + (count !== 1 ? 's' : '');
+    if(countEl) countEl.textContent = count;
     updateCountBtn(count);
     if(!rows.length){
       body.innerHTML = '<div class="rsvp-empty">No responses yet.<br>Share your RSVP link to get started.</div>';
       return;
     }
-    body.innerHTML = rows.slice().reverse().map(function(r){
+
+    function fmtDate(str){
+      if(!str) return '';
+      var d = new Date(str);
+      if(isNaN(d.getTime())) return str.split('T')[0] || str;
+      return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+    }
+
+    function entryHtml(r){
       var name = r['Full Name'] || r['First Name'] || r.name || '—';
-      var time = r['Date & Time'] || r.timestamp || '';
-      var att  = r['Ceremony Attendance'] || r['Party Attending'] || r.attendance || '';
-      var extra = [att].filter(Boolean).join(' · ');
+      var date = fmtDate(r['Date & Time'] || r.timestamp || '');
       return '<div class="rsvp-entry">'
         + '<div class="rsvp-entry-name">' + name + '</div>'
-        + '<div class="rsvp-entry-meta">' + (time || '') + (extra ? (time ? ' · ' : '') + extra : '') + '</div>'
+        + (date ? '<div class="rsvp-entry-meta">' + date + '</div>' : '')
         + '</div>';
-    }).join('');
+    }
+
+    var reversed = rows.slice().reverse();
+    // Classify: "both" = attending church AND party, "church" = church only
+    var both = reversed.filter(function(r){
+      var church = (r['Church'] || r['Ceremony Attendance'] || '').toString().trim().toLowerCase();
+      var party  = (r['Party'] || r['Party Attending'] || '').toString().trim().toLowerCase();
+      // if dedicated columns exist, use them; otherwise fall back to single attendance field
+      if(r['Church'] !== undefined || r['Party'] !== undefined){
+        return (church === 'yes' || church === 'true') && (party === 'yes' || party === 'true');
+      }
+      var att = (r['Ceremony Attendance'] || r['Party Attending'] || r.attendance || '').toString().toLowerCase();
+      return att.indexOf('both') !== -1 || att.indexOf('party') !== -1;
+    });
+    var churchOnly = reversed.filter(function(r){
+      var church = (r['Church'] || r['Ceremony Attendance'] || '').toString().trim().toLowerCase();
+      var party  = (r['Party'] || r['Party Attending'] || '').toString().trim().toLowerCase();
+      if(r['Church'] !== undefined || r['Party'] !== undefined){
+        return (church === 'yes' || church === 'true') && !(party === 'yes' || party === 'true');
+      }
+      var att = (r['Ceremony Attendance'] || r['Party Attending'] || r.attendance || '').toString().toLowerCase();
+      return att.indexOf('church') !== -1 && att.indexOf('both') === -1;
+    });
+
+    var html = '';
+
+    html += '<div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:4px 2px 8px;display:flex;align-items:center;gap:8px">'
+      + 'Church &amp; Party'
+      + '<span style="flex:1;height:1px;background:var(--parchment);display:inline-block"></span>'
+      + '<span style="background:var(--green-bg);color:var(--green);border-radius:100px;padding:1px 8px;font-size:9px;font-weight:700">' + both.length + '</span>'
+      + '</div>';
+    if(both.length){
+      html += both.map(entryHtml).join('');
+    } else {
+      html += '<div class="rsvp-empty" style="padding:16px 8px;font-size:12px">None yet</div>';
+    }
+
+    html += '<div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:16px 2px 8px;display:flex;align-items:center;gap:8px;margin-top:4px">'
+      + 'Church Only'
+      + '<span style="flex:1;height:1px;background:var(--parchment);display:inline-block"></span>'
+      + '<span style="background:var(--amber-bg);color:var(--amber);border-radius:100px;padding:1px 8px;font-size:9px;font-weight:700">' + churchOnly.length + '</span>'
+      + '</div>';
+    if(churchOnly.length){
+      html += churchOnly.map(entryHtml).join('');
+    } else {
+      html += '<div class="rsvp-empty" style="padding:16px 8px;font-size:12px">None yet</div>';
+    }
+
+    body.innerHTML = html;
   }
 
   // Poll for changes
@@ -3247,8 +3300,10 @@ function showActivityToast(msg){
   <div class="rsvp-drawer-hdr">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
     <span class="rsvp-drawer-title">RSVP Responses</span>
-    <div id="rsvpDrawerCount" style="font-size:11px;font-weight:700;color:var(--green);background:var(--green-bg);padding:2px 8px;border-radius:100px;border:1px solid rgba(58,140,92,.2)"></div>
-    <a href="https://docs.google.com/spreadsheets/d/1plydb1KSGgwbxCZzmSD8e12f-Rzzm9-dOlFml4ivUKQ/edit" target="_blank" rel="noreferrer" style="font-size:11px;font-weight:700;color:#FF6B00;text-decoration:none;padding:3px 9px;border-radius:100px;background:rgba(255,107,0,.08);border:1px solid rgba(255,107,0,.25);white-space:nowrap;flex-shrink:0">Sheet ↗</a>
+    <div id="rsvpDrawerCount" style="font-size:11px;font-weight:800;color:var(--green);background:var(--green-bg);width:26px;height:26px;border-radius:50%;border:1px solid rgba(58,140,92,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0"></div>
+    <a href="https://docs.google.com/spreadsheets/d/1plydb1KSGgwbxCZzmSD8e12f-Rzzm9-dOlFml4ivUKQ/edit" target="_blank" rel="noreferrer" title="Open Sheet" style="width:28px;height:28px;border-radius:50%;background:rgba(255,107,0,.08);border:1.5px solid rgba(255,107,0,.25);display:flex;align-items:center;justify-content:center;text-decoration:none;flex-shrink:0;transition:all .2s" onmouseover="this.style.background='rgba(255,107,0,.16)'" onmouseout="this.style.background='rgba(255,107,0,.08)'">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#FF6B00" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+    </a>
     <button class="rsvp-drawer-close" id="rsvpDrawerClose">&times;</button>
   </div>
   <div class="rsvp-drawer-body" id="rsvpDrawerBody">
