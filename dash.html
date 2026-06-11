@@ -596,9 +596,12 @@ body.guest-mode .g-card{pointer-events:none}
 body.guest-mode .g-card .rsvp-entry{pointer-events:auto}
 .s-btn-small{font-family:var(--sans);font-size:11px;font-weight:700;padding:6px 14px;border-radius:var(--r-pill);border:1.5px solid var(--parchment);background:var(--cream2);color:var(--ink);cursor:pointer}
 
-.presence-avatar.is-guest img { display:none!important; }
-.presence-avatar.is-guest .presence-guest-icon { display:flex!important; }
+.presence-avatar.is-guest img { display:block!important; filter:blur(5px) brightness(.95); transform:scale(1.15); }
+.presence-avatar.is-guest .presence-guest-icon { display:none!important; }
 .presence-guest-icon { display:none; width:30px; height:30px; border-radius:50%; background:var(--parchment); align-items:center; justify-content:center; font-size:14px; border:2px solid var(--soft); }
+/* Guest avatar hover tooltip */
+.presence-avatar.is-guest::after{content:'View only mode';position:absolute;bottom:calc(100% + 7px);right:0;background:var(--ink2);color:#fff;font-family:var(--sans);font-size:9px;font-weight:600;letter-spacing:.04em;white-space:nowrap;padding:4px 9px;border-radius:var(--r-pill);opacity:0;pointer-events:none;transition:opacity .18s;transform:translateY(3px)}
+.presence-avatar.is-guest:hover::after{opacity:1;transform:translateY(0)}
 </style>
 </head>
 <body>
@@ -622,7 +625,9 @@ body.guest-mode .g-card .rsvp-entry{pointer-events:auto}
         <span>Elnur</span>
       </button>
       <button class="who-btn btn-g" id="whoBtnG">
-        <span class="who-btn-init" style="background:var(--parchment);color:var(--muted)">👁</span>
+        <span class="who-btn-init" style="background:var(--parchment);color:var(--muted);overflow:hidden;padding:0;position:relative">
+          <img src="arina.jpg" onerror="this.src='elnur.jpg'" alt="" style="width:36px;height:36px;object-fit:cover;filter:blur(4px) brightness(.95);transform:scale(1.15);display:block">
+        </span>
         <span>Guest — view only</span>
       </button>
     </div>
@@ -1457,7 +1462,11 @@ document.getElementById('settSessE').addEventListener('click',function(){
 
   document.getElementById('whoBtnA').addEventListener('click', function(){ dismissPicker('Arina'); });
   document.getElementById('whoBtnE').addEventListener('click', function(){ dismissPicker('Elnur'); });
-  document.getElementById('whoBtnG').addEventListener('click', function(){ dismissPicker('Guest'); });
+  document.getElementById('whoBtnG').addEventListener('click', function(){
+    var url = new URL(window.location.href);
+    url.searchParams.set('guest', '1');
+    window.location.href = url.toString();
+  });
 })();
 document.getElementById('ovTotal').addEventListener('click',function(){
   var ga=document.getElementById('guestArea');if(ga.style.display==='none')return;
@@ -3558,7 +3567,8 @@ function showActivityToast(msg){
     var meEl     = document.getElementById('presenceMe');
     var otherEl  = document.getElementById('presenceOther');
     if (who === 'Guest') {
-      if (meEl)  { meEl.classList.add('is-guest'); meEl.title = 'Guest — view only'; }
+      if (meEl)  { meEl.classList.add('is-guest'); meEl.title = 'You are in view only mode'; }
+      if (meImg) { meImg.src = 'arina.jpg'; meImg.onerror = function(){ this.src='elnur.jpg'; }; meImg.alt = 'Guest'; }
       if (otherEl) { otherEl.style.display = 'none'; }
     } else {
       if (meEl)    { meEl.classList.remove('is-guest'); meEl.title = who + ' — tap for settings'; }
@@ -3613,7 +3623,7 @@ function showActivityToast(msg){
   if (meEl) {
     meEl.addEventListener('click', function(){
       if (who === 'Guest') {
-        if (typeof showSessionToast === 'function') showSessionToast('Guest');
+        showToastWarn('You are in view only mode');
         return;
       }
       var btn = document.getElementById('settingsBtn');
