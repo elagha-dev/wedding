@@ -553,17 +553,37 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .ai-send{width:42px;height:42px;border-radius:var(--r-sm);background:linear-gradient(135deg,#7C3AED,#A855F7);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--ease);box-shadow:0 2px 8px rgba(124,58,237,.3)}.ai-send:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(124,58,237,.45)}.ai-send:disabled{opacity:.4;cursor:default;transform:none}
 .ai-suggestions{display:flex;gap:6px;padding:0 14px 8px;flex-wrap:wrap;flex-shrink:0}
 .ai-sug{padding:5px 12px;border-radius:var(--r-pill);background:var(--cream2);border:1.5px solid var(--parchment);color:var(--muted);font-size:11px;font-weight:500;cursor:pointer;font-family:var(--sans);transition:all var(--ease);white-space:nowrap}.ai-sug:hover{border-color:rgba(124,58,237,.4);color:#7C3AED;background:rgba(124,58,237,.06)}
+
+/* ── PRESENCE AVATARS ── */
+.presence-wrap{display:flex;align-items:center;gap:6px;flex:0 0 auto}
+.presence-avatar{position:relative;width:30px;height:30px;border-radius:50%;overflow:visible;cursor:pointer;flex-shrink:0}
+.presence-avatar img{width:30px;height:30px;border-radius:50%;object-fit:cover;display:block;border:2px solid transparent;transition:border-color var(--ease),opacity var(--ease)}
+.presence-avatar.is-me img{border-color:var(--rose)}
+.presence-avatar.is-online img{opacity:1}
+.presence-avatar.is-offline img{opacity:.45;filter:grayscale(.4)}
+.presence-dot{position:absolute;bottom:0;right:0;width:9px;height:9px;border-radius:50%;border:2px solid var(--cream);background:var(--soft);transition:background var(--ease)}
+.presence-avatar.is-online .presence-dot{background:var(--green)}
+.presence-avatar.is-me .presence-dot{background:var(--rose)}
 </style>
 </head>
 <body>
 
 <!-- TOPBAR -->
 <div class="topbar">
-  <!-- Session toggle -->
-  <div class="session-toggle">
-    <button class="sess-btn on-a" id="sessA" data-who="Arina">A</button>
-    <button class="sess-btn" id="sessE" data-who="Elnur">E</button>
+  <!-- Presence avatars -->
+  <div class="presence-wrap" id="presenceWrap">
+    <div class="presence-avatar is-me is-online" id="presenceA" title="Arina" data-who="Arina">
+      <img src="arina.jpg" alt="Arina">
+      <span class="presence-dot"></span>
+    </div>
+    <div class="presence-avatar is-offline" id="presenceE" title="Elnur" data-who="Elnur">
+      <img src="elnur.jpg" alt="Elnur">
+      <span class="presence-dot"></span>
+    </div>
   </div>
+  <!-- Hidden session buttons still needed for JS logic -->
+  <button class="sess-btn on-a" id="sessA" data-who="Arina" style="display:none">A</button>
+  <button class="sess-btn" id="sessE" data-who="Elnur" style="display:none">E</button>
   <!-- Stats -->
   <div class="stat-pill total" id="ovTotal" title="Total guests">0</div>
   <div class="stat-pill sent" id="ovSent" title="Sent">0</div>
@@ -782,6 +802,13 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
     <!-- SECTION: People -->
     <div class="s-section">
       <div class="s-section-label">People</div>
+      <div class="s-row">
+        <div class="s-row-info"><div class="s-row-title">You are</div><div class="s-row-sub">Which sender's session this is</div></div>
+        <div class="session-toggle" style="flex-shrink:0">
+          <button class="sess-btn on-a" id="sessA" data-who="Arina">A</button>
+          <button class="sess-btn" id="sessE" data-who="Elnur">E</button>
+        </div>
+      </div>
       <div class="s-row">
         <div class="s-row-info"><div class="s-row-title">Sender 1 name</div><div class="s-row-sub">Shown on cards and filters</div></div>
         <input class="s-input" id="sNameA" value="Arina" maxlength="20"/>
@@ -1295,6 +1322,7 @@ function setSession(who){
   sessionSender=who;selSender=who;
   document.getElementById('sessA').className='sess-btn'+(who==='Arina'?' on-a':'');
   document.getElementById('sessE').className='sess-btn'+(who==='Elnur'?' on-e':'');
+  document.dispatchEvent(new CustomEvent('sessionChanged', {detail: who}));
   // sync sender buttons in generator
   document.querySelectorAll('.s-btn').forEach(function(b){b.classList.remove('on');if(b.dataset.s===who){b.classList.add('on');b.classList.add(who==='Arina'?'arina':'elnur');}});
   updateFabLabels();
@@ -3166,59 +3194,123 @@ function showActivityToast(msg){
       return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
     }
 
+    var entryCounter = 0;
     function entryHtml(r){
       var name = r['Full Name'] || r['First Name'] || r.name || '—';
       var date = fmtDate(r['Date & Time'] || r.timestamp || '');
       var rawDump = Object.keys(r).map(function(k){ return k + '=' + JSON.stringify(r[k]); }).join(' | ');
-      return '<div class="rsvp-entry">'
-        + '<div class="rsvp-entry-name">' + name + '</div>'
-        + (date ? '<div class="rsvp-entry-meta">' + date + '</div>' : '')
-        + '<div class="rsvp-entry-meta" style="font-size:9px;color:var(--soft);word-break:break-all;margin-top:3px">' + rawDump + '</div>'
+      var id = 'rdet' + (++entryCounter);
+      return '<div class="rsvp-entry" data-name="' + name.toLowerCase().replace(/"/g,'') + '">'
+        + '<div class="rsvp-row-top" data-det="' + id + '" style="display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer">'
+        + '<div><div class="rsvp-entry-name">' + name + '</div>'
+        + (date ? '<div class="rsvp-entry-meta">' + date + '</div>' : '') + '</div>'
+        + '<span class="det-chev" style="font-size:8px;color:var(--soft);transition:transform .2s;flex-shrink:0">&#9660;</span>'
+        + '</div>'
+        + '<div id="' + id + '" style="display:none;margin-top:6px;padding-top:6px;border-top:1px solid var(--parchment);font-size:9px;color:var(--soft);word-break:break-all;line-height:1.6">' + rawDump + '</div>'
         + '</div>';
     }
 
     var reversed = rows.slice().reverse();
     function isTruthy(v){ var s=(v||'').toString().trim().toLowerCase(); return s==='yes'||s==='true'||s==='1'||s===1; }
-    var both = reversed.filter(function(r){
-      if(r['Church'] !== undefined || r['Party'] !== undefined){
-        return isTruthy(r['Church']) && isTruthy(r['Party']);
-      }
+
+    var withVenue = reversed.filter(function(r){
+      if(r['Invited to Party'] !== undefined) return isTruthy(r['Invited to Party']);
+      if(r['Church'] !== undefined || r['Party'] !== undefined) return isTruthy(r['Church']) && isTruthy(r['Party']);
       var att = (r['Ceremony Attendance'] || r['Party Attending'] || r.attendance || '').toString().toLowerCase();
-      return att.indexOf('both') !== -1 || att.indexOf('party') !== -1;
+      return att.indexOf('both') !== -1 || att.indexOf('party') !== -1 || att.indexOf('venue') !== -1;
     });
     var churchOnly = reversed.filter(function(r){
-      if(r['Church'] !== undefined || r['Party'] !== undefined){
-        return isTruthy(r['Church']) && !isTruthy(r['Party']);
-      }
+      if(r['Invited to Party'] !== undefined) return !isTruthy(r['Invited to Party']);
+      if(r['Church'] !== undefined || r['Party'] !== undefined) return isTruthy(r['Church']) && !isTruthy(r['Party']);
       var att = (r['Ceremony Attendance'] || r['Party Attending'] || r.attendance || '').toString().toLowerCase();
       return att.indexOf('church') !== -1 && att.indexOf('both') === -1;
     });
+    var categorised = withVenue.concat(churchOnly);
+    var uncategorised = reversed.filter(function(r){ return categorised.indexOf(r) === -1; });
 
-    var html = '';
-
-    html += '<div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:4px 2px 8px;display:flex;align-items:center;gap:8px">'
-      + 'Church &amp; Party'
-      + '<span style="flex:1;height:1px;background:var(--parchment);display:inline-block"></span>'
-      + '<span style="background:var(--green-bg);color:var(--green);border-radius:100px;padding:1px 8px;font-size:9px;font-weight:700">' + both.length + '</span>'
-      + '</div>';
-    if(both.length){
-      html += both.map(entryHtml).join('');
-    } else {
-      html += '<div class="rsvp-empty" style="padding:16px 8px;font-size:12px">None yet</div>';
+    function countYesNo(arr){
+      var yes = arr.filter(function(r){
+        var v = (r['Ceremony Attendance'] || r['Invited to Party'] || '').toString().toLowerCase();
+        return v === 'yes' || v === 'true' || v === '1';
+      }).length;
+      return {yes: yes, no: arr.length - yes};
     }
 
-    html += '<div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:16px 2px 8px;display:flex;align-items:center;gap:8px;margin-top:4px">'
-      + 'Church Only'
-      + '<span style="flex:1;height:1px;background:var(--parchment);display:inline-block"></span>'
-      + '<span style="background:var(--amber-bg);color:var(--amber);border-radius:100px;padding:1px 8px;font-size:9px;font-weight:700">' + churchOnly.length + '</span>'
+    function sectionHtml(id, label, items, badgeBg, badgeColor, topPad){
+      var yn = countYesNo(items);
+      var yesNoHtml = items.length
+        ? '<span style="background:var(--green-bg);color:var(--green);border-radius:100px;padding:1px 7px;font-size:9px;font-weight:700">' + yn.yes + ' yes</span>'
+          + '<span style="background:var(--red-bg);color:var(--red);border-radius:100px;padding:1px 7px;font-size:9px;font-weight:700">' + yn.no + ' no</span>'
+        : '';
+      var entriesHtml = items.length
+        ? items.map(entryHtml).join('')
+        : '<div class="rsvp-empty" style="padding:12px 8px;font-size:12px">None yet</div>';
+      return '<div>'
+        + '<div class="rsvp-sec-hdr" data-sec="' + id + '" style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:' + (topPad||'4px') + ' 2px 8px;display:flex;align-items:center;gap:5px;cursor:pointer;user-select:none">'
+        + '<span style="flex-shrink:0">' + label + '</span>'
+        + '<span style="flex:1;height:1px;background:var(--parchment);display:inline-block;min-width:8px"></span>'
+        + yesNoHtml
+        + '<span style="background:' + badgeBg + ';color:' + badgeColor + ';border-radius:100px;padding:1px 8px;font-size:9px;font-weight:700;flex-shrink:0">' + items.length + '</span>'
+        + '<span class="rsvp-chev" style="font-size:8px;color:var(--soft);transition:transform .2s;display:inline-block;line-height:1;flex-shrink:0">&#9650;</span>'
+        + '</div>'
+        + '<div class="rsvp-sec-body" id="rsvp-sec-' + id + '">' + entriesHtml + '</div>'
+        + '</div>';
+    }
+
+    var totalHtml = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--parchment)">'
+      + '<div style="position:relative;flex:1">'
+      + '<svg style="position:absolute;left:9px;top:50%;transform:translateY(-50%);pointer-events:none" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--soft)" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>'
+      + '<input id="rsvpSearchInput" type="text" placeholder="Search…" style="width:100%;font-family:var(--sans);font-size:12px;padding:7px 10px 7px 28px;background:var(--cream2);border:1.5px solid var(--parchment);border-radius:100px;color:var(--ink);outline:none">'
+      + '</div>'
+      + '<span style="font-size:10px;font-weight:700;color:var(--muted);white-space:nowrap;flex-shrink:0">' + rows.length + ' total</span>'
       + '</div>';
-    if(churchOnly.length){
-      html += churchOnly.map(entryHtml).join('');
-    } else {
-      html += '<div class="rsvp-empty" style="padding:16px 8px;font-size:12px">None yet</div>';
+
+    var html = totalHtml;
+    html += sectionHtml('venue',  'Church &amp; Venue', withVenue,  'var(--green-bg)', 'var(--green)', '4px');
+    html += sectionHtml('church', 'Church Only',         churchOnly, 'var(--amber-bg)', 'var(--amber)', '12px');
+    if(uncategorised.length){
+      html += sectionHtml('other', 'Other', uncategorised, 'var(--cream2)', 'var(--muted)', '12px');
     }
 
     body.innerHTML = html;
+
+    // Section collapse toggles
+    body.querySelectorAll('.rsvp-sec-hdr').forEach(function(hdr){
+      hdr.addEventListener('click', function(){
+        var sec = document.getElementById('rsvp-sec-' + hdr.dataset.sec);
+        var chev = hdr.querySelector('.rsvp-chev');
+        if(!sec) return;
+        var open = sec.style.display !== 'none';
+        sec.style.display = open ? 'none' : '';
+        if(chev) chev.style.transform = open ? 'rotate(180deg)' : '';
+      });
+    });
+
+    // Entry detail toggles
+    body.querySelectorAll('.rsvp-row-top').forEach(function(row){
+      row.addEventListener('click', function(e){
+        e.stopPropagation();
+        var detId = row.dataset.det;
+        var det = document.getElementById(detId);
+        var chev = row.querySelector('.det-chev');
+        if(!det) return;
+        var open = det.style.display !== 'none';
+        det.style.display = open ? 'none' : '';
+        if(chev) chev.style.transform = open ? '' : 'rotate(180deg)';
+      });
+    });
+
+    // Search filter
+    var searchInput = document.getElementById('rsvpSearchInput');
+    if(searchInput){
+      searchInput.addEventListener('input', function(){
+        var q = this.value.toLowerCase();
+        body.querySelectorAll('.rsvp-entry').forEach(function(el){
+          var name = el.dataset.name || '';
+          el.style.display = (!q || name.indexOf(q) !== -1) ? '' : 'none';
+        });
+      });
+    }
   }
 
   // Poll for changes
@@ -3307,5 +3399,72 @@ function showActivityToast(msg){
     <div class="rsvp-empty">Tap to load responses&hellip;</div>
   </div>
 </div>
+
+<script>
+/* ── PRESENCE via WebSocket ── */
+(function(){
+  var WORKER = 'wss://guestlist.elnur-agha.workers.dev';
+  var who = localStorage.getItem('sessionSender') || 'Arina';
+  var ws, reconnectTimer, pingTimer;
+
+  function myId()    { return who === 'Arina' ? 'presenceA' : 'presenceE'; }
+  function otherId() { return who === 'Arina' ? 'presenceE' : 'presenceA'; }
+
+  function setOnline(id, online) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.classList.toggle('is-online', online);
+    el.classList.toggle('is-offline', !online);
+  }
+
+  function connect() {
+    try { ws = new WebSocket(WORKER + '/presence?who=' + encodeURIComponent(who)); }
+    catch(e) { scheduleReconnect(); return; }
+
+    ws.onopen = function() {
+      ws.send(JSON.stringify({ type: 'hello', who: who }));
+      var me = document.getElementById(myId());
+      if (me) { me.classList.add('is-me','is-online'); me.classList.remove('is-offline'); }
+      pingTimer = setInterval(function(){
+        if (ws && ws.readyState === 1) ws.send(JSON.stringify({ type: 'ping', who: who }));
+      }, 20000);
+    };
+
+    ws.onmessage = function(e) {
+      try {
+        var msg = JSON.parse(e.data);
+        if (msg.type === 'presence') setOnline(msg.who === 'Arina' ? 'presenceA' : 'presenceE', msg.online);
+      } catch(_) {}
+    };
+
+    ws.onclose = function() { clearInterval(pingTimer); setOnline(otherId(), false); scheduleReconnect(); };
+    ws.onerror = function() { ws.close(); };
+  }
+
+  function scheduleReconnect() { clearTimeout(reconnectTimer); reconnectTimer = setTimeout(connect, 5000); }
+
+  document.addEventListener('sessionChanged', function(e) {
+    who = e.detail;
+    var a = document.getElementById('presenceA');
+    var el = document.getElementById('presenceE');
+    if (a) { a.classList.toggle('is-me', who === 'Arina'); a.classList.toggle('is-online', who === 'Arina'); a.classList.toggle('is-offline', who !== 'Arina'); }
+    if (el) { el.classList.toggle('is-me', who === 'Elnur'); }
+    if (ws && ws.readyState === 1) ws.send(JSON.stringify({ type: 'hello', who: who }));
+    else connect();
+  });
+
+  // Clicking avatar switches session
+  ['presenceA','presenceE'].forEach(function(id){
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('click', function(){
+      var w = el.dataset.who;
+      if (typeof setSession === 'function') { setSession(w); if (typeof showSessionToast === 'function') showSessionToast(w); }
+    });
+  });
+
+  connect();
+})();
+</script>
 </body>
 </html>
