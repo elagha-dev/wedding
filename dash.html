@@ -33,7 +33,8 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .wrap{position:relative;z-index:1;max-width:640px;margin:0 auto;padding:0 16px 40px}
 
 /* ── TOPBAR ── */
-.topbar{position:sticky;top:0;z-index:100;background:rgba(253,248,243,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(196,149,106,.14);padding:6px 14px 6px 10px;display:flex;align-items:center;gap:5px;height:50px}
+.topbar{position:sticky;top:0;z-index:100;background:rgba(253,248,243,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(196,149,106,.14);height:50px}
+.topbar-inner{max-width:640px;margin:0 auto;padding:6px 14px 6px 10px;display:flex;align-items:center;gap:5px;height:50px}
 /* Session toggle */
 .session-toggle{display:flex;align-items:center;flex:0 0 auto;align-self:center;background:var(--parchment);border-radius:var(--r-pill);padding:2px;gap:2px;height:32px;box-sizing:border-box}
 .sess-btn{width:26px;height:26px;border-radius:50%;border:none;font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer;transition:all var(--ease);background:transparent;color:var(--muted);text-align:center;display:flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -684,6 +685,7 @@ body.guest-mode .g-card .rsvp-entry{pointer-events:auto}
 </div>
 
 <div class="topbar">
+ <div class="topbar-inner">
   <!-- Hidden session buttons still needed for JS logic -->
   <button class="sess-btn on-a" id="sessA" data-who="Arina" style="display:none">A</button>
   <button class="sess-btn" id="sessE" data-who="Elnur" style="display:none">E</button>
@@ -724,6 +726,7 @@ body.guest-mode .g-card .rsvp-entry{pointer-events:auto}
   </div>
   <!-- Settings btn (hidden, triggered by avatar) -->
   <button id="settingsBtn" style="display:none"></button>
+ </div>
 </div>
 
 <!-- SYNC INFO BANNER -->
