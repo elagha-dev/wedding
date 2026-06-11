@@ -564,11 +564,67 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .presence-dot{position:absolute;bottom:0;right:0;width:9px;height:9px;border-radius:50%;border:2px solid var(--cream);background:var(--soft);transition:background var(--ease)}
 .presence-avatar.is-online .presence-dot{background:var(--green)}
 .presence-avatar.is-me .presence-dot{background:var(--rose)}
+
+/* ── WHO ARE YOU PICKER ── */
+.who-overlay{position:fixed;inset:0;background:rgba(30,20,10,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px}
+.who-card{background:var(--cream);border-radius:20px;padding:32px 24px 28px;width:100%;max-width:320px;box-shadow:0 24px 60px rgba(0,0,0,.18);text-align:center}
+.who-title{font-size:18px;font-weight:800;color:var(--ink);margin-bottom:4px;letter-spacing:-.01em}
+.who-sub{font-size:12px;color:var(--muted);margin-bottom:24px}
+.who-btns{display:flex;flex-direction:column;gap:10px}
+.who-btn{width:100%;padding:13px 16px;border-radius:var(--r-pill);border:none;font-family:var(--sans);font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:12px;transition:opacity .15s}
+.who-btn:active{opacity:.8}
+.who-btn img{width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0}
+.who-btn.btn-a{background:var(--arina-bg);color:var(--arina-txt)}
+.who-btn.btn-e{background:var(--elnur-bg);color:var(--elnur-txt)}
+.who-btn.btn-g{background:var(--parchment);color:var(--muted)}
+.who-btn-init{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0}
+.who-btn.btn-a .who-btn-init{background:var(--arina-border);color:var(--arina-txt)}
+.who-btn.btn-e .who-btn-init{background:var(--elnur-border);color:var(--elnur-txt)}
+.who-btn.btn-g .who-btn-init{background:var(--soft);color:#fff}
+/* guest mode — hide action elements */
+body.guest-mode .fab-wrap,
+body.guest-mode .bulk-bar,
+body.guest-mode .send-btn,
+body.guest-mode .copy-btn,
+body.guest-mode .settings-btn,
+body.guest-mode .deploy-btn,
+body.guest-mode .ai-btn,
+body.guest-mode .card-actions,
+body.guest-mode .g-card-check,
+body.guest-mode .swipe-hint{display:none!important}
+body.guest-mode .g-card{pointer-events:none}
+body.guest-mode .g-card .rsvp-entry{pointer-events:auto}
+.s-btn-small{font-family:var(--sans);font-size:11px;font-weight:700;padding:6px 14px;border-radius:var(--r-pill);border:1.5px solid var(--parchment);background:var(--cream2);color:var(--ink);cursor:pointer}
 </style>
 </head>
 <body>
 
 <!-- TOPBAR -->
+
+<!-- WHO ARE YOU PICKER -->
+<div class="who-overlay" id="whoOverlay">
+  <div class="who-card">
+    <div class="who-title">Who are you?</div>
+    <div class="who-sub">Choose your session to continue</div>
+    <div class="who-btns">
+      <button class="who-btn btn-a" id="whoBtnA">
+        <img src="arina.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" alt="Arina">
+        <span class="who-btn-init" style="display:none">A</span>
+        <span>Arina</span>
+      </button>
+      <button class="who-btn btn-e" id="whoBtnE">
+        <img src="elnur.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" alt="Elnur">
+        <span class="who-btn-init" style="display:none">E</span>
+        <span>Elnur</span>
+      </button>
+      <button class="who-btn btn-g" id="whoBtnG">
+        <span class="who-btn-init" style="background:var(--parchment);color:var(--muted)">👁</span>
+        <span>Guest — view only</span>
+      </button>
+    </div>
+  </div>
+</div>
+
 <div class="topbar">
   <!-- Presence avatars -->
   <div class="presence-wrap" id="presenceWrap">
@@ -808,6 +864,10 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
           <button class="sess-btn on-a" id="sessA" data-who="Arina">A</button>
           <button class="sess-btn" id="sessE" data-who="Elnur">E</button>
         </div>
+      </div>
+      <div class="s-row">
+        <div class="s-row-info"><div class="s-row-title">Switch user</div><div class="s-row-sub">Re-show the who-are-you picker</div></div>
+        <button class="s-btn-small" onclick="try{localStorage.removeItem('ww_who');}catch(e){}location.reload()">Switch</button>
       </div>
       <div class="s-row">
         <div class="s-row-info"><div class="s-row-title">Sender 1 name</div><div class="s-row-sub">Shown on cards and filters</div></div>
@@ -1330,6 +1390,44 @@ function setSession(who){
 }
 document.getElementById('sessA').addEventListener('click',function(){if(sessionSender!=='Arina'){setSession('Arina');showSessionToast('Arina');}});
 document.getElementById('sessE').addEventListener('click',function(){if(sessionSender!=='Elnur'){setSession('Elnur');showSessionToast('Elnur');}});
+
+/* ══ WHO-ARE-YOU PICKER ══════════════════════════════════ */
+(function(){
+  var overlay = document.getElementById('whoOverlay');
+  var STORAGE_KEY = 'ww_who';
+
+  function dismissPicker(who) {
+    overlay.style.display = 'none';
+    if (who === 'Guest') {
+      document.body.classList.add('guest-mode');
+      sessionSender = 'Guest';
+    } else {
+      document.body.classList.remove('guest-mode');
+      setSession(who);
+    }
+    try { localStorage.setItem(STORAGE_KEY, who); } catch(e) {}
+  }
+
+  // Check if already chosen this session
+  var saved;
+  try { saved = localStorage.getItem(STORAGE_KEY); } catch(e) {}
+
+  if (saved === 'Arina' || saved === 'Elnur') {
+    overlay.style.display = 'none';
+    setSession(saved);
+  } else if (saved === 'Guest') {
+    overlay.style.display = 'none';
+    document.body.classList.add('guest-mode');
+    sessionSender = 'Guest';
+  } else {
+    // Show picker — block everything
+    overlay.style.display = 'flex';
+  }
+
+  document.getElementById('whoBtnA').addEventListener('click', function(){ dismissPicker('Arina'); });
+  document.getElementById('whoBtnE').addEventListener('click', function(){ dismissPicker('Elnur'); });
+  document.getElementById('whoBtnG').addEventListener('click', function(){ dismissPicker('Guest'); });
+})();
 document.getElementById('ovSent').addEventListener('click',function(){
   var ga=document.getElementById('guestArea');if(ga.style.display==='none')return;
   importFilter='sent';showSent=true;renderFilterRow();renderGuestList();
