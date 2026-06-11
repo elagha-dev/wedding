@@ -553,37 +553,17 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .ai-send{width:42px;height:42px;border-radius:var(--r-sm);background:linear-gradient(135deg,#7C3AED,#A855F7);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--ease);box-shadow:0 2px 8px rgba(124,58,237,.3)}.ai-send:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(124,58,237,.45)}.ai-send:disabled{opacity:.4;cursor:default;transform:none}
 .ai-suggestions{display:flex;gap:6px;padding:0 14px 8px;flex-wrap:wrap;flex-shrink:0}
 .ai-sug{padding:5px 12px;border-radius:var(--r-pill);background:var(--cream2);border:1.5px solid var(--parchment);color:var(--muted);font-size:11px;font-weight:500;cursor:pointer;font-family:var(--sans);transition:all var(--ease);white-space:nowrap}.ai-sug:hover{border-color:rgba(124,58,237,.4);color:#7C3AED;background:rgba(124,58,237,.06)}
-
-/* ── PRESENCE AVATARS ── */
-.presence-wrap{display:flex;align-items:center;gap:6px;flex:0 0 auto}
-.presence-avatar{position:relative;width:30px;height:30px;border-radius:50%;overflow:visible;cursor:pointer;flex-shrink:0}
-.presence-avatar img{width:30px;height:30px;border-radius:50%;object-fit:cover;display:block;border:2px solid transparent;transition:border-color var(--ease),opacity var(--ease)}
-.presence-avatar.is-me img{border-color:var(--rose)}
-.presence-avatar.is-online img{opacity:1}
-.presence-avatar.is-offline img{opacity:.45;filter:grayscale(.4)}
-.presence-dot{position:absolute;bottom:0;right:0;width:9px;height:9px;border-radius:50%;border:2px solid var(--cream);background:var(--soft);transition:background var(--ease)}
-.presence-avatar.is-online .presence-dot{background:var(--green)}
-.presence-avatar.is-me .presence-dot{background:var(--rose)}
 </style>
 </head>
 <body>
 
 <!-- TOPBAR -->
 <div class="topbar">
-  <!-- Presence avatars -->
-  <div class="presence-wrap" id="presenceWrap">
-    <div class="presence-avatar is-me" id="presenceA" title="Arina" data-who="Arina">
-      <img src="arina.jpg" onerror="this.style.display='none';this.parentNode.setAttribute('data-init','A')" alt="Arina">
-      <span class="presence-dot"></span>
-    </div>
-    <div class="presence-avatar is-offline" id="presenceE" title="Elnur" data-who="Elnur">
-      <img src="elnur.jpg" onerror="this.style.display='none';this.parentNode.setAttribute('data-init','E')" alt="Elnur">
-      <span class="presence-dot"></span>
-    </div>
+  <!-- Session toggle -->
+  <div class="session-toggle">
+    <button class="sess-btn on-a" id="sessA" data-who="Arina">A</button>
+    <button class="sess-btn" id="sessE" data-who="Elnur">E</button>
   </div>
-  <!-- Hidden session buttons still needed for JS logic -->
-  <button class="sess-btn on-a" id="sessA" data-who="Arina" style="display:none">A</button>
-  <button class="sess-btn" id="sessE" data-who="Elnur" style="display:none">E</button>
   <!-- Stats -->
   <div class="stat-pill total" id="ovTotal" title="Total guests">0</div>
   <div class="stat-pill sent" id="ovSent" title="Sent">0</div>
@@ -802,13 +782,6 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
     <!-- SECTION: People -->
     <div class="s-section">
       <div class="s-section-label">People</div>
-      <div class="s-row">
-        <div class="s-row-info"><div class="s-row-title">You are</div><div class="s-row-sub">Which sender's session this is</div></div>
-        <div class="session-toggle" style="flex-shrink:0">
-          <button class="sess-btn on-a" id="sessA" data-who="Arina">A</button>
-          <button class="sess-btn" id="sessE" data-who="Elnur">E</button>
-        </div>
-      </div>
       <div class="s-row">
         <div class="s-row-info"><div class="s-row-title">Sender 1 name</div><div class="s-row-sub">Shown on cards and filters</div></div>
         <input class="s-input" id="sNameA" value="Arina" maxlength="20"/>
@@ -1322,7 +1295,6 @@ function setSession(who){
   sessionSender=who;selSender=who;
   document.getElementById('sessA').className='sess-btn'+(who==='Arina'?' on-a':'');
   document.getElementById('sessE').className='sess-btn'+(who==='Elnur'?' on-e':'');
-  document.dispatchEvent(new CustomEvent('sessionChanged', {detail: who}));
   // sync sender buttons in generator
   document.querySelectorAll('.s-btn').forEach(function(b){b.classList.remove('on');if(b.dataset.s===who){b.classList.add('on');b.classList.add(who==='Arina'?'arina':'elnur');}});
   updateFabLabels();
@@ -3335,93 +3307,5 @@ function showActivityToast(msg){
     <div class="rsvp-empty">Tap to load responses&hellip;</div>
   </div>
 </div>
-
-<script>
-/* ── PRESENCE via WebSocket ── */
-(function(){
-  var WORKER = (typeof workerUrl !== 'undefined' && workerUrl)
-    ? workerUrl.replace(/\/$/, '').replace(/^http/, 'ws')
-    : 'wss://guestlist.elnur-agha.workers.dev';
-
-  var who = (typeof sessionSender !== 'undefined' && sessionSender) || localStorage.getItem('sessionSender') || 'Arina';
-  var ws, reconnectTimer, pingTimer;
-
-  function myEl()    { return document.getElementById(who === 'Arina' ? 'presenceA' : 'presenceE'); }
-  function otherEl() { return document.getElementById(who === 'Arina' ? 'presenceE' : 'presenceA'); }
-
-  function setOnline(el, online) {
-    if (!el) return;
-    el.classList.toggle('is-online', online);
-    el.classList.toggle('is-offline', !online);
-  }
-
-  function connect() {
-    try {
-      ws = new WebSocket(WORKER + '/presence?who=' + encodeURIComponent(who));
-    } catch(e) { scheduleReconnect(); return; }
-
-    ws.onopen = function() {
-      ws.send(JSON.stringify({ type: 'hello', who: who }));
-      // mark self always online
-      var me = myEl();
-      if (me) { me.classList.add('is-me'); me.classList.add('is-online'); me.classList.remove('is-offline'); }
-      pingTimer = setInterval(function(){ if(ws && ws.readyState===1) ws.send(JSON.stringify({type:'ping',who:who})); }, 20000);
-    };
-
-    ws.onmessage = function(e) {
-      try {
-        var msg = JSON.parse(e.data);
-        if (msg.type === 'presence') {
-          var other = otherEl();
-          setOnline(other, msg.online);
-        }
-      } catch(_) {}
-    };
-
-    ws.onclose = function() {
-      clearInterval(pingTimer);
-      setOnline(otherEl(), false);
-      scheduleReconnect();
-    };
-
-    ws.onerror = function() { ws.close(); };
-  }
-
-  function scheduleReconnect() {
-    clearTimeout(reconnectTimer);
-    reconnectTimer = setTimeout(connect, 5000);
-  }
-
-  // Re-identify when session changes
-  document.addEventListener('sessionChanged', function(e) {
-    who = e.detail;
-    // update presence avatars — swap me/other
-    var a = document.getElementById('presenceA');
-    var el = document.getElementById('presenceE');
-    if (a) { a.classList.toggle('is-me', who === 'Arina'); }
-    if (el) { el.classList.toggle('is-me', who === 'Elnur'); }
-    if (ws && ws.readyState === 1) {
-      ws.send(JSON.stringify({ type: 'hello', who: who }));
-    } else {
-      connect();
-    }
-  });
-
-  // Clicking an avatar switches session
-  ['presenceA','presenceE'].forEach(function(id){
-    var el = document.getElementById(id);
-    if (!el) return;
-    el.addEventListener('click', function(){
-      var w = el.dataset.who;
-      if (typeof setSession === 'function') {
-        setSession(w);
-        if (typeof showSessionToast === 'function') showSessionToast(w);
-      }
-    });
-  });
-
-  connect();
-})();
-</script>
 </body>
 </html>
