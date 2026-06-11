@@ -615,25 +615,41 @@ body.guest-mode #guestSyncBanner{display:flex}
 <!-- WHO ARE YOU PICKER -->
 <div class="who-overlay" id="whoOverlay">
   <div class="who-card">
-    <div class="who-title">Who are you?</div>
-    <div class="who-sub">Choose your session to continue</div>
-    <div class="who-btns">
-      <button class="who-btn btn-a" id="whoBtnA">
-        <img src="arina.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" alt="Arina">
-        <span class="who-btn-init" style="display:none">A</span>
-        <span>Arina</span>
-      </button>
-      <button class="who-btn btn-e" id="whoBtnE">
-        <img src="elnur.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" alt="Elnur">
-        <span class="who-btn-init" style="display:none">E</span>
-        <span>Elnur</span>
-      </button>
-      <button class="who-btn btn-g" id="whoBtnG">
-        <span class="who-btn-init" style="background:var(--parchment);color:var(--muted);overflow:hidden;padding:0;position:relative;border-radius:50%">
-          <img src="arina.jpg" onerror="this.src='elnur.jpg'" alt="" style="width:36px;height:36px;object-fit:cover;filter:blur(4px) brightness(.95);transform:scale(1.2);display:block">
-        </span>
-        <span>Guest — view only</span>
-      </button>
+    <!-- Step 1: pick who -->
+    <div id="whoStep1">
+      <div class="who-title">Who are you?</div>
+      <div class="who-sub">Choose your session to continue</div>
+      <div class="who-btns">
+        <button class="who-btn btn-a" id="whoBtnA">
+          <img src="arina.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" alt="Arina">
+          <span class="who-btn-init" style="display:none">A</span>
+          <span>Arina</span>
+        </button>
+        <button class="who-btn btn-e" id="whoBtnE">
+          <img src="elnur.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" alt="Elnur">
+          <span class="who-btn-init" style="display:none">E</span>
+          <span>Elnur</span>
+        </button>
+        <button class="who-btn btn-g" id="whoBtnG">
+          <span class="who-btn-init" style="background:var(--parchment);color:var(--muted);overflow:hidden;padding:0;position:relative;border-radius:50%">
+            <img src="arina.jpg" onerror="this.src='elnur.jpg'" alt="" style="width:36px;height:36px;object-fit:cover;filter:blur(4px) brightness(.95);transform:scale(1.2);display:block">
+          </span>
+          <span>Guest</span>
+        </button>
+      </div>
+    </div>
+    <!-- Step 2: password -->
+    <div id="whoStep2" style="display:none">
+      <div class="who-title" id="whoPassTitle">Welcome back</div>
+      <div class="who-sub" id="whoPassSub">Enter your password to continue</div>
+      <div style="position:relative;margin-bottom:10px">
+        <input type="password" id="whoPassInput" placeholder="Password" autocomplete="current-password"
+          style="width:100%;font-family:var(--sans);font-size:15px;padding:12px 44px 12px 16px;background:var(--cream);border:1.5px solid var(--parchment);border-radius:var(--r-sm);color:var(--ink);outline:none;transition:border-color .2s,box-shadow .2s;box-sizing:border-box">
+        <button id="whoPassToggle" type="button" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--soft);font-size:16px;padding:0;line-height:1">👁</button>
+      </div>
+      <div id="whoPassErr" style="display:none;font-size:11px;color:var(--red);margin-bottom:8px;font-weight:600">Wrong password, try again</div>
+      <button id="whoPassSubmit" style="width:100%;padding:12px;background:linear-gradient(135deg,var(--rose),var(--rose-deep));color:#fff;border:none;border-radius:var(--r-sm);font-family:var(--sans);font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.06em;margin-bottom:10px">Unlock</button>
+      <button id="whoPassBack" style="width:100%;padding:9px;background:transparent;border:1.5px solid var(--parchment);border-radius:var(--r-sm);font-family:var(--sans);font-size:12px;font-weight:500;color:var(--muted);cursor:pointer">← Back</button>
     </div>
   </div>
 </div>
@@ -1469,12 +1485,53 @@ document.getElementById('settSessE').addEventListener('click',function(){
     overlay.style.display = 'flex';
   }
 
-  document.getElementById('whoBtnA').addEventListener('click', function(){ dismissPicker('Arina'); });
-  document.getElementById('whoBtnE').addEventListener('click', function(){ dismissPicker('Elnur'); });
+  // Passwords — change these to whatever you want
+  var PASSWORDS = { 'Arina': 'ae2026', 'Elnur': 'ae2026' };
+  var pendingWho = null;
+
+  function showPassStep(who) {
+    pendingWho = who;
+    document.getElementById('whoStep1').style.display = 'none';
+    document.getElementById('whoStep2').style.display = '';
+    document.getElementById('whoPassTitle').textContent = 'Hey ' + who + ' 👋';
+    document.getElementById('whoPassSub').textContent = 'Enter your password to continue';
+    document.getElementById('whoPassErr').style.display = 'none';
+    document.getElementById('whoPassInput').value = '';
+    document.getElementById('whoPassInput').style.borderColor = '';
+    setTimeout(function(){ document.getElementById('whoPassInput').focus(); }, 50);
+  }
+
+  function checkPassword() {
+    var input = document.getElementById('whoPassInput').value;
+    var err = document.getElementById('whoPassErr');
+    if (input === PASSWORDS[pendingWho]) {
+      err.style.display = 'none';
+      dismissPicker(pendingWho);
+    } else {
+      err.style.display = 'block';
+      document.getElementById('whoPassInput').style.borderColor = 'var(--red)';
+      document.getElementById('whoPassInput').value = '';
+      document.getElementById('whoPassInput').focus();
+    }
+  }
+
+  document.getElementById('whoBtnA').addEventListener('click', function(){ showPassStep('Arina'); });
+  document.getElementById('whoBtnE').addEventListener('click', function(){ showPassStep('Elnur'); });
   document.getElementById('whoBtnG').addEventListener('click', function(){
     var url = new URL(window.location.href);
     url.searchParams.set('guest', '1');
     window.location.href = url.toString();
+  });
+  document.getElementById('whoPassSubmit').addEventListener('click', checkPassword);
+  document.getElementById('whoPassInput').addEventListener('keydown', function(e){ if(e.key==='Enter') checkPassword(); });
+  document.getElementById('whoPassBack').addEventListener('click', function(){
+    pendingWho = null;
+    document.getElementById('whoStep2').style.display = 'none';
+    document.getElementById('whoStep1').style.display = '';
+  });
+  document.getElementById('whoPassToggle').addEventListener('click', function(){
+    var inp = document.getElementById('whoPassInput');
+    inp.type = inp.type === 'password' ? 'text' : 'password';
   });
 })();
 document.getElementById('ovTotal').addEventListener('click',function(){
@@ -3632,7 +3689,23 @@ function showActivityToast(msg){
   if (meEl) {
     meEl.addEventListener('click', function(){
       if (who === 'Guest') {
-        showToastWarn('You are in view only mode');
+        // Show a small popover on the avatar instead of hijacking the undo toast
+        var existing = document.getElementById('guestViewPopover');
+        if (existing) { existing.remove(); clearTimeout(existing._t); }
+        var pop = document.createElement('div');
+        pop.id = 'guestViewPopover';
+        pop.textContent = 'You\'re in view only mode';
+        pop.style.cssText = 'position:fixed;z-index:500;background:var(--ink2);color:#fff;font-family:var(--sans);font-size:11px;font-weight:600;padding:6px 12px;border-radius:100px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .18s,transform .18s;transform:translateY(4px)';
+        document.body.appendChild(pop);
+        // Position above the avatar
+        var rect = meEl.getBoundingClientRect();
+        pop.style.right = (window.innerWidth - rect.right) + 'px';
+        pop.style.top = (rect.top - 36) + 'px';
+        requestAnimationFrame(function(){ pop.style.opacity='1'; pop.style.transform='translateY(0)'; });
+        pop._t = setTimeout(function(){
+          pop.style.opacity='0'; pop.style.transform='translateY(-4px)';
+          setTimeout(function(){ pop.remove(); }, 200);
+        }, 2200);
         return;
       }
       var btn = document.getElementById('settingsBtn');
