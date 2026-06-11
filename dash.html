@@ -3740,18 +3740,18 @@ function showActivityToast(msg){
     var otherEl  = document.getElementById('presenceOther');
     if (who === 'Guest') {
       if (meEl)  { meEl.classList.add('is-guest'); meEl.title = 'You are in view only mode'; }
-      if (meImg) { meImg.src = 'arina.jpg'; meImg.onerror = function(){ this.src='elnur.jpg'; }; meImg.alt = 'Guest'; }
+      if (meImg) { meImg.src = 'https://www.arinaelnur.de/arina.jpg'; meImg.onerror = function(){ this.src='elnur.jpg'; }; meImg.alt = 'Guest'; }
       if (otherEl) { otherEl.style.display = 'none'; }
     } else {
       if (meEl)    { meEl.classList.remove("is-guest"); meEl.title = who + " — tap for settings"; }
-      if (meImg)   { meImg.src = who.toLowerCase() + ".jpg"; meImg.alt = who; }
+      if (meImg)   { meImg.src = "https://www.arinaelnur.de/" + who.toLowerCase() + ".jpg?v=2"; meImg.alt = who; }
       if (otherImg){
         var other = otherName();
         var fb = document.getElementById("presenceOtherFallback");
         otherImg.style.display = "";
         otherImg.alt = other;
         if (fb) { fb.textContent = other.charAt(0).toUpperCase(); }
-        otherImg.src = "https://elagha-dev.github.io/wedding/" + other.toLowerCase() + ".jpg";
+        otherImg.src = "https://www.arinaelnur.de/" + other.toLowerCase() + ".jpg?v=2";
       }
       if (otherEl) { otherEl.style.display = ""; }
     }
@@ -3870,7 +3870,7 @@ function showActivityToast(msg){
   function openChat(){
     chatOpen = true;
     var other = otherPerson();
-    headImg.src = other.toLowerCase() + '.jpg';
+    headImg.src = 'https://www.arinaelnur.de/' + other.toLowerCase() + '.jpg';
     headImg.alt = other;
     headName.textContent = other;
     // reflect current online status
