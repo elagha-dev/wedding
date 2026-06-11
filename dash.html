@@ -861,8 +861,8 @@ body.guest-mode .g-card .rsvp-entry{pointer-events:auto}
       <div class="s-row">
         <div class="s-row-info"><div class="s-row-title">You are</div><div class="s-row-sub">Which sender's session this is</div></div>
         <div class="session-toggle" style="flex-shrink:0">
-          <button class="sess-btn on-a" id="sessA" data-who="Arina">A</button>
-          <button class="sess-btn" id="sessE" data-who="Elnur">E</button>
+          <button class="sess-btn on-a" id="settSessA" data-who="Arina">A</button>
+          <button class="sess-btn" id="settSessE" data-who="Elnur">E</button>
         </div>
       </div>
       <div class="s-row">
@@ -1342,6 +1342,8 @@ function saveLastSettings(){try{localStorage.setItem('ww_last',JSON.stringify({t
 function loadLastSettings(){try{var d=localStorage.getItem('ww_last');if(d){var s=JSON.parse(d);selType=s.type||selType;selLang=s.lang||selLang;if(s.sessionSender)sessionSender=s.sessionSender;}}catch(e){}}
 mem=load();
 loadLastSettings();
+// ww_who (picker choice) always wins over ww_last
+(function(){ try{ var w=localStorage.getItem('ww_who'); if(w==='Arina'||w==='Elnur') sessionSender=w; } catch(e){} })();
 // apply restored session sender to UI
 setSession(sessionSender);
 // auto-scroll removed
@@ -1382,6 +1384,9 @@ function setSession(who){
   sessionSender=who;selSender=who;
   document.getElementById('sessA').className='sess-btn'+(who==='Arina'?' on-a':'');
   document.getElementById('sessE').className='sess-btn'+(who==='Elnur'?' on-e':'');
+  var sa=document.getElementById('settSessA'),se=document.getElementById('settSessE');
+  if(sa) sa.className='sess-btn'+(who==='Arina'?' on-a':'');
+  if(se) se.className='sess-btn'+(who==='Elnur'?' on-e':'');
   document.dispatchEvent(new CustomEvent('sessionChanged', {detail: who}));
   // sync sender buttons in generator
   document.querySelectorAll('.s-btn').forEach(function(b){b.classList.remove('on');if(b.dataset.s===who){b.classList.add('on');b.classList.add(who==='Arina'?'arina':'elnur');}});
@@ -1390,6 +1395,18 @@ function setSession(who){
 }
 document.getElementById('sessA').addEventListener('click',function(){if(sessionSender!=='Arina'){setSession('Arina');showSessionToast('Arina');}});
 document.getElementById('sessE').addEventListener('click',function(){if(sessionSender!=='Elnur'){setSession('Elnur');showSessionToast('Elnur');}});
+document.getElementById('settSessA').addEventListener('click',function(){
+  setSession('Arina');
+  try{localStorage.setItem('ww_who','Arina');}catch(e){}
+  document.body.classList.remove('guest-mode');
+  showSessionToast('Arina');
+});
+document.getElementById('settSessE').addEventListener('click',function(){
+  setSession('Elnur');
+  try{localStorage.setItem('ww_who','Elnur');}catch(e){}
+  document.body.classList.remove('guest-mode');
+  showSessionToast('Elnur');
+});
 
 /* ══ WHO-ARE-YOU PICKER ══════════════════════════════════ */
 (function(){
