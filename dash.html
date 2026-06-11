@@ -937,6 +937,7 @@ body.guest-mode .g-card .rsvp-entry{pointer-events:auto}
       <div class="chat-head-status" id="chatHeadStatus">offline</div>
     </div>
     <button class="chat-close" id="chatClose">×</button>
+    <button id="chatClearBtn" title="Clear chat" style="background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--muted);font-size:11px;font-weight:600;font-family:var(--sans);opacity:.7">Clear</button>
   </div>
   <div class="chat-messages" id="chatMessages">
     <div class="chat-empty">No messages yet.<br>Say hi! 👋</div>
@@ -3793,12 +3794,27 @@ function showChatNotif(who, text){
 
   }
 
+  var lastSeenTs = 0;
+
+  function fmtLastSeen(ts){
+    if(!ts) return "offline";
+    var diff = Math.floor((Date.now() - ts) / 1000);
+    if(diff < 60) return "last seen just now";
+    if(diff < 3600) return "last seen " + Math.floor(diff/60) + "m ago";
+    if(diff < 86400) return "last seen " + Math.floor(diff/3600) + "h ago";
+    return "last seen " + Math.floor(diff/86400) + "d ago";
+  }
+
   function setOtherOnline(online) {
-    var el = document.getElementById('presenceOther');
+    var el = document.getElementById("presenceOther");
     if (!el) return;
-    el.classList.toggle('is-online', online);
-    el.classList.toggle('is-offline', !online);
-    document.dispatchEvent(new CustomEvent('presenceChanged', {detail: online}));
+    el.classList.toggle("is-online", online);
+    el.classList.toggle("is-offline", !online);
+    if(!online && lastSeenTs === 0) lastSeenTs = Date.now();
+    if(online) lastSeenTs = 0;
+    var headStat = document.getElementById("chatHeadStatus");
+    if(headStat) headStat.textContent = online ? "online" : fmtLastSeen(lastSeenTs);
+    document.dispatchEvent(new CustomEvent("presenceChanged", {detail: online}));
   }
 
   function connect() {
@@ -3909,7 +3925,7 @@ function showChatNotif(who, text){
     var otherEl = document.getElementById('presenceOther');
     var isOnline = otherEl && otherEl.classList.contains('is-online');
     headDot.classList.toggle('online', isOnline);
-    headStat.textContent = isOnline ? 'online' : 'offline';
+    headStat.textContent = isOnline ? 'online' : fmtLastSeen(lastSeenTs);
     overlay.classList.add('open');
     drawer.classList.add('open');
     // clear unread and mark read timestamp
@@ -4022,6 +4038,18 @@ function showChatNotif(who, text){
 
   closeBtn.addEventListener('click', closeChat);
   overlay.addEventListener('click', closeChat);
+
+  var clearBtn = document.getElementById("chatClearBtn");
+  if(clearBtn) clearBtn.addEventListener("click", function(){
+    if(!confirm("Clear all messages? This cannot be undone.")) return;
+    fetch(workerBase() + "/chat/clear", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({})}).catch(function(){});
+    if(msgList) msgList.innerHTML = "<div class=\"chat-empty\">No messages yet.<br>Say hi! 👋</div>";
+    lastMsgTs = Date.now();
+    lastReadTs = lastMsgTs;
+    try{ localStorage.setItem("chat_lastRead", String(lastReadTs)); }catch(e){}
+    unreadCount = 0;
+    if(unreadEl){ unreadEl.textContent=""; unreadEl.classList.remove("show"); }
+  });
 
   sendBtn.addEventListener('click', sendMessage);
   input.addEventListener('keydown', function(e){
