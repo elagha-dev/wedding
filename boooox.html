@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>boooox — your wedding, organised</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&display=swap');
+
+  :root {
+    --ink: #1a1614;
+    --ink2: #3d3330;
+    --muted: #9a8f8a;
+    --cream: #fdf8f3;
+    --warm: #f5ede3;
+    --border: rgba(0,0,0,.08);
+    --rose: #c4956a;
+    --rose-light: #f0e0d0;
+    --green: #5a9e78;
+    --serif: 'Instrument Serif', Georgia, serif;
+    --sans: 'Inter', system-ui, sans-serif;
+    --r: 16px;
+    --r-pill: 100px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--cream); color: var(--ink); font-family: var(--sans); min-height: 100vh; overflow-x: hidden; }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 0 24px; height: 56px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(253,248,243,.88); backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+  .logo { font-family: var(--serif); font-size: 22px; letter-spacing: -.02em; color: var(--ink); }
+  .logo span { color: var(--rose); }
+  .nav-cta { background: var(--ink); color: #fff; border: none; border-radius: var(--r-pill); padding: 8px 20px; font-family: var(--sans); font-size: 13px; font-weight: 500; cursor: pointer; transition: opacity .2s; }
+  .nav-cta:hover { opacity: .8; }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 80px 24px 60px; text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0; z-index: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(196,149,106,.12) 0%, transparent 70%);
+  }
+  .hero-eyebrow {
+    font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--rose); margin-bottom: 20px; position: relative; z-index: 1;
+  }
+  .hero h1 {
+    font-family: var(--serif); font-size: clamp(48px, 10vw, 96px);
+    line-height: 1.0; color: var(--ink); position: relative; z-index: 1;
+    letter-spacing: -.03em; max-width: 700px;
+  }
+  .hero h1 em { font-style: italic; color: var(--rose); }
+  .hero-sub {
+    margin-top: 24px; font-size: 17px; line-height: 1.6; color: var(--ink2);
+    max-width: 440px; position: relative; z-index: 1;
+  }
+  .hero-actions { margin-top: 40px; display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; position: relative; z-index: 1; }
+  .btn-primary {
+    background: var(--ink); color: #fff; border: none; border-radius: var(--r-pill);
+    padding: 14px 32px; font-family: var(--sans); font-size: 15px; font-weight: 500;
+    cursor: pointer; transition: transform .15s, opacity .15s;
+  }
+  .btn-primary:hover { transform: translateY(-1px); opacity: .9; }
+  .btn-ghost {
+    background: transparent; color: var(--ink2); border: 1.5px solid var(--border);
+    border-radius: var(--r-pill); padding: 14px 32px; font-family: var(--sans);
+    font-size: 15px; font-weight: 500; cursor: pointer; transition: background .15s;
+  }
+  .btn-ghost:hover { background: var(--warm); }
+
+  /* ── MOCKUP ── */
+  .mockup-wrap {
+    position: relative; z-index: 1; margin-top: 56px;
+    max-width: 340px; width: 100%;
+  }
+  .phone-shell {
+    background: #fff; border-radius: 36px; padding: 12px;
+    box-shadow: 0 32px 80px rgba(0,0,0,.16), 0 2px 8px rgba(0,0,0,.06);
+    border: 1px solid rgba(0,0,0,.06);
+  }
+  .phone-screen { background: var(--cream); border-radius: 26px; overflow: hidden; }
+  .phone-topbar {
+    background: rgba(253,248,243,.95); padding: 10px 14px; display: flex;
+    align-items: center; gap: 8px; border-bottom: 1px solid var(--border);
+  }
+  .phone-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--rose-light); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--rose); }
+  .phone-stat { background: var(--rose); color: #fff; border-radius: var(--r-pill); padding: 3px 9px; font-size: 10px; font-weight: 600; }
+  .phone-stat.sent { background: var(--green); }
+  .phone-spacer { flex: 1; }
+  .phone-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+  .phone-avatar-other { width: 28px; height: 28px; border-radius: 50%; background: #e8ddd6; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--ink2); position: relative; }
+  .phone-avatar-other .dot { position: absolute; bottom: 0; right: 0; width: 8px; height: 8px; border-radius: 50%; background: var(--green); border: 1.5px solid var(--cream); }
+  .phone-body { padding: 12px; }
+  .phone-section-label { font-size: 8px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .phone-guest { background: #fff; border-radius: 10px; padding: 9px 12px; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+  .phone-check { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--border); flex-shrink: 0; }
+  .phone-check.done { background: var(--green); border-color: var(--green); display: flex; align-items: center; justify-content: center; }
+  .phone-check.done::after { content: ''; width: 6px; height: 4px; border-left: 1.5px solid #fff; border-bottom: 1.5px solid #fff; transform: rotate(-45deg) translateY(-1px); display: block; }
+  .phone-guest-name { font-size: 11px; font-weight: 500; color: var(--ink); flex: 1; }
+  .phone-tag { font-size: 8px; font-weight: 600; color: var(--muted); background: var(--warm); border-radius: 4px; padding: 2px 6px; }
+  .phone-wa { width: 18px; height: 18px; background: var(--green); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+  .phone-wa::after { content: '✓'; font-size: 8px; color: #fff; font-weight: 700; }
+  .phone-chat-bubble {
+    position: absolute; bottom: -16px; right: -16px;
+    background: var(--ink); color: #fff; border-radius: 14px 14px 4px 14px;
+    padding: 8px 12px; font-size: 10px; font-weight: 500; white-space: nowrap;
+    box-shadow: 0 4px 16px rgba(0,0,0,.2);
+    animation: floatBubble 3s ease-in-out infinite;
+  }
+  @keyframes floatBubble { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
+
+  /* ── FEATURES ── */
+  .section { padding: 80px 24px; max-width: 640px; margin: 0 auto; }
+  .section-label { font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--rose); margin-bottom: 16px; }
+  .section h2 { font-family: var(--serif); font-size: clamp(32px, 6vw, 52px); line-height: 1.1; letter-spacing: -.02em; }
+  .section h2 em { font-style: italic; color: var(--rose); }
+
+  .features { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 40px; }
+  @media(max-width:480px){ .features { grid-template-columns: 1fr; } }
+  .feature {
+    background: #fff; border-radius: var(--r); padding: 20px;
+    border: 1px solid var(--border);
+    transition: transform .2s, box-shadow .2s;
+  }
+  .feature:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,.08); }
+  .feature-icon { font-size: 24px; margin-bottom: 12px; }
+  .feature-title { font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
+  .feature-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+  /* ── SETUP ── */
+  .setup-section {
+    background: var(--ink); color: #fff; border-radius: 24px;
+    padding: 40px 32px; margin: 0 24px 80px; max-width: 592px;
+    margin-left: auto; margin-right: auto;
+  }
+  .setup-section .section-label { color: var(--rose); }
+  .setup-section h2 { font-family: var(--serif); font-size: clamp(28px, 5vw, 42px); line-height: 1.15; letter-spacing: -.02em; color: #fff; }
+  .setup-section h2 em { font-style: italic; color: var(--rose); }
+  .setup-section p { font-size: 14px; color: rgba(255,255,255,.6); margin-top: 10px; line-height: 1.6; }
+
+  /* steps */
+  .steps { margin-top: 32px; display: flex; flex-direction: column; gap: 0; }
+  .step { display: flex; gap: 16px; position: relative; }
+  .step:not(:last-child)::after {
+    content: ''; position: absolute; left: 15px; top: 32px; bottom: 0;
+    width: 1px; background: rgba(255,255,255,.1);
+  }
+  .step-num {
+    width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.15); display: flex; align-items: center;
+    justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0;
+    color: rgba(255,255,255,.7);
+  }
+  .step-body { padding-bottom: 24px; }
+  .step-title { font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+  .step-desc { font-size: 12px; color: rgba(255,255,255,.5); line-height: 1.5; }
+
+  /* ── ONBOARDING FORM ── */
+  #onboarding {
+    background: #fff; border-radius: 24px; padding: 40px 32px;
+    margin: 0 24px 80px; max-width: 592px;
+    margin-left: auto; margin-right: auto;
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 32px rgba(0,0,0,.06);
+  }
+  #onboarding h2 { font-family: var(--serif); font-size: 28px; letter-spacing: -.02em; margin-bottom: 6px; }
+  #onboarding .sub { font-size: 14px; color: var(--muted); margin-bottom: 32px; }
+
+  .form-group { margin-bottom: 20px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media(max-width:480px){ .form-row { grid-template-columns: 1fr; } }
+  label { display: block; font-size: 12px; font-weight: 600; color: var(--ink2); margin-bottom: 6px; letter-spacing: .02em; }
+  input[type=text], input[type=url], input[type=file], textarea {
+    width: 100%; border: 1.5px solid var(--border); border-radius: 10px;
+    padding: 10px 14px; font-family: var(--sans); font-size: 14px; color: var(--ink);
+    background: var(--cream); transition: border-color .15s, box-shadow .15s;
+    outline: none;
+  }
+  input[type=text]:focus, input[type=url]:focus, textarea:focus {
+    border-color: var(--rose); box-shadow: 0 0 0 3px rgba(196,149,106,.12);
+  }
+  .photo-upload-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .photo-upload {
+    border: 1.5px dashed var(--border); border-radius: 10px; padding: 20px 12px;
+    text-align: center; cursor: pointer; transition: border-color .15s, background .15s;
+    position: relative; overflow: hidden;
+  }
+  .photo-upload:hover { border-color: var(--rose); background: rgba(196,149,106,.04); }
+  .photo-upload input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .photo-upload-icon { font-size: 24px; margin-bottom: 6px; }
+  .photo-upload-label { font-size: 11px; font-weight: 600; color: var(--ink2); }
+  .photo-upload-sub { font-size: 10px; color: var(--muted); margin-top: 2px; }
+  .photo-preview { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; margin: 0 auto 6px; display: block; }
+
+  .form-divider { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
+  .form-hint { font-size: 11px; color: var(--muted); margin-top: 6px; line-height: 1.5; }
+  .form-hint a { color: var(--rose); text-decoration: none; }
+
+  .advanced-toggle { background: none; border: none; cursor: pointer; font-size: 12px; font-weight: 600; color: var(--muted); display: flex; align-items: center; gap: 6px; padding: 0; font-family: var(--sans); }
+  .advanced-toggle svg { transition: transform .2s; }
+  .advanced-toggle.open svg { transform: rotate(180deg); }
+  .advanced-fields { display: none; margin-top: 20px; }
+  .advanced-fields.open { display: block; }
+
+  .form-actions { display: flex; flex-direction: column; gap: 12px; margin-top: 32px; }
+  .btn-submit {
+    background: var(--ink); color: #fff; border: none; border-radius: var(--r-pill);
+    padding: 14px; font-family: var(--sans); font-size: 15px; font-weight: 500;
+    cursor: pointer; transition: opacity .15s; width: 100%;
+  }
+  .btn-submit:hover { opacity: .85; }
+  .btn-demo {
+    background: transparent; color: var(--muted); border: 1.5px solid var(--border);
+    border-radius: var(--r-pill); padding: 12px; font-family: var(--sans);
+    font-size: 13px; font-weight: 500; cursor: pointer; transition: background .15s; width: 100%;
+  }
+  .btn-demo:hover { background: var(--warm); color: var(--ink2); }
+
+  /* ── DEMO DASHBOARD ── */
+  #demoDash { display: none; }
+  #demoDash.visible { display: block; }
+
+  .demo-banner {
+    background: var(--rose); color: #fff; text-align: center;
+    padding: 10px 24px; font-size: 12px; font-weight: 600; letter-spacing: .04em;
+  }
+  .dash-wrap { max-width: 640px; margin: 0 auto; padding: 0 16px 60px; }
+
+  .dash-topbar {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(253,248,243,.95); backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 8px 16px; display: flex; align-items: center; gap: 8px; height: 52px;
+  }
+  .dash-logo { font-family: var(--serif); font-size: 18px; color: var(--ink); letter-spacing: -.02em; margin-right: 4px; }
+  .dash-logo span { color: var(--rose); }
+  .dash-pill { background: var(--rose); color: #fff; border-radius: var(--r-pill); padding: 4px 12px; font-size: 11px; font-weight: 700; }
+  .dash-pill.g { background: var(--green); }
+  .dash-spacer { flex: 1; }
+  .dash-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff; flex-shrink: 0; position: relative; }
+  .dash-avatar .online-dot { position: absolute; bottom: 1px; right: 1px; width: 9px; height: 9px; border-radius: 50%; background: var(--green); border: 2px solid var(--cream); }
+
+  .dash-filters { padding: 14px 16px 0; display: flex; gap: 8px; flex-wrap: wrap; }
+  .filter-btn { border: 1.5px solid var(--border); background: #fff; border-radius: var(--r-pill); padding: 6px 14px; font-size: 12px; font-weight: 500; cursor: pointer; font-family: var(--sans); color: var(--ink2); transition: all .15s; }
+  .filter-btn.active { background: var(--rose); border-color: var(--rose); color: #fff; }
+
+  .dash-section { padding: 20px 16px 0; }
+  .dash-section-label { font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+  .dash-guest {
+    background: #fff; border-radius: 12px; padding: 12px 14px; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 10px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.05); border: 1px solid rgba(0,0,0,.04);
+    transition: transform .15s;
+  }
+  .dash-guest:hover { transform: translateX(2px); }
+  .dash-guest-check { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--border); flex-shrink: 0; cursor: pointer; transition: all .15s; }
+  .dash-guest-check.sent { background: var(--green); border-color: var(--green); display: flex; align-items: center; justify-content: center; }
+  .dash-guest-check.sent::after { content: '✓'; font-size: 9px; color: #fff; font-weight: 700; }
+  .dash-guest-name { font-size: 14px; font-weight: 500; color: var(--ink); flex: 1; }
+  .dash-tag { font-size: 9px; font-weight: 600; color: var(--muted); background: var(--warm); border-radius: 4px; padding: 2px 7px; text-transform: uppercase; }
+  .dash-sender { width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; color: #fff; flex-shrink: 0; }
+
+  /* ── FOOTER ── */
+  footer { text-align: center; padding: 40px 24px; color: var(--muted); font-size: 12px; border-top: 1px solid var(--border); }
+  footer strong { font-family: var(--serif); color: var(--ink); font-size: 16px; }
+
+  /* animations */
+  @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+  .fade-up { animation: fadeUp .6s ease both; }
+  .fade-up-2 { animation: fadeUp .6s .15s ease both; }
+  .fade-up-3 { animation: fadeUp .6s .3s ease both; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">boooox<span>.</span></div>
+  <button class="nav-cta" onclick="document.getElementById('onboarding').scrollIntoView({behavior:'smooth'})">Get started</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <p class="hero-eyebrow fade-up">Wedding guest management</p>
+  <h1 class="fade-up-2">Your guest list,<br><em>finally sorted.</em></h1>
+  <p class="hero-sub fade-up-3">Both of you, one dashboard. Track invites, manage RSVPs, chat in real time — all without spreadsheets.</p>
+  <div class="hero-actions fade-up-3">
+    <button class="btn-primary" onclick="document.getElementById('onboarding').scrollIntoView({behavior:'smooth'})">Set up your dashboard</button>
+    <button class="btn-ghost" onclick="launchDemo()">See the demo →</button>
+  </div>
+
+  <!-- phone mockup -->
+  <div class="mockup-wrap fade-up-3">
+    <div class="phone-shell">
+      <div class="phone-screen">
+        <div class="phone-topbar">
+          <div class="phone-stat">124</div>
+          <div class="phone-stat sent">89 sent</div>
+          <div class="phone-spacer"></div>
+          <div class="phone-avatar-other">A<div class="dot"></div></div>
+          <div class="phone-avatar">E</div>
+        </div>
+        <div class="phone-body">
+          <div class="phone-section-label">Adults · Church</div>
+          <div class="phone-guest">
+            <div class="phone-check done"></div>
+            <div class="phone-guest-name">Sophie & James</div>
+            <div class="phone-tag">Church</div>
+            <div class="phone-wa"></div>
+          </div>
+          <div class="phone-guest">
+            <div class="phone-check"></div>
+            <div class="phone-guest-name">Maria Kovacs</div>
+            <div class="phone-tag">Venue</div>
+          </div>
+          <div class="phone-guest">
+            <div class="phone-check done"></div>
+            <div class="phone-guest-name">Thomas Werner</div>
+            <div class="phone-tag">Church</div>
+            <div class="phone-wa"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-chat-bubble">💬 Which table for the Müllers?</div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section">
+  <p class="section-label">Why boooox</p>
+  <h2>Everything two people need to plan a wedding <em>together.</em></h2>
+  <div class="features">
+    <div class="feature">
+      <div class="feature-icon">👫</div>
+      <div class="feature-title">Both of you, in sync</div>
+      <div class="feature-desc">See exactly what your partner is doing, live. No more "did you send that invite?"</div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">💌</div>
+      <div class="feature-title">Track every invite</div>
+      <div class="feature-desc">Mark guests as sent, add notes, flag for follow-up. Your whole list, under control.</div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">💬</div>
+      <div class="feature-title">Built-in couple chat</div>
+      <div class="feature-desc">Message each other right inside the app. No tab-switching, no WhatsApp threads.</div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">📊</div>
+      <div class="feature-title">Live RSVP tracking</div>
+      <div class="feature-desc">See who's confirmed, who hasn't replied, and your total guest count at a glance.</div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">📱</div>
+      <div class="feature-title">Works on your phone</div>
+      <div class="feature-desc">Add it to your home screen. Feels like a native app, no App Store needed.</div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">🔒</div>
+      <div class="feature-title">Your data, private</div>
+      <div class="feature-desc">Your guest list lives in your own Notion database. We never store your contacts.</div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<div class="setup-section">
+  <p class="section-label">How it works</p>
+  <h2>Ready in <em>minutes,</em> not days.</h2>
+  <p>No spreadsheets, no complicated setup. Just fill in the form below and your dashboard is ready to go.</p>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <div class="step-title">Tell us about yourselves</div>
+        <div class="step-desc">Your names and photos — that's it. No account needed.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <div class="step-title">Connect your guest list</div>
+        <div class="step-desc">We use Notion as your database — free, flexible, and you own your data.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <div class="step-title">Open your dashboard</div>
+        <div class="step-desc">Add it to both your home screens and start ticking off invites together.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ONBOARDING FORM -->
+<div id="onboarding">
+  <h2>Set up your dashboard</h2>
+  <p class="sub">Takes about 3 minutes. No account, no credit card.</p>
+
+  <div class="form-group">
+    <div class="form-row">
+      <div>
+        <label>Person 1 — name</label>
+        <input type="text" id="name1" placeholder="e.g. Arina" maxlength="30">
+      </div>
+      <div>
+        <label>Person 2 — name</label>
+        <input type="text" id="name2" placeholder="e.g. Elnur" maxlength="30">
+      </div>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>Your photos</label>
+    <div class="photo-upload-row">
+      <div class="photo-upload" id="upload1">
+        <input type="file" accept="image/*" onchange="previewPhoto(this,'preview1','upload1icon')">
+        <div id="upload1icon">
+          <div class="photo-upload-icon">🤍</div>
+          <div class="photo-upload-label" id="upload1name">Person 1</div>
+          <div class="photo-upload-sub">tap to upload</div>
+        </div>
+        <img id="preview1" class="photo-preview" style="display:none">
+      </div>
+      <div class="photo-upload" id="upload2">
+        <input type="file" accept="image/*" onchange="previewPhoto(this,'preview2','upload2icon')">
+        <div id="upload2icon">
+          <div class="photo-upload-icon">🤍</div>
+          <div class="photo-upload-label" id="upload2name">Person 2</div>
+          <div class="photo-upload-sub">tap to upload</div>
+        </div>
+        <img id="preview2" class="photo-preview" style="display:none">
+      </div>
+    </div>
+  </div>
+
+  <hr class="form-divider">
+
+  <button class="advanced-toggle" id="advToggle" onclick="toggleAdvanced()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    Connect your Notion guest list (optional)
+  </button>
+
+  <div class="advanced-fields" id="advFields">
+    <div class="form-group" style="margin-top:20px">
+      <label>Notion Integration Token</label>
+      <input type="text" id="notionToken" placeholder="ntn_xxxxxxxxxxxxxxxxxxxx">
+      <p class="form-hint">
+        Go to <a href="https://www.notion.so/my-integrations" target="_blank">notion.so/my-integrations</a>, create a new integration, and paste the token here.
+      </p>
+    </div>
+    <div class="form-group">
+      <label>Guest List Database ID</label>
+      <input type="text" id="notionDb" placeholder="32-character ID from your Notion URL">
+      <p class="form-hint">Open your guest list database in Notion, copy the URL — the ID is the part after the last slash and before the question mark.</p>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button class="btn-submit" onclick="launchDashboard()">Open my dashboard →</button>
+    <button class="btn-demo" onclick="launchDemo()">Try with demo data first</button>
+  </div>
+</div>
+
+<!-- DEMO DASHBOARD -->
+<div id="demoDash">
+  <div class="demo-banner">✨ DEMO MODE — this is what your dashboard looks like</div>
+
+  <div class="dash-topbar">
+    <div class="dash-logo">boooox<span>.</span></div>
+    <div class="dash-pill" id="demoTotal">124</div>
+    <div class="dash-pill g" id="demoSent">89 sent</div>
+    <div class="dash-spacer"></div>
+    <div class="dash-avatar" id="demoAvatarOther" style="background:var(--rose-light);color:var(--rose);font-size:12px;font-weight:700;margin-right:4px">
+      A
+      <div class="online-dot"></div>
+    </div>
+    <div class="dash-avatar" id="demoAvatarMe" style="background:var(--ink2);color:#fff;font-size:12px;font-weight:700">E</div>
+  </div>
+
+  <div class="dash-wrap">
+    <div class="dash-filters">
+      <button class="filter-btn active">All</button>
+      <button class="filter-btn">Unsent</button>
+      <button class="filter-btn">Sent</button>
+      <button class="filter-btn">Flagged</button>
+    </div>
+
+    <div class="dash-section">
+      <div class="dash-section-label">Adults · Church — 6 guests</div>
+
+      <div class="dash-guest">
+        <div class="dash-guest-check sent" onclick="toggleSent(this)"></div>
+        <div class="dash-guest-name">Sophie & James Müller</div>
+        <div class="dash-tag">Church</div>
+        <div class="dash-sender" style="background:var(--rose)">A</div>
+      </div>
+      <div class="dash-guest">
+        <div class="dash-guest-check" onclick="toggleSent(this)"></div>
+        <div class="dash-guest-name">Maria Kovacs</div>
+        <div class="dash-tag">Church</div>
+        <div class="dash-sender" style="background:var(--ink2)">E</div>
+      </div>
+      <div class="dash-guest">
+        <div class="dash-guest-check sent" onclick="toggleSent(this)"></div>
+        <div class="dash-guest-name">Thomas & Lisa Werner</div>
+        <div class="dash-tag">Church + Venue</div>
+        <div class="dash-sender" style="background:var(--rose)">A</div>
+      </div>
+      <div class="dash-guest">
+        <div class="dash-guest-check" onclick="toggleSent(this)"></div>
+        <div class="dash-guest-name">Dmitri Volkov</div>
+        <div class="dash-tag">Church</div>
+        <div class="dash-sender" style="background:var(--ink2)">E</div>
+      </div>
+      <div class="dash-guest">
+        <div class="dash-guest-check sent" onclick="toggleSent(this)"></div>
+        <div class="dash-guest-name">Yasmin & Kemal Demir</div>
+        <div class="dash-tag">Church + Venue</div>
+        <div class="dash-sender" style="background:var(--rose)">A</div>
+      </div>
+      <div class="dash-guest">
+        <div class="dash-guest-check" onclick="toggleSent(this)"></div>
+        <div class="dash-guest-name">Pierre Leclerc</div>
+        <div class="dash-tag">Church</div>
+        <div class="dash-sender" style="background:var(--ink2)">E</div>
+      </div>
+    </div>
+
+    <div class="dash-section" style="margin-top:8px">
+      <div class="dash-section-label">Adults · Venue only — 4 guests</div>
+      <div class="dash-guest">
+        <div class="dash-guest-check sent" onclick="toggleSent(this)"></div>
+        <div class="dash-guest-name">Nina & Sven Hoffmann</div>
+        <div class="dash-tag">Venue</div>
+        <div class="dash-sender" style="background:var(--rose)">A</div>
+      </div>
+      <div class="dash-guest">
+        <div class="dash-guest-check" onclick="toggleSent(this)"></div>
+        <div class="dash-guest-name">Anna Petrova</div>
+        <div class="dash-tag">Venue</div>
+        <div class="dash-sender" style="background:var(--ink2)">E</div>
+      </div>
+      <div class="dash-guest">
+        <div class="dash-guest-check sent" onclick="toggleSent(this)"></div>
+        <div class="dash-guest-name">Marco & Giulia Rossi</div>
+        <div class="dash-tag">Venue</div>
+        <div class="dash-sender" style="background:var(--rose)">A</div>
+      </div>
+      <div class="dash-guest">
+        <div class="dash-guest-check" onclick="toggleSent(this)"></div>
+        <div class="dash-guest-name">Elena Schmitt</div>
+        <div class="dash-tag">Venue</div>
+        <div class="dash-sender" style="background:var(--ink2)">E</div>
+      </div>
+    </div>
+
+    <div style="margin-top:32px;padding:20px;background:#fff;border-radius:16px;border:1px solid var(--border);text-align:center">
+      <div style="font-family:var(--serif);font-size:20px;margin-bottom:8px">Ready to use it for real?</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:16px">Fill in your details above and open your own dashboard.</div>
+      <button class="btn-primary" style="font-size:13px;padding:10px 24px" onclick="document.getElementById('onboarding').scrollIntoView({behavior:'smooth'})">Set it up →</button>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <strong>boooox.</strong><br><br>
+  Made with love for couples who want to enjoy planning, not dread it.<br>
+  <span style="margin-top:8px;display:block">Your data lives in your Notion. Always.</span>
+</footer>
+
+<script>
+  // sync name inputs to photo upload labels
+  document.getElementById('name1').addEventListener('input', function(){
+    document.getElementById('upload1name').textContent = this.value || 'Person 1';
+    if(document.getElementById('demoAvatarOther')) document.getElementById('demoAvatarOther').childNodes[0].textContent = (this.value||'A').charAt(0).toUpperCase();
+  });
+  document.getElementById('name2').addEventListener('input', function(){
+    document.getElementById('upload2name').textContent = this.value || 'Person 2';
+    if(document.getElementById('demoAvatarMe')) document.getElementById('demoAvatarMe').childNodes[0].textContent = (this.value||'E').charAt(0).toUpperCase();
+  });
+
+  function previewPhoto(input, previewId, iconId){
+    var file = input.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e){
+      var img = document.getElementById(previewId);
+      img.src = e.target.result;
+      img.style.display = 'block';
+      document.getElementById(iconId).style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function toggleAdvanced(){
+    var fields = document.getElementById('advFields');
+    var toggle = document.getElementById('advToggle');
+    var open = fields.classList.toggle('open');
+    toggle.classList.toggle('open', open);
+  }
+
+  function toggleSent(el){
+    el.classList.toggle('sent');
+    updateDemoCount();
+  }
+
+  function updateDemoCount(){
+    var sent = document.querySelectorAll('.dash-guest-check.sent').length;
+    var total = document.querySelectorAll('.dash-guest-check').length;
+    document.getElementById('demoSent').textContent = sent + ' sent';
+  }
+
+  function launchDemo(){
+    var demo = document.getElementById('demoDash');
+    demo.classList.add('visible');
+    setTimeout(function(){ demo.scrollIntoView({behavior:'smooth'}); }, 100);
+  }
+
+  function launchDashboard(){
+    var name1 = document.getElementById('name1').value.trim();
+    var name2 = document.getElementById('name2').value.trim();
+    if(!name1 || !name2){
+      alert('Please enter both your names first!');
+      document.getElementById('name1').focus();
+      return;
+    }
+
+    var notionToken = document.getElementById('notionToken').value.trim();
+    var notionDb = document.getElementById('notionDb').value.trim();
+
+    if(!notionToken || !notionDb){
+      // No Notion credentials — launch demo with their names
+      var other = document.getElementById('demoAvatarOther');
+      var me = document.getElementById('demoAvatarMe');
+      if(other) other.childNodes[0].textContent = name1.charAt(0).toUpperCase();
+      if(me) me.childNodes[0].textContent = name2.charAt(0).toUpperCase();
+      launchDemo();
+      return;
+    }
+
+    // With credentials — in a real product this would generate a unique URL
+    // For this prototype, show a config summary they can hand to a developer
+    var config = {
+      name1: name1,
+      name2: name2,
+      notionToken: notionToken,
+      notionDb: notionDb
+    };
+
+    var summary = document.createElement('div');
+    summary.style.cssText = 'position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:24px';
+    summary.innerHTML =
+      '<div style="background:#fff;border-radius:20px;padding:32px;max-width:420px;width:100%;font-family:var(--sans)">' +
+      '<div style="font-family:var(--serif);font-size:22px;margin-bottom:8px">You\'re all set, ' + name1 + ' & ' + name2 + '! 🎉</div>' +
+      '<p style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6">Your config is ready. In the full version, this would instantly generate your private dashboard URL. For now, here\'s your setup:</p>' +
+      '<pre style="background:var(--warm);border-radius:10px;padding:14px;font-size:11px;overflow:auto;line-height:1.6">' + JSON.stringify(config, null, 2) + '</pre>' +
+      '<button onclick="this.closest(\'div\').parentNode.remove()" style="margin-top:20px;width:100%;padding:12px;background:var(--ink);color:#fff;border:none;border-radius:var(--r-pill);font-family:var(--sans);font-size:14px;font-weight:500;cursor:pointer">Got it!</button>' +
+      '</div>';
+    document.body.appendChild(summary);
+  }
+
+  // filter buttons (demo)
+  document.querySelectorAll('.filter-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('.filter-btn').forEach(function(b){ b.classList.remove('active'); });
+      this.classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>
