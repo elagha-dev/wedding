@@ -714,7 +714,8 @@ body.guest-mode .g-card .rsvp-entry{pointer-events:auto}
   <button class="dev-btn" id="devBtn" style="display:none" title="Dev mode"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
   <!-- Other person avatar (presence) -->
   <div class="presence-avatar is-offline" id="presenceOther" style="flex-shrink:0;display:none" title="Chat">
-    <img id="presenceOtherImg" src="" alt="" onerror="this.style.display='none'">
+    <img id="presenceOtherImg" src="" alt="" onerror="this.style.display='none';var fb=document.getElementById('presenceOtherFallback');if(fb){fb.style.display='flex';}">
+    <span id="presenceOtherFallback" style="display:none;position:absolute;inset:0;border-radius:50%;background:linear-gradient(135deg,var(--rose),var(--rose-deep));color:#fff;font-family:var(--sans);font-size:13px;font-weight:700;align-items:center;justify-content:center;"></span>
     <span class="presence-dot"></span>
     <span class="chat-unread" id="chatUnread"></span>
   </div>
@@ -3742,11 +3743,24 @@ function showActivityToast(msg){
       if (meImg) { meImg.src = 'arina.jpg'; meImg.onerror = function(){ this.src='elnur.jpg'; }; meImg.alt = 'Guest'; }
       if (otherEl) { otherEl.style.display = 'none'; }
     } else {
-      if (meEl)    { meEl.classList.remove('is-guest'); meEl.title = who + ' — tap for settings'; }
-      if (meImg)   { meImg.src = who.toLowerCase() + '.jpg'; meImg.alt = who; }
-      if (otherImg){ otherImg.src = otherName().toLowerCase() + '.jpg'; otherImg.alt = otherName(); }
-      if (otherEl) { otherEl.style.display = ''; }
+      if (meEl)    { meEl.classList.remove("is-guest"); meEl.title = who + " — tap for settings"; }
+      if (meImg)   { meImg.src = who.toLowerCase() + ".jpg"; meImg.alt = who; }
+      if (otherImg){
+        var other = otherName();
+        var fb = document.getElementById("presenceOtherFallback");
+        otherImg.style.display = "";
+        otherImg.alt = other;
+        if (fb) { fb.textContent = other.charAt(0).toUpperCase(); }
+        otherImg.src = "https://elagha-dev.github.io/wedding/" + other.toLowerCase() + ".jpg";
+      }
+      if (otherEl) { otherEl.style.display = ""; }
     }
+
+
+
+
+
+
   }
 
   function setOtherOnline(online) {
