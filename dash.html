@@ -996,7 +996,7 @@ body.guest-mode .g-card .rsvp-entry{pointer-events:auto}
     <!-- SECTION: People -->
     <div class="s-section">
       <div class="s-section-label">People</div>
-      <div class="s-row">
+      <div class="s-row" style="display:none">
         <div class="s-row-info"><div class="s-row-title">You are</div><div class="s-row-sub">Which sender's session this is</div></div>
         <div class="session-toggle" style="flex-shrink:0">
           <button class="sess-btn on-a" id="settSessA" data-who="Arina">A</button>
@@ -3843,6 +3843,7 @@ function showActivityToast(msg){
   var MAX_MSGS = 50;
   var chatOpen = false;
   var lastMsgTs = 0;
+  var lastReadTs = 0; // timestamp when chat was last opened
   var pollTimer = null;
   var unreadCount = 0;
 
@@ -3880,9 +3881,13 @@ function showActivityToast(msg){
     headStat.textContent = isOnline ? 'online' : 'offline';
     overlay.classList.add('open');
     drawer.classList.add('open');
-    // clear unread
+    // clear unread and mark read timestamp
     unreadCount = 0;
-    if(unreadEl){ unreadEl.textContent=''; unreadEl.classList.remove('show'); }
+    lastReadTs = lastMsgTs;
+    if(unreadEl){ unreadEl.textContent=""; unreadEl.classList.remove("show"); }
+
+
+
     fetchMessages(true);
     startPoll();
     setTimeout(function(){ input.focus(); }, 350);
@@ -3918,7 +3923,7 @@ function showActivityToast(msg){
     if(!chatOpen && newMsgs.length){
       var fromOther = newMsgs.filter(function(m){ return m.who !== me; });
       if(fromOther.length){
-        unreadCount += fromOther.length;
+        unreadCount = msgs.filter(function(m){ return m.who !== me && m.ts > lastReadTs; }).length;
         if(unreadEl){ unreadEl.textContent = unreadCount > 9 ? '9+' : unreadCount; unreadEl.classList.add('show'); }
         // toast
         var last = fromOther[fromOther.length - 1];
