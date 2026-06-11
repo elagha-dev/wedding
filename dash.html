@@ -3404,7 +3404,7 @@ function showActivityToast(msg){
 /* ── PRESENCE via WebSocket ── */
 (function(){
   var WORKER = 'wss://guestlist.elnur-agha.workers.dev';
-  var who = localStorage.getItem('sessionSender') || 'Arina';
+  var who = (function(){ try{ var d=JSON.parse(localStorage.getItem('ww_last')||'{}'); return d.sessionSender||'Arina'; }catch(e){ return 'Arina'; } })();
   var ws, reconnectTimer, pingTimer;
 
   function myId()    { return who === 'Arina' ? 'presenceA' : 'presenceE'; }
@@ -3447,8 +3447,15 @@ function showActivityToast(msg){
     who = e.detail;
     var a = document.getElementById('presenceA');
     var el = document.getElementById('presenceE');
-    if (a) { a.classList.toggle('is-me', who === 'Arina'); a.classList.toggle('is-online', who === 'Arina'); a.classList.toggle('is-offline', who !== 'Arina'); }
-    if (el) { el.classList.toggle('is-me', who === 'Elnur'); }
+    // Reset both first
+    if (a) { a.classList.remove('is-me','is-online','is-offline'); }
+    if (el) { el.classList.remove('is-me','is-online','is-offline'); }
+    // Mark me
+    var meEl = document.getElementById(myId());
+    if (meEl) { meEl.classList.add('is-me','is-online'); }
+    // Other stays offline until server confirms
+    var otherEl = document.getElementById(otherId());
+    if (otherEl) { otherEl.classList.add('is-offline'); }
     if (ws && ws.readyState === 1) ws.send(JSON.stringify({ type: 'hello', who: who }));
     else connect();
   });
