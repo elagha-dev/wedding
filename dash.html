@@ -3936,7 +3936,19 @@ function showChatNotif(who, text){
     var otherEl = document.getElementById('presenceOther');
     var isOnline = otherEl && otherEl.classList.contains('is-online');
     headDot.classList.toggle('online', isOnline);
-    headStat.textContent = isOnline ? 'online' : fmtLastSeen(lastSeenTs);
+    if(isOnline){ headStat.textContent = 'online'; }
+    else {
+      var lsT = 0;
+      try { var _v = parseInt(localStorage.getItem('ww_lastseen_' + other.toLowerCase()), 10); if(!isNaN(_v)) lsT = _v; } catch(_){}
+      if(!lsT){ headStat.textContent = 'offline'; }
+      else {
+        var _d = Math.floor((Date.now() - lsT)/1000);
+        if(_d < 60) headStat.textContent = 'last seen just now';
+        else if(_d < 3600) headStat.textContent = 'last seen ' + Math.floor(_d/60) + 'm ago';
+        else if(_d < 86400) headStat.textContent = 'last seen ' + Math.floor(_d/3600) + 'h ago';
+        else headStat.textContent = 'last seen ' + Math.floor(_d/86400) + 'd ago';
+      }
+    }
     overlay.classList.add('open');
     drawer.classList.add('open');
     // clear unread and mark read timestamp
