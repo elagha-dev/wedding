@@ -563,7 +563,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .presence-avatar.is-offline img{opacity:.45;filter:grayscale(.4)}
 .presence-dot{position:absolute;bottom:0;right:0;width:9px;height:9px;border-radius:50%;border:2px solid var(--cream);background:var(--soft);transition:background var(--ease)}
 .presence-avatar.is-online .presence-dot{background:var(--green)}
-.presence-avatar.is-me .presence-dot{background:var(--rose)}
+.presence-avatar.is-me .presence-dot{display:none}
 
 /* ── WHO ARE YOU PICKER ── */
 .who-overlay{position:fixed;inset:0;background:rgba(30,20,10,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px}
@@ -595,6 +595,10 @@ body.guest-mode .swipe-hint{display:none!important}
 body.guest-mode .g-card{pointer-events:none}
 body.guest-mode .g-card .rsvp-entry{pointer-events:auto}
 .s-btn-small{font-family:var(--sans);font-size:11px;font-weight:700;padding:6px 14px;border-radius:var(--r-pill);border:1.5px solid var(--parchment);background:var(--cream2);color:var(--ink);cursor:pointer}
+
+.presence-avatar.is-guest img { display:none!important; }
+.presence-avatar.is-guest .presence-guest-icon { display:flex!important; }
+.presence-guest-icon { display:none; width:30px; height:30px; border-radius:50%; background:var(--parchment); align-items:center; justify-content:center; font-size:14px; border:2px solid var(--soft); }
 </style>
 </head>
 <body>
@@ -660,6 +664,7 @@ body.guest-mode .g-card .rsvp-entry{pointer-events:auto}
   <!-- My avatar → opens settings -->
   <div class="presence-avatar is-me is-online" id="presenceMe" title="Settings" style="flex-shrink:0;cursor:pointer">
     <img id="presenceMeImg" src="" alt="">
+    <span class="presence-guest-icon">👁</span>
     <span class="presence-dot"></span>
   </div>
   <!-- Settings btn (hidden, triggered by avatar) -->
@@ -1415,18 +1420,30 @@ document.getElementById('settSessE').addEventListener('click',function(){
     if (who === 'Guest') {
       document.body.classList.add('guest-mode');
       sessionSender = 'Guest';
+      try { localStorage.setItem(STORAGE_KEY, who); } catch(e) {}
+      // notify presence
+      document.dispatchEvent(new CustomEvent('sessionChanged', {detail: 'Guest'}));
     } else {
       document.body.classList.remove('guest-mode');
-      setSession(who);
+      try { localStorage.setItem(STORAGE_KEY, who); } catch(e) {}
+      setSession(who); // this already dispatches sessionChanged
     }
-    try { localStorage.setItem(STORAGE_KEY, who); } catch(e) {}
   }
+
+  // Check for ?guest=1 URL param — shareable guest link
+  var urlGuest = new URLSearchParams(window.location.search).get('guest') === '1';
 
   // Check if already chosen this session
   var saved;
   try { saved = localStorage.getItem(STORAGE_KEY); } catch(e) {}
 
-  if (saved === 'Arina' || saved === 'Elnur') {
+  if (urlGuest) {
+    overlay.style.display = 'none';
+    document.body.classList.add('guest-mode');
+    sessionSender = 'Guest';
+    who = 'Guest';
+    updateAvatars();
+  } else if (saved === 'Arina' || saved === 'Elnur') {
     overlay.style.display = 'none';
     setSession(saved);
   } else if (saved === 'Guest') {
@@ -3520,7 +3537,17 @@ function showActivityToast(msg){
 /* ── PRESENCE via WebSocket ── */
 (function(){
   var WORKER = 'wss://guestlist.elnur-agha.workers.dev';
-  var who = (function(){ try{ var d=JSON.parse(localStorage.getItem('ww_last')||'{}'); return d.sessionSender||'Arina'; }catch(e){ return 'Arina'; } })();
+  // ww_who (picker) always wins; fall back to ww_last; default Arina
+  var who = (function(){
+    try {
+      var urlGuest = new URLSearchParams(window.location.search).get('guest') === '1';
+      if (urlGuest) return 'Guest';
+      var w = localStorage.getItem('ww_who');
+      if (w === 'Arina' || w === 'Elnur' || w === 'Guest') return w;
+      var d = JSON.parse(localStorage.getItem('ww_last') || '{}');
+      return d.sessionSender || 'Arina';
+    } catch(e) { return 'Arina'; }
+  })();
   var ws, reconnectTimer, pingTimer;
 
   function otherName() { return who === 'Arina' ? 'Elnur' : 'Arina'; }
@@ -3530,9 +3557,15 @@ function showActivityToast(msg){
     var otherImg = document.getElementById('presenceOtherImg');
     var meEl     = document.getElementById('presenceMe');
     var otherEl  = document.getElementById('presenceOther');
-    if (meImg)    { meImg.src = who.toLowerCase() + '.jpg'; meImg.alt = who; }
-    if (otherImg) { otherImg.src = otherName().toLowerCase() + '.jpg'; otherImg.alt = otherName(); }
-    if (meEl)     { meEl.title = who + ' (you) — tap for settings'; }
+    if (who === 'Guest') {
+      if (meEl)  { meEl.classList.add('is-guest'); meEl.title = 'Guest — view only'; }
+      if (otherEl) { otherEl.style.display = 'none'; }
+    } else {
+      if (meEl)    { meEl.classList.remove('is-guest'); meEl.title = who + ' — tap for settings'; }
+      if (meImg)   { meImg.src = who.toLowerCase() + '.jpg'; meImg.alt = who; }
+      if (otherImg){ otherImg.src = otherName().toLowerCase() + '.jpg'; otherImg.alt = otherName(); }
+      if (otherEl) { otherEl.style.display = ''; }
+    }
   }
 
   function setOtherOnline(online) {
@@ -3575,10 +3608,14 @@ function showActivityToast(msg){
     else connect();
   });
 
-  // My avatar opens settings
+  // My avatar opens settings (or shows guest toast)
   var meEl = document.getElementById('presenceMe');
   if (meEl) {
     meEl.addEventListener('click', function(){
+      if (who === 'Guest') {
+        if (typeof showSessionToast === 'function') showSessionToast('Guest');
+        return;
+      }
       var btn = document.getElementById('settingsBtn');
       if (btn) btn.click();
     });
