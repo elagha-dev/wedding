@@ -556,12 +556,12 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 
 /* ── PRESENCE AVATARS ── */
 .presence-wrap{display:flex;align-items:center;gap:6px;flex:0 0 auto}
-.presence-avatar{position:relative;width:30px;height:30px;border-radius:50%;overflow:visible;cursor:pointer;flex-shrink:0}
-.presence-avatar img{width:30px;height:30px;border-radius:50%;object-fit:cover;display:block;border:2px solid transparent;transition:border-color var(--ease),opacity var(--ease)}
+.presence-avatar{position:relative;width:34px;height:34px;border-radius:50%;overflow:visible;cursor:pointer;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center}
+.presence-avatar img{width:34px;height:34px;border-radius:50%;object-fit:cover;display:block;border:2px solid transparent;transition:border-color var(--ease),opacity var(--ease)}
 .presence-avatar.is-me img{border-color:var(--rose)}
 .presence-avatar.is-online img{opacity:1}
 .presence-avatar.is-offline img{opacity:.85}
-.presence-dot{position:absolute;bottom:0;right:0;width:9px;height:9px;border-radius:50%;border:2px solid var(--cream);background:#C4AFA4;transition:background var(--ease)}
+.presence-dot{position:absolute;bottom:1px;right:1px;width:9px;height:9px;border-radius:50%;border:2px solid var(--cream);background:#C4AFA4;transition:background var(--ease);z-index:1}
 .presence-avatar.is-online .presence-dot{background:var(--green)}
 .presence-avatar.is-me .presence-dot{display:none}
 
