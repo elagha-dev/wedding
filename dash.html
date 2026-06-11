@@ -561,7 +561,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .presence-avatar.is-me img{border-color:var(--rose)}
 .presence-avatar.is-online img{opacity:1}
 .presence-avatar.is-offline img{opacity:.45;filter:grayscale(.4)}
-.presence-dot{position:absolute;bottom:0;right:0;width:9px;height:9px;border-radius:50%;border:2px solid var(--cream);background:var(--soft);transition:background var(--ease)}
+.presence-dot{position:absolute;bottom:0;right:0;width:9px;height:9px;border-radius:50%;border:2px solid var(--cream);background:rgba(196,175,164,.35);transition:background var(--ease)}
 .presence-avatar.is-online .presence-dot{background:var(--green)}
 .presence-avatar.is-me .presence-dot{display:none}
 
@@ -591,16 +591,17 @@ body.guest-mode .deploy-btn,
 body.guest-mode .ai-btn,
 body.guest-mode .card-actions,
 body.guest-mode .g-card-check,
+body.guest-mode .g-inner-right,
+body.guest-mode #presenceOther,
 body.guest-mode .swipe-hint{display:none!important}
 body.guest-mode .g-card{pointer-events:none}
 body.guest-mode .g-card .rsvp-entry{pointer-events:auto}
-/* guest sync prompt banner */
-#guestSyncBanner{display:none;background:linear-gradient(135deg,#FEF0DA,#EFD9C4);color:var(--amber);padding:9px 14px 9px 16px;font-family:var(--sans);font-size:11.5px;font-weight:500;line-height:1.4;align-items:center;gap:10px;border-bottom:1px solid rgba(176,120,48,.2)}
-body.guest-mode #guestSyncBanner{display:flex}
+/* guest sync popup */
+#guestSyncBanner{display:none;position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(10px);z-index:400;background:var(--ink2);color:#fff;font-family:var(--sans);font-size:12px;font-weight:500;padding:10px 14px 10px 16px;border-radius:var(--r-pill);box-shadow:0 8px 30px rgba(0,0,0,.22);align-items:center;gap:10px;white-space:nowrap;opacity:0;transition:opacity .25s,transform .25s}
+body.guest-mode #guestSyncBanner{display:flex;opacity:1;transform:translateX(-50%) translateY(0)}
 .s-btn-small{font-family:var(--sans);font-size:11px;font-weight:700;padding:6px 14px;border-radius:var(--r-pill);border:1.5px solid var(--parchment);background:var(--cream2);color:var(--ink);cursor:pointer}
 
-.presence-avatar.is-guest { overflow:hidden; }
-.presence-avatar.is-guest img { display:block!important; filter:blur(4px) brightness(.95); transform:scale(1.2); }
+.presence-avatar.is-guest img { display:block!important; filter:blur(4px) brightness(.95); transform:scale(1.2); clip-path:circle(50%); }
 .presence-avatar.is-guest .presence-guest-icon { display:none!important; }
 .presence-guest-icon { display:none; width:30px; height:30px; border-radius:50%; background:var(--parchment); align-items:center; justify-content:center; font-size:14px; border:2px solid var(--soft); }
 /* Guest avatar hover tooltip */
@@ -705,10 +706,28 @@ body.guest-mode #guestSyncBanner{display:flex}
 
 <!-- GUEST SYNC BANNER -->
 <div id="guestSyncBanner">
-  <span style="font-size:15px;flex-shrink:0">🔄</span>
-  <span style="flex:1">Tap <strong style="color:var(--amber)">Sync</strong> to load the latest guest list.</span>
-  <button onclick="document.getElementById('topSyncBtn').click()" style="background:var(--amber);border:none;color:#fff;border-radius:var(--r-pill);padding:5px 14px;font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0;letter-spacing:.04em">Sync now</button>
+  <span style="font-size:14px;flex-shrink:0">🔄</span>
+  <span style="color:rgba(255,255,255,.8)">Tap sync to load the list</span>
+  <button id="guestSyncNowBtn" style="background:rgba(255,255,255,.18);border:1.5px solid rgba(255,255,255,.3);color:#fff;border-radius:var(--r-pill);padding:4px 13px;font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0;letter-spacing:.04em;transition:background .15s" onmouseover="this.style.background='rgba(255,255,255,.28)'" onmouseout="this.style.background='rgba(255,255,255,.18)'">Sync now</button>
 </div>
+<script>
+(function(){
+  var btn = document.getElementById('guestSyncNowBtn');
+  var banner = document.getElementById('guestSyncBanner');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    btn.textContent = 'Syncing…';
+    btn.disabled = true;
+    doSync();
+    // Hide banner after a short delay so user sees feedback
+    setTimeout(function(){
+      banner.style.opacity = '0';
+      banner.style.transform = 'translateX(-50%) translateY(10px)';
+      setTimeout(function(){ banner.style.display = 'none'; }, 250);
+    }, 1200);
+  });
+})();
+</script>
 
 <div class="prog-track" id="progTrack" style="display:none!important"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
 
