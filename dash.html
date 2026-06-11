@@ -594,9 +594,13 @@ body.guest-mode .g-card-check,
 body.guest-mode .swipe-hint{display:none!important}
 body.guest-mode .g-card{pointer-events:none}
 body.guest-mode .g-card .rsvp-entry{pointer-events:auto}
+/* guest sync prompt banner */
+#guestSyncBanner{display:none;background:linear-gradient(135deg,#FEF0DA,#EFD9C4);color:var(--amber);padding:9px 14px 9px 16px;font-family:var(--sans);font-size:11.5px;font-weight:500;line-height:1.4;align-items:center;gap:10px;border-bottom:1px solid rgba(176,120,48,.2)}
+body.guest-mode #guestSyncBanner{display:flex}
 .s-btn-small{font-family:var(--sans);font-size:11px;font-weight:700;padding:6px 14px;border-radius:var(--r-pill);border:1.5px solid var(--parchment);background:var(--cream2);color:var(--ink);cursor:pointer}
 
-.presence-avatar.is-guest img { display:block!important; filter:blur(5px) brightness(.95); transform:scale(1.15); }
+.presence-avatar.is-guest { overflow:hidden; }
+.presence-avatar.is-guest img { display:block!important; filter:blur(4px) brightness(.95); transform:scale(1.2); }
 .presence-avatar.is-guest .presence-guest-icon { display:none!important; }
 .presence-guest-icon { display:none; width:30px; height:30px; border-radius:50%; background:var(--parchment); align-items:center; justify-content:center; font-size:14px; border:2px solid var(--soft); }
 /* Guest avatar hover tooltip */
@@ -625,8 +629,8 @@ body.guest-mode .g-card .rsvp-entry{pointer-events:auto}
         <span>Elnur</span>
       </button>
       <button class="who-btn btn-g" id="whoBtnG">
-        <span class="who-btn-init" style="background:var(--parchment);color:var(--muted);overflow:hidden;padding:0;position:relative">
-          <img src="arina.jpg" onerror="this.src='elnur.jpg'" alt="" style="width:36px;height:36px;object-fit:cover;filter:blur(4px) brightness(.95);transform:scale(1.15);display:block">
+        <span class="who-btn-init" style="background:var(--parchment);color:var(--muted);overflow:hidden;padding:0;position:relative;border-radius:50%">
+          <img src="arina.jpg" onerror="this.src='elnur.jpg'" alt="" style="width:36px;height:36px;object-fit:cover;filter:blur(4px) brightness(.95);transform:scale(1.2);display:block">
         </span>
         <span>Guest — view only</span>
       </button>
@@ -683,7 +687,12 @@ body.guest-mode .g-card .rsvp-entry{pointer-events:auto}
   <button onclick="(function(){var b=document.getElementById('syncInfoBanner');b.style.opacity='0';b.style.transition='opacity .3s';setTimeout(function(){b.style.display='none';try{sessionStorage.setItem('syncBannerDismissed','1')}catch(e){}},300)})()" style="background:rgba(160,97,74,.15);border:1px solid rgba(160,97,74,.3);color:var(--rose-deep);border-radius:50%;width:22px;height:22px;font-size:14px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:var(--sans);transition:background .2s" onmouseover="this.style.background='rgba(160,97,74,.25)'" onmouseout="this.style.background='rgba(160,97,74,.15)'">×</button>
 </div>
 
-<div class="wrap">
+<!-- GUEST SYNC BANNER -->
+<div id="guestSyncBanner">
+  <span style="font-size:15px;flex-shrink:0">🔄</span>
+  <span style="flex:1">Tap <strong style="color:var(--amber)">Sync</strong> to load the latest guest list.</span>
+  <button onclick="document.getElementById('topSyncBtn').click()" style="background:var(--amber);border:none;color:#fff;border-radius:var(--r-pill);padding:5px 14px;font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0;letter-spacing:.04em">Sync now</button>
+</div>
 
 <div class="prog-track" id="progTrack" style="display:none!important"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
 
