@@ -3794,7 +3794,11 @@ function showChatNotif(who, text){
 
   }
 
-  var lastSeenTs = 0;
+  // Persist last-seen timestamp per person so it survives page refreshes
+  function lsKey() { return 'ww_lastseen_' + otherName().toLowerCase(); }
+  var lastSeenTs = (function(){
+    try { var v = parseInt(localStorage.getItem(lsKey()), 10); return isNaN(v) ? 0 : v; } catch(e) { return 0; }
+  })();
 
   function fmtLastSeen(ts){
     if(!ts) return "offline";
@@ -3810,8 +3814,15 @@ function showChatNotif(who, text){
     if (!el) return;
     el.classList.toggle("is-online", online);
     el.classList.toggle("is-offline", !online);
-    if(!online && lastSeenTs === 0) lastSeenTs = Date.now();
-    if(online) lastSeenTs = 0;
+    if(!online) {
+      // Record the time they went offline (or now if we don't have a better ts)
+      if(lastSeenTs === 0) lastSeenTs = Date.now();
+      try { localStorage.setItem(lsKey(), String(lastSeenTs)); } catch(e) {}
+    }
+    if(online) {
+      lastSeenTs = 0;
+      try { localStorage.removeItem(lsKey()); } catch(e) {}
+    }
     var headStat = document.getElementById("chatHeadStatus");
     if(headStat) headStat.textContent = online ? "online" : fmtLastSeen(lastSeenTs);
     document.dispatchEvent(new CustomEvent("presenceChanged", {detail: online}));
@@ -4065,7 +4076,17 @@ function showChatNotif(who, text){
     if(chatOpen){
       var online = e.detail;
       headDot.classList.toggle('online', online);
-      headStat.textContent = online ? 'online' : 'offline';
+      if(online){ headStat.textContent = 'online'; return; }
+      // Read the persisted last-seen for the other person
+      var other = (who === 'Arina') ? 'elnur' : 'arina';
+      var lsT = 0;
+      try { var v = parseInt(localStorage.getItem('ww_lastseen_' + other), 10); if(!isNaN(v)) lsT = v; } catch(ex){}
+      if(!lsT){ headStat.textContent = 'offline'; return; }
+      var diff = Math.floor((Date.now() - lsT)/1000);
+      if(diff < 60) headStat.textContent = 'last seen just now';
+      else if(diff < 3600) headStat.textContent = 'last seen ' + Math.floor(diff/60) + 'm ago';
+      else if(diff < 86400) headStat.textContent = 'last seen ' + Math.floor(diff/3600) + 'h ago';
+      else headStat.textContent = 'last seen ' + Math.floor(diff/86400) + 'd ago';
     }
   });
 
