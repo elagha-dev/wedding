@@ -561,7 +561,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .presence-avatar.is-me img{border-color:var(--rose)}
 .presence-avatar.is-online img{opacity:1}
 .presence-avatar.is-offline img{opacity:.45;filter:grayscale(.4)}
-.presence-dot{position:absolute;bottom:0;right:0;width:9px;height:9px;border-radius:50%;border:2px solid var(--cream);background:rgba(196,175,164,.35);transition:background var(--ease)}
+.presence-dot{position:absolute;bottom:0;right:0;width:9px;height:9px;border-radius:50%;border:2px solid var(--cream);background:#C4AFA4;transition:background var(--ease)}
 .presence-avatar.is-online .presence-dot{background:var(--green)}
 .presence-avatar.is-me .presence-dot{display:none}
 
@@ -683,8 +683,8 @@ body.guest-mode .g-card .rsvp-entry{pointer-events:auto}
   <!-- Dev mode -->
   <button class="dev-btn" id="devBtn" style="display:none" title="Dev mode"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
   <!-- Other person avatar (presence) -->
-  <div class="presence-avatar is-offline" id="presenceOther" style="flex-shrink:0">
-    <img id="presenceOtherImg" src="" alt="">
+  <div class="presence-avatar is-offline" id="presenceOther" style="flex-shrink:0;display:none">
+    <img id="presenceOtherImg" src="" alt="" onerror="this.style.display='none'">
     <span class="presence-dot"></span>
   </div>
   <!-- My avatar → opens settings -->
@@ -735,7 +735,8 @@ body.guest-mode .g-card .rsvp-entry{pointer-events:auto}
   btn.addEventListener('click', function(){
     btn.textContent = 'Syncing…';
     btn.disabled = true;
-    doSync();
+    // doSync is defined later in the script — call via timeout to ensure it's available
+    setTimeout(function(){ if(typeof doSync==='function') doSync(); }, 0);
     setTimeout(hideBanner, 1200);
   });
 
