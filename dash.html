@@ -33,7 +33,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .wrap{position:relative;z-index:1;max-width:640px;margin:0 auto;padding:0 16px 40px}
 
 /* ── TOPBAR ── */
-.topbar{position:sticky;top:0;z-index:100;background:rgba(253,248,243,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(196,149,106,.14);padding:6px 10px;display:flex;align-items:center;gap:5px;height:50px}
+.topbar{position:sticky;top:0;z-index:100;background:rgba(253,248,243,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(196,149,106,.14);padding:6px 10px;display:flex;align-items:center;gap:5px;height:50px;max-width:640px;margin:0 auto;left:0;right:0}
 /* Session toggle */
 .session-toggle{display:flex;align-items:center;flex:0 0 auto;align-self:center;background:var(--parchment);border-radius:var(--r-pill);padding:2px;gap:2px;height:32px;box-sizing:border-box}
 .sess-btn{width:26px;height:26px;border-radius:50%;border:none;font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer;transition:all var(--ease);background:transparent;color:var(--muted);text-align:center;display:flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -596,9 +596,9 @@ body.guest-mode #presenceOther,
 body.guest-mode .swipe-hint{display:none!important}
 body.guest-mode .g-card{pointer-events:none}
 body.guest-mode .g-card .rsvp-entry{pointer-events:auto}
-/* guest sync popup */
+/* sync prompt popup — shown for all users until first sync */
 #guestSyncBanner{display:none;position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(10px);z-index:400;background:var(--ink2);color:#fff;font-family:var(--sans);font-size:12px;font-weight:500;padding:10px 14px 10px 16px;border-radius:var(--r-pill);box-shadow:0 8px 30px rgba(0,0,0,.22);align-items:center;gap:10px;white-space:nowrap;opacity:0;transition:opacity .25s,transform .25s}
-body.guest-mode #guestSyncBanner{display:flex;opacity:1;transform:translateX(-50%) translateY(0)}
+#guestSyncBanner.visible{display:flex;opacity:1;transform:translateX(-50%) translateY(0)}
 .s-btn-small{font-family:var(--sans);font-size:11px;font-weight:700;padding:6px 14px;border-radius:var(--r-pill);border:1.5px solid var(--parchment);background:var(--cream2);color:var(--ink);cursor:pointer}
 
 .presence-avatar.is-guest img { display:block!important; filter:blur(4px) brightness(.95); transform:scale(1.2); clip-path:circle(50%); }
@@ -715,17 +715,37 @@ body.guest-mode #guestSyncBanner{display:flex;opacity:1;transform:translateX(-50
   var btn = document.getElementById('guestSyncNowBtn');
   var banner = document.getElementById('guestSyncBanner');
   if(!btn) return;
+
+  // Show for everyone if not yet synced (guestArea still hidden)
+  function maybeShowSyncBanner(){
+    var ga = document.getElementById('guestArea');
+    if(ga && ga.style.display === 'none'){
+      banner.classList.add('visible');
+    }
+  }
+  // Small delay so session is set first
+  setTimeout(maybeShowSyncBanner, 300);
+
+  function hideBanner(){
+    banner.style.opacity = '0';
+    banner.style.transform = 'translateX(-50%) translateY(10px)';
+    setTimeout(function(){ banner.classList.remove('visible'); banner.style.opacity=''; banner.style.transform=''; }, 250);
+  }
+
   btn.addEventListener('click', function(){
     btn.textContent = 'Syncing…';
     btn.disabled = true;
     doSync();
-    // Hide banner after a short delay so user sees feedback
-    setTimeout(function(){
-      banner.style.opacity = '0';
-      banner.style.transform = 'translateX(-50%) translateY(10px)';
-      setTimeout(function(){ banner.style.display = 'none'; }, 250);
-    }, 1200);
+    setTimeout(hideBanner, 1200);
   });
+
+  // Also hide once guestArea becomes visible (sync completed by topbar button)
+  var _obs = new MutationObserver(function(){
+    var ga = document.getElementById('guestArea');
+    if(ga && ga.style.display !== 'none') hideBanner();
+  });
+  var ga = document.getElementById('guestArea');
+  if(ga) _obs.observe(ga, { attributes: true, attributeFilter: ['style'] });
 })();
 </script>
 
