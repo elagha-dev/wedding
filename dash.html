@@ -607,6 +607,34 @@ body.guest-mode .g-card .rsvp-entry{pointer-events:auto}
 /* Guest avatar hover tooltip */
 .presence-avatar.is-guest::after{content:'View only mode';position:absolute;bottom:calc(100% + 7px);right:0;background:var(--ink2);color:#fff;font-family:var(--sans);font-size:9px;font-weight:600;letter-spacing:.04em;white-space:nowrap;padding:4px 9px;border-radius:var(--r-pill);opacity:0;pointer-events:none;transition:opacity .18s;transform:translateY(3px)}
 .presence-avatar.is-guest:hover::after{opacity:1;transform:translateY(0)}
+/* ── CHAT ── */
+.chat-unread{position:absolute;top:-3px;right:-3px;width:15px;height:15px;border-radius:50%;background:var(--red);color:#fff;font-family:var(--sans);font-size:8px;font-weight:800;display:none;align-items:center;justify-content:center;border:2px solid var(--cream);z-index:2;line-height:1}
+.chat-unread.show{display:flex}
+.chat-drawer{position:fixed;bottom:0;left:0;right:0;max-width:640px;margin:0 auto;background:var(--cream);border-radius:24px 24px 0 0;z-index:300;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);display:flex;flex-direction:column;box-shadow:0 -8px 40px rgba(100,60,30,.18);max-height:75vh}
+.chat-drawer.open{transform:translateY(0)}
+.chat-handle{width:36px;height:4px;background:var(--parchment);border-radius:2px;margin:10px auto 0;flex-shrink:0}
+.chat-head{display:flex;align-items:center;gap:10px;padding:12px 18px 10px;flex-shrink:0;border-bottom:1px solid var(--parchment)}
+.chat-head-avatar{position:relative;width:32px;height:32px;flex-shrink:0}
+.chat-head-avatar img{width:32px;height:32px;border-radius:50%;object-fit:cover;border:2px solid var(--rose)}
+.chat-head-dot{position:absolute;bottom:0;right:0;width:9px;height:9px;border-radius:50%;border:2px solid var(--cream);background:#C4AFA4}
+.chat-head-dot.online{background:var(--green)}
+.chat-head-info{flex:1}
+.chat-head-name{font-family:var(--sans);font-size:15px;font-weight:700;color:var(--ink)}
+.chat-head-status{font-size:10px;color:var(--muted)}
+.chat-close{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:2px 6px;border-radius:50%;line-height:1;transition:all var(--ease)}.chat-close:hover{color:var(--ink);background:var(--parchment)}
+.chat-messages{flex:1;overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:8px;-webkit-overflow-scrolling:touch}
+.chat-msg{max-width:78%;padding:8px 13px;border-radius:16px;font-size:13.5px;line-height:1.45;word-break:break-word}
+.chat-msg.me{align-self:flex-end;background:linear-gradient(135deg,var(--rose),var(--rose-deep));color:#fff;border-bottom-right-radius:4px}
+.chat-msg.them{align-self:flex-start;background:#fff;color:var(--ink);border:1px solid rgba(196,149,106,.15);box-shadow:var(--shadow-sm);border-bottom-left-radius:4px}
+.chat-msg-time{font-size:9px;opacity:.6;margin-top:3px;text-align:right}
+.chat-msg.them .chat-msg-time{text-align:left}
+.chat-empty{text-align:center;color:var(--muted);font-size:13px;padding:30px 20px;line-height:1.6}
+.chat-input-row{display:flex;gap:8px;padding:10px 14px 20px;flex-shrink:0;border-top:1px solid var(--parchment)}
+.chat-input{flex:1;font-family:var(--sans);font-size:14px;padding:10px 14px;background:var(--cream2);border:1.5px solid var(--parchment);border-radius:var(--r-pill);color:var(--ink);outline:none;resize:none;min-height:42px;max-height:100px;line-height:1.4;transition:border-color var(--ease)}.chat-input:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135,106,.1)}
+.chat-send{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--rose),var(--rose-deep));color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--ease);box-shadow:0 2px 8px rgba(160,97,74,.3)}.chat-send:hover{transform:scale(1.08)}.chat-send:disabled{opacity:.4;cursor:default;transform:none}
+.chat-overlay{position:fixed;inset:0;background:rgba(35,26,20,.35);backdrop-filter:blur(4px);z-index:299;opacity:0;pointer-events:none;transition:opacity .3s}
+.chat-overlay.open{opacity:1;pointer-events:all}
+
 </style>
 </head>
 <body>
@@ -683,9 +711,10 @@ body.guest-mode .g-card .rsvp-entry{pointer-events:auto}
   <!-- Dev mode -->
   <button class="dev-btn" id="devBtn" style="display:none" title="Dev mode"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
   <!-- Other person avatar (presence) -->
-  <div class="presence-avatar is-offline" id="presenceOther" style="flex-shrink:0;display:none">
+  <div class="presence-avatar is-offline" id="presenceOther" style="flex-shrink:0;display:none" title="Chat">
     <img id="presenceOtherImg" src="" alt="" onerror="this.style.display='none'">
     <span class="presence-dot"></span>
+    <span class="chat-unread" id="chatUnread"></span>
   </div>
   <!-- My avatar → opens settings -->
   <div class="presence-avatar is-me is-online" id="presenceMe" title="Settings" style="flex-shrink:0;cursor:pointer">
@@ -886,6 +915,35 @@ body.guest-mode .g-card .rsvp-entry{pointer-events:auto}
 </div>
 
 </div><!-- /wrap -->
+
+
+<!-- CHAT OVERLAY -->
+<div class="chat-overlay" id="chatOverlay"></div>
+
+<!-- CHAT DRAWER -->
+<div class="chat-drawer" id="chatDrawer">
+  <div class="chat-handle"></div>
+  <div class="chat-head">
+    <div class="chat-head-avatar">
+      <img id="chatHeadImg" src="" alt="">
+      <span class="chat-head-dot" id="chatHeadDot"></span>
+    </div>
+    <div class="chat-head-info">
+      <div class="chat-head-name" id="chatHeadName">—</div>
+      <div class="chat-head-status" id="chatHeadStatus">offline</div>
+    </div>
+    <button class="chat-close" id="chatClose">×</button>
+  </div>
+  <div class="chat-messages" id="chatMessages">
+    <div class="chat-empty">No messages yet.<br>Say hi! 👋</div>
+  </div>
+  <div class="chat-input-row">
+    <textarea class="chat-input" id="chatInput" placeholder="Message…" rows="1"></textarea>
+    <button class="chat-send" id="chatSend">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    </button>
+  </div>
+</div>
 
 <!-- AI ASSISTANT DRAWER -->
 <div class="ai-overlay" id="aiOverlay"></div>
@@ -3693,6 +3751,7 @@ function showActivityToast(msg){
     if (!el) return;
     el.classList.toggle('is-online', online);
     el.classList.toggle('is-offline', !online);
+    document.dispatchEvent(new CustomEvent('presenceChanged', {detail: online}));
   }
 
   function connect() {
@@ -3760,6 +3819,173 @@ function showActivityToast(msg){
   updateAvatars();
   connect();
 })();
+
+/* ── CHAT SYSTEM ── */
+(function(){
+  var POLL_MS = 5000;
+  var MAX_MSGS = 50;
+  var chatOpen = false;
+  var lastMsgTs = 0;
+  var pollTimer = null;
+  var unreadCount = 0;
+
+  var drawer   = document.getElementById('chatDrawer');
+  var overlay  = document.getElementById('chatOverlay');
+  var closeBtn = document.getElementById('chatClose');
+  var input    = document.getElementById('chatInput');
+  var sendBtn  = document.getElementById('chatSend');
+  var msgList  = document.getElementById('chatMessages');
+  var unreadEl = document.getElementById('chatUnread');
+  var headImg  = document.getElementById('chatHeadImg');
+  var headName = document.getElementById('chatHeadName');
+  var headStat = document.getElementById('chatHeadStatus');
+  var headDot  = document.getElementById('chatHeadDot');
+
+  function whoAmI(){ return (typeof sessionSender !== 'undefined') ? sessionSender : 'Arina'; }
+  function otherPerson(){ return whoAmI() === 'Arina' ? 'Elnur' : 'Arina'; }
+  function workerBase(){ return (typeof workerUrl !== 'undefined' && workerUrl) ? workerUrl.replace(/\/$/, '') : 'https://guestlist.elnur-agha.workers.dev'; }
+
+  function fmtTime(ts){
+    var d = new Date(ts);
+    return d.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
+  }
+
+  function openChat(){
+    chatOpen = true;
+    var other = otherPerson();
+    headImg.src = other.toLowerCase() + '.jpg';
+    headImg.alt = other;
+    headName.textContent = other;
+    // reflect current online status
+    var otherEl = document.getElementById('presenceOther');
+    var isOnline = otherEl && otherEl.classList.contains('is-online');
+    headDot.classList.toggle('online', isOnline);
+    headStat.textContent = isOnline ? 'online' : 'offline';
+    overlay.classList.add('open');
+    drawer.classList.add('open');
+    // clear unread
+    unreadCount = 0;
+    if(unreadEl){ unreadEl.textContent=''; unreadEl.classList.remove('show'); }
+    fetchMessages(true);
+    startPoll();
+    setTimeout(function(){ input.focus(); }, 350);
+  }
+
+  function closeChat(){
+    chatOpen = false;
+    overlay.classList.remove('open');
+    drawer.classList.remove('open');
+    stopPoll();
+  }
+
+  function startPoll(){ stopPoll(); pollTimer = setInterval(function(){ fetchMessages(false); }, POLL_MS); }
+  function stopPoll(){ if(pollTimer){ clearInterval(pollTimer); pollTimer = null; } }
+
+  function fetchMessages(scrollToBottom){
+    var url = workerBase() + '/chat';
+    fetch(url, {cache:'no-store'})
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(data){
+        if(!data || !Array.isArray(data.messages)) return;
+        renderMessages(data.messages, scrollToBottom);
+      })
+      .catch(function(){});
+  }
+
+  function renderMessages(msgs, scrollToBottom){
+    var me = whoAmI();
+    var newMsgs = msgs.filter(function(m){ return m.ts > lastMsgTs; });
+    if(!newMsgs.length && msgList.querySelector('.chat-msg')) return;
+
+    // notify of new messages from the other person when drawer is closed
+    if(!chatOpen && newMsgs.length){
+      var fromOther = newMsgs.filter(function(m){ return m.who !== me; });
+      if(fromOther.length){
+        unreadCount += fromOther.length;
+        if(unreadEl){ unreadEl.textContent = unreadCount > 9 ? '9+' : unreadCount; unreadEl.classList.add('show'); }
+        // toast
+        var last = fromOther[fromOther.length - 1];
+        if(typeof showActivityToast === 'function'){
+          showActivityToast('💬 ' + last.who + ': ' + last.text.slice(0, 40) + (last.text.length > 40 ? '…' : ''));
+        }
+      }
+    }
+
+    if(msgs.length) lastMsgTs = msgs[msgs.length - 1].ts;
+
+    // full re-render
+    if(!msgs.length){
+      msgList.innerHTML = '<div class="chat-empty">No messages yet.<br>Say hi! 👋</div>';
+      return;
+    }
+    msgList.innerHTML = msgs.map(function(m){
+      var isMe = m.who === me;
+      return '<div class="chat-msg ' + (isMe ? 'me' : 'them') + '">'
+        + '<div>' + escapeHtml(m.text) + '</div>'
+        + '<div class="chat-msg-time">' + (isMe ? '' : m.who + ' · ') + fmtTime(m.ts) + '</div>'
+        + '</div>';
+    }).join('');
+    if(scrollToBottom || chatOpen) msgList.scrollTop = msgList.scrollHeight;
+  }
+
+  function escapeHtml(s){
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function sendMessage(){
+    var text = input.value.trim();
+    if(!text) return;
+    var me = whoAmI();
+    var payload = { who: me, text: text, ts: Date.now() };
+    input.value = ''; input.style.height = 'auto';
+    sendBtn.disabled = true;
+
+    fetch(workerBase() + '/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(data){
+      if(data && Array.isArray(data.messages)) renderMessages(data.messages, true);
+      else fetchMessages(true);
+    })
+    .catch(function(){ fetchMessages(true); })
+    .finally(function(){ sendBtn.disabled = false; });
+  }
+
+  // Wire: click other person's avatar → open chat
+  var otherEl = document.getElementById('presenceOther');
+  if(otherEl) otherEl.addEventListener('click', openChat);
+
+  closeBtn.addEventListener('click', closeChat);
+  overlay.addEventListener('click', closeChat);
+
+  sendBtn.addEventListener('click', sendMessage);
+  input.addEventListener('keydown', function(e){
+    if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); sendMessage(); }
+  });
+  input.addEventListener('input', function(){
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+  });
+
+  // Update chat head status when presence changes
+  document.addEventListener('presenceChanged', function(e){
+    if(chatOpen){
+      var online = e.detail;
+      headDot.classList.toggle('online', online);
+      headStat.textContent = online ? 'online' : 'offline';
+    }
+  });
+
+  // Poll even when closed (for unread badge), but less frequently
+  setInterval(function(){
+    if(!chatOpen) fetchMessages(false);
+  }, 15000);
+
+})();
+
 </script>
 </body>
 </html>
