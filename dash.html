@@ -3312,6 +3312,36 @@ function showActivityToast(msg){
   }, 4000);
 }
 
+function showChatNotif(who, text){
+  var existing = document.getElementById('chatNotif');
+  if(existing) existing.remove();
+  var el = document.createElement('div');
+  el.id = 'chatNotif';
+  el.innerHTML =
+    '<style>#chatNotif{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;animation:cnFadeIn .25s ease}' +
+    '@keyframes cnFadeIn{from{opacity:0}to{opacity:1}}</style>' +
+    '<div id="chatNotifBg" style="position:absolute;inset:0;background:rgba(253,248,243,.65);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)"></div>' +
+    '<div style="position:relative;background:#fff;border-radius:20px;padding:24px 28px;max-width:320px;width:88vw;box-shadow:0 12px 48px rgba(0,0,0,.14);text-align:center;font-family:var(--sans)">' +
+      '<img src="https://www.arinaelnur.de/' + who.toLowerCase() + '.jpg" style="width:56px;height:56px;border-radius:50%;object-fit:cover;margin-bottom:12px;display:block;margin-left:auto;margin-right:auto" onerror="this.style.display=\'none\'">' +
+      '<div style="font-size:13px;font-weight:700;color:var(--ink2);margin-bottom:6px">' + who + '</div>' +
+      '<div style="font-size:15px;color:var(--ink1);line-height:1.45;word-break:break-word">' + text.slice(0,120) + (text.length>120?'…':'') + '</div>' +
+      '<div style="margin-top:16px;display:flex;gap:10px;justify-content:center">' +
+        '<button onclick="document.getElementById(\'chatNotif\').remove()" style="padding:8px 20px;border-radius:var(--r-pill);border:1.5px solid var(--border);background:#fff;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;color:var(--ink2)">Dismiss</button>' +
+        '<button id="chatNotifReply" style="padding:8px 20px;border-radius:var(--r-pill);border:none;background:var(--rose);color:#fff;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer">Reply</button>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(el);
+  document.getElementById('chatNotifBg').onclick = function(){ el.remove(); };
+  var replyBtn = document.getElementById('chatNotifReply');
+  if(replyBtn) replyBtn.onclick = function(){
+    el.remove();
+    var p = document.getElementById('presenceOther');
+    if(p) p.click();
+  };
+  clearTimeout(el._timer);
+  el._timer = setTimeout(function(){ if(el.parentNode) el.remove(); }, 8000);
+}
+
 /* ── TOOLS DRAWER TOGGLE ── */
 (function(){
   var btn=document.getElementById('toolsToggleBtn');
@@ -3843,9 +3873,10 @@ function showActivityToast(msg){
   var MAX_MSGS = 50;
   var chatOpen = false;
   var lastMsgTs = 0;
-  var lastReadTs = 0; // timestamp when chat was last opened
+  var lastReadTs = (function(){ try{ return parseInt(localStorage.getItem("chat_lastRead")||"0",10)||0; }catch(e){ return 0; } })();
   var pollTimer = null;
   var unreadCount = 0;
+  var pageTitle = document.title;
 
   var drawer   = document.getElementById('chatDrawer');
   var overlay  = document.getElementById('chatOverlay');
@@ -3882,8 +3913,10 @@ function showActivityToast(msg){
     overlay.classList.add('open');
     drawer.classList.add('open');
     // clear unread and mark read timestamp
-    unreadCount = 0;
     lastReadTs = lastMsgTs;
+    try{ localStorage.setItem("chat_lastRead", String(lastReadTs)); }catch(e){}
+    if(unreadEl){ unreadEl.textContent=""; unreadEl.classList.remove("show"); }
+    document.title = pageTitle;
     if(unreadEl){ unreadEl.textContent=""; unreadEl.classList.remove("show"); }
 
 
@@ -3924,12 +3957,19 @@ function showActivityToast(msg){
       var fromOther = newMsgs.filter(function(m){ return m.who !== me; });
       if(fromOther.length){
         unreadCount = msgs.filter(function(m){ return m.who !== me && m.ts > lastReadTs; }).length;
-        if(unreadEl){ unreadEl.textContent = unreadCount > 9 ? '9+' : unreadCount; unreadEl.classList.add('show'); }
-        // toast
-        var last = fromOther[fromOther.length - 1];
-        if(typeof showActivityToast === 'function'){
-          showActivityToast('💬 ' + last.who + ': ' + last.text.slice(0, 40) + (last.text.length > 40 ? '…' : ''));
+        if(unreadEl){
+          if(unreadCount > 0){
+            unreadEl.textContent = unreadCount > 9 ? "9+" : String(unreadCount);
+            unreadEl.classList.add("show");
+          } else {
+            unreadEl.textContent = ""; unreadEl.classList.remove("show");
+          }
         }
+        var last = fromOther[fromOther.length - 1];
+        // tab title
+        document.title = "💬 " + last.who + ": " + last.text.slice(0,30) + (last.text.length>30?"…":"");
+        // full-screen blur notification
+        showChatNotif(last.who, last.text);
       }
     }
 
