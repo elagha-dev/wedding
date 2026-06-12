@@ -597,6 +597,64 @@ body.guest-mode #presenceOther,
 body.guest-mode .swipe-hint{display:none!important}
 body.guest-mode .g-card{pointer-events:none}
 body.guest-mode .g-card .rsvp-entry{pointer-events:auto}
+/* ── LITE MODE ── */
+body.lite-mode .ai-btn,
+body.lite-mode .rsvp-count-btn,
+body.lite-mode .presence-wrap,
+body.lite-mode #presenceOther,
+body.lite-mode #presenceMe,
+body.lite-mode .chat-drawer,
+body.lite-mode .chat-overlay,
+body.lite-mode .ai-drawer,
+body.lite-mode .ai-overlay,
+body.lite-mode #rsvpDrawer,
+body.lite-mode .rsvp-drawer-overlay,
+body.lite-mode #dashboard,
+body.lite-mode #updateBanner,
+body.lite-mode .update-banner,
+body.lite-mode .split-bar,
+body.lite-mode #syncInfoBanner,
+body.lite-mode #rsvpChangeBanner,
+body.lite-mode .fab-drawer,
+body.lite-mode #toolsDrawer,
+body.lite-mode #toolsToggleBtn,
+body.lite-mode .kb-hint,
+body.lite-mode .g-swipe-action-right,
+body.lite-mode .g-swipe-action-left { display: none !important; }
+body.lite-mode .g-card { touch-action: auto !important; }
+body.lite-mode #guestArea { display: block !important; }
+
+/* ── VELOCITY WIDGET ── */
+#velocityWidget {
+  position: fixed;
+  bottom: 88px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 150;
+  display: none;
+  align-items: center;
+  gap: 10px;
+  background: rgba(253,248,243,.96);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1.5px solid rgba(196,149,106,.18);
+  border-radius: var(--r-pill);
+  padding: 8px 16px 8px 12px;
+  box-shadow: 0 4px 20px rgba(100,60,30,.12);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: opacity .2s;
+  user-select: none;
+}
+#velocityWidget.vis { display: flex; }
+#velocityWidget:hover { background: rgba(249,241,231,.98); }
+.vel-spark { display: flex; align-items: flex-end; gap: 2px; height: 20px; }
+.vel-bar { width: 4px; border-radius: 2px; background: var(--rose); opacity: .6; transition: height .4s ease; min-height: 2px; }
+.vel-bar.latest { opacity: 1; background: var(--rose-deep); }
+.vel-info { display: flex; flex-direction: column; gap: 1px; }
+.vel-rate { font-size: 12px; font-weight: 700; color: var(--rose-deep); line-height: 1; }
+.vel-eta  { font-size: 9px; font-weight: 600; color: var(--muted); letter-spacing: .04em; }
+
 /* sync prompt popup — shown for all users until first sync */
 #guestSyncBanner{display:none;position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(10px);z-index:400;background:var(--ink2);color:#fff;font-family:var(--sans);font-size:12px;font-weight:500;padding:10px 14px 10px 16px;border-radius:var(--r-pill);box-shadow:0 8px 30px rgba(0,0,0,.22);align-items:center;gap:10px;white-space:nowrap;opacity:0;transition:opacity .25s,transform .25s}
 #guestSyncBanner.visible{display:flex;opacity:1;transform:translateX(-50%) translateY(0)}
@@ -1122,6 +1180,10 @@ body.guest-mode .g-card .rsvp-entry{pointer-events:auto}
         <div class="s-row-info"><div class="s-row-title">Compact cards</div><div class="s-row-sub">Smaller card padding</div></div>
         <label class="s-toggle"><input type="checkbox" id="sCompact"/><span class="s-toggle-track"></span></label>
       </div>
+      <div class="s-row">
+        <div class="s-row-info"><div class="s-row-title">Lite mode</div><div class="s-row-sub">Hides chat, AI, RSVP, dashboard &amp; animations — better for older devices</div></div>
+        <label class="s-toggle"><input type="checkbox" id="sLiteMode"/><span class="s-toggle-track"></span></label>
+      </div>
     </div>
 
     <!-- SECTION: Sync -->
@@ -1173,6 +1235,15 @@ body.guest-mode .g-card .rsvp-entry{pointer-events:auto}
   <span class="update-banner-txt">🎉 New update is ready!</span>
   <button class="update-banner-btn" id="updateReloadBtn">Reload now</button>
   <button class="update-banner-dismiss" id="updateDismissBtn">✕</button>
+</div>
+
+<!-- VELOCITY WIDGET -->
+<div id="velocityWidget" title="Sending velocity — click to dismiss">
+  <div class="vel-spark" id="velSpark"></div>
+  <div class="vel-info">
+    <div class="vel-rate" id="velRate">0/hr</div>
+    <div class="vel-eta" id="velEta">calculating…</div>
+  </div>
 </div>
 
 <!-- FAB -->
@@ -3348,6 +3419,151 @@ function showChatNotif(who, text){
   clearTimeout(el._timer);
   el._timer = setTimeout(function(){ if(el.parentNode) el.remove(); }, 8000);
 }
+
+/* ── LITE MODE ── */
+(function(){
+  var LITE_KEY = 'ww_lite';
+  function applyLiteMode(on){
+    document.body.classList.toggle('lite-mode', !!on);
+    var cb = document.getElementById('sLiteMode');
+    if(cb) cb.checked = !!on;
+    // Disconnect WebSocket and pollers when switching to lite
+    if(on){
+      // Stop any active swipe listeners (they'll still work but swipe zones are hidden)
+      // Kill chat poll — handled by chat module checking lite mode
+    }
+  }
+  function loadLite(){ try{ return localStorage.getItem(LITE_KEY)==='1'; }catch(e){ return false; } }
+  function saveLite(on){ try{ localStorage.setItem(LITE_KEY, on?'1':'0'); }catch(e){} }
+
+  // Apply on load
+  if(loadLite()) applyLiteMode(true);
+
+  // Wire toggle
+  document.addEventListener('DOMContentLoaded', function(){
+    var cb = document.getElementById('sLiteMode');
+    if(cb){
+      cb.checked = loadLite();
+      cb.addEventListener('change', function(){
+        saveLite(this.checked);
+        applyLiteMode(this.checked);
+        if(!this.checked) location.reload(); // reload to reconnect presence/pollers
+      });
+    }
+  });
+  // Also wire it if already in DOM (settings drawer is static HTML)
+  var cb = document.getElementById('sLiteMode');
+  if(cb){
+    cb.checked = loadLite();
+    cb.addEventListener('change', function(){
+      saveLite(this.checked);
+      applyLiteMode(this.checked);
+      if(!this.checked) location.reload();
+    });
+  }
+})();
+
+/* ── VELOCITY WIDGET ── */
+(function(){
+  // Records the timestamp of each "sent" action this session
+  var sentTimestamps = [];
+  var widgetVisible = false;
+  var dismissedAt = 0;
+  var BUCKET_MS = 10 * 60 * 1000; // 10-min buckets for sparkline (6 bars = 1 hour)
+  var NUM_BARS = 6;
+  var widget = document.getElementById('velocityWidget');
+  var sparkEl = document.getElementById('velSpark');
+  var rateEl = document.getElementById('velRate');
+  var etaEl = document.getElementById('velEta');
+
+  if(!widget) return;
+
+  // Dismiss on click
+  widget.addEventListener('click', function(){
+    dismissedAt = Date.now();
+    widget.classList.remove('vis');
+    widgetVisible = false;
+  });
+
+  // Called every time a guest is marked sent (hook into existing event flow)
+  function recordSend(){
+    sentTimestamps.push(Date.now());
+    updateWidget();
+  }
+
+  function updateWidget(){
+    if(!sentTimestamps.length) return;
+    var now = Date.now();
+
+    // Don't show if dismissed in last 5 min
+    if(dismissedAt && now - dismissedAt < 5 * 60 * 1000) return;
+
+    // Build sparkline buckets (last NUM_BARS * 10 min)
+    var buckets = [];
+    for(var i = 0; i < NUM_BARS; i++) buckets.push(0);
+    var windowStart = now - NUM_BARS * BUCKET_MS;
+    sentTimestamps.forEach(function(t){
+      if(t < windowStart) return;
+      var bucketIdx = Math.min(NUM_BARS - 1, Math.floor((t - windowStart) / BUCKET_MS));
+      buckets[bucketIdx]++;
+    });
+
+    // Rate: invites per hour based on last 30 minutes
+    var recentWindow = 30 * 60 * 1000;
+    var recentCount = sentTimestamps.filter(function(t){ return now - t < recentWindow; }).length;
+    var rate = Math.round(recentCount * 2); // per hour (30min * 2)
+
+    // ETA: remaining unsent guests at current rate
+    var unsent = (typeof importQueue !== 'undefined')
+      ? importQueue.filter(function(g){ return !g.sent; }).length
+      : 0;
+    var etaTxt = '';
+    if(rate > 0 && unsent > 0){
+      var minsLeft = Math.ceil(unsent / rate * 60);
+      if(minsLeft < 60) etaTxt = 'done in ~' + minsLeft + ' min';
+      else etaTxt = 'done in ~' + Math.ceil(minsLeft / 60) + ' hr';
+    } else if(unsent === 0){
+      etaTxt = 'all sent! 🎉';
+    } else {
+      etaTxt = unsent + ' remaining';
+    }
+
+    // Render sparkline
+    var maxBucket = Math.max(1, Math.max.apply(null, buckets));
+    sparkEl.innerHTML = '';
+    buckets.forEach(function(count, i){
+      var bar = document.createElement('div');
+      bar.className = 'vel-bar' + (i === NUM_BARS - 1 ? ' latest' : '');
+      bar.style.height = Math.max(2, Math.round(count / maxBucket * 20)) + 'px';
+      sparkEl.appendChild(bar);
+    });
+
+    rateEl.textContent = rate + '/hr';
+    etaEl.textContent = etaTxt;
+
+    if(!widgetVisible){
+      widget.classList.add('vis');
+      widgetVisible = true;
+    }
+  }
+
+  // Hook into the existing sent events — listen for pushSentToWorker calls
+  // by monkey-patching after page loads
+  var _origPushSent = null;
+  function patchPushSent(){
+    if(typeof pushSentToWorker === 'function' && pushSentToWorker !== _origPushSent){
+      _origPushSent = pushSentToWorker;
+      pushSentToWorker = function(name){
+        recordSend();
+        return _origPushSent.apply(this, arguments);
+      };
+    }
+  }
+  // Try immediately + retry after page finishes loading
+  setTimeout(patchPushSent, 100);
+  setTimeout(patchPushSent, 1000);
+  window.addEventListener('load', patchPushSent);
+})();
 
 /* ── TOOLS DRAWER TOGGLE ── */
 (function(){
