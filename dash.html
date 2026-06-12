@@ -47,9 +47,9 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .today-l{font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.7)}
 
 /* Sync pill */
-.sync-pill{display:flex;align-items:center;justify-content:center;gap:5px;min-width:32px;height:32px;padding:0 10px;background:var(--rose);color:#fff;border:none;border-radius:var(--r-pill);cursor:pointer;transition:all var(--ease);box-shadow:0 2px 12px rgba(160,97,74,.3);flex-shrink:0;align-self:center}
+.sync-pill{display:flex;align-items:center;justify-content:center;gap:5px;min-width:32px;height:32px;padding:0 10px;background:var(--rose);color:#fff;border:none;border-radius:var(--r-pill);cursor:pointer;transition:all var(--ease);flex-shrink:0;align-self:center}
 .sync-pill:hover{background:var(--rose-deep);transform:translateY(-1px)}
-.sync-pill.synced{background:var(--cream2);color:var(--green);box-shadow:none;border:1.5px solid rgba(58,140,92,.3)}
+.sync-pill.synced{background:var(--cream2);color:var(--green);box-shadow:none;border:none}
 .sync-pill.synced:hover{background:rgba(58,140,92,.24);transform:none}
 .sync-dot{width:8px;height:8px;background:rgba(255,255,255,.85);border-radius:50%;flex-shrink:0}
 .sync-pill.synced .sync-dot{background:var(--green)}
