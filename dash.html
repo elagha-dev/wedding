@@ -404,7 +404,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .split-btn-half{background:var(--parchment);color:var(--ink2)}.split-btn-half:hover{background:var(--blush)}
 
 /* ── UNDO TOAST ── */
-#undoToast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);z-index:300;background:var(--ink);color:#fff;padding:10px 16px 0 18px;border-radius:16px;font-size:12px;font-weight:500;display:flex;flex-direction:column;box-shadow:var(--shadow-lg);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;white-space:normal;max-width:calc(100vw - 32px);width:max-content;overflow:hidden}
+#undoToast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);z-index:300;background:var(--ink);color:#fff;padding:10px 16px 10px 18px;border-radius:16px;font-size:12px;font-weight:500;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow-lg);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;white-space:normal;max-width:calc(100vw - 32px);width:max-content}
 #undoToast.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:all}
 #undoToastBtn{padding:4px 12px;border-radius:var(--r-pill);background:#fff;color:var(--ink);border:none;font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0}
 
@@ -640,45 +640,6 @@ body.guest-mode .g-card .rsvp-entry{pointer-events:auto}
 .chat-overlay{position:fixed;inset:0;background:rgba(35,26,20,.35);backdrop-filter:blur(4px);z-index:299;opacity:0;pointer-events:none;transition:opacity .3s}
 .chat-overlay.open{opacity:1;pointer-events:all}
 
-/* ── CONFETTI ── */
-#confettiCanvas{position:fixed;inset:0;pointer-events:none;z-index:9998;display:none}
-
-/* ── SPARKLINE ── */
-.dash-sparkline-wrap{margin-top:12px;padding-top:12px;border-top:1px solid var(--parchment)}
-.dash-sparkline-label{font-size:8px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;display:flex;align-items:center;justify-content:space-between}
-.dash-sparkline-rate{font-size:10px;font-weight:700;color:var(--rose-deep)}
-.dash-sparkline-svg{width:100%;height:36px;display:block}
-
-/* ── SHAKE / SMART NEXT ── */
-.action-bar{display:flex;gap:8px;margin:8px 0 10px}
-.action-pill{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px 12px;border-radius:var(--r-pill);border:1.5px solid var(--parchment);background:var(--cream);color:var(--ink2);font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.04em;cursor:pointer;transition:all var(--ease)}
-.action-pill:hover{border-color:var(--rose);color:var(--rose-deep);transform:translateY(-1px)}
-.action-pill:active{transform:scale(.97)}
-.action-pill.smart{background:linear-gradient(135deg,var(--rose-soft),var(--gold-pale));border-color:var(--blush)}
-.action-pill.smart:hover{background:linear-gradient(135deg,var(--blush),var(--gold-pale));border-color:var(--rose)}
-@keyframes wiggle{0%,100%{transform:rotate(0)}20%{transform:rotate(-14deg)}40%{transform:rotate(14deg)}60%{transform:rotate(-8deg)}80%{transform:rotate(8deg)}}
-.action-pill.shaking .ap-icon{display:inline-block;animation:wiggle .5s ease}
-
-/* ── UNDO GRACE WINDOW ── */
-.undo-toast-row{display:flex;align-items:center;gap:12px;padding-bottom:10px}
-.undo-grace-bar{height:3px;background:rgba(255,255,255,.15);border-radius:0 0 16px 16px;overflow:hidden}
-.undo-grace-fill{height:100%;background:linear-gradient(90deg,var(--rose),var(--gold));width:100%;transition:width .1s linear}
-
-/* ── STREAK ── */
-.streak-badge{display:flex;align-items:center;gap:4px;padding:0 9px;height:32px;border-radius:var(--r-pill);background:linear-gradient(135deg,#FF6B35,#FF8C00);color:#fff;font-family:var(--sans);font-size:11px;font-weight:800;cursor:default;flex-shrink:0;box-shadow:0 2px 8px rgba(255,107,53,.3);transition:transform .15s}
-.streak-badge:hover{transform:scale(1.05)}
-.streak-badge.cold{background:var(--parchment);color:var(--muted);box-shadow:none}
-
-/* ── CURSOR GHOST ── */
-.g-swipe-wrap{position:relative}
-.g-cursor-ghost{position:absolute;inset:-2px;border-radius:calc(var(--r-sm) + 2px);pointer-events:none;z-index:3;opacity:0;transition:opacity .3s}
-.g-cursor-ghost.a{box-shadow:0 0 0 2.5px var(--arina-txt);background:rgba(155,26,68,.04)}
-.g-cursor-ghost.e{box-shadow:0 0 0 2.5px var(--elnur-txt);background:rgba(138,74,0,.04)}
-.g-cursor-ghost.show{opacity:1}
-.g-cursor-label{position:absolute;top:-20px;left:8px;font-size:8px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:var(--r-pill);color:#fff;white-space:nowrap;pointer-events:none}
-.g-cursor-label.a{background:var(--arina-txt)}
-.g-cursor-label.e{background:var(--elnur-txt)}
-
 </style>
 </head>
 <body>
@@ -741,8 +702,6 @@ body.guest-mode .g-card .rsvp-entry{pointer-events:auto}
   <div class="stat-pill total" id="ovTotal" title="Total guests" style="cursor:pointer">0</div>
   <div class="stat-pill sent" id="ovSent" title="Sent" style="cursor:pointer">0</div>
   <div class="stat-pill new-guests" id="ovNew" title="New since last sync" style="display:none"></div>
-  <!-- Streak -->
-  <div class="streak-badge cold" id="streakBadge" title="Daily send streak">🔥 <span id="streakN">0</span></div>
   <!-- spacer -->
   <div style="flex:1"></div>
   <!-- AI Assistant -->
@@ -858,10 +817,6 @@ body.guest-mode .g-card .rsvp-entry{pointer-events:auto}
       <button class="bulk-send" id="bulkSend">Send Invite</button>
     </div>
     <div class="guest-list" id="guestList"></div>
-    <div class="action-bar" id="actionBar" style="display:none">
-      <button class="action-pill smart" id="smartNextBtn"><span>✨</span> Smart next</button>
-      <button class="action-pill" id="shakeBtn"><span class="ap-icon">🎲</span> Surprise me</button>
-    </div>
     <div class="list-footer">
       <button class="list-btn dng" id="clearGuestBtn">Clear list</button>
     </div>
@@ -1310,14 +1265,8 @@ body.guest-mode .g-card .rsvp-entry{pointer-events:auto}
   </div>
 </div>
 
-<!-- CONFETTI -->
-<canvas id="confettiCanvas"></canvas>
-
-<!-- UNDO TOAST (with grace bar) -->
-<div id="undoToast">
-  <div class="undo-toast-row"><span id="undoToastMsg">Marked as sent</span><button id="undoToastBtn">Undo</button></div>
-  <div class="undo-grace-bar"><div class="undo-grace-fill" id="undoGraceFill"></div></div>
-</div>
+<!-- UNDO TOAST -->
+<div id="undoToast"><span id="undoToastMsg">Marked as sent</span><button id="undoToastBtn">Undo</button></div>
 <!-- VERSION STAMP -->
 <div class="ver-stamp" id="verStamp"></div>
 
@@ -1371,8 +1320,7 @@ function mergeRemoteClaims(remoteClaims){
 }
 
 /* ══ UNDO TOAST ═══════════════════════════════ */
-var undoTimer=null,undoAction=null,graceRaf=null;
-var GRACE_MS=5000;
+var undoTimer=null,undoAction=null;
 function showToastWarn(msg){
   var t=document.getElementById('undoToast');
   var btn=document.getElementById('undoToastBtn');
@@ -1388,25 +1336,10 @@ function showUndo(msg,fn){
   document.getElementById('undoToastMsg').textContent=msg;
   document.getElementById('undoToast').classList.add('show');
   if(undoTimer)clearTimeout(undoTimer);
-  // Grace bar animation
-  var fill=document.getElementById('undoGraceFill');
-  if(fill){
-    fill.style.transition='none';fill.style.width='100%';
-    cancelAnimationFrame(graceRaf);
-    var start=null;
-    function animGrace(ts){
-      if(!start)start=ts;
-      var pct=Math.max(0,100-(ts-start)/GRACE_MS*100);
-      fill.style.transition='none';fill.style.width=pct+'%';
-      if(pct>0) graceRaf=requestAnimationFrame(animGrace);
-    }
-    requestAnimationFrame(animGrace);
-  }
-  undoTimer=setTimeout(function(){hideUndo();},GRACE_MS);
+  undoTimer=setTimeout(function(){hideUndo();},4000);
 }
 function hideUndo(){
   document.getElementById('undoToast').classList.remove('show');
-  cancelAnimationFrame(graceRaf);
   undoAction=null;if(undoTimer){clearTimeout(undoTimer);undoTimer=null;}
 }
 document.getElementById('undoToastBtn').addEventListener('click',function(){if(undoAction)undoAction();hideUndo();});
@@ -1747,10 +1680,6 @@ function renderDashboard(){
   document.getElementById('ovTotal').textContent=total;
   document.getElementById('ovSent').textContent=sent;
   document.getElementById('progFill').style.width=(total?Math.round(sent/total*100):0)+'%';
-  // Show action bar when there are unsent guests
-  var ab=document.getElementById('actionBar');
-  if(ab) ab.style.display = pending > 0 ? '' : 'none';
-  renderSparkline();
 }
 
 /* ══ FILTER ROW ══════════════════════════════ */
@@ -3921,9 +3850,6 @@ function showChatNotif(who, text){
       try {
         var msg = JSON.parse(e.data);
         if (msg.type === 'presence' && msg.who === otherName()) setOtherOnline(msg.online);
-        if (msg.type === 'cursor' && msg.who === otherName()) {
-          document.dispatchEvent(new CustomEvent('remoteCursor', {detail: {who: msg.who, name: msg.name}}));
-        }
       } catch(_) {}
     };
 
@@ -3972,13 +3898,6 @@ function showChatNotif(who, text){
 
   updateAvatars();
   connect();
-
-  // Expose cursor broadcast globally for guest card hover
-  window._presenceSendCursor = function(guestName) {
-    if (ws && ws.readyState === 1) {
-      try { ws.send(JSON.stringify({ type: 'cursor', who: who, name: guestName || null })); } catch(_) {}
-    }
-  };
 })();
 
 /* ── CHAT SYSTEM ── */
@@ -4208,204 +4127,6 @@ function showChatNotif(who, text){
     if(!chatOpen) fetchMessages(false);
   }, 15000);
 
-})();
-
-/* ══════════════════════════════════════════════
-   ① CONFETTI — fires when last guest is sent
-══════════════════════════════════════════════ */
-(function(){
-  var fired = false;
-  function launchConfetti(){
-    var canvas = document.getElementById('confettiCanvas');
-    if(!canvas) return;
-    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-    canvas.style.display = 'block';
-    var ctx = canvas.getContext('2d');
-    var colors = ['#C9876A','#EFD9C4','#3A8C5C','#C4956A','#F2D8CC','#9B1A44','#8A4A00','#fff'];
-    var pieces = [];
-    for(var i=0;i<180;i++){
-      pieces.push({ x:Math.random()*canvas.width, y:-10-Math.random()*200,
-        w:6+Math.random()*8, h:10+Math.random()*6, color:colors[i%colors.length],
-        rot:Math.random()*360, rotV:(Math.random()-0.5)*8,
-        vx:(Math.random()-0.5)*4, vy:2+Math.random()*4, alpha:1 });
-    }
-    var start=null;
-    function draw(ts){
-      if(!start) start=ts; var elapsed=ts-start;
-      ctx.clearRect(0,0,canvas.width,canvas.height);
-      var alive=false;
-      pieces.forEach(function(p){
-        p.x+=p.vx; p.y+=p.vy; p.rot+=p.rotV;
-        if(elapsed>2200) p.alpha=Math.max(0,p.alpha-0.018);
-        if(p.alpha>0&&p.y<canvas.height+20) alive=true;
-        ctx.save(); ctx.globalAlpha=p.alpha;
-        ctx.translate(p.x,p.y); ctx.rotate(p.rot*Math.PI/180);
-        ctx.fillStyle=p.color; ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
-        ctx.restore();
-      });
-      if(alive&&elapsed<6000) requestAnimationFrame(draw);
-      else { ctx.clearRect(0,0,canvas.width,canvas.height); canvas.style.display='none'; }
-    }
-    requestAnimationFrame(draw);
-  }
-  document.addEventListener('guestSent', function(){
-    if(fired) return;
-    var total=(typeof importQueue!=='undefined')?importQueue.filter(function(g){return !g.skipped;}).length:0;
-    var sent=(typeof importQueue!=='undefined')?importQueue.filter(function(g){return g.sent;}).length:0;
-    if(total>0&&sent>=total){ fired=true; launchConfetti(); }
-  });
-})();
-
-/* ══════════════════════════════════════════════
-   ② SPARKLINE — sends per hour (last 12h)
-══════════════════════════════════════════════ */
-function renderSparkline(){
-  var now=Date.now(), buckets=new Array(12).fill(0);
-  if(typeof importQueue!=='undefined') importQueue.forEach(function(g){
-    if(!g.sent||!g.sentAt) return;
-    var t=new Date(g.sentAt).getTime(); if(isNaN(t)) return;
-    var h=(now-t)/3600000;
-    if(h>=0&&h<12) buckets[11-Math.floor(h)]++;
-  });
-  var max=Math.max(1,Math.max.apply(null,buckets));
-  var todaySent=buckets.reduce(function(a,b){return a+b;},0);
-  var el=document.getElementById('sparklineWrap');
-  if(!el){
-    var sec=document.getElementById('guestListSec'); if(!sec) return;
-    el=document.createElement('div'); el.id='sparklineWrap'; el.className='dash-sparkline-wrap';
-    el.innerHTML='<div class="dash-sparkline-label"><span>Sends · last 12h</span>'
-      +'<span class="dash-sparkline-rate" id="sparkRate"></span></div>'
-      +'<svg class="dash-sparkline-svg" id="sparklineSvg" viewBox="0 0 120 36" preserveAspectRatio="none"></svg>';
-    sec.parentNode.insertBefore(el,sec.nextSibling);
-  }
-  var rateEl=document.getElementById('sparkRate');
-  if(rateEl) rateEl.textContent=todaySent+' today';
-  var svg=document.getElementById('sparklineSvg'); if(!svg) return;
-  var W=120,H=36,pad=4;
-  var pts=buckets.map(function(v,i){ return (pad+i*(W-2*pad)/11).toFixed(1)+','+(H-pad-(v/max)*(H-2*pad)).toFixed(1); });
-  svg.innerHTML='<defs><linearGradient id="spkG" x1="0" y1="0" x2="0" y2="1">'
-    +'<stop offset="0%" stop-color="var(--rose)" stop-opacity=".25"/>'
-    +'<stop offset="100%" stop-color="var(--rose)" stop-opacity="0"/></linearGradient></defs>'
-    +'<path d="M'+pts[0]+' '+pts.slice(1).map(function(p){return'L'+p;}).join(' ')
-      +' L'+(W-pad)+','+H+' L'+pad+','+H+' Z" fill="url(#spkG)"/>'
-    +'<path d="M'+pts.join(' L')+'" fill="none" stroke="var(--rose)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>';
-}
-
-/* ══════════════════════════════════════════════
-   ③ SHAKE TO RANDOM  +  ④ SMART NEXT
-══════════════════════════════════════════════ */
-(function(){
-  function scrollToGuest(name){
-    var cards=document.querySelectorAll('.g-card');
-    for(var i=0;i<cards.length;i++){
-      var n=cards[i].querySelector('.g-name');
-      if(n&&n.textContent.trim()===name){
-        cards[i].scrollIntoView({behavior:'smooth',block:'center'});
-        var c=cards[i]; c.style.transition='box-shadow .2s';
-        c.style.boxShadow='0 0 0 3px var(--rose)';
-        setTimeout(function(){ c.style.boxShadow=''; },1200);
-        return;
-      }
-    }
-  }
-  var shakeBtn=document.getElementById('shakeBtn');
-  if(shakeBtn) shakeBtn.addEventListener('click',function(){
-    var unsent=(typeof importQueue!=='undefined')?importQueue.filter(function(g){return !g.sent&&!g.skipped&&!g.isChild;}):[]; 
-    if(!unsent.length) return;
-    var pick=unsent[Math.floor(Math.random()*unsent.length)];
-    shakeBtn.classList.add('shaking'); setTimeout(function(){shakeBtn.classList.remove('shaking');},600);
-    if(typeof importFilter!=='undefined'){importFilter='all';if(typeof renderFilterRow==='function')renderFilterRow();if(typeof renderGuestList==='function')renderGuestList();}
-    setTimeout(function(){scrollToGuest(pick.name);},120);
-  });
-  var smartBtn=document.getElementById('smartNextBtn');
-  if(smartBtn) smartBtn.addEventListener('click',function(){
-    var me=(typeof sessionSender!=='undefined')?sessionSender:'Arina';
-    var unsent=(typeof importQueue!=='undefined')?importQueue.filter(function(g){return !g.sent&&!g.skipped&&!g.isChild&&!g.followup&&g.sender===me;}):[]; 
-    if(!unsent.length) unsent=(typeof importQueue!=='undefined')?importQueue.filter(function(g){return !g.sent&&!g.skipped&&!g.isChild;}):[]; 
-    if(!unsent.length) return;
-    if(typeof importFilter!=='undefined'){importFilter='all';if(typeof renderFilterRow==='function')renderFilterRow();if(typeof renderGuestList==='function')renderGuestList();}
-    setTimeout(function(){scrollToGuest(unsent[0].name);},120);
-  });
-})();
-
-/* ══════════════════════════════════════════════
-   ⑤ STREAK COUNTER
-══════════════════════════════════════════════ */
-(function(){
-  var KEY='ww_streak';
-  function todayStr(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
-  function ystStr(){var d=new Date();d.setDate(d.getDate()-1);return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
-  function load(){try{return JSON.parse(localStorage.getItem(KEY)||'{}');}catch(e){return{};}}
-  function save(s){try{localStorage.setItem(KEY,JSON.stringify(s));}catch(e){}}
-  function renderBadge(){
-    var el=document.getElementById('streakBadge'),nEl=document.getElementById('streakN');
-    if(!el||!nEl) return;
-    var s=load(),today=todayStr();
-    var count=(s.lastDay===today||(s.lastDay===ystStr()&&s.count>0))?(s.count||0):0;
-    nEl.textContent=count;
-    el.classList.toggle('cold',count===0);
-    el.title=count===0?'No sends today — start your streak!':count+' day streak 🔥';
-  }
-  window._bumpStreak=function(){
-    var s=load(),today=todayStr(),yst=ystStr();
-    if(s.lastDay===today) return;
-    s.count=(s.lastDay===yst)?(s.count||0)+1:1;
-    s.lastDay=today; save(s); renderBadge();
-  };
-  document.addEventListener('guestSent',function(){window._bumpStreak();});
-  setTimeout(renderBadge,400);
-})();
-
-/* ══════════════════════════════════════════════
-   ⑥ LIVE CURSOR — highlight where other person is
-══════════════════════════════════════════════ */
-(function(){
-  var currentGhost=null,ghostTimer=null;
-  function clearGhost(){
-    if(currentGhost){currentGhost.classList.remove('show');currentGhost=null;}
-    clearTimeout(ghostTimer);
-  }
-  document.addEventListener('remoteCursor',function(e){
-    clearGhost();
-    var d=e.detail; if(!d.name) return;
-    var wraps=document.querySelectorAll('.g-swipe-wrap');
-    for(var i=0;i<wraps.length;i++){
-      var n=wraps[i].querySelector('.g-name');
-      if(n&&n.textContent.trim()===d.name){
-        var ghost=wraps[i].querySelector('.g-cursor-ghost');
-        if(!ghost){
-          var cls=d.who==='Arina'?'a':'e';
-          ghost=document.createElement('div'); ghost.className='g-cursor-ghost '+cls;
-          var lbl=document.createElement('span'); lbl.className='g-cursor-label '+cls;
-          lbl.textContent=d.who; ghost.appendChild(lbl);
-          wraps[i].appendChild(ghost);
-        }
-        ghost.classList.add('show'); currentGhost=ghost;
-        ghostTimer=setTimeout(clearGhost,8000);
-        break;
-      }
-    }
-  });
-  // Wire hover events after each render via MutationObserver
-  var listEl=document.getElementById('guestList');
-  if(listEl) new MutationObserver(function(){
-    listEl.querySelectorAll('.g-card:not([data-cw])').forEach(function(card){
-      card.setAttribute('data-cw','1');
-      var n=card.querySelector('.g-name'); if(!n) return;
-      card.addEventListener('mouseenter',function(){ if(window._presenceSendCursor) window._presenceSendCursor(n.textContent.trim()); });
-      card.addEventListener('touchstart',function(){ if(window._presenceSendCursor) window._presenceSendCursor(n.textContent.trim()); },{passive:true});
-      card.addEventListener('mouseleave',function(){ if(window._presenceSendCursor) window._presenceSendCursor(null); });
-    });
-  }).observe(listEl,{childList:true,subtree:true});
-})();
-
-/* ── Patch pushSentToWorker to fire guestSent event ── */
-(function(){
-  var _orig=window.pushSentToWorker;
-  if(typeof _orig==='function') window.pushSentToWorker=function(name){
-    _orig(name);
-    document.dispatchEvent(new CustomEvent('guestSent',{detail:name}));
-  };
 })();
 
 </script>
