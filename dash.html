@@ -1452,32 +1452,8 @@ function saveGuestMeta() {
   } catch (e) {
     console.error("Local storage write exception:", e);
   }
-
-  // FIX: Push local updates to the Worker immediately so laptop/phone stay matched
-  if (workerUrl) {
-    fetch(workerUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Device-Id': deviceId || 'shared_web_client'
-      },
-      body: JSON.stringify({
-        guests: importQueue,
-        deviceId: deviceId || 'shared_web_client',
-        updatedAt: new Date().toISOString()
-      })
-    })
-    .then(function(response) {
-      if (!response.ok) {
-        console.warn("Worker received the change but could not save it.");
-      } else {
-        console.log("Local changes successfully pushed to Cloudflare Worker!");
-      }
-    })
-    .catch(function(err) {
-      console.error("Failed to transmit sync updates to server:", err);
-    });
-  }
+  // Dedicated /sent and /unsent endpoints handle per-guest pushes.
+  // No bulk POST here — it would clobber the worker's KV with stale data.
 }
 // ── Retry queue: persists failed pushes and retries on next sync ──
 var _retryQueue=[];
@@ -2550,9 +2526,13 @@ function doSync(){
         // Prefer in-memory state; fall back to persisted meta for local-only fields
         var inMem=inMemoryMap[titleName]||{};
         var localMeta=oldMeta[name]||oldMeta[titleName]||{};
-        // Worker sentAt is ALWAYS authoritative — never fall back to stale local
+        // Worker sentAt is authoritative — but if worker has none and local has it (in-flight push), keep local
         var workerSentAt=g.sentAt||null;
-        var isSent=!!workerSentAt;
+        // If local already sent but worker hasn't confirmed yet, preserve local state
+        var localSentAt=inMem.sentAt||localMeta.sentAt||'';
+        var localSent=!!(inMem.sent||localMeta.sent);
+        var resolvedSentAt=workerSentAt||(localSent?localSentAt:null);
+        var isSent=!!resolvedSentAt;
         // followup/note come from worker KV (merged by worker GET /)
         return{
           name:titleName,
@@ -2572,10 +2552,10 @@ function doSync(){
           msgLang:inMem.msgLang||localMeta.msgLang||'',
           bulkWith:inMem.bulkWith||localMeta.bulkWith||'',
           sentGroupId:inMem.sentGroupId||localMeta.sentGroupId||'',
-          // resolved from worker:
+          // resolved: worker wins, but local sent state preserved if push is in-flight
           sent:isSent,
-          sentAt:workerSentAt||'',
-          sentBy:g.sentBy||''
+          sentAt:resolvedSentAt||'',
+          sentBy:g.sentBy||inMem.sentBy||''
         };
       });
 
