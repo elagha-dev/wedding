@@ -727,6 +727,10 @@ body.lite-mode #liteModeTopBtn {
 
 <div class="topbar">
  <div class="topbar-inner">
+  <!-- Lite mode toggle switch -->
+  <button id="liteModeTopBtn" title="Toggle Lite Mode" style="flex-shrink:0;display:none;align-items:center;justify-content:center;width:20px;height:32px;border-radius:10px;border:none;background:var(--parchment);cursor:pointer;padding:0;position:relative;transition:background .25s">
+    <span id="liteModeThumb" style="position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.18);transition:transform .25s;display:block"></span>
+  </button>
   <!-- Hidden session buttons still needed for JS logic -->
   <button class="sess-btn on-a" id="sessA" data-who="Arina" style="display:none">A</button>
   <button class="sess-btn" id="sessE" data-who="Elnur" style="display:none">E</button>
@@ -739,8 +743,6 @@ body.lite-mode #liteModeTopBtn {
   <div class="stat-pill total" id="ovTotal" title="Total guests" style="cursor:pointer">0</div>
   <div class="stat-pill sent" id="ovSent" title="Sent" style="cursor:pointer">0</div>
   <div class="stat-pill new-guests" id="ovNew" title="New since last sync" style="display:none"></div>
-  <!-- Lite mode toggle pill -->
-  <button id="liteModeTopBtn" title="Toggle Lite Mode" style="flex-shrink:0;height:32px;padding:0 10px;border-radius:var(--r-pill);border:1.5px solid var(--parchment);background:var(--cream2);color:var(--muted);font-family:var(--sans);font-size:9.5px;font-weight:700;letter-spacing:.06em;cursor:pointer;transition:all var(--ease);white-space:nowrap;display:none">⚡ Lite</button>
   <!-- spacer -->
   <div style="flex:1"></div>
   <!-- AI Assistant -->
@@ -3405,7 +3407,11 @@ function showChatNotif(who, text){
     if(cb) cb.checked = !!on;
     // Update topbar pill label
     var topBtn = document.getElementById('liteModeTopBtn');
-    if(topBtn) topBtn.textContent = on ? '✦ Full' : '⚡ Lite';
+    var thumb = document.getElementById('liteModeThumb');
+    if(topBtn) {
+      topBtn.style.background = on ? 'var(--rose)' : 'var(--parchment)';
+      if(thumb) thumb.style.transform = on ? 'translateY(12px)' : 'translateY(0)';
+    }
     // Re-render guest list so swipes attach/detach correctly
     if(typeof renderGuestList === 'function') { try { renderGuestList(); } catch(e){} }
   }
@@ -3426,14 +3432,18 @@ function showChatNotif(who, text){
   document.addEventListener('DOMContentLoaded', function(){
     var topBtn = document.getElementById('liteModeTopBtn');
     if(topBtn){
-      topBtn.textContent = loadLite() ? '✦ Full' : '⚡ Lite';
+      var _t=document.getElementById('liteModeThumb');
+      if(topBtn){topBtn.style.background=loadLite()?'var(--rose)':'var(--parchment)';if(_t)_t.style.transform=loadLite()?'translateY(12px)':'translateY(0)';}
+      topBtn.style.display='flex';
       topBtn.addEventListener('click', toggle);
     }
   });
   // Also wire immediately (topbar is static HTML, already in DOM)
   var topBtn = document.getElementById('liteModeTopBtn');
   if(topBtn){
-    topBtn.textContent = loadLite() ? '✦ Full' : '⚡ Lite';
+    var _thumb = document.getElementById('liteModeThumb');
+    topBtn.style.background = loadLite() ? 'var(--rose)' : 'var(--parchment)';
+    if(_thumb) _thumb.style.transform = loadLite() ? 'translateY(12px)' : 'translateY(0)';
     topBtn.addEventListener('click', toggle);
   }
 
