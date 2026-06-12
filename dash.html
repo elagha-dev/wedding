@@ -1517,24 +1517,42 @@ setSession(sessionSender);
 (function(){var labels={default:'A–Z',az:'A→Z',za:'Z→A'};var btn=document.getElementById('sortBtn');if(btn){btn.textContent=labels[sortMode]||'A–Z';btn.classList.toggle('on',sortMode!=='default');}})();
 
 /* ══ MESSAGES ════════════════════════════════ */
+var WEDDING_DATE = new Date('2026-10-16');
+function monthsUntilWedding() {
+  var now = new Date();
+  var ms = WEDDING_DATE - now;
+  return ms / (1000 * 60 * 60 * 24 * 30.44);
+}
+function timePhrase(lang) {
+  var m = monthsUntilWedding();
+  if (lang === 'de') {
+    return m < 3 ? 'es sind nur noch wenige Monate bis zu unserer Trauung' : 'es sind nur noch etwa ' + Math.round(m) + ' Monate bis zu unserer Hochzeit';
+  } else if (lang === 'ru') {
+    var rounded = Math.round(m);
+    return m < 3 ? 'до нашей свадьбы осталось всего несколько месяцев' : 'до нашей свадьбы осталось около ' + rounded + ' ' + (rounded===1?'месяца':rounded<5?'месяца':'месяцев');
+  } else {
+    return m < 3 ? 'it\'s just a few months until our wedding' : 'it\'s about ' + Math.round(m) + ' months until our wedding';
+  }
+}
+
 var msgs={
   en:{
-    ceremony:"{n} 💛\n\nWe're getting married — it's about 3 months until our big day and we are so excited to invite you! 🎊😍\n\nWe can't imagine our church ceremony without you.\n\n📅 16 October 2026\n⛪ Please arrive by 13:30 — the ceremony begins at 14:00 sharp\n📍 Schlosskirche Düsseldorf\n\nYour personal invitation is ready — just open the link below and let us know you're coming.\n\n{u}\n\nCan't wait to see you there. ♡\nArina & Elnur",
-    party:"{n} 💛\n\nWe're getting married — it's about 3 months until our big day and we are so excited to invite you! 🎊😍\n\nWe can't imagine our special day without you.\n\n📅 16 October 2026\n⛪ Please arrive by 13:30 — the ceremony begins at 14:00 sharp\n📍 Schlosskirche Düsseldorf\n🎉 Evening reception from 17:00 — Rheinliebe am Deich\n\nYour personal invitation is ready — open the link and tell us you're coming.\n\n{u}\n\nSo excited to celebrate with you. ♡\nArina & Elnur",
-    ceremony_plural:"{n} 💛\n\nWe're getting married — it's about 3 months until our big day and we are so excited to invite you both! 🎊😍\n\nWe can't imagine our church ceremony without you.\n\n📅 16 October 2026\n⛪ Please arrive by 13:30 — the ceremony begins at 14:00 sharp\n📍 Schlosskirche Düsseldorf\n\nYour personal invitation is ready — just open the link below and let us know you're coming.\n\n{u}\n\nCan't wait to see you both there. ♡\nArina & Elnur",
-    party_plural:"{n} 💛\n\nWe're getting married — it's about 3 months until our big day and we are so excited to invite you both! 🎊😍\n\nWe can't imagine our special day without you.\n\n📅 16 October 2026\n⛪ Please arrive by 13:30 — the ceremony begins at 14:00 sharp\n📍 Schlosskirche Düsseldorf\n🎉 Evening reception from 17:00 — Rheinliebe am Deich\n\nYour personal invitation is ready — open the link and tell us you're coming.\n\n{u}\n\nSo excited to celebrate with you both. ♡\nArina & Elnur"
+    get ceremony(){var t=timePhrase('en');return"{n} 💛\n\nWe're getting married — "+t+". We would be happy to have you with us for the ceremony.\n\n📅 16 October 2026\n⛪ Please arrive by 13:30 — ceremony starts at 14:00 sharp\n📍 Schlosskirche Düsseldorf\n\nPlease let us know if you can join us via the link below:\n\n{u}\n\nLove,\nArina & Elnur ♡";},
+    get party(){var t=timePhrase('en');return"{n} 💛\n\nWe're getting married — "+t+". We're happy to invite you to celebrate the full day with us.\n\n📅 16 October 2026\n⛪ Ceremony: arrive by 13:30 — starts at 14:00 sharp\n📍 Schlosskirche Düsseldorf\n🎉 Evening reception from 17:00 — Rheinliebe am Deich\n\nWe would love for you to join us for both the ceremony and the evening celebration.\n\nPlease let us know via the link below:\n\n{u}\n\nLooking forward to celebrating with you ♡\nArina & Elnur";},
+    get ceremony_plural(){var t=timePhrase('en');return"{n} 💛\n\nWe're getting married — "+t+". We would be happy to have you both with us for the ceremony.\n\n📅 16 October 2026\n⛪ Please arrive by 13:30 — ceremony starts at 14:00 sharp\n📍 Schlosskirche Düsseldorf\n\nPlease let us know via the link below if you can join us:\n\n{u}\n\nLove,\nArina & Elnur ♡";},
+    get party_plural(){var t=timePhrase('en');return"{n} 💛\n\nWe're getting married — "+t+". We're happy to invite you both to celebrate the full day with us.\n\n📅 16 October 2026\n⛪ Ceremony: arrive by 13:30 — starts at 14:00 sharp\n📍 Schlosskirche Düsseldorf\n🎉 Evening reception from 17:00 — Rheinliebe am Deich\n\nWe would love for you both to join us for the ceremony and the evening celebration.\n\nPlease let us know via the link below:\n\n{u}\n\nLooking forward to celebrating with you both ♡\nArina & Elnur";}
   },
   de:{
-    ceremony:"{n} 💛\n\nWir heiraten — es sind nur noch etwa 3 Monate bis zu unserem großen Tag und wir freuen uns riesig, dich einzuladen! 🎊😍\n\nWir können uns unsere Trauung ohne dich nicht vorstellen.\n\n📅 16. Oktober 2026\n⛪ Bitte komm bis 13:30 — die Trauung beginnt pünktlich um 14:00 Uhr\n📍 Schlosskirche Düsseldorf\n\nDeine persönliche Einladung wartet — öffne den Link und sag uns kurz Bescheid.\n\n{u}\n\nWir freuen uns riesig auf dich. ♡\nArina & Elnur",
-    party:"{n} 💛\n\nWir heiraten — es sind nur noch etwa 3 Monate bis zu unserem großen Tag und wir freuen uns riesig, dich einzuladen! 🎊😍\n\nWir können uns unseren besonderen Tag ohne dich nicht vorstellen.\n\n📅 16. Oktober 2026\n⛪ Bitte komm bis 13:30 — die Trauung beginnt pünktlich um 14:00 Uhr\n📍 Schlosskirche Düsseldorf\n🎉 Abendempfang ab 17:00 Uhr — Rheinliebe am Deich\n\nDeine persönliche Einladung wartet — öffne den Link und gib uns Bescheid.\n\n{u}\n\nWir können es kaum erwarten. ♡\nArina & Elnur",
-    ceremony_plural:"{n} 💛\n\nWir heiraten — es sind nur noch etwa 3 Monate bis zu unserem großen Tag und wir freuen uns riesig, euch einzuladen! 🎊😍\n\nWir können uns unsere Trauung ohne euch nicht vorstellen.\n\n📅 16. Oktober 2026\n⛪ Bitte kommt bis 13:30 — die Trauung beginnt pünktlich um 14:00 Uhr\n📍 Schlosskirche Düsseldorf\n\nEure persönliche Einladung wartet — öffnet den Link und sagt uns kurz Bescheid.\n\n{u}\n\nWir freuen uns riesig auf euch. ♡\nArina & Elnur",
-    party_plural:"{n} 💛\n\nWir heiraten — es sind nur noch etwa 3 Monate bis zu unserem großen Tag und wir freuen uns riesig, euch einzuladen! 🎊😍\n\nWir können uns unseren besonderen Tag ohne euch nicht vorstellen.\n\n📅 16. Oktober 2026\n⛪ Bitte kommt bis 13:30 — die Trauung beginnt pünktlich um 14:00 Uhr\n📍 Schlosskirche Düsseldorf\n🎉 Abendempfang ab 17:00 Uhr — Rheinliebe am Deich\n\nEure persönliche Einladung wartet — öffnet den Link und gebt uns Bescheid.\n\n{u}\n\nWir können es kaum erwarten. ♡\nArina & Elnur"
+    get ceremony(){var t=timePhrase('de');return"{n} 💛\n\nWir heiraten — "+t+". Wir würden uns sehr freuen, dich bei der Trauung dabei zu haben.\n\n📅 16. Oktober 2026\n⛪ Bitte sei bis 13:30 Uhr da — Beginn ist pünktlich um 14:00 Uhr\n📍 Schlosskirche Düsseldorf\n\nBitte gib uns über den Link kurz Bescheid:\n\n{u}\n\nLiebe Grüße\nArina & Elnur ♡";},
+    get party(){var t=timePhrase('de');return"{n} 💛\n\nWir heiraten — "+t+". Wir würden uns sehr freuen, dich den ganzen Tag über dabei zu haben.\n\n📅 16. Oktober 2026\n⛪ Trauung: bitte sei bis 13:30 Uhr da — Beginn um 14:00 Uhr\n📍 Schlosskirche Düsseldorf\n🎉 Abendfeier ab 17:00 Uhr — Rheinliebe am Deich\n\nWir freuen uns, wenn du sowohl bei der Trauung als auch am Abend dabei bist.\n\nBitte gib uns über den Link kurz Bescheid:\n\n{u}\n\nLiebe Grüße\nArina & Elnur ♡";},
+    get ceremony_plural(){var t=timePhrase('de');return"{n} 💛\n\nWir heiraten — "+t+". Wir würden uns sehr freuen, euch beide bei der Trauung dabei zu haben.\n\n📅 16. Oktober 2026\n⛪ Bitte seid bis 13:30 Uhr da — Beginn ist pünktlich um 14:00 Uhr\n📍 Schlosskirche Düsseldorf\n\nBitte gebt uns über den Link kurz Bescheid:\n\n{u}\n\nLiebe Grüße\nArina & Elnur ♡";},
+    get party_plural(){var t=timePhrase('de');return"{n} 💛\n\nWir heiraten — "+t+". Wir würden uns sehr freuen, euch beide den ganzen Tag über dabei zu haben.\n\n📅 16. Oktober 2026\n⛪ Trauung: bitte seid bis 13:30 Uhr da — Beginn um 14:00 Uhr\n📍 Schlosskirche Düsseldorf\n🎉 Abendfeier ab 17:00 Uhr — Rheinliebe am Deich\n\nWir freuen uns, wenn ihr sowohl bei der Trauung als auch am Abend dabei seid.\n\nBitte gebt uns über den Link kurz Bescheid:\n\n{u}\n\nLiebe Grüße\nArina & Elnur ♡";}
   },
   ru:{
-    ceremony:"Привет, {n} 💛\n\nМы женимся — до нашего большого дня осталось около 3 месяцев, и мы так рады пригласить тебя! 🎊😍\n\nМы не можем представить венчание без тебя.\n\n📅 16 октября 2026\n⛪ Пожалуйста, приходи к 13:30 — венчание начнётся ровно в 14:00\n📍 Schlosskirche Düsseldorf\n\nТвоё личное приглашение готово — открой ссылку и дай нам знать.\n\n{u}\n\nТак ждём тебя. ♡\nАрина и Эльнур",
-    party:"Привет, {n} 💛\n\nМы женимся — до нашего большого дня осталось около 3 месяцев, и мы так рады пригласить тебя! 🎊😍\n\nМы не можем представить этот день без тебя.\n\n📅 16 октября 2026\n⛪ Пожалуйста, приходи к 13:30 — венчание начнётся ровно в 14:00\n📍 Schlosskirche Düsseldorf\n🎉 Вечерний приём с 17:00 — Rheinliebe am Deich\n\nТвоё личное приглашение готово — открой ссылку и дай нам знать.\n\n{u}\n\nНе можем дождаться. ♡\nАрина и Эльнур",
-    ceremony_plural:"Привет, {n} 💛\n\nМы женимся — до нашего большого дня осталось около 3 месяцев, и мы так рады пригласить вас обоих! 🎊😍\n\nМы не можем представить венчание без вас.\n\n📅 16 октября 2026\n⛪ Пожалуйста, приходите к 13:30 — венчание начнётся ровно в 14:00\n📍 Schlosskirche Düsseldorf\n\nВаше личное приглашение готово — откройте ссылку и дайте нам знать.\n\n{u}\n\nТак ждём вас. ♡\nАрина и Эльнур",
-    party_plural:"Привет, {n} 💛\n\nМы женимся — до нашего большого дня осталось около 3 месяцев, и мы так рады пригласить вас обоих! 🎊😍\n\nМы не можем представить этот день без вас.\n\n📅 16 октября 2026\n⛪ Пожалуйста, приходите к 13:30 — венчание начнётся ровно в 14:00\n📍 Schlosskirche Düsseldorf\n🎉 Вечерний приём с 17:00 — Rheinliebe am Deich\n\nВаше личное приглашение готово — откройте ссылку и дайте нам знать.\n\n{u}\n\nНе можем дождаться. ♡\nАрина и Эльнур"
+    get ceremony(){var t=timePhrase('ru');return"Привет, {n} 💛\n\nМы женимся — "+t+". Мы будем рады видеть тебя на церемонии.\n\n📅 16 октября 2026\n⛪ Пожалуйста, приходи до 13:30 — начало в 14:00\n📍 Schlosskirche Düsseldorf\n\nПожалуйста, подтверди участие по ссылке:\n\n{u}\n\nС любовью\nАрина & Эльнур ♡";},
+    get party(){var t=timePhrase('ru');return"Привет, {n} 💛\n\nМы женимся — "+t+". Мы будем рады, если ты проведёшь с нами весь день.\n\n📅 16 октября 2026\n⛪ Церемония: приходи до 13:30 — начало в 14:00\n📍 Schlosskirche Düsseldorf\n🎉 Вечерний приём с 17:00 — Rheinliebe am Deich\n\nМы будем рады видеть тебя и на церемонии, и на вечере.\n\nПожалуйста, подтверди участие по ссылке:\n\n{u}\n\nС любовью\nАрина & Эльнур ♡";},
+    get ceremony_plural(){var t=timePhrase('ru');return"Привет, {n} 💛\n\nМы женимся — "+t+". Мы будем рады видеть вас обоих на церемонии.\n\n📅 16 октября 2026\n⛪ Пожалуйста, приходите до 13:30 — начало в 14:00\n📍 Schlosskirche Düsseldorf\n\nПожалуйста, подтвердите участие по ссылке:\n\n{u}\n\nС любовью\nАрина & Эльнур ♡";},
+    get party_plural(){var t=timePhrase('ru');return"Привет, {n} 💛\n\nМы женимся — "+t+". Мы будем рады, если вы проведёте с нами весь день.\n\n📅 16 октября 2026\n⛪ Церемония: приходите до 13:30 — начало в 14:00\n📍 Schlosskirche Düsseldorf\n🎉 Вечерний приём с 17:00 — Rheinliebe am Deich\n\nМы будем рады видеть вас и на церемонии, и на вечере.\n\nПожалуйста, подтвердите участие по ссылке:\n\n{u}\n\nС любовью\nАрина & Эльнур ♡";}
   }
 };
 
@@ -3059,12 +3077,7 @@ document.getElementById('sSaveBtn').addEventListener('click',function(){
   if(wu){appSettings.workerUrl=wu;workerUrl=wu;try{localStorage.setItem('ww_url',wu);}catch(e){}}
   var newInterval=parseInt(document.getElementById('sUpdateInterval').value)||1;
   if(newInterval!==appSettings.updateInterval){appSettings.updateInterval=newInterval;restartUpdateChecker();}
-  // Message templates
-  if(msgs){
-    msgs.en.ceremony=document.getElementById('sMsgCeremonyEn').value;
-    msgs.en.party=document.getElementById('sMsgPartyEn').value;
-    if(msgs.de){msgs.de.ceremony=document.getElementById('sMsgCeremonyDe').value;msgs.de.party=document.getElementById('sMsgPartyDe').value;}
-  }
+  // Message templates are now dynamic (time-based getters) — no manual save needed
   saveAppSettings();applyAppSettings();
   var btn=document.getElementById('sSaveBtn');
   btn.textContent='Saved ✓';btn.classList.remove('dirty');
