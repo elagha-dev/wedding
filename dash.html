@@ -632,36 +632,7 @@ body.lite-mode #liteModeTopBtn {
 /* Always show the lite toggle; in normal mode it's subtle */
 #liteModeTopBtn { display: flex !important; align-items: center; }
 
-/* ── VELOCITY WIDGET ── */
-#velocityWidget {
-  position: fixed;
-  bottom: 88px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 150;
-  display: none;
-  align-items: center;
-  gap: 10px;
-  background: rgba(253,248,243,.96);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1.5px solid rgba(196,149,106,.18);
-  border-radius: var(--r-pill);
-  padding: 8px 16px 8px 12px;
-  box-shadow: 0 4px 20px rgba(100,60,30,.12);
-  white-space: nowrap;
-  cursor: pointer;
-  transition: opacity .2s;
-  user-select: none;
-}
-#velocityWidget.vis { display: flex; }
-#velocityWidget:hover { background: rgba(249,241,231,.98); }
-.vel-spark { display: flex; align-items: flex-end; gap: 2px; height: 20px; }
-.vel-bar { width: 4px; border-radius: 2px; background: var(--rose); opacity: .6; transition: height .4s ease; min-height: 2px; }
-.vel-bar.latest { opacity: 1; background: var(--rose-deep); }
-.vel-info { display: flex; flex-direction: column; gap: 1px; }
-.vel-rate { font-size: 12px; font-weight: 700; color: var(--rose-deep); line-height: 1; }
-.vel-eta  { font-size: 9px; font-weight: 600; color: var(--muted); letter-spacing: .04em; }
+
 
 /* sync prompt popup — shown for all users until first sync */
 #guestSyncBanner{display:none;position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(10px);z-index:400;background:var(--ink2);color:#fff;font-family:var(--sans);font-size:12px;font-weight:500;padding:10px 14px 10px 16px;border-radius:var(--r-pill);box-shadow:0 8px 30px rgba(0,0,0,.22);align-items:center;gap:10px;white-space:nowrap;opacity:0;transition:opacity .25s,transform .25s}
@@ -1247,14 +1218,7 @@ body.lite-mode #liteModeTopBtn {
   <button class="update-banner-dismiss" id="updateDismissBtn">✕</button>
 </div>
 
-<!-- VELOCITY WIDGET -->
-<div id="velocityWidget" title="Sending velocity — click to dismiss">
-  <div class="vel-spark" id="velSpark"></div>
-  <div class="vel-info">
-    <div class="vel-rate" id="velRate">0/hr</div>
-    <div class="vel-eta" id="velEta">calculating…</div>
-  </div>
-</div>
+
 
 <!-- FAB -->
 <div class="fab">
@@ -3468,107 +3432,7 @@ function showChatNotif(who, text){
   wireSettingsCb();
 })();
 
-/* ── VELOCITY WIDGET ── */
-(function(){
-  // Records the timestamp of each "sent" action this session
-  var sentTimestamps = [];
-  var widgetVisible = false;
-  var dismissedAt = 0;
-  var BUCKET_MS = 10 * 60 * 1000; // 10-min buckets for sparkline (6 bars = 1 hour)
-  var NUM_BARS = 6;
-  var widget = document.getElementById('velocityWidget');
-  var sparkEl = document.getElementById('velSpark');
-  var rateEl = document.getElementById('velRate');
-  var etaEl = document.getElementById('velEta');
 
-  if(!widget) return;
-
-  // Dismiss on click
-  widget.addEventListener('click', function(){
-    dismissedAt = Date.now();
-    widget.classList.remove('vis');
-    widgetVisible = false;
-  });
-
-  // Called every time a guest is marked sent (hook into existing event flow)
-  function recordSend(){
-    sentTimestamps.push(Date.now());
-    updateWidget();
-  }
-
-  function updateWidget(){
-    if(!sentTimestamps.length) return;
-    var now = Date.now();
-
-    // Don't show if dismissed in last 5 min
-    if(dismissedAt && now - dismissedAt < 5 * 60 * 1000) return;
-
-    // Build sparkline buckets (last NUM_BARS * 10 min)
-    var buckets = [];
-    for(var i = 0; i < NUM_BARS; i++) buckets.push(0);
-    var windowStart = now - NUM_BARS * BUCKET_MS;
-    sentTimestamps.forEach(function(t){
-      if(t < windowStart) return;
-      var bucketIdx = Math.min(NUM_BARS - 1, Math.floor((t - windowStart) / BUCKET_MS));
-      buckets[bucketIdx]++;
-    });
-
-    // Rate: invites per hour based on last 30 minutes
-    var recentWindow = 30 * 60 * 1000;
-    var recentCount = sentTimestamps.filter(function(t){ return now - t < recentWindow; }).length;
-    var rate = Math.round(recentCount * 2); // per hour (30min * 2)
-
-    // ETA: remaining unsent guests at current rate
-    var unsent = (typeof importQueue !== 'undefined')
-      ? importQueue.filter(function(g){ return !g.sent; }).length
-      : 0;
-    var etaTxt = '';
-    if(rate > 0 && unsent > 0){
-      var minsLeft = Math.ceil(unsent / rate * 60);
-      if(minsLeft < 60) etaTxt = 'done in ~' + minsLeft + ' min';
-      else etaTxt = 'done in ~' + Math.ceil(minsLeft / 60) + ' hr';
-    } else if(unsent === 0){
-      etaTxt = 'all sent!';
-    } else {
-      etaTxt = unsent + ' remaining';
-    }
-
-    // Render sparkline
-    var maxBucket = Math.max(1, Math.max.apply(null, buckets));
-    sparkEl.innerHTML = '';
-    buckets.forEach(function(count, i){
-      var bar = document.createElement('div');
-      bar.className = 'vel-bar' + (i === NUM_BARS - 1 ? ' latest' : '');
-      bar.style.height = Math.max(2, Math.round(count / maxBucket * 20)) + 'px';
-      sparkEl.appendChild(bar);
-    });
-
-    rateEl.textContent = rate + '/hr';
-    etaEl.textContent = etaTxt;
-
-    if(!widgetVisible){
-      widget.classList.add('vis');
-      widgetVisible = true;
-    }
-  }
-
-  // Hook into the existing sent events — listen for pushSentToWorker calls
-  // by monkey-patching after page loads
-  var _origPushSent = null;
-  function patchPushSent(){
-    if(typeof pushSentToWorker === 'function' && pushSentToWorker !== _origPushSent){
-      _origPushSent = pushSentToWorker;
-      pushSentToWorker = function(name){
-        recordSend();
-        return _origPushSent.apply(this, arguments);
-      };
-    }
-  }
-  // Try immediately + retry after page finishes loading
-  setTimeout(patchPushSent, 100);
-  setTimeout(patchPushSent, 1000);
-  window.addEventListener('load', patchPushSent);
-})();
 
 /* ── TOOLS DRAWER TOGGLE ── */
 (function(){
