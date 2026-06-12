@@ -557,8 +557,8 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 
 /* ── PRESENCE AVATARS ── */
 .presence-wrap{display:flex;align-items:center;gap:6px;flex:0 0 auto}
-.presence-avatar{position:relative;width:34px;height:34px;border-radius:50%;overflow:visible;cursor:pointer;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center}
-.presence-avatar img{width:34px;height:34px;border-radius:50%;object-fit:cover;display:block;border:2px solid transparent;transition:border-color var(--ease),opacity var(--ease)}
+.presence-avatar{position:relative;width:32px;height:32px;border-radius:50%;overflow:visible;cursor:pointer;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center}
+.presence-avatar img{width:32px;height:32px;border-radius:50%;object-fit:cover;display:block;border:2px solid transparent;transition:border-color var(--ease),opacity var(--ease)}
 .presence-avatar.is-me img{border-color:var(--rose)}
 .presence-avatar.is-online img{opacity:1}
 .presence-avatar.is-offline img{opacity:.85}
@@ -623,6 +623,14 @@ body.lite-mode .g-swipe-action-right,
 body.lite-mode .g-swipe-action-left { display: none !important; }
 body.lite-mode .g-card { touch-action: auto !important; }
 body.lite-mode #guestArea { display: block !important; }
+/* In lite mode: topbar pill becomes a prominent "Full" button */
+body.lite-mode #liteModeTopBtn {
+  background: var(--green-bg) !important;
+  color: var(--green) !important;
+  border-color: rgba(58,140,92,.35) !important;
+}
+/* Always show the lite toggle; in normal mode it's subtle */
+#liteModeTopBtn { display: flex !important; align-items: center; }
 
 /* ── VELOCITY WIDGET ── */
 #velocityWidget {
@@ -760,6 +768,8 @@ body.lite-mode #guestArea { display: block !important; }
   <div class="stat-pill total" id="ovTotal" title="Total guests" style="cursor:pointer">0</div>
   <div class="stat-pill sent" id="ovSent" title="Sent" style="cursor:pointer">0</div>
   <div class="stat-pill new-guests" id="ovNew" title="New since last sync" style="display:none"></div>
+  <!-- Lite mode toggle pill -->
+  <button id="liteModeTopBtn" title="Toggle Lite Mode" style="flex-shrink:0;height:32px;padding:0 10px;border-radius:var(--r-pill);border:1.5px solid var(--parchment);background:var(--cream2);color:var(--muted);font-family:var(--sans);font-size:9.5px;font-weight:700;letter-spacing:.06em;cursor:pointer;transition:all var(--ease);white-space:nowrap;display:none">⚡ Lite</button>
   <!-- spacer -->
   <div style="flex:1"></div>
   <!-- AI Assistant -->
@@ -784,7 +794,7 @@ body.lite-mode #guestArea { display: block !important; }
   <!-- My avatar → opens settings -->
   <div class="presence-avatar is-me is-online" id="presenceMe" title="Settings" style="flex-shrink:0;cursor:pointer">
     <img id="presenceMeImg" src="" alt="">
-    <span class="presence-guest-icon">👁</span>
+    <span class="presence-guest-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
     <span class="presence-dot"></span>
   </div>
   <!-- Settings btn (hidden, triggered by avatar) -->
@@ -794,14 +804,14 @@ body.lite-mode #guestArea { display: block !important; }
 
 <!-- SYNC INFO BANNER -->
 <div id="syncInfoBanner" style="display:flex;background:linear-gradient(135deg,#F2D8CC,#EDD5C5);color:var(--ink2);padding:9px 14px 9px 16px;font-family:var(--sans);font-size:11.5px;font-weight:500;line-height:1.4;align-items:center;gap:10px;border-bottom:1px solid rgba(201,135,106,.2)">
-  <span style="font-size:15px;flex-shrink:0">🔄</span>
+  <span style="flex-shrink:0"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></span>
   <span style="flex:1">Changes sync across all devices in <strong style="color:var(--rose-deep)">~30 seconds</strong> — both ways. What you change here will appear on other devices shortly.</span>
   <button onclick="(function(){var b=document.getElementById('syncInfoBanner');b.style.opacity='0';b.style.transition='opacity .3s';setTimeout(function(){b.style.display='none';try{sessionStorage.setItem('syncBannerDismissed','1')}catch(e){}},300)})()" style="background:rgba(160,97,74,.15);border:1px solid rgba(160,97,74,.3);color:var(--rose-deep);border-radius:50%;width:22px;height:22px;font-size:14px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:var(--sans);transition:background .2s" onmouseover="this.style.background='rgba(160,97,74,.25)'" onmouseout="this.style.background='rgba(160,97,74,.15)'">×</button>
 </div>
 
 <!-- GUEST SYNC BANNER -->
 <div id="guestSyncBanner">
-  <span style="font-size:14px;flex-shrink:0">🔄</span>
+  <span style="flex-shrink:0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></span>
   <span style="color:rgba(255,255,255,.8)">Tap sync to load the list</span>
   <button id="guestSyncNowBtn" style="background:rgba(255,255,255,.18);border:1.5px solid rgba(255,255,255,.3);color:#fff;border-radius:var(--r-pill);padding:4px 13px;font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0;letter-spacing:.04em;transition:background .15s" onmouseover="this.style.background='rgba(255,255,255,.28)'" onmouseout="this.style.background='rgba(255,255,255,.18)'">Sync now</button>
 </div>
@@ -1004,7 +1014,7 @@ body.lite-mode #guestArea { display: block !important; }
     </div>
   </div>
   <div class="chat-messages" id="chatMessages">
-    <div class="chat-empty">No messages yet.<br>Say hi! 👋</div>
+    <div class="chat-empty">No messages yet — say hi!</div>
   </div>
   <div class="chat-input-row">
     <textarea class="chat-input" id="chatInput" placeholder="Message…" rows="1"></textarea>
@@ -1232,7 +1242,7 @@ body.lite-mode #guestArea { display: block !important; }
 
 <!-- UPDATE BANNER -->
 <div class="update-banner" id="updateBanner">
-  <span class="update-banner-txt">🎉 New update is ready!</span>
+  <span class="update-banner-txt">New update is ready!</span>
   <button class="update-banner-btn" id="updateReloadBtn">Reload now</button>
   <button class="update-banner-dismiss" id="updateDismissBtn">✕</button>
 </div>
@@ -1277,8 +1287,8 @@ body.lite-mode #guestArea { display: block !important; }
       <button class="qc-btn" id="qfCoupleBtn" data-mode="couple">Couple</button>
     </div>
     <div class="qf-couple-toggle" style="margin-bottom:12px">
-      <button class="qc-btn" id="qfCeremonyBtn" data-scope="ceremony">⛪ Church</button>
-      <button class="qc-btn" id="qfPartyBtn" data-scope="party">🎉 Party</button>
+      <button class="qc-btn" id="qfCeremonyBtn" data-scope="ceremony">Church</button>
+      <button class="qc-btn" id="qfPartyBtn" data-scope="party">Party</button>
     </div>
     <button class="qf-send" id="qfSend">Send via WhatsApp →</button>
     <button class="qf-cancel" id="qfCancel">Cancel</button>
@@ -1677,7 +1687,7 @@ document.getElementById('settSessE').addEventListener('click',function(){
     pendingWho = who;
     document.getElementById('whoStep1').style.display = 'none';
     document.getElementById('whoStep2').style.display = '';
-    document.getElementById('whoPassTitle').textContent = 'Hey ' + who + ' 👋';
+    document.getElementById('whoPassTitle').textContent = 'Hey ' + who;
     document.getElementById('whoPassSub').textContent = 'Enter your password to continue';
     document.getElementById('whoPassErr').style.display = 'none';
     document.getElementById('whoPassInput').value = '';
@@ -1887,7 +1897,7 @@ function renderGuestList(){
   });
 
   // Swipe to mark sent / undo sent
-  list.querySelectorAll('.g-card').forEach(function(card){if(!card.closest('.g-swipe-wrap') || card.classList.contains('sent')) return; attachSwipe(card);});
+  list.querySelectorAll('.g-card').forEach(function(card){if(!card.closest('.g-swipe-wrap') || card.classList.contains('sent')) return; if(document.body.classList.contains('lite-mode')) return; attachSwipe(card);});
 
   updateBulkBar();
   initSplitBar();
@@ -3380,7 +3390,7 @@ function showActivityToast(msg){
     t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);z-index:300;background:var(--ink2);color:#fff;font-family:var(--sans);font-size:11px;font-weight:500;padding:9px 18px;border-radius:var(--r-pill);box-shadow:0 4px 20px rgba(0,0,0,.18);opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;white-space:nowrap;max-width:88vw;overflow:hidden;text-overflow:ellipsis';
     document.body.appendChild(t);
   }
-  t.textContent = '👀 ' + msg;
+  t.textContent = msg;
   t.style.opacity = '1';
   t.style.transform = 'translateX(-50%) translateY(0)';
   if(t._timer) clearTimeout(t._timer);
@@ -3423,44 +3433,59 @@ function showChatNotif(who, text){
 /* ── LITE MODE ── */
 (function(){
   var LITE_KEY = 'ww_lite';
+
   function applyLiteMode(on){
     document.body.classList.toggle('lite-mode', !!on);
+    // Sync the settings checkbox
     var cb = document.getElementById('sLiteMode');
     if(cb) cb.checked = !!on;
-    // Disconnect WebSocket and pollers when switching to lite
-    if(on){
-      // Stop any active swipe listeners (they'll still work but swipe zones are hidden)
-      // Kill chat poll — handled by chat module checking lite mode
-    }
+    // Update topbar pill label
+    var topBtn = document.getElementById('liteModeTopBtn');
+    if(topBtn) topBtn.textContent = on ? '✦ Full' : '⚡ Lite';
+    // Re-render guest list so swipes attach/detach correctly
+    if(typeof renderGuestList === 'function') { try { renderGuestList(); } catch(e){} }
   }
+
   function loadLite(){ try{ return localStorage.getItem(LITE_KEY)==='1'; }catch(e){ return false; } }
   function saveLite(on){ try{ localStorage.setItem(LITE_KEY, on?'1':'0'); }catch(e){} }
 
-  // Apply on load
-  if(loadLite()) applyLiteMode(true);
+  function toggle(){
+    var next = !document.body.classList.contains('lite-mode');
+    saveLite(next);
+    applyLiteMode(next);
+  }
 
-  // Wire toggle
+  // Apply on load (before anything renders)
+  if(loadLite()) document.body.classList.add('lite-mode');
+
+  // Wire topbar pill
   document.addEventListener('DOMContentLoaded', function(){
+    var topBtn = document.getElementById('liteModeTopBtn');
+    if(topBtn){
+      topBtn.textContent = loadLite() ? '✦ Full' : '⚡ Lite';
+      topBtn.addEventListener('click', toggle);
+    }
+  });
+  // Also wire immediately (topbar is static HTML, already in DOM)
+  var topBtn = document.getElementById('liteModeTopBtn');
+  if(topBtn){
+    topBtn.textContent = loadLite() ? '✦ Full' : '⚡ Lite';
+    topBtn.addEventListener('click', toggle);
+  }
+
+  // Wire settings checkbox
+  function wireSettingsCb(){
     var cb = document.getElementById('sLiteMode');
     if(cb){
       cb.checked = loadLite();
       cb.addEventListener('change', function(){
         saveLite(this.checked);
         applyLiteMode(this.checked);
-        if(!this.checked) location.reload(); // reload to reconnect presence/pollers
       });
     }
-  });
-  // Also wire it if already in DOM (settings drawer is static HTML)
-  var cb = document.getElementById('sLiteMode');
-  if(cb){
-    cb.checked = loadLite();
-    cb.addEventListener('change', function(){
-      saveLite(this.checked);
-      applyLiteMode(this.checked);
-      if(!this.checked) location.reload();
-    });
   }
+  document.addEventListener('DOMContentLoaded', wireSettingsCb);
+  wireSettingsCb();
 })();
 
 /* ── VELOCITY WIDGET ── */
@@ -3523,7 +3548,7 @@ function showChatNotif(who, text){
       if(minsLeft < 60) etaTxt = 'done in ~' + minsLeft + ' min';
       else etaTxt = 'done in ~' + Math.ceil(minsLeft / 60) + ' hr';
     } else if(unsent === 0){
-      etaTxt = 'all sent! 🎉';
+      etaTxt = 'all sent!';
     } else {
       etaTxt = unsent + ' remaining';
     }
@@ -3704,7 +3729,7 @@ function showChatNotif(who, text){
   var banner = document.createElement('div');
   banner.id = 'rsvpChangeBanner';
   banner.style.cssText = 'display:none;background:linear-gradient(135deg,#FDE8EE,#F9D4E0);color:#9B1A44;padding:9px 14px 9px 16px;font-family:var(--sans);font-size:11.5px;font-weight:500;line-height:1.4;align-items:center;gap:10px;border-bottom:1px solid rgba(155,26,68,.15)';
-  banner.innerHTML = '<span style="font-size:15px;flex-shrink:0">🎉</span>'
+  banner.innerHTML = ''
     + '<span id="rsvpBannerText" style="flex:1"></span>'
     + '<a href="https://docs.google.com/spreadsheets/d/1plydb1KSGgwbxCZzmSD8e12f-Rzzm9-dOlFml4ivUKQ/edit" target="_blank" style="color:#9B1A44;font-weight:700;text-decoration:none;white-space:nowrap;padding:3px 10px;border-radius:100px;background:rgba(155,26,68,.1);border:1px solid rgba(155,26,68,.2);margin-right:6px">View ↗</a>'
     + '<button onclick="document.getElementById(\'rsvpChangeBanner\').style.display=\'none\'" style="background:rgba(155,26,68,.12);border:1px solid rgba(155,26,68,.2);color:#9B1A44;border-radius:50%;width:22px;height:22px;font-size:16px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center">×</button>';
@@ -4237,7 +4262,7 @@ function showChatNotif(who, text){
         var last = fromOther[fromOther.length - 1];
         // Tab title — only when the tab is hidden/blurred so it's actually useful
         if(document.hidden || document.visibilityState === 'hidden'){
-          document.title = "💬 " + last.who + ": " + last.text.slice(0,30) + (last.text.length>30?"…":"");
+          document.title = last.who + ": " + last.text.slice(0,30) + (last.text.length>30?"…":"");
         }
         // In-app notification only when drawer is closed
         showChatNotif(last.who, last.text);
@@ -4252,7 +4277,7 @@ function showChatNotif(who, text){
 
     // full re-render
     if(!msgs.length){
-      msgList.innerHTML = '<div class="chat-empty">No messages yet.<br>Say hi! 👋</div>';
+      msgList.innerHTML = '<div class="chat-empty">No messages yet — say hi!</div>';
       return;
     }
     msgList.innerHTML = msgs.map(function(m){
@@ -4302,7 +4327,7 @@ function showChatNotif(who, text){
   if(clearBtn) clearBtn.addEventListener("click", function(){
     if(!confirm("Clear all messages? This cannot be undone.")) return;
     fetch(workerBase() + "/chat/clear", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({})}).catch(function(){});
-    if(msgList) msgList.innerHTML = "<div class=\"chat-empty\">No messages yet.<br>Say hi! 👋</div>";
+    if(msgList) msgList.innerHTML = "<div class=\"chat-empty\">No messages yet — say hi!</div>";
     lastMsgTs = Date.now();
     lastReadTs = lastMsgTs;
     try{ localStorage.setItem("chat_lastRead", String(lastReadTs)); }catch(e){}
