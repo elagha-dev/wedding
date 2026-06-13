@@ -258,31 +258,31 @@ textarea::placeholder { color: var(--ctrl-muted); font-family: var(--sans); font
 .sec-block { }
 .sec-header {
   display: flex; align-items: center; gap: 10px;
-  margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1.5px solid;
+  margin-bottom: 10px; padding-bottom: 0; border-bottom: none;
 }
 .sec-tag {
   font-family: var(--mono); font-size: 10px; font-weight: 700;
   letter-spacing: .1em; text-transform: uppercase;
   padding: 3px 9px; border-radius: 4px; border: 1.5px solid currentColor;
 }
-.sec-verse   .sec-header { border-color: rgba(59,130,246,.2); }
-.sec-verse   .sec-tag    { color: var(--blue); background: rgba(59,130,246,.07); }
-.sec-chorus  .sec-header { border-color: rgba(15,15,15,.15); }
-.sec-chorus  .sec-tag    { color: var(--ink); background: rgba(15,15,15,.06); }
-.sec-bridge  .sec-header { border-color: rgba(139,92,246,.2); }
-.sec-bridge  .sec-tag    { color: var(--purple); background: rgba(139,92,246,.07); }
-.sec-intro   .sec-header, .sec-outro .sec-header { border-color: rgba(100,116,139,.15); }
-.sec-intro   .sec-tag,   .sec-outro .sec-tag   { color: #64748b; background: rgba(100,116,139,.07); }
-.sec-instrumental .sec-header { border-color: rgba(20,184,166,.2); }
-.sec-instrumental .sec-tag    { color: var(--teal); background: rgba(20,184,166,.07); }
-.sec-solo    .sec-header { border-color: rgba(249,115,22,.2); }
-.sec-solo    .sec-tag    { color: var(--orange); background: rgba(249,115,22,.07); }
-.sec-hook    .sec-header { border-color: rgba(239,68,68,.2); }
-.sec-hook    .sec-tag    { color: var(--red); background: rgba(239,68,68,.07); }
+.sec-verse   .sec-header { border-color: transparent; }
+.sec-verse   .sec-tag    { color: #60a5fa; background: rgba(59,130,246,.15); border-color: rgba(59,130,246,.4); }
+.sec-chorus  .sec-header { border-color: transparent; }
+.sec-chorus  .sec-tag    { color: #111; background: rgba(15,15,15,.12); border-color: rgba(15,15,15,.3); }
+.sec-bridge  .sec-header { border-color: transparent; }
+.sec-bridge  .sec-tag    { color: #8b5cf6; background: rgba(139,92,246,.15); border-color: rgba(139,92,246,.4); }
+.sec-intro   .sec-header, .sec-outro .sec-header { border-color: transparent; }
+.sec-intro   .sec-tag,   .sec-outro .sec-tag   { color: #475569; background: rgba(100,116,139,.12); border-color: rgba(100,116,139,.35); }
+.sec-instrumental .sec-header { border-color: transparent; }
+.sec-instrumental .sec-tag    { color: #0d9488; background: rgba(20,184,166,.12); border-color: rgba(20,184,166,.4); }
+.sec-solo    .sec-header { border-color: transparent; }
+.sec-solo    .sec-tag    { color: #ea6d10; background: rgba(249,115,22,.13); border-color: rgba(249,115,22,.4); }
+.sec-hook    .sec-header { border-color: transparent; }
+.sec-hook    .sec-tag    { color: #dc2626; background: rgba(239,68,68,.12); border-color: rgba(239,68,68,.4); }
 
 .chord-rows { display: flex; flex-direction: column; gap: 14px; }
 .chord-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; }
-.chord-row + .chord-row { padding-top: 12px; border-top: 1px dashed var(--paper3); }
+.chord-row + .chord-row { padding-top: 10px; }
 
 .ch {
   font-family: var(--mono); font-size: 26px; font-weight: 700;
@@ -574,7 +574,7 @@ textarea::placeholder { color: var(--ctrl-muted); font-family: var(--sans); font
 
 .perf-chord-rows { display: flex; flex-direction: column; gap: 18px; }
 .perf-chord-row { display: flex; flex-wrap: wrap; gap: 14px; align-items: baseline; }
-.perf-chord-row + .perf-chord-row { padding-top: 16px; border-top: 1px dashed #e0ddd8; }
+.perf-chord-row + .perf-chord-row { padding-top: 14px; }
 
 .pch {
   font-family: var(--mono); font-size: 42px; font-weight: 700;
@@ -658,13 +658,13 @@ textarea::placeholder { color: var(--ctrl-muted); font-family: var(--sans); font
 .irs-key { color: var(--ctrl-text); }
 
 .import-add-btn {
-  font-family: var(--sans); font-size: 12px; font-weight: 700;
-  padding: 10px 20px; border-radius: 9px;
-  border: 1px solid rgba(0,200,100,.4); background: rgba(0,200,100,.1);
+  font-family: var(--sans); font-size: 11px; font-weight: 600;
+  padding: 5px 12px; border-radius: 6px;
+  border: 1px solid rgba(0,200,100,.35); background: transparent;
   color: var(--green); cursor: pointer; transition: all .1s;
-  display: flex; align-items: center; justify-content: center; gap: 7px; width: 100%;
+  display: inline-flex; align-items: center; gap: 5px;
 }
-.import-add-btn:hover { background: rgba(0,200,100,.2); }
+.import-add-btn:hover { background: rgba(0,200,100,.1); }
 .import-add-btn:disabled { opacity: .35; cursor: not-allowed; }
 
 .import-status {
@@ -828,9 +828,9 @@ window.onunhandledrejection = function(e) {
     </button>
     <div class="import-status" id="import-status"></div>
     <div class="import-results" id="import-results"></div>
-    <div id="import-add-bar" style="display:none;position:sticky;bottom:44px;background:var(--ctrl-bg);padding:8px 0 4px;border-top:1px solid var(--ctrl-border);">
+    <div id="import-add-bar" style="display:none;padding:4px 0 0;">
       <button class="import-add-btn" id="import-add-btn" disabled>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Add to Library &amp; Setlist
       </button>
     </div>
@@ -988,7 +988,7 @@ function getCapoOptions(fromKey, toKey){
     // open key = noteIdx(toKey) - capo (mod 12)
     const openIdx = ((noteIdx(toKey)-capo)%12+12)%12;
     if(easyKeys.has(openIdx)){
-      opts.push({capo, key: FLAT_KEYS.has(toKey)?FLATS[openIdx]:SHARPS[openIdx]});
+      opts.push({capo, key: ALL_KEYS.find(k=>noteIdx(k)===openIdx)||(FLAT_KEYS.has(toKey)?FLATS[openIdx]:SHARPS[openIdx])});
     }
   }
   return opts.slice(0,3);
