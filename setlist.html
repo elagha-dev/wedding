@@ -315,7 +315,7 @@ textarea::placeholder { color: var(--ctrl-muted); font-family: var(--sans); font
   border-radius: 12px; padding: 2px 10px;
 }
 
-.lib-list { padding: 12px 12px; display: flex; flex-direction: column; gap: 6px; }
+.lib-list { padding: 12px 12px 56px; display: flex; flex-direction: column; gap: 6px; }
 
 .lib-empty {
   text-align: center; padding: 60px 20px;
@@ -333,6 +333,9 @@ textarea::placeholder { color: var(--ctrl-muted); font-family: var(--sans); font
 }
 .lib-song:hover { border-color: var(--ctrl-muted); }
 .lib-song.in-setlist { border-color: rgba(232,255,71,.3); }
+.src-tag { font-size:9px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; padding:2px 6px; border-radius:4px; border:1px solid; line-height:1.6; flex-shrink:0; }
+.src-tag.ai     { color:#a78bfa; border-color:rgba(167,139,250,.35); background:rgba(167,139,250,.08); }
+.src-tag.manual { color:#4a4a4a; border-color:#2e2e2e; background:transparent; }
 
 .ls-info { flex: 1; min-width: 0; }
 .ls-name {
@@ -390,20 +393,46 @@ textarea::placeholder { color: var(--ctrl-muted); font-family: var(--sans); font
 .setlist-btn.perform-btn:hover { background: rgba(232,255,71,.2); }
 .setlist-btn:hover { border-color: var(--ctrl-muted); }
 
-.setlist-list { padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+.setlist-list { padding: 12px 12px 56px; display: flex; flex-direction: column; gap: 6px; }
 .set-empty { text-align: center; padding: 60px 20px; color: var(--ctrl-muted); font-size: 13px; line-height: 1.7; }
 .set-empty-icon { font-size: 28px; margin-bottom: 12px; opacity: .3; }
 
-.set-song {
-  background: var(--ctrl-surface);
+.set-song-wrap {
   border: 1px solid var(--ctrl-border2);
   border-radius: 10px;
+  overflow: hidden;
+  background: var(--ctrl-surface);
+  transition: border-color .1s;
+}
+.set-song-wrap.drag-over { border-color: var(--accent); }
+.set-song {
   padding: 14px 16px;
   display: flex; align-items: center; gap: 12px;
   cursor: grab;
 }
 .set-song.dragging { opacity: .4; }
-.set-song.drag-over { border-color: var(--accent); }
+.set-chord-panel {
+  display: none;
+  padding: 12px 16px 14px;
+  border-top: 1px solid var(--ctrl-border);
+  background: var(--paper);
+}
+.set-chord-panel.open { display: block; }
+.set-chord-panel .song { gap: 14px; }
+.set-chord-panel .ch { font-size: 20px; }
+.set-chord-panel .chord-row { gap: 6px; }
+.set-chord-panel .chord-row + .chord-row { padding-top: 8px; }
+.set-chord-panel .sec-header { margin-bottom: 8px; padding-bottom: 6px; }
+
+.set-expand-btn {
+  width: 26px; height: 26px; border-radius: 6px;
+  border: 1px solid var(--ctrl-border2); background: transparent;
+  color: var(--ctrl-muted); cursor: pointer; display: flex;
+  align-items: center; justify-content: center; flex-shrink: 0; transition: all .1s;
+}
+.set-expand-btn svg { width: 11px; height: 11px; transition: transform .2s; }
+.set-expand-btn.open svg { transform: rotate(180deg); }
+.set-expand-btn:hover { border-color: var(--accent); color: var(--accent); }
 
 .set-num {
   font-family: var(--mono); font-size: 18px; font-weight: 700;
@@ -568,7 +597,7 @@ textarea::placeholder { color: var(--ctrl-muted); font-family: var(--sans); font
   color: var(--ctrl-muted); letter-spacing: .06em; text-transform: uppercase;
 }
 
-.import-body { padding: 16px 16px 20px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+.import-body { padding: 16px 16px 56px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
 
 .import-hint {
   font-size: 12px; color: var(--ctrl-muted); line-height: 1.6;
@@ -679,7 +708,7 @@ window.onunhandledrejection = function(e) {
   </button>
   <button class="nav-tab" data-view="library">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
-    Library
+    Library <span id="lib-tab-count" style="font-size:9px;background:var(--ctrl-border2);border-radius:8px;padding:1px 5px;margin-left:2px;"></span>
   </button>
   <button class="nav-tab" data-view="setlist">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
@@ -759,10 +788,7 @@ window.onunhandledrejection = function(e) {
 
 <!-- ══ LIBRARY VIEW ══ -->
 <div class="view" id="view-library">
-  <div class="lib-header">
-    <span class="lib-title">Library</span>
-    <span class="lib-count" id="lib-count">0 songs</span>
-  </div>
+
   <div class="lib-list" id="lib-list">
     <div class="lib-empty">
       <div class="lib-empty-icon">🎵</div>
@@ -773,10 +799,10 @@ window.onunhandledrejection = function(e) {
 
 <!-- ══ SETLIST VIEW ══ -->
 <div class="view" id="view-setlist">
-  <div class="setlist-header">
-    <button class="setlist-btn perform-btn" id="perform-setlist-btn">
+  <div id="setlist-perform-bar" style="padding:10px 14px 0;display:none;">
+    <button class="setlist-btn perform-btn" id="perform-setlist-btn" style="width:100%;justify-content:center;padding:12px;font-size:14px;">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-      Perform
+      Perform Setlist
     </button>
   </div>
   <div class="setlist-list" id="setlist-list">
@@ -863,7 +889,9 @@ function noteToKey(idx, useFlats){ return (useFlats ? FLATS : SHARPS)[idx]; }
 function transposeNote(n, st, tk){
   const i = noteIdx(n); if(i===-1) return n;
   const ni = ((i+st)%12+12)%12;
-  return (tk && FLAT_KEYS.has(tk) ? FLATS : SHARPS)[ni];
+  // Use flats if target key prefers flats, OR if we're going down (negative step)
+  const useFlats = (tk && FLAT_KEYS.has(tk)) || st < 0 || (st > 6);
+  return (useFlats ? FLATS : SHARPS)[ni];
 }
 function transposeChord(ch, st, tk){
   if(st===0) return ch;
@@ -1087,6 +1115,8 @@ function autoDetect(){
   document.getElementById('dk-val').textContent=det.key+' '+det.mode;
   dk.classList.add('show');
   if(!fromKey){ fromKey=det.key; refreshBtns(); }
+  if(!toKey){ toKey='G'; refreshBtns(); }
+  updateStepDisplay(); updateCapo();
 }
 
 // ── Render chord sheet ────────────────────────────────────────────────────────
@@ -1150,7 +1180,8 @@ document.getElementById('save-btn').onclick=()=>{
     toKey,
     semitones: getSemitones(),
     detectedKey: document.getElementById('dk-val').textContent,
-    savedAt: Date.now()
+    savedAt: Date.now(),
+    source: 'manual'
   };
   if(existing>=0) songs[existing]=song;
   else songs.unshift(song);
@@ -1169,8 +1200,8 @@ document.title="chunk6";
 function renderLibrary(){
   songs=loadSongs();
   const list=document.getElementById('lib-list');
-  const count=document.getElementById('lib-count');
-  count.textContent=songs.length+(songs.length===1?' song':' songs');
+  const tabCount=document.getElementById('lib-tab-count');
+  if(tabCount) tabCount.textContent=songs.length||'';
   if(!songs.length){
     list.innerHTML=`<div class="lib-empty"><div class="lib-empty-icon">🎵</div>Save a song from the Transpose tab<br>and it'll live here.</div>`;
     return;
@@ -1187,6 +1218,7 @@ function renderLibrary(){
         <div class="ls-meta">
           ${song.fromKey?`<span class="ls-key">${song.fromKey}${song.toKey&&song.toKey!==song.fromKey?' → '+song.toKey:''}</span>`:''}
           <span>${semStr}</span>
+          <span class="src-tag ${song.source==='ai'?'ai':'manual'}">${song.source==='ai'?'AI':'Saved'}</span>
         </div>
       </div>
       <div class="ls-actions">
@@ -1245,12 +1277,19 @@ function renderSetlist(){
   setlist=loadSetlist(); songs=loadSongs();
   const list=document.getElementById('setlist-list');
   const setlistSongs=setlist.map(s=>songs.find(sg=>sg.id===s.id)).filter(Boolean);
+  const perfBar=document.getElementById('setlist-perform-bar');
   if(!setlistSongs.length){
     list.innerHTML=`<div class="set-empty"><div class="set-empty-icon">🎤</div>Add songs from your Library<br>and arrange them here for the gig.</div>`;
+    if(perfBar) perfBar.style.display='none';
     return;
   }
+  if(perfBar) perfBar.style.display='block';
   list.innerHTML='';
   setlistSongs.forEach((song, idx)=>{
+    const wrap=document.createElement('div');
+    wrap.className='set-song-wrap';
+    wrap.dataset.idx=idx;
+
     const el=document.createElement('div');
     el.className='set-song';
     el.draggable=true;
@@ -1262,28 +1301,56 @@ function renderSetlist(){
         <div class="set-name">${escHtml(song.name)}</div>
         <div class="set-meta">${song.fromKey?`<span class="sm-key">${song.fromKey}${song.toKey&&song.toKey!==song.fromKey?' → '+song.toKey:''}</span> `:''}${semStr}</div>
       </div>
+      <button class="set-expand-btn" title="Show chords">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
       <button class="set-remove" title="Remove from setlist">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     `;
-    el.querySelector('.set-remove').onclick=()=>{
+
+    // Chord panel
+    const panel=document.createElement('div');
+    panel.className='set-chord-panel';
+    const songOut=document.createElement('div');
+    songOut.className='song';
+    const sections=parseSections(song.raw||'');
+    const savedTo=song.toKey||null; const origTo=toKey; toKey=savedTo;
+    buildChordSheet(sections, song.semitones||0, songOut);
+    toKey=origTo;
+    panel.appendChild(songOut);
+
+    // Expand toggle
+    el.querySelector('.set-expand-btn').onclick=(e)=>{
+      e.stopPropagation();
+      const btn=el.querySelector('.set-expand-btn');
+      btn.classList.toggle('open');
+      panel.classList.toggle('open');
+    };
+
+    el.querySelector('.set-remove').onclick=(e)=>{
+      e.stopPropagation();
       setlist.splice(idx,1); saveSetlist(setlist); renderSetlist();
     };
+
     // Drag to reorder
-    el.addEventListener('dragstart',()=>{ el.classList.add('dragging'); el.dataset.dragIdx=idx; });
-    el.addEventListener('dragend',()=>{ el.classList.remove('dragging'); document.querySelectorAll('.set-song').forEach(s=>s.classList.remove('drag-over')); });
-    el.addEventListener('dragover',(e)=>{ e.preventDefault(); el.classList.add('drag-over'); });
-    el.addEventListener('dragleave',()=>el.classList.remove('drag-over'));
-    el.addEventListener('drop',(e)=>{
-      e.preventDefault(); el.classList.remove('drag-over');
-      const draggingEl=document.querySelector('.dragging'); const fromIdx=parseInt(draggingEl && draggingEl.dataset.dragIdx);
-      const toIdx=parseInt(el.dataset.idx);
+    el.addEventListener('dragstart',()=>{ el.classList.add('dragging'); wrap.dataset.dragIdx=idx; });
+    el.addEventListener('dragend',()=>{ el.classList.remove('dragging'); document.querySelectorAll('.set-song-wrap').forEach(s=>s.classList.remove('drag-over')); });
+    wrap.addEventListener('dragover',(e)=>{ e.preventDefault(); wrap.classList.add('drag-over'); });
+    wrap.addEventListener('dragleave',()=>wrap.classList.remove('drag-over'));
+    wrap.addEventListener('drop',(e)=>{
+      e.preventDefault(); wrap.classList.remove('drag-over');
+      const draggingEl=document.querySelector('.dragging'); const fromIdx=parseInt(draggingEl && draggingEl.closest('.set-song-wrap') && draggingEl.closest('.set-song-wrap').dataset.dragIdx);
+      const toIdx=parseInt(wrap.dataset.idx);
       if(isNaN(fromIdx)||fromIdx===toIdx) return;
       const moved=setlist.splice(fromIdx,1)[0];
       setlist.splice(toIdx,0,moved);
       saveSetlist(setlist); renderSetlist();
     });
-    list.appendChild(el);
+
+    wrap.appendChild(el);
+    wrap.appendChild(panel);
+    list.appendChild(wrap);
   });
 }
 
@@ -1635,7 +1702,8 @@ document.getElementById('import-add-btn').onclick = () => {
       fromKey: s.fromKey,
       toKey: s.toKey,
       semitones: s.semitones,
-      savedAt: Date.now()
+      savedAt: Date.now(),
+      source: 'ai'
     };
     songs.unshift(song);
     setlist.push({ id });
@@ -1656,7 +1724,11 @@ document.getElementById('import-add-btn').onclick = () => {
   document.getElementById('import-input').value = '';
 };
 
-// Init
+// Init — default TO key is always G
+toKey = 'G';
+refreshBtns();
+updateStepDisplay();
+
 try {
   render();
 } catch(e) {
@@ -1684,35 +1756,13 @@ try {
 
 
 <!-- ══ API KEY FOOTER ══ -->
-<div id="api-key-footer" style="
-  position:fixed;bottom:0;left:0;right:0;
-  background:#0d0d0d;
-  border-top:1px solid #2a2a2a;
-  padding:10px 20px 14px;
-  display:flex;align-items:center;gap:10px;
-  max-width:640px;margin:0 auto;
-  z-index:200;
-">
-  <div style="display:flex;flex-direction:column;gap:1px;flex-shrink:0;">
-    <span style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#444;">Gemini Key</span>
-    <a href="https://aistudio.google.com" target="_blank" style="font-size:9px;color:#444;text-decoration:none;">aistudio.google.com ↗</a>
+<div id="api-key-footer" style="position:fixed;bottom:0;left:0;right:0;max-width:640px;margin:0 auto;background:transparent;padding:6px 14px 8px;display:flex;align-items:center;gap:8px;z-index:200;">
+  <div style="display:flex;flex-direction:column;gap:2px;flex-shrink:0;">
+    <span style="font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#222;">Gemini Key</span>
+    <a href="https://aistudio.google.com" target="_blank" style="font-size:9px;color:#222;text-decoration:none;">aistudio.google.com ↗</a>
   </div>
-  <input id="api-key-input" type="password" placeholder="Paste API key (AIza…)" style="
-    flex:1;min-width:0;
-    background:#1a1a1a;
-    border:1px solid #2e2e2e;
-    border-radius:8px;
-    padding:9px 12px;
-    font-size:12px;font-family:monospace;
-    color:#e8e8e8;outline:none;
-    caret-color:#e8ff47;
-  ">
-  <button id="api-key-save" style="
-    font-size:12px;font-weight:700;
-    padding:9px 16px;border-radius:8px;
-    border:none;background:#e8ff47;color:#111;
-    cursor:pointer;white-space:nowrap;flex-shrink:0;
-  ">Save</button>
+  <input id="api-key-input" type="password" placeholder="AIza…" style="flex:1;min-width:0;background:transparent;border:none;border-bottom:1px solid #ccc;padding:4px 2px;font-size:11px;font-family:monospace;color:#222;outline:none;caret-color:#111;">
+  <button id="api-key-save" style="font-size:10px;font-weight:700;padding:4px 10px;border-radius:5px;border:1px solid #ccc;background:transparent;color:#222;cursor:pointer;flex-shrink:0;white-space:nowrap;">Save</button>
 </div>
 
 </body>
