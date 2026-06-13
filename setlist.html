@@ -828,10 +828,12 @@ window.onunhandledrejection = function(e) {
     </button>
     <div class="import-status" id="import-status"></div>
     <div class="import-results" id="import-results"></div>
-    <button class="import-add-btn" id="import-add-btn" style="display:none" disabled>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      Add Selected to Library &amp; Setlist
-    </button>
+    <div id="import-add-bar" style="display:none;position:sticky;bottom:44px;background:var(--ctrl-bg);padding:8px 0 4px;border-top:1px solid var(--ctrl-border);">
+      <button class="import-add-btn" id="import-add-btn" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add to Library &amp; Setlist
+      </button>
+    </div>
   </div>
 </div>
 
@@ -1512,10 +1514,10 @@ document.getElementById('import-run-btn').onclick = async () => {
 
   btn.disabled = true;
   btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;animation:spin 1s linear infinite"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg> Finding chords…`;
-  status.textContent = 'Asking Claude for chords…';
+  status.textContent = 'Asking Gemini…';
   status.className = 'import-status';
   resultsEl.innerHTML = '';
-  addBtn.style.display = 'none';
+  document.getElementById('import-add-bar').style.display='none'; addBtn.style.display='';
   importResults = [];
   selectedImport.clear();
 
@@ -1622,8 +1624,7 @@ ${input}`;
     renderImportResults();
     status.textContent = `Found ${importResults.length} song${importResults.length !== 1 ? 's' : ''}`;
     status.className = 'import-status ok';
-    addBtn.style.display = 'flex';
-    addBtn.disabled = false;
+    document.getElementById('import-add-bar').style.display='block'; addBtn.style.display=''; addBtn.disabled = false;
 
   } catch (err) {
     console.error('AI Import error:', err);
@@ -1661,17 +1662,19 @@ function renderImportResults() {
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
       </div>
       <div class="irs-info">
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
           <div class="irs-name" style="flex:1;">${escHtml(song.name)}</div>
           ${poolBadge}
         </div>
-        <div class="irs-chords">${escHtml(chordPreview)}</div>
         ${hintText}
-        <div class="irs-meta" style="margin-top:5px;">
+        <div class="irs-meta" style="margin-top:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
           <span class="irs-key" style="font-family:var(--mono);">${keyText}</span>
           <span class="irs-capo">${capoText}</span>
           ${leaderBadge}
           ${langBadge}
+          <button class="irs-expand-btn" style="margin-left:auto;font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;border:1px solid var(--ctrl-border2);background:transparent;color:var(--ctrl-muted);cursor:pointer;">Chords ↓</button>
+        </div>
+        <div class="irs-chord-panel" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--ctrl-border);">
         </div>
       </div>
     `;
@@ -1680,6 +1683,27 @@ function renderImportResults() {
       else selectedImport.add(i);
       document.getElementById('import-add-btn').disabled = selectedImport.size === 0;
       renderImportResults();
+    };
+    div.querySelector('.irs-expand-btn').onclick = (e) => {
+      e.stopPropagation();
+      const panel = div.querySelector('.irs-chord-panel');
+      const btn = e.currentTarget;
+      const isOpen = panel.style.display !== 'none';
+      if(isOpen){ panel.style.display='none'; btn.textContent='Chords ↓'; return; }
+      // Build chord sheet
+      if(!panel.children.length){
+        const out = document.createElement('div');
+        out.className = 'song';
+        out.style.cssText = 'gap:12px;';
+        const sections = parseSections(song.raw||'');
+        const savedTo = song.toKey||null; const origTo = toKey; toKey = savedTo;
+        buildChordSheet(sections, song.semitones||0, out);
+        toKey = origTo;
+        // Scale down chords for preview
+        out.querySelectorAll('.ch').forEach(c=>c.style.fontSize='18px');
+        panel.appendChild(out);
+      }
+      panel.style.display='block'; btn.textContent='Chords ↑';
     };
     el.appendChild(div);
   });
@@ -1717,7 +1741,7 @@ document.getElementById('import-add-btn').onclick = () => {
   status.textContent = `✓ Added ${added} song${added !== 1 ? 's' : ''} to Library & Setlist`;
   status.className = 'import-status ok';
 
-  document.getElementById('import-add-btn').style.display = 'none';
+  document.getElementById('import-add-bar').style.display='none';
   importResults = [];
   selectedImport.clear();
   document.getElementById('import-results').innerHTML = '';
@@ -1743,26 +1767,34 @@ try {
   const btn = document.getElementById('api-key-save');
   if(!inp||!btn) return;
   const saved = localStorage.getItem('tp_gemini_key');
-  if(saved){ inp.value = saved; }
+  if(saved){
+    inp.value = saved;
+    inp.placeholder = 'Key saved ✓';
+    btn.textContent = '✓';
+    btn.style.color = 'var(--green)';
+    btn.style.borderColor = 'rgba(0,200,100,.3)';
+  }
   btn.onclick = () => {
     const v = inp.value.trim();
     if(!v){ alert('Paste your API key first'); return; }
     localStorage.setItem('tp_gemini_key', v);
-    btn.textContent = 'Saved ✓';
-    setTimeout(()=>btn.textContent='Save', 1500);
+    btn.textContent = '✓';
+    btn.style.color = 'var(--green)';
+    btn.style.borderColor = 'rgba(0,200,100,.3)';
+    inp.placeholder = 'Key saved ✓';
   };
 })();
 </script>
 
 
 <!-- ══ API KEY FOOTER ══ -->
-<div id="api-key-footer" style="position:fixed;bottom:0;left:0;right:0;max-width:640px;margin:0 auto;background:transparent;padding:6px 14px 8px;display:flex;align-items:center;gap:8px;z-index:200;">
+<div id="api-key-footer" style="position:fixed;bottom:0;left:0;right:0;max-width:640px;margin:0 auto;background:#0d0d0d;border-top:1px solid #2a2a2a;padding:7px 16px 10px;display:flex;align-items:center;gap:10px;z-index:200;">
   <div style="display:flex;flex-direction:column;gap:2px;flex-shrink:0;">
-    <span style="font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#222;">Gemini Key</span>
-    <a href="https://aistudio.google.com" target="_blank" style="font-size:9px;color:#222;text-decoration:none;">aistudio.google.com ↗</a>
+    <span style="font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#555;">Gemini Key</span>
+    <a href="https://aistudio.google.com" target="_blank" style="font-size:9px;color:#444;text-decoration:none;">aistudio.google.com ↗</a>
   </div>
-  <input id="api-key-input" type="password" placeholder="AIza…" style="flex:1;min-width:0;background:transparent;border:none;border-bottom:1px solid #ccc;padding:4px 2px;font-size:11px;font-family:monospace;color:#222;outline:none;caret-color:#111;">
-  <button id="api-key-save" style="font-size:10px;font-weight:700;padding:4px 10px;border-radius:5px;border:1px solid #ccc;background:transparent;color:#222;cursor:pointer;flex-shrink:0;white-space:nowrap;">Save</button>
+  <input id="api-key-input" type="password" placeholder="AIza…" style="flex:1;min-width:0;background:#1a1a1a;border:1px solid #2e2e2e;border-radius:7px;padding:6px 10px;font-size:11px;font-family:monospace;color:#aaa;outline:none;caret-color:#e8ff47;">
+  <button id="api-key-save" style="font-size:10px;font-weight:700;padding:6px 12px;border-radius:6px;border:1px solid #2e2e2e;background:transparent;color:#6a6a6a;cursor:pointer;flex-shrink:0;white-space:nowrap;">Save</button>
 </div>
 
 </body>
