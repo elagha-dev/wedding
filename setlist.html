@@ -818,8 +818,12 @@ window.onunhandledrejection = function(e) {
 
   <div class="import-body">
     <div class="import-hint">
-      Paste <strong>anything</strong> — a worship team WhatsApp message, Spotify screenshot, or just song names. Claude reads keys, leaders, languages, pool sections, all of it.<br>
-      <span style="opacity:.6;font-size:11px;">Understands // Key // Leader // Language // format · chords shown in G with capo</span>
+      Paste <strong>anything</strong> — a worship team WhatsApp message, Spotify screenshot, or just song names. Claude reads keys, leaders, languages, pool sections, all of it — and searches the web for chords if you don't paste any.<br>
+      <span style="opacity:.6;font-size:11px;">Understands // Key // Leader // Language // format · chords shown in <strong id="pref-key-hint" style="color:var(--accent);font-weight:700;opacity:1;">G</strong> with capo</span>
+    </div>
+    <div class="key-picker-wrap" style="flex:none;">
+      <div class="key-picker-label">Preferred Key (Capo Shapes)</div>
+      <div class="key-grid" id="pref-capo-keys"></div>
     </div>
     <textarea class="import-textarea" id="import-input" placeholder="Paste anything, e.g.:&#10;&#10;1. Let your glory come // D // Arina // EN&#10;2. Heart of Worship // D // Kathi // DE&#10;&#10;WORSHIP POOL // C&#10;- I surrender // EN&#10;- Nothing Else // EN"></textarea>
     <button class="import-run-btn" id="import-run-btn">
@@ -1454,39 +1458,49 @@ document.getElementById('perform-setlist-btn').onclick=()=>{
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function escHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-// ── G-preference capo helper ──────────────────────────────────────────────────
-// Given a song's original key, figure out the best way to play it in G (or C if capo > 5)
+// ── Preference-key capo helper ───────────────────────────────────────────────
+// Given a song's original key, figure out the best way to play it using the
+// user's preferred open-chord key (or a complementary fallback key if capo > 5)
+const PREF_CAPO_KEY_STORAGE = 'tp_pref_capo_key';
+function getPrefCapoKey() {
+  return _lsGet(PREF_CAPO_KEY_STORAGE) || 'G';
+}
+function setPrefCapoKey(key) {
+  _lsSet(PREF_CAPO_KEY_STORAGE, key);
+}
+
 function gPreferenceCapo(originalKey) {
-  const PREF_KEY = 'G';
-  const FALLBACK_KEY = 'C';
+  const PREF_KEY = getPrefCapoKey();
   if (!originalKey) return null;
 
   const origIdx = noteIdx(originalKey);
-  if (origIdx === -1) return null;
+  const prefIdx = noteIdx(PREF_KEY);
+  if (origIdx === -1 || prefIdx === -1) return null;
 
-  // How many semitones to get from original → G?
+  // Complementary fallback key: a perfect fourth above the preferred key
+  // (e.g. G → C), so together they cover all 12 keys within capo 0–5.
+  const FALLBACK_KEY = ALL_KEYS[(prefIdx + 5) % 12];
+  const fallbackIdx = noteIdx(FALLBACK_KEY);
+
+  // How many semitones to get from original → preferred key?
   // We want: open key + capo = originalKey (sounding)
-  // Play in G open shapes: capo fret = (origIdx - noteIdx('G') + 12) % 12
-  const gIdx = noteIdx(PREF_KEY);
-  const cIdx = noteIdx(FALLBACK_KEY);
-
-  const capoForG = ((origIdx - gIdx) % 12 + 12) % 12;
-  if (capoForG <= 5) {
-    return { playKey: PREF_KEY, capo: capoForG, soundingKey: originalKey };
+  const capoForPref = ((origIdx - prefIdx) % 12 + 12) % 12;
+  if (capoForPref <= 5) {
+    return { playKey: PREF_KEY, capo: capoForPref, soundingKey: originalKey };
   }
-  // Try C
-  const capoForC = ((origIdx - cIdx) % 12 + 12) % 12;
-  if (capoForC <= 5) {
-    return { playKey: FALLBACK_KEY, capo: capoForC, soundingKey: originalKey };
+  // Try fallback
+  const capoForFallback = ((origIdx - fallbackIdx) % 12 + 12) % 12;
+  if (capoForFallback <= 5) {
+    return { playKey: FALLBACK_KEY, capo: capoForFallback, soundingKey: originalKey };
   }
-  // Fallback: find lowest capo option for G or C
+  // Fallback: find lowest capo option for preferred or fallback key
   for (let c = 0; c <= 5; c++) {
-    const sounding = (gIdx + c) % 12;
+    const sounding = (prefIdx + c) % 12;
     if (sounding === origIdx) return { playKey: PREF_KEY, capo: c, soundingKey: originalKey };
-    const soundingC = (cIdx + c) % 12;
-    if (soundingC === origIdx) return { playKey: FALLBACK_KEY, capo: c, soundingKey: originalKey };
+    const soundingFallback = (fallbackIdx + c) % 12;
+    if (soundingFallback === origIdx) return { playKey: FALLBACK_KEY, capo: c, soundingKey: originalKey };
   }
-  return { playKey: PREF_KEY, capo: capoForG, soundingKey: originalKey };
+  return { playKey: PREF_KEY, capo: capoForPref, soundingKey: originalKey };
 }
 
 // Transpose chords from originalKey to playKey (open chord shapes to use with capo)
@@ -1494,6 +1508,26 @@ function transposeChordsForPlayKey(chordsRaw, fromK, toK) {
   if (!fromK || !toK || fromK === toK) return chordsRaw;
   const st = ((noteIdx(toK) - noteIdx(fromK)) % 12 + 12) % 12;
   return chordsRaw.replace(CHORD_PAT, (match, prefix, root, qual, slash) => prefix + transposeChord(root+(qual||'')+(slash||''), st, toK));
+}
+
+// Render the "Preferred Key (Capo Shapes)" picker on the AI Import tab
+function renderPrefCapoKeys() {
+  const wrap = document.getElementById('pref-capo-keys');
+  if (!wrap) return;
+  const current = getPrefCapoKey();
+  wrap.innerHTML = '';
+  ALL_KEYS.forEach(k => {
+    const btn = document.createElement('button');
+    btn.className = 'kb' + (k === current ? ' active' : '');
+    btn.textContent = k;
+    btn.onclick = () => {
+      setPrefCapoKey(k);
+      renderPrefCapoKeys();
+    };
+    wrap.appendChild(btn);
+  });
+  const hint = document.getElementById('pref-key-hint');
+  if (hint) hint.textContent = current;
 }
 
 // ── AI Import ─────────────────────────────────────────────────────────────────
@@ -1533,6 +1567,8 @@ The input may use this worship team format:
 
 Extract the key from "// D //" style tags if present. Note if a song is in a pool (optional) vs a fixed setlist position.
 
+If a song has no chords given in the input, use Google Search to find a chord chart for it (e.g. Ultimate Guitar, Chordify, repertuarim.com, or similar sites), and fill in "chords" and "originalKey" from what you find. If you can't find chords for a song, still include it with an empty "chords" string and "source": "not_found".
+
 Return ONLY valid JSON array (no markdown, no backticks, no explanation):
 [
   {
@@ -1542,17 +1578,19 @@ Return ONLY valid JSON array (no markdown, no backticks, no explanation):
     "language": "EN",
     "pool": false,
     "sectionHint": "start with chorus",
-    "chords": "Verse\\nD A Bm G\\nD A Bm G\\nChorus\\nG D A Bm\\nG D A A"
+    "chords": "Verse\\nD A Bm G\\nD A Bm G\\nChorus\\nG D A Bm\\nG D A A",
+    "source": "provided"
   }
 ]
 
 Rules:
-- "originalKey": one of C, Db, D, Eb, E, F, F#, G, Ab, A, Bb, B — use // key // tag if present
+- "originalKey": one of C, Db, D, Eb, E, F, F#, G, Ab, A, Bb, B — use // key // tag if present, else the key of the chords you found
 - "chords": section labels (Verse, Chorus, Bridge) followed by chord lines
 - "leader": person's name if mentioned, else omit the field
 - "language": EN/DE/etc if mentioned, else omit
 - "pool": true if in a worship pool / optional section, false if fixed
 - "sectionHint": any instruction like "start with chorus", else omit
+- "source": "provided" if chords came from the input, "web" if you found them via search, "not_found" if you couldn't find any
 - Ignore filler text, emojis, non-song content
 - Maximum 20 songs
 
@@ -1568,7 +1606,8 @@ ${input}`;
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { maxOutputTokens: 4000, temperature: 0.1 }
+          tools: [{ google_search: {} }],
+          generationConfig: { maxOutputTokens: 8000, temperature: 0.2 }
         })
       }
     );
@@ -1615,7 +1654,8 @@ ${input}`;
         leader: s.leader || null,
         language: s.language || null,
         pool: s.pool || false,
-        sectionHint: s.sectionHint || null
+        sectionHint: s.sectionHint || null,
+        source: s.source || 'provided'
       };
     });
 
@@ -1651,10 +1691,15 @@ function renderImportResults() {
 
     const chordPreview = (song.raw || '').replace(/^(verse|chorus|bridge|intro|outro)[^\n]*/gim, '').replace(/\n+/g, ' ').trim().split(' ').slice(0, 8).join(' ');
     const capoText = song.capo > 0 ? `Capo ${song.capo}` : 'No capo';
-    const keyText = `${song.fromKey}`;
+    const keyText = song.fromKey ? `${song.fromKey}` : '—';
     const poolBadge = song.pool ? `<span style="color:var(--orange);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;">POOL</span>` : '';
     const leaderBadge = song.leader ? `<span style="color:var(--ctrl-muted);font-size:10px;">${escHtml(song.leader)}</span>` : '';
     const langBadge = song.language ? `<span style="color:var(--ctrl-muted);font-size:10px;background:var(--ctrl-border);padding:1px 5px;border-radius:3px;">${escHtml(song.language)}</span>` : '';
+    const sourceBadge = song.source === 'web'
+      ? `<span style="color:var(--blue);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;">🌐 WEB</span>`
+      : song.source === 'not_found'
+        ? `<span style="color:var(--red);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;">NO CHORDS FOUND</span>`
+        : '';
     const hintText = song.sectionHint ? `<div style="font-size:10px;color:var(--accent);margin-top:3px;opacity:.8;">${escHtml(song.sectionHint)}</div>` : '';
 
     div.innerHTML = `
@@ -1665,6 +1710,7 @@ function renderImportResults() {
         <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
           <div class="irs-name" style="flex:1;">${escHtml(song.name)}</div>
           ${poolBadge}
+          ${sourceBadge}
         </div>
         ${hintText}
         <div class="irs-meta" style="margin-top:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -1752,6 +1798,7 @@ document.getElementById('import-add-btn').onclick = () => {
 toKey = 'G';
 refreshBtns();
 updateStepDisplay();
+renderPrefCapoKeys();
 
 try {
   render();
