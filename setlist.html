@@ -1987,10 +1987,20 @@ document.addEventListener('DOMContentLoaded', function(){
     const v = inp.value.trim();
     if(!v){ alert('Paste your API key first'); return; }
     localStorage.setItem('tp_gemini_key', v);
-    btn.textContent = '✓';
+    btn.textContent = '✓ Saved!';
     btn.style.color = 'var(--green)';
-    btn.style.borderColor = 'rgba(0,200,100,.3)';
+    btn.style.borderColor = 'rgba(0,200,100,.4)';
+    btn.style.background = 'rgba(0,200,100,.15)';
+    btn.style.transform = 'scale(1.08)';
+    btn.style.transition = 'all .15s';
+    inp.style.borderColor = 'rgba(0,200,100,.4)';
     inp.placeholder = 'Key saved ✓';
+    setTimeout(() => {
+      btn.textContent = '✓';
+      btn.style.transform = 'scale(1)';
+      btn.style.background = 'transparent';
+      inp.style.borderColor = '';
+    }, 1500);
   };
 });
 </script>
