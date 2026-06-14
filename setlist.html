@@ -293,6 +293,16 @@ textarea::placeholder { color: var(--ctrl-muted); font-family: var(--sans); font
 .ch:hover { border-bottom-color: var(--ink4); }
 .ch.minor { color: var(--ink2); }
 
+/* Chord previews inside the dark AI Import cards need light text + tag colors,
+   since .ch / .sec-tag are tuned for the light --paper sheet background */
+.irs-chord-panel .ch { color: var(--ctrl-text); }
+.irs-chord-panel .ch.minor { color: var(--ink4); }
+.irs-chord-panel .ch:hover { border-bottom-color: var(--ctrl-muted); }
+.irs-chord-panel .sec-chorus .sec-tag { color: #fff; background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.35); }
+.irs-chord-panel .empty-state { padding: 16px 0; }
+.irs-chord-panel .empty-icon { font-size: 20px; margin-bottom: 6px; }
+.irs-chord-panel .empty-state p { color: var(--ctrl-muted); }
+
 /* ═══════════════════════════════════
    LIBRARY VIEW
 ═══════════════════════════════════ */
@@ -702,9 +712,9 @@ window.onunhandledrejection = function(e) {
 
 <!-- ── NAV ── -->
 <nav class="nav-tabs">
-  <button class="nav-tab active" data-view="transpose">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>
-    Transpose
+  <button class="nav-tab active" data-view="import">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    Search
   </button>
   <button class="nav-tab" data-view="library">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
@@ -714,14 +724,14 @@ window.onunhandledrejection = function(e) {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
     Setlist
   </button>
-  <button class="nav-tab" data-view="import">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"/><path d="M12 8v8M8 12l4 4 4-4"/></svg>
-    AI Import
+  <button class="nav-tab" data-view="transpose">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>
+    Transpose
   </button>
 </nav>
 
 <!-- ══ TRANSPOSE VIEW ══ -->
-<div class="view active" id="view-transpose">
+<div class="view" id="view-transpose">
   <div class="ctrl-panel">
     <div class="header-row">
       <div class="detected-key" id="dk">
@@ -799,10 +809,13 @@ window.onunhandledrejection = function(e) {
 
 <!-- ══ SETLIST VIEW ══ -->
 <div class="view" id="view-setlist">
-  <div id="setlist-perform-bar" style="padding:10px 14px 0;display:none;">
-    <button class="setlist-btn perform-btn" id="perform-setlist-btn" style="width:100%;justify-content:center;padding:12px;font-size:14px;">
+  <div id="setlist-perform-bar" style="padding:10px 14px 0;display:none;gap:8px;">
+    <button class="setlist-btn perform-btn" id="perform-setlist-btn" style="flex:1;justify-content:center;padding:12px;font-size:14px;">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
       Perform Setlist
+    </button>
+    <button class="setlist-btn" id="clear-setlist-btn" title="Clear setlist (songs stay in Library)" style="padding:12px;justify-content:center;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
     </button>
   </div>
   <div class="setlist-list" id="setlist-list">
@@ -814,18 +827,28 @@ window.onunhandledrejection = function(e) {
 </div>
 
 <!-- ══ AI IMPORT VIEW ══ -->
-<div class="view" id="view-import">
+<div class="view active" id="view-import">
 
   <div class="import-body">
     <div class="import-hint">
-      Paste <strong>anything</strong> — a worship team WhatsApp message, Spotify screenshot, or just song names. Claude reads keys, leaders, languages, pool sections, all of it — and searches the web for chords if you don't paste any.<br>
+      Paste <strong>anything</strong> — a worship team WhatsApp message, plain song list, or just song names — and/or attach a screenshot below. Claude reads keys, leaders, languages, pool sections, all of it — and searches the web for chords if you don't provide any.<br>
       <span style="opacity:.6;font-size:11px;">Understands // Key // Leader // Language // format · chords shown in <strong id="pref-key-hint" style="color:var(--accent);font-weight:700;opacity:1;">G</strong> with capo</span>
     </div>
     <div class="key-picker-wrap" style="flex:none;">
       <div class="key-picker-label">Preferred Key (Capo Shapes)</div>
       <div class="key-grid" id="pref-capo-keys"></div>
     </div>
-    <textarea class="import-textarea" id="import-input" placeholder="Paste anything, e.g.:&#10;&#10;1. Let your glory come // D // Arina // EN&#10;2. Heart of Worship // D // Kathi // DE&#10;&#10;WORSHIP POOL // C&#10;- I surrender // EN&#10;- Nothing Else // EN"></textarea>
+    <div class="import-image-row" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+      <label for="import-image-input" style="display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;padding:6px 10px;border-radius:6px;border:1px solid var(--ctrl-border2);background:transparent;color:var(--ctrl-muted);cursor:pointer;">
+        📷 Add Screenshot
+      </label>
+      <input id="import-image-input" type="file" accept="image/*" style="display:none;">
+      <div id="import-image-preview" style="display:none;align-items:center;gap:8px;">
+        <img id="import-image-thumb" style="height:36px;width:36px;object-fit:cover;border-radius:6px;border:1px solid var(--ctrl-border2);">
+        <button id="import-image-remove" style="font-size:11px;font-weight:600;color:var(--red);background:transparent;border:none;cursor:pointer;padding:0;">✕ Remove</button>
+      </div>
+    </div>
+    <textarea class="import-textarea" id="import-input" placeholder="Paste anything, e.g.:&#10;&#10;1. Let your glory come // D // Arina // EN&#10;2. Heart of Worship // D // Kathi // DE&#10;&#10;WORSHIP POOL // C&#10;- I surrender // EN&#10;- Nothing Else // EN&#10;&#10;Or just attach a screenshot above and leave this blank."></textarea>
     <button class="import-run-btn" id="import-run-btn">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
       Detect Songs &amp; Build Set List
@@ -1289,7 +1312,7 @@ function renderSetlist(){
     if(perfBar) perfBar.style.display='none';
     return;
   }
-  if(perfBar) perfBar.style.display='block';
+  if(perfBar) perfBar.style.display='flex';
   list.innerHTML='';
   setlistSongs.forEach((song, idx)=>{
     const wrap=document.createElement('div');
@@ -1455,6 +1478,16 @@ document.getElementById('perform-setlist-btn').onclick=()=>{
   openPerformance(sl);
 };
 
+// Clear setlist (e.g. after a Sunday) — songs stay in the Library
+document.getElementById('clear-setlist-btn').onclick=()=>{
+  setlist=loadSetlist();
+  if(!setlist.length) return;
+  if(!confirm(`Clear all ${setlist.length} song${setlist.length!==1?'s':''} from the setlist?\n\nSongs stay in your Library — only this Sunday's lineup is cleared.`)) return;
+  setlist=[];
+  saveSetlist(setlist);
+  renderSetlist();
+};
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function escHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
@@ -1510,6 +1543,20 @@ function transposeChordsForPlayKey(chordsRaw, fromK, toK) {
   return chordsRaw.replace(CHORD_PAT, (match, prefix, root, qual, slash) => prefix + transposeChord(root+(qual||'')+(slash||''), st, toK));
 }
 
+// Normalize a key string for transposition math: minor keys (e.g. "Dm", "C#m")
+// share the same chord shapes as their relative major (e.g. "F"), so convert
+// before running it through noteIdx/gPreferenceCapo. Returns the key unchanged
+// if it's already a recognized major key or unrecognized.
+function normalizeKeyForCalc(key) {
+  if (!key) return key;
+  const m = /^([A-Ga-g])([b#]?)m$/.exec(key.trim());
+  if (!m) return key;
+  const root = m[1].toUpperCase() + m[2];
+  const rootIdx = noteIdx(root);
+  if (rootIdx === -1) return key;
+  return ALL_KEYS[(rootIdx + 3) % 12]; // relative major = minor root + 3 semitones
+}
+
 // Render the "Preferred Key (Capo Shapes)" picker on the AI Import tab
 function renderPrefCapoKeys() {
   const wrap = document.getElementById('pref-capo-keys');
@@ -1536,10 +1583,38 @@ function renderPrefCapoKeys() {
 document.title="chunk8";
 let importResults = []; // [{name, raw, fromKey, toKey, semitones, capo, playKey}]
 let selectedImport = new Set();
+let importImage = null; // { mimeType, data } — base64 (no data: prefix)
+
+const importImageInput = document.getElementById('import-image-input');
+const importImagePreview = document.getElementById('import-image-preview');
+const importImageThumb = document.getElementById('import-image-thumb');
+const importImageRemoveBtn = document.getElementById('import-image-remove');
+
+importImageInput.onchange = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const dataUrl = reader.result; // "data:image/png;base64,...."
+    const comma = dataUrl.indexOf(',');
+    const meta = dataUrl.slice(0, comma);
+    const mimeMatch = meta.match(/data:(.*);base64/);
+    importImage = { mimeType: mimeMatch ? mimeMatch[1] : 'image/png', data: dataUrl.slice(comma + 1) };
+    importImageThumb.src = dataUrl;
+    importImagePreview.style.display = 'flex';
+  };
+  reader.readAsDataURL(file);
+};
+
+importImageRemoveBtn.onclick = () => {
+  importImage = null;
+  importImageInput.value = '';
+  importImagePreview.style.display = 'none';
+};
 
 document.getElementById('import-run-btn').onclick = async () => {
   const input = document.getElementById('import-input').value.trim();
-  if (!input) return;
+  if (!input && !importImage) return;
 
   const btn = document.getElementById('import-run-btn');
   const status = document.getElementById('import-status');
@@ -1555,7 +1630,7 @@ document.getElementById('import-run-btn').onclick = async () => {
   importResults = [];
   selectedImport.clear();
 
-  const prompt = `You are a worship music and chord expert. The user has pasted unstructured text — it may be a WhatsApp message from a worship team leader, a Spotify screenshot, a plain song list, or anything else.
+  const prompt = `You are a worship music and chord expert. The user has pasted unstructured text and/or attached a screenshot — it may be a WhatsApp message from a worship team leader, a Spotify playlist screenshot, a plain song list, a photo of a chord chart, or anything else.
 
 Your job: extract every song and return chord progressions for each one.
 
@@ -1567,7 +1642,9 @@ The input may use this worship team format:
 
 Extract the key from "// D //" style tags if present. Note if a song is in a pool (optional) vs a fixed setlist position.
 
-If a song has no chords given in the input, use Google Search to find a chord chart for it (e.g. Ultimate Guitar, Chordify, repertuarim.com, or similar sites), and fill in "chords" and "originalKey" from what you find. If you can't find chords for a song, still include it with an empty "chords" string and "source": "not_found".
+If an image is attached, read the song titles, keys, leaders, languages, and any visible chords from it — combine that with any text input below.
+
+If a song has no chords given in the input (text or image), use Google Search to find a chord chart for it (e.g. Ultimate Guitar, Chordify, repertuarim.com, or similar sites), and fill in "chords" and "originalKey" from what you find. If you can't find chords for a song, still include it with an empty "chords" string and "source": "not_found".
 
 Return ONLY valid JSON array (no markdown, no backticks, no explanation):
 [
@@ -1594,8 +1671,13 @@ Rules:
 - Ignore filler text, emojis, non-song content
 - Maximum 20 songs
 
-Input:
-${input}`;
+${input ? 'Text input:\n' + input : '(No text input — read everything from the attached image.)'}`;
+
+  const parts = [];
+  if (importImage) {
+    parts.push({ inline_data: { mime_type: importImage.mimeType, data: importImage.data } });
+  }
+  parts.push({ text: prompt });
 
   try {
     const geminiKey = localStorage.getItem('tp_gemini_key') || '';
@@ -1605,7 +1687,7 @@ ${input}`;
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
+          contents: [{ parts }],
           tools: [{ google_search: {} }],
           generationConfig: { maxOutputTokens: 8000, temperature: 0.2 }
         })
@@ -1638,11 +1720,12 @@ ${input}`;
     }
 
     importResults = parsed.map(s => {
-      const capoInfo = gPreferenceCapo(s.originalKey);
-      const playKey = capoInfo ? capoInfo.playKey : (s.originalKey || 'G');
+      const calcKey = normalizeKeyForCalc(s.originalKey);
+      const capoInfo = gPreferenceCapo(calcKey);
+      const playKey = capoInfo ? capoInfo.playKey : (calcKey || 'G');
       const capo = capoInfo ? capoInfo.capo : 0;
-      const transposedRaw = transposeChordsForPlayKey(s.chords || '', s.originalKey, playKey);
-      const st = ((noteIdx(playKey) - noteIdx(s.originalKey)) % 12 + 12) % 12;
+      const transposedRaw = transposeChordsForPlayKey(s.chords || '', calcKey, playKey);
+      const st = ((noteIdx(playKey) - noteIdx(calcKey)) % 12 + 12) % 12;
       return {
         name: s.name,
         raw: transposedRaw,
@@ -1681,6 +1764,77 @@ const styleSheet = document.createElement('style');
 styleSheet.textContent = `@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`;
 document.head.appendChild(styleSheet);
 
+// Retry a focused, single-song web search for songs where chords weren't found.
+// A narrow single-song prompt tends to trigger Gemini's search tool more
+// reliably than the big multi-song batch.
+async function retrySongSearch(i) {
+  const song = importResults[i];
+  if (!song) return;
+  const btn = document.querySelector(`.irs-retry-btn[data-idx="${i}"]`);
+  if (btn) { btn.disabled = true; btn.textContent = '…'; }
+
+  const prompt = `Find guitar chords for the worship song "${song.name}"${song.leader ? ' (led by ' + song.leader + ')' : ''}${song.language ? ', language: ' + song.language : ''}.
+Use Google Search — check Ultimate Guitar, Chordify, worship/chord sites, etc.
+
+Return ONLY a valid JSON object (no markdown, no backticks, no explanation):
+{
+  "originalKey": "D",
+  "chords": "Verse\\nD A Bm G\\nD A Bm G\\nChorus\\nG D A Bm\\nG D A A",
+  "source": "web"
+}
+
+"originalKey" must be one of C, Db, D, Eb, E, F, F#, G, Ab, A, Bb, B (or with "m" for a minor key, e.g. "Dm").
+If, after searching, you genuinely cannot find chords for this song, return: {"originalKey": null, "chords": "", "source": "not_found"}`;
+
+  try {
+    const geminiKey = localStorage.getItem('tp_gemini_key') || '';
+    const response = await fetch(
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=' + geminiKey,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          tools: [{ google_search: {} }],
+          generationConfig: { maxOutputTokens: 4000, temperature: 0.2 }
+        })
+      }
+    );
+    if (!response.ok) throw new Error('API error ' + response.status);
+    const data = await response.json();
+    if (data.error) throw new Error(data.error.message || 'Gemini error');
+    if (!data.candidates || !data.candidates[0]) throw new Error('No response from Gemini');
+
+    const text = data.candidates[0].content.parts.map(p => p.text || '').join('');
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('No JSON object found');
+    const s = JSON.parse(jsonMatch[0]);
+
+    const calcKey = normalizeKeyForCalc(s.originalKey);
+    const capoInfo = gPreferenceCapo(calcKey);
+    const playKey = capoInfo ? capoInfo.playKey : (calcKey || 'G');
+    const capo = capoInfo ? capoInfo.capo : 0;
+    const transposedRaw = transposeChordsForPlayKey(s.chords || '', calcKey, playKey);
+    const st = ((noteIdx(playKey) - noteIdx(calcKey)) % 12 + 12) % 12;
+
+    importResults[i] = {
+      ...song,
+      raw: transposedRaw,
+      fromKey: s.originalKey,
+      toKey: playKey,
+      semitones: st > 6 ? st - 12 : st,
+      capo,
+      playKey,
+      source: s.source || (s.chords ? 'web' : 'not_found')
+    };
+  } catch (err) {
+    console.error('Retry search error:', err);
+    if (btn) { btn.disabled = false; btn.textContent = '🔍 Retry'; }
+    return;
+  }
+  renderImportResults();
+}
+
 function renderImportResults() {
   const el = document.getElementById('import-results');
   el.innerHTML = '';
@@ -1690,15 +1844,16 @@ function renderImportResults() {
     div.className = 'import-result-song' + (on ? ' selected' : '');
 
     const chordPreview = (song.raw || '').replace(/^(verse|chorus|bridge|intro|outro)[^\n]*/gim, '').replace(/\n+/g, ' ').trim().split(' ').slice(0, 8).join(' ');
-    const capoText = song.capo > 0 ? `Capo ${song.capo}` : 'No capo';
+    const capoText = song.capo > 0 ? `Capo ${song.capo} (${song.playKey} shapes)` : `${song.playKey} shapes`;
     const keyText = song.fromKey ? `${song.fromKey}` : '—';
     const poolBadge = song.pool ? `<span style="color:var(--orange);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;">POOL</span>` : '';
     const leaderBadge = song.leader ? `<span style="color:var(--ctrl-muted);font-size:10px;">${escHtml(song.leader)}</span>` : '';
     const langBadge = song.language ? `<span style="color:var(--ctrl-muted);font-size:10px;background:var(--ctrl-border);padding:1px 5px;border-radius:3px;">${escHtml(song.language)}</span>` : '';
     const sourceBadge = song.source === 'web'
-      ? `<span style="color:var(--blue);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;">🌐 WEB</span>`
+      ? `<span title="Found via web search — double-check before using live" style="color:var(--blue);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:help;">🌐 WEB</span>`
       : song.source === 'not_found'
-        ? `<span style="color:var(--red);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;">NO CHORDS FOUND</span>`
+        ? `<span style="color:var(--red);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;">NO CHORDS FOUND</span>
+           <button class="irs-retry-btn" data-idx="${i}" style="font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;border:1px solid var(--ctrl-border2);background:transparent;color:var(--ctrl-text);cursor:pointer;">🔍 Retry</button>`
         : '';
     const hintText = song.sectionHint ? `<div style="font-size:10px;color:var(--accent);margin-top:3px;opacity:.8;">${escHtml(song.sectionHint)}</div>` : '';
 
@@ -1730,6 +1885,13 @@ function renderImportResults() {
       document.getElementById('import-add-btn').disabled = selectedImport.size === 0;
       renderImportResults();
     };
+    const retryBtn = div.querySelector('.irs-retry-btn');
+    if (retryBtn) {
+      retryBtn.onclick = (e) => {
+        e.stopPropagation();
+        retrySongSearch(i);
+      };
+    }
     div.querySelector('.irs-expand-btn').onclick = (e) => {
       e.stopPropagation();
       const panel = div.querySelector('.irs-chord-panel');
