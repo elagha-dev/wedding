@@ -1971,7 +1971,7 @@ try {
 
 
 // ── API Key ───────────────────────────────────────────────────────────────────
-(function(){
+document.addEventListener('DOMContentLoaded', function(){
   const inp = document.getElementById('api-key-input');
   const btn = document.getElementById('api-key-save');
   if(!inp||!btn) return;
@@ -1992,7 +1992,7 @@ try {
     btn.style.borderColor = 'rgba(0,200,100,.3)';
     inp.placeholder = 'Key saved ✓';
   };
-})();
+});
 </script>
 
 
