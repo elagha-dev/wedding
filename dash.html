@@ -2163,9 +2163,9 @@ document.getElementById('langModalOpts').querySelectorAll('.lang-opt').forEach(f
 });
 function openLangModal(g,ri){
   function doLang(resolvedPhone){
-    document.getElementById('langModalSub').textContent='For: '+g.name;
-    document.getElementById('langModal').style.display='flex';
-    langModalCb=function(lang){g.msgLang=lang;saveGuestMeta();sendSingleWithLang(g,ri,lang,resolvedPhone);};
+    // Skip lang picker — use guest's stored language directly
+    var lang=g.lang||selLang||'en';
+    g.msgLang=lang;saveGuestMeta();sendSingleWithLang(g,ri,lang,resolvedPhone);
   }
   function doPhone(){
     var phone=(g.phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');
@@ -2226,7 +2226,7 @@ function sendSingleWithLang(g,ri,msgLang,resolvedPhone){
   var msg=buildMsg(firstName(g.name),type,effectiveLang,url);
   var phone=resolvedPhone!==undefined?resolvedPhone:(g.phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');
   if(resolvedPhone)g.phone='+'+resolvedPhone;
-  window.open(phone?'https://wa.me/'+phone+'?text='+encodeURIComponent(msg):'https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+  var waUrl=phone?'https://web.whatsapp.com/send?phone='+phone+'&text='+encodeURIComponent(msg):'https://web.whatsapp.com/send?text='+encodeURIComponent(msg);window.open(waUrl,'_blank');
   g.pendingSent=true;g.followup=true;g.sentBy=sessionSender;saveGuestMeta();renderGuestList();
 }
 function showCrossSenderConfirm(assigned,active,onConfirm){
@@ -2271,9 +2271,10 @@ document.getElementById('bulkSend').addEventListener('click',function(){
 });
 function openLangModalForBulk(guests,phone,names){
   function doLang(resolvedPhone){
-    document.getElementById('langModalSub').textContent='For: '+names;
-    document.getElementById('langModal').style.display='flex';
-    langModalCb=function(lang){guests.forEach(function(g){g.msgLang=lang;});doGroupSend(guests,resolvedPhone,lang);};
+    // Skip lang picker — use first guest's stored language directly
+    var lang=guests[0].lang||selLang||'en';
+    guests.forEach(function(g){g.msgLang=lang;});
+    doGroupSend(guests,resolvedPhone,lang);
   }
   if(!phone){showPhoneModal(names,function(p){doLang(p);});return;}
   doLang(phone);
@@ -2297,7 +2298,7 @@ function doGroupSend(guests,phone,msgLang){
   var isPlural=guests.length>1;
   var msg=buildMsg(dName,type,ml,url,isPlural);
   var clean=(phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');
-  window.open(clean?'https://wa.me/'+clean+'?text='+encodeURIComponent(msg):'https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+  var waUrl=clean?'https://web.whatsapp.com/send?phone='+clean+'&text='+encodeURIComponent(msg):'https://web.whatsapp.com/send?text='+encodeURIComponent(msg);window.open(waUrl,'_blank');
   // Tag each guest with their partner AND a shared sentGroupId so sent view can pair them
   if(guests.length>1){
     var groupId=Date.now().toString(36);
@@ -2810,7 +2811,7 @@ document.getElementById('copyMsgBtn').addEventListener('click',function(){copyTe
 document.getElementById('waSendBtn').addEventListener('click',function(){
   var msg=document.getElementById('msgBox').value;var phone=cur&&cur.phone?cur.phone:'';
   var clean=phone.replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');
-  window.open(clean?'https://wa.me/'+clean+'?text='+encodeURIComponent(msg):'https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+  var waUrl=clean?'https://web.whatsapp.com/send?phone='+clean+'&text='+encodeURIComponent(msg):'https://web.whatsapp.com/send?text='+encodeURIComponent(msg);window.open(waUrl,'_blank');
   if(cur){cur.tracked.waSent=ts();save();renderTracker();}
   todayCount++;updateTodayBadge();
   var sb=document.getElementById('sentBtn');sb.textContent='✓ Sent';sb.classList.add('ok');
