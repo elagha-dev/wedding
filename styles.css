@@ -439,8 +439,8 @@ p {
 
 .rsvp-success-inner {
   width: 100%;
-  max-width: 520px;
-  padding: clamp(56px, 9vh, 110px) clamp(24px, 6vw, 64px) clamp(48px, 7vh, 90px);
+  max-width: 680px;
+  padding: clamp(56px, 9vh, 110px) clamp(24px, 6vw, 80px) clamp(48px, 7vh, 90px);
   text-align: center;
   display: flex;
   flex-direction: column;
