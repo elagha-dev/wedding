@@ -1368,6 +1368,25 @@ function mergeRemoteClaims(remoteClaims){
 
 /* ══ UNDO TOAST ═══════════════════════════════ */
 var undoTimer=null,undoAction=null;
+function showPhoneConfirm(name, phone, onConfirm){
+  var existing = document.getElementById('phoneConfirmOverlay');
+  if(existing) existing.remove();
+  var overlay = document.createElement('div');
+  overlay.id = 'phoneConfirmOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;background:rgba(35,26,20,.45);backdrop-filter:blur(4px)';
+  overlay.innerHTML = '<div style="background:#FDF8F3;border-radius:16px;padding:28px 32px;max-width:320px;width:90%;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.18)">'
+    + '<div style="font-size:28px;margin-bottom:12px">📲</div>'
+    + '<div style="font-family:var(--sans);font-size:14px;font-weight:600;color:#231A14;margin-bottom:6px">Sending to ' + name + '</div>'
+    + '<div style="font-family:monospace;font-size:13px;color:#9C8070;margin-bottom:22px">' + phone + '</div>'
+    + '<button id="phoneConfirmGo" style="width:100%;padding:11px;background:#C9702A;color:#fff;border:none;border-radius:8px;font-family:var(--sans);font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px">Open WhatsApp ↗</button>'
+    + '<button id="phoneConfirmCancel" style="width:100%;padding:9px;background:transparent;color:#9C8070;border:1px solid #EFE4D4;border-radius:8px;font-family:var(--sans);font-size:12px;cursor:pointer">Cancel</button>'
+    + '</div>';
+  document.body.appendChild(overlay);
+  document.getElementById('phoneConfirmGo').onclick = function(){ overlay.remove(); onConfirm(); };
+  document.getElementById('phoneConfirmCancel').onclick = function(){ overlay.remove(); };
+  overlay.onclick = function(e){ if(e.target===overlay){ overlay.remove(); } };
+}
+
 function showToastWarn(msg){
   var t=document.getElementById('undoToast');
   var btn=document.getElementById('undoToastBtn');
@@ -2238,9 +2257,12 @@ function sendSingleWithLang(g,ri,msgLang,resolvedPhone){
   var msg=buildMsg(firstName(g.name),type,effectiveLang,url);
   var phone=resolvedPhone!==undefined?resolvedPhone:(g.phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');
   if(resolvedPhone)g.phone='+'+resolvedPhone;
-  if(phone){showToastWarn('📲 Sending to '+firstName(g.name)+'\u2019s number: +'+(resolvedPhone||g.phone||phone));}
-  var waUrl=phone?'https://web.whatsapp.com/send?phone='+phone+'&text='+encodeURIComponent(msg):'https://web.whatsapp.com/send?text='+encodeURIComponent(msg);window.open(waUrl,'_blank');
-  g.pendingSent=true;g.followup=true;g.sentBy=sessionSender;saveGuestMeta();renderGuestList();
+  var waUrl=phone?'https://web.whatsapp.com/send?phone='+phone+'&text='+encodeURIComponent(msg):'https://web.whatsapp.com/send?text='+encodeURIComponent(msg);
+  var displayPhone=resolvedPhone?'+'+resolvedPhone:(g.phone||'+'+phone);
+  showPhoneConfirm(firstName(g.name),displayPhone,function(){
+    window.open(waUrl,'_blank');
+    g.pendingSent=true;g.followup=true;g.sentBy=sessionSender;saveGuestMeta();renderGuestList();
+  });
 }
 function showCrossSenderConfirm(assigned,active,onConfirm){
   var t=document.getElementById('undoToast'),btn=document.getElementById('undoToastBtn');
@@ -2312,8 +2334,12 @@ function doGroupSend(guests,phone,msgLang){
   var msg=buildMsg(dName,type,ml,url,isPlural);
   var clean=(phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');
   var phoneOwner=guests.find(function(g){return g.phone&&(g.phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'')===clean;});
-  if(phoneOwner){showToastWarn('📲 Sending to '+firstName(phoneOwner.name)+'\u2019s number: '+(phoneOwner.phone||'+'+clean));}
-  var waUrl=clean?'https://web.whatsapp.com/send?phone='+clean+'&text='+encodeURIComponent(msg):'https://web.whatsapp.com/send?text='+encodeURIComponent(msg);window.open(waUrl,'_blank');
+  var waUrl=clean?'https://web.whatsapp.com/send?phone='+clean+'&text='+encodeURIComponent(msg):'https://web.whatsapp.com/send?text='+encodeURIComponent(msg);
+  var ownerName=phoneOwner?firstName(phoneOwner.name):'?';
+  var ownerPhone=phoneOwner?(phoneOwner.phone||'+'+clean):'+'+clean;
+  showPhoneConfirm(ownerName,ownerPhone,function(){
+    window.open(waUrl,'_blank');
+  });
   // Tag each guest with their partner AND a shared sentGroupId so sent view can pair them
   if(guests.length>1){
     var groupId=Date.now().toString(36);
