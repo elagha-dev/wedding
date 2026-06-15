@@ -3372,8 +3372,17 @@ function doSyncSilent(){
       .catch(function(){}); // silent fail
   }
 
-  // Activity polling disabled
-  // setTimeout(function(){ poll(); setInterval(poll, 8000); }, 5000);
+  setTimeout(function(){ poll(); setInterval(poll, 8000); }, 5000);
+})();
+
+// Guest mode: no manual sync button, so auto-sync every 30s
+(function(){
+  if(sessionSender !== 'Guest') return;
+  setTimeout(function(){
+    if(typeof doSync === 'function') doSync();
+    setInterval(function(){ if(typeof doSync === 'function') doSync(); }, 30000);
+  }, 3000);
+
 })();
 
 
