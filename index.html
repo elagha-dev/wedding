@@ -266,7 +266,7 @@
       letter-spacing: .02em;
     }
     .loc-chip {
-      display: inline-flex;
+      display: flex;
       align-items: center;
       gap: 6px;
       margin: 4px 0 8px;
@@ -698,7 +698,7 @@
           <div class="rsvp-intro-instructions" id="rsvpIntroInstructions">
             <!-- filled by JS based on guest invite type -->
           </div>
-          <button class="rsvp-begin-btn" id="rsvpBeginBtn" type="button"><span data-i18n="rsvpBeginBtn">Begin your RSVP →</span></button>
+          <button class="rsvp-begin-btn" id="rsvpBeginBtn" type="button"><span data-i18n="rsvpBeginBtn">Confirm your attendance →</span></button>
         </div>
 
         <!-- RSVP Wizard -->
@@ -836,7 +836,7 @@
 
         <!-- ── In-card thank you (shown after submit, overlay is closeable) ── -->
         <div class="rsvp-card-thanks" id="rsvpCardThanks">
-          <button class="rsvp-submitted-btn" id="rsvpSubmittedBtn" type="button"><span data-i18n="rsvpSubmittedBtn">RSVP Submitted ✓</span></button>
+          <button class="rsvp-submitted-btn" id="rsvpSubmittedBtn" type="button"><span data-i18n="rsvpSubmittedBtn">You're on the list ✓</span></button>
           <a class="new-rsvp-link" id="newRsvpBtn2" href="#" style="margin-top:14px;"><span data-i18n="submitAnotherRsvp">Submit another RSVP</span></a>
         </div>
 
@@ -1040,8 +1040,8 @@
     <button class="rsvp-success-close" id="rsvpSuccessClose" aria-label="Close and return to site">×</button>
     <div class="rsvp-success-inner">
       <div class="success-kicker" id="successKicker"><span data-i18n="successKicker">Thank You</span></div>
-      <h3 id="successTitle"><span data-i18n="successTitleAttending">We cannot wait to celebrate with you.</span></h3>
-      <p id="successMessage"><span data-i18n="successMsgAttending">Your RSVP has been received. Thank you for being part of this special day.</span></p>
+      <h3 id="successTitle"><span data-i18n="successTitleAttending">We are so excited to see you on our special day.</span></h3>
+      <p id="successMessage"><span data-i18n="successMsgAttending">We have received your confirmation — see you on October 16th! ❤️</span></p>
 
       <div class="gift-banner" id="giftBanner">
         <div class="gift-banner-icon">♡</div>
