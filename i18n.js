@@ -19,7 +19,7 @@ window.I18N = {
 
     /* ── Card topline labels ── */
     card01Label : "Kindly Reply",
-    card01Title : "RSVP",
+    card01Title : "Participation",
     card02Label : "Our Story",
     card02Title : "Our Story",
     card03Label : "Planning Crew",
@@ -147,7 +147,7 @@ window.I18N = {
     successKicker          : "THANK YOU",
     successTitleAttending  : "We are so excited to see you on our special day.",
     successTitleDecline    : "We are sorry you cannot make it.",
-    successMsgAttending    : "We have received your RSVP. Thank you for being part of this special day.",
+    successMsgAttending    : "We have received your participation confirmation. Thank you for being part of this special day.",
     successMsgDecline      : "Thank you for letting us know. You will be missed — we hope to celebrate together soon.",
     successCardAttending   : "We are so excited to see you on our special day.",
     successCardDecline     : "We are sorry you cannot make it. Thank you for letting us know.",
@@ -167,11 +167,11 @@ window.I18N = {
     gateSalutation   : "You are invited,",
     gateSeatsText    : "We kindly request the honour of your presence",
     gateBody         : "We'd love to know you're coming. Takes a minute. ♡",
-    gateNote         : "A small note before you begin: please read the message on the RSVP card — it has everything you need to know.",
+    gateNote         : "A small note before you begin: please read the message on the Participation card — it has everything you need to know.",
     gateCtaBtn       : "Confirm My Attendance →",
     gateSkipBtn      : "I'll explore first",
     scrollLockTitle  : "One moment, {name}",
-    scrollLockBody   : "You scrolled past your RSVP.<br>It takes less than a minute — and it means<br>everything to us to know you'll be there.",
+    scrollLockBody   : "You scrolled past Participation.<br>It takes less than a minute — and it means<br>everything to us to know you'll be there.",
     scrollLockCta    : "Confirm Attendance →",
     scrollLockSkip   : "Continue browsing",
     bannerBtn : "Confirm now ↓",
@@ -262,7 +262,7 @@ window.I18N = {
       {
         time: "15:00–16:00", label: "RECEPTION", title: "Bring & Share Reception",
         bringAndShare: true, bringAndShareFormUrl: "https://forms.gle/4C6RUZfEKunpWGoc8",
-        description: "We would love a bring & share with our dear ones! Let us know if you'd like to bring a pie, cake, bakery, finger foods, or anything for a little snack. ❤️"
+        description: "We would love a bring & share with our dear ones! Let us know if you'd like to bring a pie, cake, bakery, finger foods, or anything for a little snack. ❤️<br><br><strong>Already signed up during Participation? You're all set — no need to fill anything in again.</strong>"
       },
       {
         time: "17:00", label: "EVENING PARTY", title: "Evening Reception",
@@ -308,7 +308,7 @@ window.I18N = {
     countdownSec   : "Sek",
 
     card01Label : "Bitte antworten",
-    card01Title : "RSVP",
+    card01Title : "Participation",
     card02Label : "Unsere Geschichte",
     card02Title : "Unsere Geschichte",
     card03Label : "Unser Team",
@@ -445,11 +445,11 @@ window.I18N = {
     gateSalutation   : "Ihr seid herzlich eingeladen,",
     gateSeatsText    : "Wir freuen uns auf eure Anwesenheit",
     gateBody         : "Wir würden so gerne wissen, dass ihr kommt. Dauert eine Minute. ♡",
-    gateNote         : "Ein kleiner Hinweis vorab: Bitte lest die Nachricht auf der RSVP-Karte — dort findet ihr alles Wichtige.",
+    gateNote         : "Ein kleiner Hinweis vorab: Bitte lest die Nachricht auf der Teilnahmekarte — dort findet ihr alles Wichtige.",
     gateCtaBtn       : "Teilnahme bestätigen →",
     gateSkipBtn      : "Ich schaue mich erst um",
     scrollLockTitle  : "Kurz innehalten, {name}",
-    scrollLockBody   : "Du hast dein RSVP überscrollt.<br>Es dauert weniger als eine Minute — und es bedeutet<br>uns alles, zu wissen, dass du dabei bist.",
+    scrollLockBody   : "Du hast die Teilnahme überscrollt.<br>Es dauert weniger als eine Minute — und es bedeutet<br>uns alles, zu wissen, dass du dabei bist.",
     scrollLockCta    : "Teilnahme bestätigen →",
     scrollLockSkip   : "Weiter stöbern",
     bannerBtn : "Jetzt bestätigen ↓",
@@ -534,7 +534,7 @@ window.I18N = {
       {
         time: "15:00–16:00", label: "EMPFANG", title: "Bring & Share Empfang",
         bringAndShare: true, bringAndShareFormUrl: "https://forms.gle/4C6RUZfEKunpWGoc8",
-        description: "Wir freuen uns auf ein Bring & Share mit unseren Liebsten! Sagt uns gerne, ob ihr einen Kuchen, Gebäck, Fingerfood oder etwas zum Snacken mitbringen möchtet. ❤️"
+        description: "Wir freuen uns auf ein Bring & Share mit unseren Liebsten! Sagt uns gerne, ob ihr einen Kuchen, Gebäck, Fingerfood oder etwas zum Snacken mitbringen möchtet. ❤️<br><br><strong>Schon bei der Teilnahme angemeldet? Alles gut — ihr müsst nichts weiter ausfüllen.</strong>"
       },
       {
         time: "17:00", label: "ABENDPARTY", title: "Abendempfang",
@@ -578,7 +578,7 @@ window.I18N = {
     countdownSec   : "сек",
 
     card01Label : "Ждём ответа",
-    card01Title : "RSVP",
+    card01Title : "Participation",
     card02Label : "Наша история",
     card02Title : "Наша история",
     card03Label : "Наша команда",
@@ -715,11 +715,11 @@ window.I18N = {
     gateSalutation   : "Вы приглашены,",
     gateSeatsText    : "Мы будем рады видеть вас",
     gateBody         : "Мы хотим знать, что ты придёшь. Займёт минуту. ♡",
-    gateNote         : "Небольшое примечание: пожалуйста, прочитайте сообщение на карточке RSVP — там есть всё, что вам нужно знать.",
+    gateNote         : "Небольшое примечание: пожалуйста, прочитайте сообщение на карточке участия — там есть всё, что вам нужно знать.",
     gateCtaBtn       : "Подтвердить участие →",
     gateSkipBtn      : "Сначала посмотрю сайт",
     scrollLockTitle  : "Одну секунду, {name}",
-    scrollLockBody   : "Вы пролистали свой RSVP.<br>Это займёт меньше минуты — и для нас<br>очень важно знать, что вы будете с нами.",
+    scrollLockBody   : "Вы пролистали раздел участия.<br>Это займёт меньше минуты — и для нас<br>очень важно знать, что вы будете с нами.",
     scrollLockCta    : "Подтвердить участие →",
     scrollLockSkip   : "Продолжить просмотр",
     bannerBtn : "Подтвердить сейчас ↓",
@@ -804,7 +804,7 @@ window.I18N = {
       {
         time: "15:00–16:00", label: "ПРИЁМ", title: "Bring & Share приём",
         bringAndShare: true, bringAndShareFormUrl: "https://forms.gle/4C6RUZfEKunpWGoc8",
-        description: "Мы будем рады Bring & Share с нашими любимыми! Дайте нам знать, если хотите принести пирог, выпечку, закуски или что-нибудь вкусное. ❤️"
+        description: "Мы будем рады Bring & Share с нашими любимыми! Дайте нам знать, если хотите принести пирог, выпечку, закуски или что-нибудь вкусное. ❤️<br><br><strong>Уже зарегистрировались через форму участия? Всё готово — больше ничего заполнять не нужно.</strong>"
       },
       {
         time: "17:00", label: "ВЕЧЕРИНКА", title: "Вечерний приём",

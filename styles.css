@@ -1607,6 +1607,14 @@ button.sa-btn {
   overflow: hidden;
 }
 .story-photo-gallery:hover { opacity: .82; }
+.story-photo-gallery--soon {
+  background: rgba(49,39,28,.10);
+  cursor: default;
+  pointer-events: none;
+}
+.story-photo-gallery--soon .gallery-label {
+  color: rgba(49,39,28,.38);
+}
 .gallery-icon {
   font-size: 14px;
   color: var(--paper);
