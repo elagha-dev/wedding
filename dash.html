@@ -2189,15 +2189,23 @@ document.getElementById('langModalOpts').querySelectorAll('.lang-opt').forEach(f
   });
 });
 function openLangModal(g,ri){
-  function doLang(resolvedPhone){
-    // Skip lang picker — use guest's stored language directly
-    var lang=g.lang||selLang||'en';
+  function doLang(resolvedPhone,lang){
     g.msgLang=lang;saveGuestMeta();sendSingleWithLang(g,ri,lang,resolvedPhone);
+  }
+  function showLang(resolvedPhone){
+    var cur=g.lang||selLang||'en';
+    document.getElementById('langModalSub').textContent=firstName(g.name);
+    // Pre-highlight current lang
+    document.getElementById('langModalOpts').querySelectorAll('.lang-opt').forEach(function(b){
+      b.style.background=b.dataset.l===cur?'var(--parchment)':'';
+    });
+    document.getElementById('langModal').style.display='flex';
+    langModalCb=function(lang){ doLang(resolvedPhone,lang); };
   }
   function doPhone(){
     var phone=(g.phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');
-    if(!phone){showPhoneModal(firstName(g.name),function(p){doLang(p);});return;}
-    doLang(phone);
+    if(!phone){showPhoneModal(firstName(g.name),function(p){showLang(p);});return;}
+    showLang(phone);
   }
   if(g.sender&&g.sender!==sessionSender){showCrossSenderConfirm(g.sender,sessionSender,doPhone);return;}
   doPhone();
@@ -2301,14 +2309,21 @@ document.getElementById('bulkSend').addEventListener('click',function(){
   }
 });
 function openLangModalForBulk(guests,phone,names){
-  function doLang(resolvedPhone){
-    // Skip lang picker — use first guest's stored language directly
-    var lang=guests[0].lang||selLang||'en';
+  function doLang(resolvedPhone,lang){
     guests.forEach(function(g){g.msgLang=lang;});
     doGroupSend(guests,resolvedPhone,lang);
   }
-  if(!phone){showPhoneModal(names,function(p){doLang(p);});return;}
-  doLang(phone);
+  function showLang(resolvedPhone){
+    var cur=guests[0].lang||selLang||'en';
+    document.getElementById('langModalSub').textContent=names;
+    document.getElementById('langModalOpts').querySelectorAll('.lang-opt').forEach(function(b){
+      b.style.background=b.dataset.l===cur?'var(--parchment)':'';
+    });
+    document.getElementById('langModal').style.display='flex';
+    langModalCb=function(lang){ doLang(resolvedPhone,lang); };
+  }
+  if(!phone){showPhoneModal(names,function(p){showLang(p);});return;}
+  showLang(phone);
 }
 function doGroupSend(guests,phone,msgLang){
   var type=guests[0].type||'ceremony-single';var lang=guests[0].lang||'en';
