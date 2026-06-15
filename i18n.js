@@ -145,11 +145,11 @@ window.I18N = {
 
     /* ── RSVP Success overlay ── */
     successKicker          : "THANK YOU",
-    successTitleAttending  : "We are so excited to see you on our special day.",
+    successTitleAttending  : "We can't wait to see you there!",
     successTitleDecline    : "We are sorry you cannot make it.",
     successMsgAttending    : "We have received your participation confirmation. Thank you for being part of this special day.",
     successMsgDecline      : "Thank you for letting us know. You will be missed — we hope to celebrate together soon.",
-    successCardAttending   : "We are so excited to see you on our special day.",
+    successCardAttending   : "We can't wait to see you there!",
     successCardDecline     : "We are sorry you cannot make it. Thank you for letting us know.",
 
     /* ── Gift banner ── */
