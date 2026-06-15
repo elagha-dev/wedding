@@ -183,7 +183,7 @@ function renderContent(c) {
   if (c.rsvp && c.rsvp.googleScriptUrl) window.__GOOGLE_SCRIPT_URL = c.rsvp.googleScriptUrl;
   if (c.rsvp && c.rsvp.giftListUrl)     window.__GIFT_LIST_URL     = c.rsvp.giftListUrl;
   if (c.rsvp && c.rsvp.bringAndShareFormUrl) window.__BRING_SHARE_URL = c.rsvp.bringAndShareFormUrl;
-  if (c.rsvp && c.rsvp.paypalUrl)           window.__PAYPAL_URL       = c.rsvp.paypalUrl;
+  if (c.rsvp && c.rsvp.paypalUrl) { window.__PAYPAL_URL = c.rsvp.paypalUrl; var _pl = document.getElementById("giftPaypalLink"); if (_pl) _pl.href = c.rsvp.paypalUrl; }
   if (c.rsvp && c.rsvp.bringAndShareSpoc) {
     window.__BRING_SHARE_SPOC = c.rsvp.bringAndShareSpoc;
     var spocEl = document.getElementById("bsSpocName");
