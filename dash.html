@@ -1584,7 +1584,15 @@ function lastName(n){var parts=(n||'').trim().split(/\s+/);return parts.length>1
 function pairDisplayName(n1,n2){var ln1=lastName(n1),ln2=lastName(n2);if(ln1&&ln2&&ln1.toLowerCase()===ln2.toLowerCase())return firstName(n1)+' & '+firstName(n2)+' '+ln1;return n1+' & '+n2;}
 function fmtSentAt(s){if(!s)return'';try{var d=new Date(s);if(isNaN(d))return s;var day=String(d.getDate()).padStart(2,'0'),mon=String(d.getMonth()+1).padStart(2,'0');return day+'.'+mon;}catch(e){return s;}}
 function buildUrl(p1,p2,type,lang){var n1=firstName(p1).toLowerCase(),n2=p2?firstName(p2).toLowerCase():'';var isP=type==='ceremony-party-single'||type==='couple-party';var q=new URLSearchParams();q.set('w',n2?n1+'-'+n2:n1);if(isP)q.set('v','1');if(lang&&lang!=='en')q.set('lang',lang);return BASE+'?'+q.toString();}
-function buildMsg(name,type,lang,url,isPlural){var isP=type==='ceremony-party-single'||type==='couple-party';var l=msgs[lang]||msgs.en;var tpl=isPlural?(isP?(l.party_plural||l.party):(l.ceremony_plural||l.ceremony)):(isP?l.party:l.ceremony);return tpl.replace('{n}',name).replace('{u}',url);}
+var FAMILY_WORD={'en':'Family','de':'Familie','ru':'Семья'};
+function buildMsg(name,type,lang,url,isPlural,p1,p2){
+  var isP=type==='ceremony-party-single'||type==='couple-party';
+  var l=msgs[lang]||msgs.en;
+  var tpl=isPlural?(isP?(l.party_plural||l.party):(l.ceremony_plural||l.ceremony)):(isP?l.party:l.ceremony);
+  var displayName=name;
+  if(isPlural&&p1&&p2){var ln1=lastName(p1),ln2=lastName(p2);if(ln1&&ln2&&ln1.toLowerCase()===ln2.toLowerCase()){displayName=(FAMILY_WORD[lang]||FAMILY_WORD.en)+' '+ln1;}}
+  return tpl.replace('{n}',displayName).replace('{u}',url);
+}
 function ts(){var d=new Date();var day=String(d.getDate()).padStart(2,'0'),mon=String(d.getMonth()+1).padStart(2,'0');return day+'.'+mon+' '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});}
 function dt(){return new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short'})+' '+ts();}
 function copyText(text,btn,reset){var done=function(){btn.textContent='✓ Copied';btn.classList.add('ok');setTimeout(function(){btn.textContent=reset;btn.classList.remove('ok');},2000);};if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(done).catch(fb);else fb();function fb(){var t=document.createElement('textarea');t.value=text;t.style.cssText='position:fixed;opacity:0';document.body.appendChild(t);t.focus();t.select();try{document.execCommand('copy');done();}catch(e){}document.body.removeChild(t);}}
@@ -2319,7 +2327,7 @@ function doGroupSend(guests,phone,msgLang){
   var ml=msgLang||guests[0].msgLang||lang;
   var url=buildUrl(p1,p2,type,ml);
   var isPlural=guests.length>1;
-  var msg=buildMsg(dName,type,ml,url,isPlural);
+  var msg=buildMsg(dName,type,ml,url,isPlural,p1,p2);
   var clean=(phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');
   var phoneOwner=guests.find(function(g){return g.phone&&(g.phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'')===clean;});
   var waUrl=clean?'https://web.whatsapp.com/send?phone='+clean+'&text='+encodeURIComponent(msg):'https://web.whatsapp.com/send?text='+encodeURIComponent(msg);
@@ -2408,7 +2416,7 @@ document.getElementById('qfSend').addEventListener('click',function(){
   var type=isCouple?(isParty?'couple-party':'couple-ceremony'):(isParty?'ceremony-party-single':'ceremony-single');
   var url=buildUrl(p1,isCouple?p2:'',type,selLang);
   var dName=isCouple?firstName(p1)+' & '+firstName(p2):firstName(p1);
-  var msg=buildMsg(dName,type,selLang,url);
+  var msg=buildMsg(dName,type,selLang,url,isCouple,p1,p2);
   var clean=phone.replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');
   window.open('https://wa.me/'+clean+'?text='+encodeURIComponent(msg),'_blank');
   // Add to tracker
@@ -2803,7 +2811,7 @@ document.getElementById('genBtn').addEventListener('click',function(){
   var name=isCouple&&p2?p1+' & '+p2:p1;
   var url=buildUrl(p1,p2,selType,selLang);
   var dName=isCouple&&p2?firstName(p1)+' & '+firstName(p2):firstName(p1);
-  var msg=buildMsg(dName,selType,selLang,url);
+  var msg=buildMsg(dName,selType,selLang,url,isCouple&&!!p2,p1,p2);
   var ll={en:'EN',de:'DE',ru:'RU'};
   var idx=mem.findIndex(function(h){return h.url===url;});var entry;
   if(idx>-1){entry=mem[idx];entry.msg=msg;if(phone)entry.phone=phone;}
@@ -3377,12 +3385,13 @@ function doSyncSilent(){
 
 // Guest mode: no manual sync button, so auto-sync every 30s
 (function(){
-  if(sessionSender !== 'Guest') return;
+  var isGuest = new URLSearchParams(window.location.search).get('guest') === '1';
+  try { if(localStorage.getItem('ww_who') === 'Guest') isGuest = true; } catch(e){}
+  if(!isGuest) return;
   setTimeout(function(){
     if(typeof doSync === 'function') doSync();
     setInterval(function(){ if(typeof doSync === 'function') doSync(); }, 30000);
   }, 3000);
-
 })();
 
 
