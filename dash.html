@@ -2221,8 +2221,9 @@ function showPhoneModal(name,onPhone){
 /* ══ SEND SINGLE ═════════════════════════════ */
 function sendSingleWithLang(g,ri,msgLang,resolvedPhone){
   var type=g.type||'ceremony-single';var lang=g.lang||'en';
-  var url=buildUrl(g.name,'',type,lang);
-  var msg=buildMsg(firstName(g.name),type,msgLang||lang,url);
+  var effectiveLang=msgLang||lang;
+  var url=buildUrl(g.name,'',type,effectiveLang);
+  var msg=buildMsg(firstName(g.name),type,effectiveLang,url);
   var phone=resolvedPhone!==undefined?resolvedPhone:(g.phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');
   if(resolvedPhone)g.phone='+'+resolvedPhone;
   window.open(phone?'https://wa.me/'+phone+'?text='+encodeURIComponent(msg):'https://wa.me/?text='+encodeURIComponent(msg),'_blank');
@@ -2258,6 +2259,10 @@ document.getElementById('bulkSend').addEventListener('click',function(){
   if(!guests.length||guests.length>2)return;
   var wp=guests.filter(function(g){return g.phone;});
   var names=guests.map(function(g){return g.name;}).join(' & ');
+  if(guests.length===2&&wp.length===1){
+    var withPhone=wp[0].name;var noPhone=guests.find(function(g){return!g.phone;}).name;
+    showToastWarn('Only '+firstName(withPhone)+' has a number — sending to '+firstName(withPhone)+' only ('+firstName(noPhone)+' has no number saved)');
+  }
   if(wp.length>1){
     showPhonePicker(guests,function(phone){openLangModalForBulk(guests,phone,names);});
   } else {
@@ -2287,8 +2292,8 @@ function doGroupSend(guests,phone,msgLang){
   } else {
     dName=firstName(p1);
   }
-  var url=buildUrl(p1,p2,type,lang);
   var ml=msgLang||guests[0].msgLang||lang;
+  var url=buildUrl(p1,p2,type,ml);
   var isPlural=guests.length>1;
   var msg=buildMsg(dName,type,ml,url,isPlural);
   var clean=(phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');
@@ -3661,19 +3666,28 @@ function showChatNotif(who, text){
     }
 
     var entryCounter = 0;
+    function isAttending(r){
+      var ch = (r['Church'] || '').toString().trim().toLowerCase();
+      if(ch === 'yes' || ch === 'true' || ch === '1') return true;
+      if(ch === 'no' || ch === 'false' || ch === '0') return false;
+      var att = (r['Ceremony Attendance'] || r['Party Attending'] || r.attendance || '').toString().toLowerCase();
+      if(att.indexOf('no') !== -1 || att.indexOf('decline') !== -1) return false;
+      if(att === '') return null;
+      return true;
+    }
     function entryHtml(r){
       var name = r['Full Name'] || r['First Name'] || r.name || '—';
       var date = fmtDate(r['Date & Time'] || r.timestamp || '');
       var rawDump = Object.keys(r).map(function(k){ return k + '=' + JSON.stringify(r[k]); }).join(' | ');
       var id = 'rdet' + (++entryCounter);
-      return '<div class="rsvp-entry" data-name="' + name.toLowerCase().replace(/"/g,'') + '">'
-        + '<div class="rsvp-row-top" data-det="' + id + '" style="display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer">'
-        + '<div><div class="rsvp-entry-name">' + name + '</div>'
-        + (date ? '<div class="rsvp-entry-meta">' + date + '</div>' : '') + '</div>'
-        + '<span class="det-chev" style="font-size:8px;color:var(--soft);transition:transform .2s;flex-shrink:0">&#9660;</span>'
-        + '</div>'
-        + '<div id="' + id + '" style="display:none;margin-top:6px;padding-top:6px;border-top:1px solid var(--parchment);font-size:9px;color:var(--soft);word-break:break-all;line-height:1.6">' + rawDump + '</div>'
-        + '</div>';
+      var att = isAttending(r);
+      var borderColor = att === true ? '#1a7a4a' : att === false ? '#b91c1c' : 'var(--parchment)';
+      var pillHtml = att === true
+        ? '<span style="background:#d4f5e2;color:#1a7a4a;border-radius:100px;padding:2px 9px;font-size:9px;font-weight:800;letter-spacing:.04em;flex-shrink:0">YES</span>'
+        : att === false
+        ? '<span style="background:#fde8e8;color:#b91c1c;border-radius:100px;padding:2px 9px;font-size:9px;font-weight:800;letter-spacing:.04em;flex-shrink:0">NO</span>'
+        : '';
+      return '<div class="rsvp-entry" data-name="' + name.toLowerCase().replace(/"/g,'') + '" style="border-left:3px solid ' + borderColor + ';padding-left:8px;margin-bottom:4px;border-radius:0 6px 6px 0">'        + '<div class="rsvp-row-top" data-det="' + id + '" style="display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;padding:6px 2px">'        + '<div style="flex:1;min-width:0"><div class="rsvp-entry-name" style="font-weight:600">' + name + '</div>'        + (date ? '<div class="rsvp-entry-meta" style="font-size:10px;color:var(--soft)">' + date + '</div>' : '') + '</div>'        + pillHtml        + '<span class="det-chev" style="font-size:8px;color:var(--soft);transition:transform .2s;flex-shrink:0;margin-left:4px">&#9660;</span>'        + '</div>'        + '<div id="' + id + '" style="display:none;margin-top:4px;padding:6px 4px 8px;border-top:1px solid var(--parchment);font-size:9px;color:var(--soft);word-break:break-all;line-height:1.7">' + rawDump + '</div>'        + '</div>';
     }
 
     var reversed = rows.slice().reverse();
@@ -3732,10 +3746,17 @@ function showChatNotif(who, text){
       + '</div>';
 
     var html = totalHtml;
-    html += sectionHtml('venue',  'Church &amp; Venue', withVenue,  'var(--green-bg)', 'var(--green)', '4px');
-    html += sectionHtml('church', 'Church Only',         churchOnly, 'var(--amber-bg)', 'var(--amber)', '12px');
-    if(uncategorised.length){
-      html += sectionHtml('other', 'Other', uncategorised, 'var(--cream2)', 'var(--muted)', '12px');
+    var declined = reversed.filter(function(r){ return isAttending(r) === false; });
+    var attendingVenue = withVenue.filter(function(r){ return isAttending(r) !== false; });
+    var attendingChurch = churchOnly.filter(function(r){ return isAttending(r) !== false; });
+    html += sectionHtml('venue',   'Church &amp; Venue', attendingVenue, 'var(--green-bg)', 'var(--green)', '4px');
+    html += sectionHtml('church',  'Church Only',        attendingChurch,'var(--amber-bg)', 'var(--amber)', '12px');
+    if(declined.length){
+      html += sectionHtml('declined', 'Declined', declined, 'var(--red-bg,#fde8e8)', 'var(--red,#b91c1c)', '12px');
+    }
+    var uncatAttending = uncategorised.filter(function(r){ return declined.indexOf(r) === -1; });
+    if(uncatAttending.length){
+      html += sectionHtml('other', 'Other', uncatAttending, 'var(--cream2)', 'var(--muted)', '12px');
     }
 
     body.innerHTML = html;
