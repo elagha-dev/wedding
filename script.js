@@ -643,7 +643,7 @@ function showSuccessScreen(attending) {
   if (giftBanner) {
     giftBanner.style.display = attending ? "" : "none";
     var paypalLink = document.getElementById("giftPaypalLink");
-    if (paypalLink) paypalLink.href = window.__PAYPAL_URL || "#";
+    if (paypalLink) paypalLink.href = window.__PAYPAL_URL || "https://paypal.me/ElnurAghayev";
     var giftNote = document.getElementById("giftBannerNote");
     if (giftNote) {
       var partyAttending = isPartyAttending();
