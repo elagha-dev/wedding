@@ -353,7 +353,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 @keyframes slideUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
 .modal-title{font-family:var(--sans);font-size:20px;color:var(--ink);margin-bottom:3px}
 .modal-sub{font-size:11.5px;color:var(--muted);margin-bottom:16px}
-.phone-opt{display:flex;align-items:center;gap:12px;padding:11px 14px;background:var(--cream);border:1.5px solid var(--parchment);border-radius:var(--r-sm);margin-bottom:8px;cursor:pointer;transition:all var(--ease)}.phone-opt:hover{border-color:var(--rose);background:var(--rose-soft)}
+.phone-opt{display:flex;align-items:center;gap:12px;padding:11px 14px;background:var(--cream);border:1.5px solid var(--parchment);border-radius:var(--r-sm);margin-bottom:8px;cursor:pointer;transition:all var(--ease)}.phone-opt:hover{border-color:var(--rose);background:var(--rose-soft)}.lang-opt{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:4px!important;text-align:center!important;margin-bottom:0!important}
 .phone-opt-name{font-family:var(--sans);font-size:16px;flex:1;color:var(--ink)}.phone-opt-num{font-family:monospace;font-size:11px;color:var(--muted)}
 .modal-cancel{width:100%;margin-top:8px;padding:11px;background:none;border:1.5px solid var(--parchment);border-radius:var(--r-sm);font-family:var(--sans);font-size:10.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);cursor:pointer;transition:all var(--ease)}.modal-cancel:hover{border-color:var(--rose);color:var(--rose)}
 .note-modal-bg{position:fixed;inset:0;background:rgba(36,26,20,.5);backdrop-filter:blur(6px);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px}
@@ -2298,24 +2298,28 @@ document.getElementById('bulkSend').addEventListener('click',function(){
   if(!guests.length||guests.length>2)return;
   var wp=guests.filter(function(g){return g.phone;});
   var names=guests.map(function(g){return g.name;}).join(' & ');
-  if(guests.length===2&&wp.length===1){
-    var withPhone=wp[0].name;var noPhone=guests.find(function(g){return!g.phone;}).name;
-    showToastWarn('Only '+firstName(withPhone)+' has a number — sending to '+firstName(withPhone)+' only ('+firstName(noPhone)+' has no number saved)');
-  }
   if(wp.length>1){
     showPhonePicker(guests,function(phone){openLangModalForBulk(guests,phone,names);});
   } else {
-    openLangModalForBulk(guests,wp.length?wp[0].phone:'',names);
+    var _noPhoneNote='';
+    if(guests.length===2&&wp.length===1){
+      var _noPhone=guests.find(function(g){return!g.phone;});
+      _noPhoneNote=firstName(_noPhone.name)+' has no number — sending to '+firstName(wp[0].name)+' only';
+    }
+    openLangModalForBulk(guests,wp.length?wp[0].phone:'',names,_noPhoneNote);
   }
 });
-function openLangModalForBulk(guests,phone,names){
+function openLangModalForBulk(guests,phone,names,noPhoneNote){
   function doLang(resolvedPhone,lang){
     guests.forEach(function(g){g.msgLang=lang;});
     doGroupSend(guests,resolvedPhone,lang);
   }
   function showLang(resolvedPhone){
     var cur=guests[0].lang||selLang||'en';
-    document.getElementById('langModalSub').textContent=names;
+    document.getElementById('langModalSub').textContent=names+(noPhoneNote?'\n'+noPhoneNote:'');
+    document.getElementById('langModalSub').style.whiteSpace='pre-line';
+    if(noPhoneNote) document.getElementById('langModalSub').style.color='var(--amber)';
+    else document.getElementById('langModalSub').style.color='';
     document.getElementById('langModalOpts').querySelectorAll('.lang-opt').forEach(function(b){
       b.style.background=b.dataset.l===cur?'var(--parchment)':'';
     });
