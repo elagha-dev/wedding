@@ -152,6 +152,12 @@ function renderContent(c) {
       if (card04Title) card04Title.textContent = t('card04TitleParty');
     }
 
+    /* Hide celebration card for church-only invites */
+    var celebrationCard = document.querySelector('.celebration-card');
+    if (celebrationCard && !__inviteParty) {
+      celebrationCard.style.display = 'none';
+    }
+
   }
 
   /* Dress code */
@@ -177,6 +183,7 @@ function renderContent(c) {
   if (c.rsvp && c.rsvp.googleScriptUrl) window.__GOOGLE_SCRIPT_URL = c.rsvp.googleScriptUrl;
   if (c.rsvp && c.rsvp.giftListUrl)     window.__GIFT_LIST_URL     = c.rsvp.giftListUrl;
   if (c.rsvp && c.rsvp.bringAndShareFormUrl) window.__BRING_SHARE_URL = c.rsvp.bringAndShareFormUrl;
+  if (c.rsvp && c.rsvp.paypalUrl)           window.__PAYPAL_URL       = c.rsvp.paypalUrl;
   if (c.rsvp && c.rsvp.bringAndShareSpoc) {
     window.__BRING_SHARE_SPOC = c.rsvp.bringAndShareSpoc;
     var spocEl = document.getElementById("bsSpocName");
@@ -241,7 +248,7 @@ function loadContent() {
         "label": "GET TOGETHER",
         "title": "Get Together",
         "location": "Schlosskirche Eller",
-        "address": "Schlossallee 10, 40229 Düsseldorf",
+        "address": "Schlossallee 6, 40229 Düsseldorf",
         "mapUrl": "https://maps.google.com/?q=Schlosskirche+Eller+Düsseldorf",
         "description": "Arrive, meet familiar faces, and settle in before the ceremony begins."
       },

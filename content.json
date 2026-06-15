@@ -14,7 +14,8 @@
     "googleScriptUrl": "https://script.google.com/macros/s/AKfycbwTXSvlokP2p8Htn2K4BuuxpfEix2xJckTKjp068hjSkpk0mTut9DNs130KfofyZcM9QA/exec",
     "giftListUrl": "#",
     "bringAndShareFormUrl": "https://forms.gle/4C6RUZfEKunpWGoc8",
-    "bringAndShareSpoc": ""
+    "bringAndShareSpoc": "",
+    "paypalUrl": "https://paypal.me/ElnurAghayev"
   },
   "loveStory": {
     "paragraphs": [
@@ -110,8 +111,8 @@
         "label": "GET TOGETHER",
         "title": "Get Together",
         "location": "Schlosskirche Eller",
-        "address": "Schlossallee 10, 40229 Düsseldorf",
-        "mapUrl": "https://maps.google.com/?q=Schlosskirche+Eller+Düsseldorf",
+        "address": "Schlossallee 6, 40229 Düsseldorf",
+        "mapUrl": "https://maps.google.com/?q=Schlossallee+6,+40229+Düsseldorf",
         "description": "Arrive, meet familiar faces, and settle in before the ceremony begins."
       },
       {
@@ -131,7 +132,7 @@
     ]
   },
   "dressCode": {
-    "intro": "Elegant evening attire in soft neutrals and deep classic tones.",
+    "intro": "Elegant classic attire in soft neutrals and deep classic tones.",
     "colors": [
       {
         "name": "White",
