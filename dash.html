@@ -2261,10 +2261,10 @@ function sendSingleWithLang(g,ri,msgLang,resolvedPhone){
   var msg=buildMsg(firstName(g.name),type,effectiveLang,url);
   var phone=resolvedPhone!==undefined?resolvedPhone:(g.phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');
   if(resolvedPhone)g.phone='+'+resolvedPhone;
-  var waUrl=phone?'https://web.whatsapp.com/send?phone='+phone+'&text='+encodeURIComponent(msg):'https://web.whatsapp.com/send?text='+encodeURIComponent(msg);
+  var waUrl=phone?'whatsapp://send?phone='+phone+'&text='+encodeURIComponent(msg):'whatsapp://send?text='+encodeURIComponent(msg);
   var displayPhone=resolvedPhone?'+'+resolvedPhone:(g.phone||'+'+phone);
   showPhoneConfirm(firstName(g.name),displayPhone,function(){
-    window.open(waUrl,'_blank');
+    openWA(phone,msg);
     g.pendingSent=true;g.followup=true;g.sentBy=sessionSender;saveGuestMeta();renderGuestList();
   });
 }
@@ -2329,6 +2329,24 @@ function openLangModalForBulk(guests,phone,names,noPhoneNote){
   if(!phone){showPhoneModal(names,function(p){showLang(p);});return;}
   showLang(phone);
 }
+// ── WhatsApp deep-link: try native app first, fall back to web ──
+function openWA(phone, msg) {
+  var encoded = encodeURIComponent(msg);
+  var appUrl = phone ? 'whatsapp://send?phone=' + phone + '&text=' + encoded : 'whatsapp://send?text=' + encoded;
+  var webUrl = phone ? 'https://wa.me/' + phone + '?text=' + encoded : 'https://wa.me/?text=' + encoded;
+  var iframe = document.createElement('iframe');
+  iframe.style.cssText = 'display:none;width:0;height:0;border:0';
+  document.body.appendChild(iframe);
+  var fallback = setTimeout(function() {
+    document.body.removeChild(iframe);
+    window.open(webUrl, '_blank');
+  }, 1500);
+  iframe.onload = function() { clearTimeout(fallback); document.body.removeChild(iframe); };
+  try { iframe.src = appUrl; } catch(e) {
+    clearTimeout(fallback); document.body.removeChild(iframe); window.open(webUrl, '_blank');
+  }
+}
+
 function doGroupSend(guests,phone,msgLang){
   var type=guests[0].type||'ceremony-single';var lang=guests[0].lang||'en';
   var p1=guests[0].name,p2=guests[1]?guests[1].name:'';
@@ -2349,11 +2367,11 @@ function doGroupSend(guests,phone,msgLang){
   var msg=buildMsg(dName,type,ml,url,isPlural,p1,p2);
   var clean=(phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');
   var phoneOwner=guests.find(function(g){return g.phone&&(g.phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'')===clean;});
-  var waUrl=clean?'https://web.whatsapp.com/send?phone='+clean+'&text='+encodeURIComponent(msg):'https://web.whatsapp.com/send?text='+encodeURIComponent(msg);
+  var waUrl=clean?'whatsapp://send?phone='+clean+'&text='+encodeURIComponent(msg):'whatsapp://send?text='+encodeURIComponent(msg);
   var ownerName=phoneOwner?firstName(phoneOwner.name):'?';
   var ownerPhone=phoneOwner?(phoneOwner.phone||'+'+clean):'+'+clean;
   showPhoneConfirm(ownerName,ownerPhone,function(){
-    window.open(waUrl,'_blank');
+    openWA(clean,msg);
   });
   // Tag each guest with their partner AND a shared sentGroupId so sent view can pair them
   if(guests.length>1){
@@ -2437,7 +2455,7 @@ document.getElementById('qfSend').addEventListener('click',function(){
   var dName=isCouple?firstName(p1)+' & '+firstName(p2):firstName(p1);
   var msg=buildMsg(dName,type,selLang,url,isCouple,p1,p2);
   var clean=phone.replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');
-  window.open('https://wa.me/'+clean+'?text='+encodeURIComponent(msg),'_blank');
+  openWA(clean, msg);
   // Add to tracker
   var ll={en:'EN',de:'DE',ru:'RU'};
   var hasParty=type==='ceremony-party-single'||type==='couple-party';
@@ -2867,7 +2885,7 @@ document.getElementById('copyMsgBtn').addEventListener('click',function(){copyTe
 document.getElementById('waSendBtn').addEventListener('click',function(){
   var msg=document.getElementById('msgBox').value;var phone=cur&&cur.phone?cur.phone:'';
   var clean=phone.replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');
-  var waUrl=clean?'https://web.whatsapp.com/send?phone='+clean+'&text='+encodeURIComponent(msg):'https://web.whatsapp.com/send?text='+encodeURIComponent(msg);window.open(waUrl,'_blank');
+  var waUrl=clean?'whatsapp://send?phone='+clean+'&text='+encodeURIComponent(msg):'whatsapp://send?text='+encodeURIComponent(msg);openWA(clean,msg);
   if(cur){cur.tracked.waSent=ts();save();renderTracker();}
   todayCount++;updateTodayBadge();
   var sb=document.getElementById('sentBtn');sb.textContent='✓ Sent';sb.classList.add('ok');
@@ -2894,7 +2912,7 @@ function renderTracker(){
   list.innerHTML=html;
   list.querySelectorAll('.pip[data-k]').forEach(function(p){p.addEventListener('click',function(){var i=parseInt(this.dataset.i),k=this.dataset.k;var e=mem[i];if(!e)return;e.tracked[k]=e.tracked[k]?null:ts();if(cur&&cur.url===e.url&&k==='waSent'){var sb=document.getElementById('sentBtn');if(e.tracked.waSent){sb.textContent='✓ Sent';sb.classList.add('ok');}else{sb.textContent='Mark Sent';sb.classList.remove('ok');}}save();renderTracker();});});
   list.querySelectorAll('.del').forEach(function(b){b.addEventListener('click',function(){var i=parseInt(this.dataset.i);var e=mem[i];if(!e)return;if(cur&&cur.url===e.url){cur=null;document.getElementById('outCard').style.display='none';}mem.splice(i,1);save();renderTracker();});});
-  list.querySelectorAll('.resend').forEach(function(b){b.addEventListener('click',function(){var i=parseInt(this.dataset.i);var e=mem[i];if(!e)return;var clean=(e.phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');window.open(clean?'https://wa.me/'+clean+'?text='+encodeURIComponent(e.msg):'https://wa.me/?text='+encodeURIComponent(e.msg),'_blank');e.tracked.waSent=ts();todayCount++;updateTodayBadge();save();renderTracker();});});
+  list.querySelectorAll('.resend').forEach(function(b){b.addEventListener('click',function(){var i=parseInt(this.dataset.i);var e=mem[i];if(!e)return;var clean=(e.phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');openWA(clean,e.msg);e.tracked.waSent=ts();todayCount++;updateTodayBadge();save();renderTracker();});});
 }
 renderTracker();
 
@@ -3955,6 +3973,8 @@ function showChatNotif(who, text){
 </div>
 
 <script>
+// Suppress iOS Safari "Script error." noise from handled background fetch rejections
+window.addEventListener('unhandledrejection', function(e){ e.preventDefault(); });
 /* ── PRESENCE via WebSocket ── */
 (function(){
   var WORKER = 'wss://guestlist.elnur-agha.workers.dev';
