@@ -3776,18 +3776,16 @@ function showChatNotif(who, text){
     var uncategorised = reversed.filter(function(r){ return categorised.indexOf(r) === -1; });
 
     function countYesNo(arr){
-      var yes = arr.filter(function(r){
-        var v = (r['Ceremony Attendance'] || r['Invited to Party'] || '').toString().toLowerCase();
-        return v === 'yes' || v === 'true' || v === '1';
-      }).length;
-      return {yes: yes, no: arr.length - yes};
+      var yes = arr.filter(function(r){ return isAttending(r) === true; }).length;
+      var no  = arr.filter(function(r){ return isAttending(r) === false; }).length;
+      return {yes: yes, no: no};
     }
 
     function sectionHtml(id, label, items, badgeBg, badgeColor, topPad){
       var yn = countYesNo(items);
       var yesNoHtml = items.length
-        ? '<span style="background:var(--green-bg);color:var(--green);border-radius:100px;padding:1px 7px;font-size:9px;font-weight:700">' + yn.yes + ' yes</span>'
-          + '<span style="background:var(--red-bg);color:var(--red);border-radius:100px;padding:1px 7px;font-size:9px;font-weight:700">' + yn.no + ' no</span>'
+        ? (yn.yes ? '<span style="background:var(--green-bg);color:var(--green);border-radius:100px;padding:1px 7px;font-size:9px;font-weight:700">' + yn.yes + ' yes</span>' : '')
+          + (yn.no  ? '<span style="background:var(--red-bg,#fde8e8);color:var(--red,#b91c1c);border-radius:100px;padding:1px 7px;font-size:9px;font-weight:700">' + yn.no + ' no</span>' : '')
         : '';
       var entriesHtml = items.length
         ? items.map(entryHtml).join('')
@@ -3813,17 +3811,10 @@ function showChatNotif(who, text){
       + '</div>';
 
     var html = totalHtml;
-    var declined = reversed.filter(function(r){ return isAttending(r) === false; });
-    var attendingVenue = withVenue.filter(function(r){ return isAttending(r) !== false; });
-    var attendingChurch = churchOnly.filter(function(r){ return isAttending(r) !== false; });
-    html += sectionHtml('venue',   'Church &amp; Venue', attendingVenue, 'var(--green-bg)', 'var(--green)', '4px');
-    html += sectionHtml('church',  'Church Only',        attendingChurch,'var(--amber-bg)', 'var(--amber)', '12px');
-    if(declined.length){
-      html += sectionHtml('declined', 'Declined', declined, 'var(--red-bg,#fde8e8)', 'var(--red,#b91c1c)', '12px');
-    }
-    var uncatAttending = uncategorised.filter(function(r){ return declined.indexOf(r) === -1; });
-    if(uncatAttending.length){
-      html += sectionHtml('other', 'Other', uncatAttending, 'var(--cream2)', 'var(--muted)', '12px');
+    if(withVenue.length)      html += sectionHtml('venue',  'Church &amp; Party', withVenue,      'var(--green-bg)', 'var(--green)', '4px');
+    if(churchOnly.length)     html += sectionHtml('church', 'Church Only',        churchOnly,     'var(--amber-bg)', 'var(--amber)', '12px');
+    if(uncategorised.length){
+      html += sectionHtml('other', 'Other', uncategorised, 'var(--cream2)', 'var(--muted)', '12px');
     }
 
     body.innerHTML = html;
