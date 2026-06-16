@@ -1383,9 +1383,11 @@
       function updateFab() {
         if (hasEngaged) { fab.classList.remove('is-visible'); return; }
         var rect = rsvpCard.getBoundingClientRect();
-        var pastHero  = window.scrollY > window.innerHeight * 0.4;
-        var cardInView = rect.top < window.innerHeight * 0.85 && rect.bottom > 0;
-        fab.classList.toggle('is-visible', pastHero && !cardInView);
+        // Visible from the moment the page starts scrolling, until the
+        // card is about to reach the top (where it auto-pops anyway).
+        var startedScrolling = window.scrollY > 80;
+        var cardNearlyHere    = rect.top <= window.innerHeight * 0.5;
+        fab.classList.toggle('is-visible', startedScrolling && !cardNearlyHere);
       }
 
       /* ---------- 2. Fullscreen "pop" takeover ---------- */
@@ -1414,6 +1416,30 @@
       }
 
       exitBtn.addEventListener('click', exit);
+
+      /* Scroll/swipe-to-dismiss — once you're at the top or bottom of
+         the card's own content and keep scrolling in that direction,
+         treat it as "I want to keep going" and release fullscreen. */
+      function atBottom() { return rsvpCard.scrollTop + rsvpCard.clientHeight >= rsvpCard.scrollHeight - 4; }
+      function atTop()    { return rsvpCard.scrollTop <= 4; }
+
+      rsvpCard.addEventListener('wheel', function (e) {
+        if (!rsvpCard.classList.contains('is-rsvp-fullscreen')) return;
+        if (e.deltaY > 0 && atBottom()) exit();
+        else if (e.deltaY < 0 && atTop()) exit();
+      }, { passive: true });
+
+      var touchStartY = 0;
+      rsvpCard.addEventListener('touchstart', function (e) {
+        touchStartY = e.touches[0].clientY;
+      }, { passive: true });
+
+      rsvpCard.addEventListener('touchmove', function (e) {
+        if (!rsvpCard.classList.contains('is-rsvp-fullscreen')) return;
+        var deltaY = touchStartY - e.touches[0].clientY; // >0 = swiping up (scrolling down)
+        if (deltaY > 40 && atBottom()) exit();
+        else if (deltaY < -40 && atTop()) exit();
+      }, { passive: true });
 
       function checkEngage() {
         if (hasEngaged) return;
