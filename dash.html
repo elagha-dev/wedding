@@ -247,7 +247,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 /* ── SPLIT CARD LAYOUT ── */
 .g-inner{padding:0;display:flex;align-items:stretch}
 .g-inner-left{flex:1;min-width:0;padding:11px 12px 11px 16px;display:flex;align-items:center;gap:11px}
-.g-inner-right{display:flex;align-items:center;gap:6px;padding:0 12px 0 10px;background:var(--cream2);border-left:1px solid var(--parchment);flex-shrink:0}
+.g-inner-right{display:flex;align-items:center;gap:6px;padding:0 12px 0 10px;background:var(--cream2);flex-shrink:0}
 .g-ring{width:20px;height:20px;border:1.5px solid var(--parchment);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px;color:#fff;background:transparent;transition:all var(--ease)}
 .g-card.sel .g-ring{background:var(--rose);border-color:var(--rose)}
 .g-main{flex:1;min-width:0}
@@ -1172,6 +1172,13 @@ body.lite-mode #liteModeTopBtn {
     <!-- SECTION: Sync -->
     <div class="s-section">
       <div class="s-section-label">Sync</div>
+      <div class="s-row">
+        <div class="s-row-info"><div class="s-row-title">Notion check mode</div><div class="s-row-sub" id="syncModeLabel">Idle — checks once a day</div></div>
+        <div style="display:flex;gap:5px">
+          <button id="syncModeStart" style="font-family:var(--sans);font-size:10px;font-weight:600;padding:5px 10px;border-radius:var(--r-pill);border:1.5px solid rgba(58,140,92,.3);background:transparent;color:var(--muted);cursor:pointer;transition:all var(--ease)">▶ Sending</button>
+          <button id="syncModePause" style="font-family:var(--sans);font-size:10px;font-weight:600;padding:5px 10px;border-radius:var(--r-pill);border:1.5px solid var(--parchment);background:transparent;color:var(--muted);cursor:pointer;transition:all var(--ease)">⏸ Pause</button>
+        </div>
+      </div>
       <div class="s-row-col">
         <div class="s-row-info"><div class="s-row-title">Worker URL</div><div class="s-row-sub">Cloudflare sync endpoint</div></div>
         <input class="s-input s-input-wide s-mono" id="sWorkerUrl" placeholder="https://your-worker.workers.dev"/>
@@ -2756,39 +2763,79 @@ function startAutoPoll(){
 })();
 
 // ── NOTION CHANGE CHECKER: every 12h, notifies if guest list changed ──
-(function(){
-  function checkForNotionChanges(){
-    var url=workerUrl;
-    if(!url||!_lastSyncFingerprint)return;
-    fetch(url,{cache:'no-store'})
-      .then(function(r){if(!r.ok)throw new Error();return r.json();})
-      .then(function(data){
-        var guests=Array.isArray(data)?data:(data.results||data.guests||[]);
-        if(!guests.length)return;
-        var remoteFingerprint=guests.map(function(g){
-          var name=g.name||g.Name||'';
-          return name+'='+(g.sentAt||'0')+'+'+(g.followup?'1':'0')+'+'+(g.note||'');
-        }).join('|');
-        if(remoteFingerprint!==_lastSyncFingerprint){
-          var pill=document.getElementById('topSyncBtn');
-          var label=document.getElementById('topSyncLabel');
-          var dot=document.getElementById('syncDot');
-          if(pill&&!pill.classList.contains('syncing')){
-            pill.style.background='var(--amber)';
-            pill.style.boxShadow='0 2px 12px rgba(176,120,48,.4)';
-            if(label)label.textContent='Update';
-            if(dot){dot.classList.add('live');dot.style.background='rgba(255,255,255,.85)';}
-            pill.title='Notion has new changes — tap to sync';
-          }
+/* ── NOTION SYNC MODE MANAGER ───────────────────────────── */
+var _notionSyncTimer = null;
+var _notionSyncMode = 'idle';
+var _NOTION_MS = { active: 5*60*1000, idle: 24*60*60*1000, paused: 10*60*60*1000 };
+
+function checkForNotionChanges(){
+  var url=workerUrl;
+  if(!url||!_lastSyncFingerprint)return;
+  fetch(url,{cache:'no-store'})
+    .then(function(r){if(!r.ok)throw new Error();return r.json();})
+    .then(function(data){
+      var guests=Array.isArray(data)?data:(data.results||data.guests||[]);
+      if(!guests.length)return;
+      var remoteFingerprint=guests.map(function(g){
+        var name=g.name||g.Name||'';
+        var phone=(g.phone||g.Phone||'').replace(/\s/g,'');
+        return name+'|'+phone+'|'+(g.sentAt||'0')+'|'+(g.followup?'1':'0')+'|'+(g.note||'')+'|'+(g.type||'')+'|'+(g.lang||'');
+      }).sort().join('||');
+      if(remoteFingerprint!==_lastSyncFingerprint){
+        var pill=document.getElementById('topSyncBtn');
+        var label=document.getElementById('topSyncLabel');
+        var dot=document.getElementById('syncDot');
+        if(pill&&!pill.classList.contains('syncing')){
+          pill.style.background='var(--amber)';
+          pill.style.boxShadow='0 2px 12px rgba(176,120,48,.4)';
+          if(label)label.textContent='Update';
+          if(dot){dot.classList.add('live');dot.style.background='rgba(255,255,255,.85)';}
+          pill.title='Notion has new changes — tap to sync';
         }
-      })
-      .catch(function(){});
-  }
-  // Start 30s after load, then every 12 hours
+      }
+    })
+    .catch(function(){});
+}
+
+function setNotionSyncMode(mode){
+  _notionSyncMode = mode;
+  try { localStorage.setItem('ww_notion_mode', mode); } catch(e){}
+  if(_notionSyncTimer){ clearInterval(_notionSyncTimer); _notionSyncTimer = null; }
+  _notionSyncTimer = setInterval(checkForNotionChanges, _NOTION_MS[mode] || _NOTION_MS.idle);
+  updateNotionSyncUI();
+}
+
+function updateNotionSyncUI(){
+  var startBtn = document.getElementById('syncModeStart');
+  var pauseBtn = document.getElementById('syncModePause');
+  var lbl = document.getElementById('syncModeLabel');
+  var map = { active: 'Sending mode — checks every 5 min', idle: 'Idle — checks once a day', paused: 'Paused — checks every 10 hrs' };
+  if(startBtn){ startBtn.style.background=_notionSyncMode==='active'?'var(--green-bg)':''; startBtn.style.color=_notionSyncMode==='active'?'var(--green)':''; startBtn.style.fontWeight=_notionSyncMode==='active'?'700':''; }
+  if(pauseBtn){ pauseBtn.style.background=_notionSyncMode==='paused'?'var(--amber-bg,#FEF3CD)':''; pauseBtn.style.color=_notionSyncMode==='paused'?'var(--amber)':''; pauseBtn.style.fontWeight=_notionSyncMode==='paused'?'700':''; }
+  if(lbl) lbl.textContent = map[_notionSyncMode] || '';
+}
+
+// Init — restore saved mode, first check after 30s
+(function(){
+  try { _notionSyncMode = localStorage.getItem('ww_notion_mode') || 'idle'; } catch(e){}
   setTimeout(function(){
     checkForNotionChanges();
-    setInterval(checkForNotionChanges, 12 * 60 * 60 * 1000);
+    setNotionSyncMode(_notionSyncMode);
   }, 30000);
+  // Wire buttons once DOM ready
+  function wireSyncModeButtons(){
+    var s = document.getElementById('syncModeStart');
+    var p = document.getElementById('syncModePause');
+    if(s) s.addEventListener('click', function(){
+      setNotionSyncMode(_notionSyncMode === 'active' ? 'idle' : 'active');
+    });
+    if(p) p.addEventListener('click', function(){
+      setNotionSyncMode(_notionSyncMode === 'paused' ? 'idle' : 'paused');
+    });
+    updateNotionSyncUI();
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wireSyncModeButtons);
+  else wireSyncModeButtons();
 })();
 
 function renderGroupDropdown(){
