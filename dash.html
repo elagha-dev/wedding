@@ -734,6 +734,10 @@ body.lite-mode #liteModeTopBtn {
   <!-- Hidden session buttons still needed for JS logic -->
   <button class="sess-btn on-a" id="sessA" data-who="Arina" style="display:none">A</button>
   <button class="sess-btn" id="sessE" data-who="Elnur" style="display:none">E</button>
+  <!-- Sending mode toggle (light switch) -->
+  <button id="sendingModeBtn" title="Sending mode — faster Notion checks" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:20px;height:32px;border-radius:10px;border:none;background:var(--parchment);cursor:pointer;padding:0;position:relative;transition:background .25s">
+    <span id="sendingModeThumb" style="position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.18);transition:transform .25s;display:block"></span>
+  </button>
   <!-- Sync -->
   <button class="sync-pill" id="topSyncBtn">
     <span class="sync-dot live" id="syncDot"></span>
@@ -1173,11 +1177,8 @@ body.lite-mode #liteModeTopBtn {
     <div class="s-section">
       <div class="s-section-label">Sync</div>
       <div class="s-row">
-        <div class="s-row-info"><div class="s-row-title">Notion check mode</div><div class="s-row-sub" id="syncModeLabel">Idle — checks once a day</div></div>
-        <div style="display:flex;gap:5px">
-          <button id="syncModeStart" style="font-family:var(--sans);font-size:10px;font-weight:600;padding:5px 10px;border-radius:var(--r-pill);border:1.5px solid rgba(58,140,92,.3);background:transparent;color:var(--muted);cursor:pointer;transition:all var(--ease)">▶ Sending</button>
-          <button id="syncModePause" style="font-family:var(--sans);font-size:10px;font-weight:600;padding:5px 10px;border-radius:var(--r-pill);border:1.5px solid var(--parchment);background:transparent;color:var(--muted);cursor:pointer;transition:all var(--ease)">⏸ Pause</button>
-        </div>
+        <div class="s-row-info"><div class="s-row-title">Sending mode</div><div class="s-row-sub" id="syncModeLabel">Off — checks once a day</div></div>
+        <label class="s-toggle"><input type="checkbox" id="syncModeToggle"/><span class="s-toggle-track"></span></label>
       </div>
       <div class="s-row-col">
         <div class="s-row-info"><div class="s-row-title">Worker URL</div><div class="s-row-sub">Cloudflare sync endpoint</div></div>
@@ -2806,13 +2807,21 @@ function setNotionSyncMode(mode){
 }
 
 function updateNotionSyncUI(){
-  var startBtn = document.getElementById('syncModeStart');
-  var pauseBtn = document.getElementById('syncModePause');
+  var isActive = _notionSyncMode === 'active';
+  // Topbar toggle
+  var topBtn   = document.getElementById('sendingModeBtn');
+  var topThumb = document.getElementById('sendingModeThumb');
+  if(topBtn){
+    topBtn.style.background = isActive ? 'var(--green)' : 'var(--parchment)';
+    topBtn.title = isActive ? 'Sending mode ON — checks every 5 min' : 'Sending mode OFF — checks once a day';
+  }
+  if(topThumb) topThumb.style.transform = isActive ? 'translateY(14px)' : '';
+  // Settings toggle
+  var cb = document.getElementById('syncModeToggle');
+  if(cb) cb.checked = isActive;
+  // Label
   var lbl = document.getElementById('syncModeLabel');
-  var map = { active: 'Sending mode — checks every 5 min', idle: 'Idle — checks once a day', paused: 'Paused — checks every 10 hrs' };
-  if(startBtn){ startBtn.style.background=_notionSyncMode==='active'?'var(--green-bg)':''; startBtn.style.color=_notionSyncMode==='active'?'var(--green)':''; startBtn.style.fontWeight=_notionSyncMode==='active'?'700':''; }
-  if(pauseBtn){ pauseBtn.style.background=_notionSyncMode==='paused'?'var(--amber-bg,#FEF3CD)':''; pauseBtn.style.color=_notionSyncMode==='paused'?'var(--amber)':''; pauseBtn.style.fontWeight=_notionSyncMode==='paused'?'700':''; }
-  if(lbl) lbl.textContent = map[_notionSyncMode] || '';
+  if(lbl) lbl.textContent = isActive ? 'On — checks every 5 min' : 'Off — checks once a day';
 }
 
 // Init — restore saved mode, first check after 30s
@@ -2822,15 +2831,15 @@ function updateNotionSyncUI(){
     checkForNotionChanges();
     setNotionSyncMode(_notionSyncMode);
   }, 30000);
-  // Wire buttons once DOM ready
+  // Wire toggle switches once DOM ready
   function wireSyncModeButtons(){
-    var s = document.getElementById('syncModeStart');
-    var p = document.getElementById('syncModePause');
-    if(s) s.addEventListener('click', function(){
+    var topBtn = document.getElementById('sendingModeBtn');
+    var cb     = document.getElementById('syncModeToggle');
+    if(topBtn) topBtn.addEventListener('click', function(){
       setNotionSyncMode(_notionSyncMode === 'active' ? 'idle' : 'active');
     });
-    if(p) p.addEventListener('click', function(){
-      setNotionSyncMode(_notionSyncMode === 'paused' ? 'idle' : 'paused');
+    if(cb) cb.addEventListener('change', function(){
+      setNotionSyncMode(this.checked ? 'active' : 'idle');
     });
     updateNotionSyncUI();
   }
