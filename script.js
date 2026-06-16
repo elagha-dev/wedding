@@ -1578,6 +1578,21 @@ if (newRsvpBtn2) {
 
   /* ── Read guest params ── */
   var params      = new URLSearchParams(window.location.search);
+
+  /* Decode pretty ?w= URLs (e.g. ?w=elnur-arina&v=1) */
+  var _w = (params.get('w') || '').trim();
+  if (_w) {
+    var _cap = function(s) { return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase(); };
+    var _parts = _w.split('-');
+    if (_parts.length >= 2) {
+      if (!params.get('p1')) params.set('p1', _cap(_parts[0]));
+      if (!params.get('p2')) params.set('p2', _cap(_parts.slice(1).join('-')));
+    } else {
+      if (!params.get('p1')) params.set('p1', _cap(_parts[0]));
+    }
+    if (params.get('v') === '1' && !params.get('party')) params.set('party', '1');
+  }
+
   var p1          = (params.get('p1')   || '').trim();
   var p2          = (params.get('p2')   || '').trim();
   var hasParty    = params.get('party') === '1';
