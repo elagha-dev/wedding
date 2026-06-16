@@ -646,6 +646,96 @@
       }
     }
   </style>
+
+  <!-- ============================================================
+       EXPERIMENTAL — RSVP pointer + mobile fullscreen takeover
+       This block only exists in this playground copy. The live
+       index.html / styles.css were not touched. Everything here
+       is scoped to ≤920px so the laptop layout is untouched.
+       ============================================================ -->
+  <style>
+    @media (max-width: 920px) {
+
+      /* Floating "RSVP →" pointer */
+      #rsvpPointerFab {
+        position: fixed;
+        right: 16px;
+        bottom: 20px;
+        z-index: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: var(--ink, #31271C);
+        color: #F7F1EA;
+        font-family: WeddingSerif, Georgia, serif;
+        font-size: 13px;
+        letter-spacing: .03em;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 999px;
+        box-shadow: 0 8px 22px rgba(49,39,28,.32);
+        opacity: 0;
+        transform: translateY(14px);
+        transition: opacity .35s ease, transform .35s ease;
+        pointer-events: none;
+      }
+      #rsvpPointerFab.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+      }
+
+      /* Fullscreen "pop" takeover of the RSVP card */
+      .rsvp-card.is-rsvp-fullscreen {
+        position: fixed !important;
+        inset: 0;
+        width: 100vw;
+        height: 100vh;
+        max-height: 100vh;
+        margin: 0;
+        z-index: 9000;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        border: none;
+        background: var(--bg, #fff);
+        padding: 26px 22px 50px;
+        animation: rsvpFullscreenPop .4s cubic-bezier(.22,1,.36,1);
+      }
+      .rsvp-card.is-rsvp-exiting {
+        animation: rsvpFullscreenPop .25s ease reverse;
+      }
+      @keyframes rsvpFullscreenPop {
+        from { opacity: 0; transform: scale(.94); }
+        to   { opacity: 1; transform: scale(1); }
+      }
+      body.rsvp-fullscreen-lock {
+        overflow: hidden;
+        height: 100%;
+      }
+
+      /* Exit (×) button — only rendered visible while fullscreen */
+      .rsvp-fullscreen-exit-btn { display: none; }
+      .rsvp-card.is-rsvp-fullscreen .rsvp-fullscreen-exit-btn {
+        display: flex;
+        position: sticky;
+        top: 0;
+        float: right;
+        margin: -6px -6px 6px 0;
+        width: 34px;
+        height: 34px;
+        align-items: center;
+        justify-content: center;
+        background: var(--bg, #fff);
+        border: 1px solid rgba(98,78,56,.18);
+        border-radius: 50%;
+        color: rgba(98,78,56,.6);
+        font-size: 17px;
+        line-height: 1;
+        cursor: pointer;
+        z-index: 9001;
+      }
+    }
+  </style>
 </head>
 <body>
   <img src="couple-logo.png" class="logo" alt="Arina and Elnur logo" />
@@ -1259,5 +1349,104 @@
   </script>
   <script defer src="lang-apply.js"></script>
   <script defer src="script.js"></script>
+  <!-- ============================================================
+       EXPERIMENTAL — RSVP pointer + mobile fullscreen takeover (JS)
+       Mobile only (≤920px) — bails out immediately on laptop, so
+       the desktop experience is byte-for-byte the same as live.
+       ============================================================ -->
+  <script>
+  (function () {
+    if (!window.matchMedia('(max-width: 920px)').matches) return;
+
+    function ready(fn) {
+      if (document.readyState !== 'loading') fn();
+      else document.addEventListener('DOMContentLoaded', fn);
+    }
+
+    ready(function () {
+      var rsvpCard = document.querySelector('.rsvp-card');
+      if (!rsvpCard) return;
+
+      var hasEngaged = false; // once true, the auto-pop won't fire again this visit
+
+      /* ---------- 1. Floating "RSVP →" pointer ---------- */
+      var fab = document.createElement('button');
+      fab.type = 'button';
+      fab.id = 'rsvpPointerFab';
+      fab.textContent = 'RSVP →';
+      document.body.appendChild(fab);
+
+      fab.addEventListener('click', function () {
+        rsvpCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+
+      function updateFab() {
+        if (hasEngaged) { fab.classList.remove('is-visible'); return; }
+        var rect = rsvpCard.getBoundingClientRect();
+        var pastHero  = window.scrollY > window.innerHeight * 0.4;
+        var cardInView = rect.top < window.innerHeight * 0.85 && rect.bottom > 0;
+        fab.classList.toggle('is-visible', pastHero && !cardInView);
+      }
+
+      /* ---------- 2. Fullscreen "pop" takeover ---------- */
+      var exitBtn = document.createElement('button');
+      exitBtn.type = 'button';
+      exitBtn.className = 'rsvp-fullscreen-exit-btn';
+      exitBtn.setAttribute('aria-label', 'Exit full screen');
+      exitBtn.innerHTML = '&times;';
+      rsvpCard.insertBefore(exitBtn, rsvpCard.firstChild);
+
+      function engage() {
+        if (hasEngaged) return;
+        hasEngaged = true;
+        rsvpCard.classList.add('is-rsvp-fullscreen');
+        document.body.classList.add('rsvp-fullscreen-lock');
+        fab.classList.remove('is-visible');
+      }
+
+      function exit() {
+        if (!rsvpCard.classList.contains('is-rsvp-fullscreen')) return;
+        rsvpCard.classList.add('is-rsvp-exiting');
+        document.body.classList.remove('rsvp-fullscreen-lock');
+        setTimeout(function () {
+          rsvpCard.classList.remove('is-rsvp-fullscreen', 'is-rsvp-exiting');
+        }, 260);
+      }
+
+      exitBtn.addEventListener('click', exit);
+
+      function checkEngage() {
+        if (hasEngaged) return;
+        var rect = rsvpCard.getBoundingClientRect();
+        // Trigger once the card has scrolled up into the top half of the screen
+        if (rect.top < window.innerHeight * 0.45 && rect.bottom > 80) engage();
+      }
+
+      var ticking = false;
+      function onScroll() {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(function () {
+          updateFab();
+          checkEngage();
+          ticking = false;
+        });
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+
+      /* ---------- 3. Hand off to the existing success overlay ----------
+         On submit, the site's own #rsvpSuccess full-screen thank-you
+         modal takes over (it already has its own × close button and
+         already locks body scroll). When the visitor closes THAT
+         overlay or starts a new RSVP, we drop our own fullscreen mode
+         too, so they land back in the normal scrolling page. */
+      ['rsvpSuccessClose', 'newRsvpBtn', 'newRsvpBtn2'].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) el.addEventListener('click', exit);
+      });
+    });
+  })();
+  </script>
 </body>
 </html>

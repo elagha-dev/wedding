@@ -227,13 +227,13 @@ function loadContent() {
   "crew": {
     "groomSide": [
       { "name": "Islam",  "displayName": "Islam",  "photo": "isi.jpg",    "role": "Best Man", "email": "islamaghazada@gmail.com",  "phone": "+47 479 61 978" },
-      { "name": "Lars",   "displayName": "Lars",   "photo": "lars.png",   "role": "Groom's Man", "email": "lars.neuhausen@gmail.com",   "phone": "+31 6 10 00 95 29" },
-      { "name": "Lucas",  "displayName": "Lucas",  "photo": "lucas.png",  "role": "Groom's Man", "email": "heidenreich.lu@gmail.com",  "phone": "+49 178 3752258" }
+      { "name": "Lars",   "displayName": "Lars",   "photo": "lars.jpg",   "role": "Groom's Man", "email": "lars.neuhausen@gmail.com",   "phone": "+31 6 10 00 95 29" },
+      { "name": "Lucas",  "displayName": "Lucas",  "photo": "lucas.jpg",  "role": "Groom's Man", "email": "heidenreich.lu@gmail.com",  "phone": "+49 178 3752258" }
     ],
     "brideSide": [
       { "name": "Alicja", "displayName": "Alicja", "photo": "alicja.jpg",  "role": "Maid of Honor","email": "alicjabialkowski@gmail.com","phone": "+49 176 23191761" },
-      { "name": "Kris",   "displayName": "Kris",   "photo": "kris.png",    "role": "Bride's Maid", "email": "kristinenaal@gmail.com",   "phone": "+47 456 66 148" },
-      { "name": "Valerie","displayName": "Valerie","photo": "valerie.png", "role": "Bride's Maid", "email": "valneuhausen@gmail.com","phone": "+31 6 10970211" }
+      { "name": "Kris",   "displayName": "Kris",   "photo": "kris.jpg",    "role": "Bride's Maid", "email": "kristinenaal@gmail.com",   "phone": "+47 456 66 148" },
+      { "name": "Valerie","displayName": "Valerie","photo": "valerie.jpg", "role": "Bride's Maid", "email": "valneuhausen@gmail.com","phone": "+31 6 10970211" }
     ],
     "pastorAndBand": [
       { "name": "Felipe", "displayName": "Pastor", "photo": "felipe.jpg", "role": "Pastor", "email": "felipe.schuerch@hillsong.de", "phone": "+49 175 2894775" },
