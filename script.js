@@ -1970,7 +1970,14 @@ if (newRsvpBtn2) {
 
   function scrollToRSVP() {
     var card = document.querySelector('.rsvp-card');
-    if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (card) {
+      var right = document.querySelector('.right');
+      if (right) {
+        right.scrollTop = card.offsetTop;
+      } else {
+        card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
     hideScrollLock();
   }
 
