@@ -166,8 +166,8 @@ window.I18N = {
     /* ── Soft Gate / Floating Card / Scroll Lock ── */
     gateSalutation   : "You are invited,",
     gateSeatsText    : "We kindly request the honour of your presence",
-    gateBody         : "After the ceremony in the church, I would love you to stay for a <strong>small reception</strong> outside the church building. I would love to have a <strong>bring-and-share</strong>, meaning you are invited to bring cakes, pies, or finger food to share. If you would like to take part, you can sign up later. ♡",
-    gateNote         : "",
+    gateBody         : "After the ceremony, we would love you to stay for a small <strong>Reception</strong> outside the church building. We would like to have a <strong>Bring & Share</strong> and would really appreciate guests bringing cakes, pies, or finger food to share.",
+    gateNote         : "If you would like to contribute to the <strong>Bring & Share</strong>, you can sign up later when you respond to the invitation. ♡",
     gateCtaBtn       : "Confirm My Attendance →",
     gateSkipBtn      : "I'll explore first",
     scrollLockTitle  : "One moment, {name}",
@@ -353,26 +353,26 @@ window.I18N = {
       "<p>Wir freuen uns so sehr, euch an unserem Hochzeitstag bei uns zu haben — einem der wichtigsten Tage unseres Lebens. Wir möchten ihn nicht ohne euch erleben.</p>" +
       "<p>Bitte kommt bis <strong>13:30</strong> — die Trauung beginnt pünktlich um <strong>14:00 Uhr</strong></p><div class=\"loc-chip\">⛪ Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
       "<p>🥂 Abendempfang ab <strong>17:00 Uhr</strong></p><div class=\"loc-chip\">🥂 Rheinliebe am Deich &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Heerstra%C3%9Fe+45,+40549+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
-      "<p>Im Anschluss an die Zeremonie laden wir euch herzlich ein, zu einem <strong>kleinen Empfang</strong> / „Bring and Share“</strong> außerhalb des Kirchengebäudes zu bleiben</p>" +
+      "<p>Im Anschluss an die Zeremonie laden wir euch herzlich ein, zu einem kleinen<strong>Empfang</strong> / <strong>„Bring and Share“</strong> außerhalb des Kirchengebäudes zu bleiben</p>" +
       "<p class=\"deadline\">Bitte bestätigt eure Teilnahme bis zum <strong>18. September</strong>.</p>",
 
     greetingLetterPartySingle:
       "<p>Wir freuen uns so sehr, dich an unserem Hochzeitstag bei uns zu haben — einem der wichtigsten Tage unseres Lebens. Wir möchten ihn nicht ohne dich erleben.</p>" +
       "<p>Bitte komm bis <strong>13:30</strong> — die Trauung beginnt pünktlich um <strong>14:00 Uhr</strong></p><div class=\"loc-chip\">⛪ Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
       "<p>🥂 Abendempfang ab <strong>17:00 Uhr</strong></p><div class=\"loc-chip\">🥂 Rheinliebe am Deich &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Heerstra%C3%9Fe+45,+40549+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
-      "<p>Im Anschluss an die Zeremonie laden wir euch herzlich ein, zu einem <strong>kleinen Empfang</strong> / „Bring and Share“</strong> außerhalb des Kirchengebäudes zu bleiben</p>" +
+      "<p>Im Anschluss an die Zeremonie laden wir euch herzlich ein, zu einem kleinen<strong>Empfang</strong> / <strong>„Bring and Share“</strong> außerhalb des Kirchengebäudes zu bleiben</p>" +
       "<p class=\"deadline\">Bitte bestätige deine Teilnahme bis zum <strong>18. September</strong>.</p>",
 
     greetingLetterCeremony:
       "<p>Wir laden euch herzlich ein, einen der bedeutsamsten Momente unseres Lebens mitzuerleben — unsere Hochzeitszeremonie.</p>" +
       "<p>Bitte kommt bis <strong>13:30</strong> — die Trauung beginnt pünktlich um <strong>14:00 Uhr</strong></p><div class=\"loc-chip\">⛪ Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
-      "<p>Im Anschluss an die Zeremonie laden wir euch herzlich ein, zu einem <strong>kleinen Empfang</strong> / „Bring and Share“</strong> außerhalb des Kirchengebäudes zu bleiben</p>" +
+      "<p>Im Anschluss an die Zeremonie laden wir euch herzlich ein, zu einem kleinen<strong>Empfang</strong> / <strong>„Bring and Share“</strong> außerhalb des Kirchengebäudes zu bleiben</p>" +
       "<p class=\"deadline\">Bitte bestätigt eure Teilnahme bis zum <strong>18. September</strong>.</p>",
 
     greetingLetterCeremonySingle:
       "<p>Wir laden dich herzlich ein, einen der bedeutsamsten Momente unseres Lebens mitzuerleben — unsere Hochzeitszeremonie.</p>" +
       "<p>Bitte komm bis <strong>13:30</strong> — die Trauung beginnt pünktlich um <strong>14:00 Uhr</strong></p><div class=\"loc-chip\">⛪ Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
-      "<p>Im Anschluss an die Zeremonie laden wir euch herzlich ein, zu einem <strong>kleinen Empfang</strong> / „Bring and Share“</strong> außerhalb des Kirchengebäudes zu bleiben</p>" +
+      "<p>Im Anschluss an die Zeremonie laden wir euch herzlich ein, zu einem kleinen<strong>Empfang</strong> / <strong>„Bring and Share“</strong> außerhalb des Kirchengebäudes zu bleiben</p>" +
       "<p class=\"deadline\">Bitte bestätige deine Teilnahme bis zum <strong>18. September</strong>.</p>",
 
     step1Label    : "Schritt 1 von 3 — Eure Daten",
@@ -444,8 +444,8 @@ window.I18N = {
     /* ── Soft Gate / Floating Card / Scroll Lock ── */
     gateSalutation   : "Ihr seid herzlich eingeladen,",
     gateSeatsText    : "Wir freuen uns auf eure Anwesenheit",
-    gateBody         : "Im Anschluss an die Zeremonie laden wir euch herzlich ein, zu einem <strong>kleinen Empfang</strong> außerhalb des Kirchengebäudes zu bleiben. Wir möchten ein <strong>„Bring and Share“</strong> machen, das bedeutet: Ihr könnt Kuchen, Torten oder Fingerfood zum Teilen mitbringen. Wenn ihr teilnehmen möchtet, könnt ihr euch später anmelden. ♡",
-    gateNote         : "",
+    gateBody         : "Im Anschluss an die Zeremonie laden wir euch herzlich ein, zu einem kleinen<strong>Empfang</strong> außerhalb des Kirchengebäudes zu bleiben. Wir möchten ein <strong>Bring & Share</strong> machen und würden uns sehr freuen, wenn Gäste Kuchen, Torten oder Fingerfood zum Teilen mitbringen.",
+    gateNote         : "Wenn ihr zum <strong>Bring & Share</strong> beitragen möchtet, könnt ihr euch später bei eurer Rückmeldung zur Einladung anmelden. ♡",
     gateCtaBtn       : "Teilnahme bestätigen →",
     gateSkipBtn      : "Ich schaue mich erst um",
     scrollLockTitle  : "Kurz innehalten, {name}",
@@ -714,8 +714,8 @@ window.I18N = {
     /* ── Soft Gate / Floating Card / Scroll Lock ── */
     gateSalutation   : "Вы приглашены,",
     gateSeatsText    : "Мы будем рады видеть вас",
-    gateBody         : "После церемонии мы будем рады, если вы останетесь на небольшой приём у здания церкви. Мы хотели бы организовать <strong>«bring and share»</strong>, то есть вы можете принести торт, пирог или закуски для всех. Если вы хотите участвовать, вы сможете записаться позже. ♡",
-    gateNote         : "",
+    gateBody         : "После церемонии мы будем рады, если вы останетесь на небольшой приём у здания церкви. Мы хотели бы организовать <strong>Bring & Share</strong> и будем очень благодарны, если гости принесут торт, пирог или закуски для всех.вы можете принести торт, пирог или закуски для всех. Если вы хотите участвовать, вы сможете записаться позже.",
+    gateNote         : "Если вы хотите принять участие в <strong>Bring & Share</strong>, вы сможете записаться позже, когда будете отвечать на приглашение. ♡",
     gateCtaBtn       : "Подтвердить участие →",
     gateSkipBtn      : "Сначала посмотрю сайт",
     scrollLockTitle  : "Одну секунду, {name}",
