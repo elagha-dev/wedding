@@ -79,11 +79,9 @@ window.I18N = {
       "<p class=\"deadline\">Please confirm your attendance by <strong>18 September</strong>.</p>",
 
     greetingLetterCeremony:
-      "<p>Get together <strong>13:30</strong> → Ceremony: <strong>14:00</strong> → Bring & Share Reception: <strong>15:00-16:00</strong></p><div class=\"loc-chip\">⛪ Schlosskirche &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
       "<p class=\"deadline\">Please confirm your attendance by <strong>18 September</strong>.</p>",
 
     greetingLetterCeremonySingle:
-      "<p>Get together <strong>13:30</strong> → Ceremony: <strong>14:00</strong> → Bring & Share Reception: <strong>15:00-16:00</strong></p><div class=\"loc-chip\">⛪ Schlosskirche &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
       "<p class=\"deadline\">Please confirm your attendance by <strong>18 September</strong>.</p>",
 
     /* ── RSVP Wizard ── */
@@ -358,11 +356,9 @@ window.I18N = {
       "<p class=\"deadline\">Bitte bestätige deine Teilnahme bis zum <strong>18. September</strong>.</p>",
 
     greetingLetterCeremony:
-      "<p>Ankommen <strong>13:30</strong> → Zeremonie: <strong>14:00</strong> → Bring & Share Empfang: <strong>15:00-16:00</strong></p><div class=\"loc-chip\">⛪ Schlosskirche &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
       "<p class=\"deadline\">Bitte bestätigt eure Teilnahme bis zum <strong>18. September</strong>.</p>",
 
     greetingLetterCeremonySingle:
-      "<p>Ankommen <strong>13:30</strong> → Zeremonie: <strong>14:00</strong> → Bring & Share Empfang: <strong>15:00-16:00</strong></p><div class=\"loc-chip\">⛪ Schlosskirche &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
       "<p class=\"deadline\">Bitte bestätige deine Teilnahme bis zum <strong>18. September</strong>.</p>",
 
     step1Label    : "Schritt 1 von 3 — Eure Daten",
@@ -624,11 +620,9 @@ window.I18N = {
       "<p class=\"deadline\">Пожалуйста, подтверди участие до <strong>18 сентября</strong>.</p>",
 
     greetingLetterCeremony:
-      "<p>Сбор гостей <strong>13:30</strong> → Церемония: <strong>14:00</strong> → Bring & Share приём: <strong>15:00-16:00</strong></p><div class=\"loc-chip\">⛪ Schlosskirche &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
       "<p class=\"deadline\">Пожалуйста, подтвердите участие до <strong>18 сентября</strong>.</p>",
 
     greetingLetterCeremonySingle:
-      "<p>Сбор гостей <strong>13:30</strong> → Церемония: <strong>14:00</strong> → Bring & Share приём: <strong>15:00-16:00</strong></p><div class=\"loc-chip\">⛪ Schlosskirche &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
       "<p class=\"deadline\">Пожалуйста, подтверди участие до <strong>18 сентября</strong>.</p>",
 
     step1Label    : "Шаг 1 из 3 — Ваши данные",
@@ -699,8 +693,8 @@ window.I18N = {
 
     /* ── Soft Gate / Floating Card / Scroll Lock ── */
     gateSalutation   : "Вы приглашены,",
-    gateSeatsText    : "Мы будем рады видеть вас",
-    gateBody         : "Сбор гостей <strong>13:30</strong> → Церемония: <strong>14:00</strong> → Bring & Share приём: <strong>15:00-16:00</strong></br>После церемонии мы будем рады, если вы останетесь на небольшой приём у здания церкви. Мы хотели бы организовать <strong>Bring & Share</strong> и будем очень благодарны, если гости принесут торт, пирог или закуски для всех.вы можете принести торт, пирог или закуски для всех. Если вы хотите участвовать, вы сможете записаться позже.",
+    gateSeatsText    : "Местоположение: Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a>",
+    gateBody         : "Сбор гостей <strong>13:30</strong> → Церемония: <strong>14:00</strong> → Bring & Share приём: <strong>15:00-16:00</strong></br>После церемонии мы будем рады, если вы останетесь на небольшой <strong>приём</strong> у здания церкви. Мы хотели бы организовать <strong>Bring & Share</strong> и будем очень благодарны, если гости принесут торт, пирог или закуски для всех.вы можете принести торт, пирог или закуски для всех. Если вы хотите участвовать, вы сможете записаться позже.",
     gateNote         : "Если вы хотите принять участие в <strong>Bring & Share</strong>, вы сможете записаться позже, когда будете отвечать на приглашение. ♡",
     gateCtaBtn       : "Подтвердить участие →",
     gateSkipBtn      : "Сначала посмотрю сайт",
