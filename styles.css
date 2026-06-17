@@ -495,33 +495,6 @@ p {
   border-color: var(--ink);
 }
 
-/* ── RSVP scroll hint ───────────────────────────────────── */
-.rsvp-scroll-hint {
-  position: sticky;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: center;
-  pointer-events: none;
-  opacity: 1;
-  transition: opacity .4s ease;
-  margin: 0 -clamp(20px,2.4vw,36px) 0;
-  padding: 18px 0 10px;
-  background: linear-gradient(to bottom, transparent, rgba(235,226,218,.92) 55%);
-}
-.rsvp-scroll-hint.is-hidden { opacity: 0; }
-.rsvp-scroll-hint-chevron {
-  font-size: 16px;
-  color: var(--muted);
-  animation: rsvpBounce 1.6s ease-in-out infinite;
-  display: block;
-}
-@keyframes rsvpBounce {
-  0%, 100% { transform: translateY(0); }
-  50%       { transform: translateY(5px); }
-}
-
 /* ── In-card submitted state ────────────────────────────── */
 .rsvp-card-thanks {
   display: none;

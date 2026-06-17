@@ -2142,31 +2142,3 @@ if (newRsvpBtn2) {
     URL.revokeObjectURL(url);
   });
 })();
-
-/* ── RSVP card scroll hint ──────────────────────────────── */
-(function() {
-  var card = document.querySelector('.rsvp-card');
-  var hint = document.getElementById('rsvpScrollHint');
-  if (!card || !hint) return;
-
-  var updating = false;
-  function updateHint() {
-    if (updating) return;
-    updating = true;
-    var overflows = card.scrollHeight > card.clientHeight + 8;
-    var nearBottom = card.scrollTop + card.clientHeight >= card.scrollHeight - 32;
-    if (!overflows || nearBottom) {
-      hint.classList.add('is-hidden');
-    } else {
-      hint.classList.remove('is-hidden');
-    }
-    updating = false;
-  }
-
-  var observer = new MutationObserver(updateHint);
-  observer.observe(card, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
-
-  card.addEventListener('scroll', updateHint, { passive: true });
-  window.addEventListener('resize', updateHint, { passive: true });
-  setTimeout(updateHint, 200);
-})();
