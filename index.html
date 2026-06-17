@@ -31,11 +31,11 @@
   <link rel="stylesheet" href="styles.css?v=9" />
 
   <!-- i18n: must load before script.js -->
-  <script defer src="i18n.js"></script>
+  <script src="i18n.js"></script>
 
-  <!-- Cloudflare Web Analytics removed — was triggering Safari's tracking
-       protection warning and slow loads. Re-add via Cloudflare dashboard
-       (Analytics → Web Analytics) if you want it back later. -->
+  <!-- Cloudflare -->
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
+          data-cf-beacon='{"token":"40223123959b40ce8820f84cd8bbae11"}'></script>
   <style>
     /* ── Consistent serif font on RSVP form elements only ──────
        Browsers don't inherit font into inputs/selects by default. */
@@ -201,11 +201,10 @@
     }
     .attend-btn {
       flex: 1 1 auto;
-      min-width: 90px;
-      max-width: 220px;
-      width: max-content;
+      min-width: 100px;
+      max-width: 160px;
       height: 32px;
-      padding: 0 14px;
+      padding: 0 10px;
       border: 1px solid rgba(49,39,28,.22);
       background: transparent;
       font-family: WeddingSerif, Georgia, serif;
@@ -214,7 +213,6 @@
       text-transform: uppercase;
       color: rgba(49,39,28,.45);
       cursor: pointer;
-      white-space: nowrap;
       transition: background .15s, color .15s, border-color .15s;
       border-radius: 0;
     }
@@ -1090,7 +1088,7 @@
         <div class="bs-kicker">Bring &amp; Share</div>
         <h3 class="bs-title"><span data-i18n="bsStep2Title">About your food</span></h3>
 
-        <div class="bs-label"><span><span data-i18n="bsFoodTypeLabel">What type of food?</span></span>
+        <div class="bs-label"><span><span data-i18n="bsFoodTypeLabel">What type of food? *</span></span>
           <div class="bs-checks">
             <label class="bs-check"><input type="checkbox" name="food_type" value="Vegan" /><span data-i18n="bsFoodVegan">Vegan</span></label>
             <label class="bs-check"><input type="checkbox" name="food_type" value="Vegetarian" /><span data-i18n="bsFoodVeg">Vegetarian</span></label>
@@ -1259,7 +1257,7 @@
     } else { initKathiCard(); }
   })();
   </script>
-  <script defer src="lang-apply.js"></script>
-  <script defer src="script.js"></script>
+  <script src="lang-apply.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>

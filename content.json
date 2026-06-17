@@ -37,7 +37,7 @@
       {
         "name": "Lars",
         "displayName": "Lars",
-        "photo": "lars.jpg",
+        "photo": "lars.png",
         "role": "Groom's Man",
         "email": "lars.neuhausen@gmail.com",
         "phone": "+31 6 10 00 95 29"
@@ -45,7 +45,7 @@
       {
         "name": "Lucas",
         "displayName": "Lucas",
-        "photo": "lucas.jpg",
+        "photo": "lucas.png",
         "role": "Groom's Man",
         "email": "heidenreich.lu@gmail.com",
         "phone": "+49 178 3752258"
@@ -63,7 +63,7 @@
       {
         "name": "Kris",
         "displayName": "Kris",
-        "photo": "kris.jpg",
+        "photo": "kris.png",
         "role": "Bride's Maid",
         "email": "kristinenaal@gmail.com",
         "phone": "+47 456 66 148"
@@ -71,7 +71,7 @@
       {
         "name": "Valerie",
         "displayName": "Valerie",
-        "photo": "valerie.jpg",
+        "photo": "valerie.png",
         "role": "Bride's Maid",
         "email": "valneuhausen@gmail.com",
         "phone": "+31 6 10970211"

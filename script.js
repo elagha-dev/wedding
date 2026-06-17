@@ -227,13 +227,13 @@ function loadContent() {
   "crew": {
     "groomSide": [
       { "name": "Islam",  "displayName": "Islam",  "photo": "isi.jpg",    "role": "Best Man", "email": "islamaghazada@gmail.com",  "phone": "+47 479 61 978" },
-      { "name": "Lars",   "displayName": "Lars",   "photo": "lars.jpg",   "role": "Groom's Man", "email": "lars.neuhausen@gmail.com",   "phone": "+31 6 10 00 95 29" },
-      { "name": "Lucas",  "displayName": "Lucas",  "photo": "lucas.jpg",  "role": "Groom's Man", "email": "heidenreich.lu@gmail.com",  "phone": "+49 178 3752258" }
+      { "name": "Lars",   "displayName": "Lars",   "photo": "lars.png",   "role": "Groom's Man", "email": "lars.neuhausen@gmail.com",   "phone": "+31 6 10 00 95 29" },
+      { "name": "Lucas",  "displayName": "Lucas",  "photo": "lucas.png",  "role": "Groom's Man", "email": "heidenreich.lu@gmail.com",  "phone": "+49 178 3752258" }
     ],
     "brideSide": [
       { "name": "Alicja", "displayName": "Alicja", "photo": "alicja.jpg",  "role": "Maid of Honor","email": "alicjabialkowski@gmail.com","phone": "+49 176 23191761" },
-      { "name": "Kris",   "displayName": "Kris",   "photo": "kris.jpg",    "role": "Bride's Maid", "email": "kristinenaal@gmail.com",   "phone": "+47 456 66 148" },
-      { "name": "Valerie","displayName": "Valerie","photo": "valerie.jpg", "role": "Bride's Maid", "email": "valneuhausen@gmail.com","phone": "+31 6 10970211" }
+      { "name": "Kris",   "displayName": "Kris",   "photo": "kris.png",    "role": "Bride's Maid", "email": "kristinenaal@gmail.com",   "phone": "+47 456 66 148" },
+      { "name": "Valerie","displayName": "Valerie","photo": "valerie.png", "role": "Bride's Maid", "email": "valneuhausen@gmail.com","phone": "+31 6 10970211" }
     ],
     "pastorAndBand": [
       { "name": "Felipe", "displayName": "Pastor", "photo": "felipe.jpg", "role": "Pastor", "email": "felipe.schuerch@hillsong.de", "phone": "+49 175 2894775" },
@@ -532,25 +532,7 @@ function fillNameFromGuests() {
     firstField.value = checked.join(' & ');
     if (lastField) lastField.value = '';
   }
-  autoFitNameField(firstField);
 }
-
-/* Shrinks font-size for long combined names so they fit without being clipped */
-function autoFitNameField(field) {
-  if (!field) return;
-  var len = (field.value || '').length;
-  var size;
-  if (len <= 16)      size = 12;
-  else if (len <= 22) size = 11;
-  else if (len <= 28) size = 10;
-  else if (len <= 34) size = 9;
-  else                size = 8;
-  field.style.fontSize = size + 'px';
-}
-(function() {
-  var fnField = document.querySelector('[name="first_name"]');
-  if (fnField) fnField.addEventListener('input', function() { autoFitNameField(fnField); });
-})();
 
 function buildGuestChecks(guests) {
   if (!guestChecksEl || !guests || !guests.length) return;
@@ -923,6 +905,12 @@ if (bsNext1) bsNext1.addEventListener("click", function() {
 
 if (bsBack2) bsBack2.addEventListener("click", function() { bsShow(bsStep1); });
 if (bsNext2) bsNext2.addEventListener("click", function() {
+  var foodTypes = document.querySelectorAll('input[name="food_type"]:checked');
+  if (!foodTypes.length) {
+    if (bsStatus) bsStatus.textContent = "Please select at least one food type.";
+    bsShow(bsStep2);
+    return;
+  }
   if (bsStatus) bsStatus.textContent = "";
   bsShow(bsStep3);
 });
@@ -1590,21 +1578,6 @@ if (newRsvpBtn2) {
 
   /* ── Read guest params ── */
   var params      = new URLSearchParams(window.location.search);
-
-  /* Decode pretty ?w= URLs (e.g. ?w=elnur-arina&v=1) */
-  var _w = (params.get('w') || '').trim();
-  if (_w) {
-    var _cap = function(s) { return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase(); };
-    var _parts = _w.split('-');
-    if (_parts.length >= 2) {
-      if (!params.get('p1')) params.set('p1', _cap(_parts[0]));
-      if (!params.get('p2')) params.set('p2', _cap(_parts.slice(1).join('-')));
-    } else {
-      if (!params.get('p1')) params.set('p1', _cap(_parts[0]));
-    }
-    if (params.get('v') === '1' && !params.get('party')) params.set('party', '1');
-  }
-
   var p1          = (params.get('p1')   || '').trim();
   var p2          = (params.get('p2')   || '').trim();
   var hasParty    = params.get('party') === '1';
@@ -1682,9 +1655,8 @@ if (newRsvpBtn2) {
     }
     #weGateCard .we-guestname {
       font-family: WeddingSerif, Georgia, serif;
-      font-size: clamp(20px, 8vw, 36px); font-weight: 300; color: #2A201A;
-      line-height: 1.15; margin-bottom: 18px; letter-spacing: -.01em;
-      overflow-wrap: break-word; word-break: break-word; hyphens: auto;
+      font-size: 36px; font-weight: 300; color: #2A201A;
+      line-height: 1.1; margin-bottom: 18px; letter-spacing: -.01em;
     }
     #weGateCard .we-seat-badge {
       display: inline-flex; align-items: center; gap: 6px;
@@ -1866,6 +1838,7 @@ if (newRsvpBtn2) {
 
     @media (max-width: 480px) {
       #weGateCard { padding: 32px 22px 26px; }
+      #weGateCard .we-guestname { font-size: 30px; }
       #weSeatCard { bottom: 72px; right: 14px; }
     }
   `;
