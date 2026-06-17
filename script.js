@@ -1566,12 +1566,21 @@ if (newRsvpBtn2) {
       setTimeout(function () {
         var beginBtn = document.getElementById('rsvpBeginBtn');
         if (beginBtn) beginBtn.click();
-        requestAnimationFrame(function() {
-          requestAnimationFrame(function() {
-            var target = document.querySelector('.rsvp-card');
-            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          });
-        });
+
+        var step1   = document.getElementById('wStep1');
+        var visible = step1 && step1.offsetParent !== null;
+        var target  = visible ? step1 : document.querySelector('.rsvp-card');
+        if (!target) return;
+
+        var ribbon        = document.getElementById('weRsvpDeadline');
+        var ribbonVisible = ribbon && ribbon.classList.contains('we-visible');
+        var topBuffer     = ribbonVisible ? 68 : 14;
+
+        var rect  = target.getBoundingClientRect();
+        var destY = window.pageYOffset + rect.top - topBuffer;
+        if (destY < 0) destY = 0;
+
+        window.scrollTo({ top: destY, behavior: 'smooth' });
       }, 260);
     }
   });
@@ -1645,9 +1654,6 @@ if (newRsvpBtn2) {
   /* ── Inject styles ── */
   var css = document.createElement('style');
   css.textContent = `
-    /* ── Keep room below the fixed deadline ribbon when scrolling here ── */
-    .rsvp-card { scroll-margin-top: 76px; }
-
     /* ── Soft Gate ─────────────────────────────── */
     #weGate {
       position: fixed; inset: 0; z-index: 8000;
@@ -1984,21 +1990,22 @@ if (newRsvpBtn2) {
       if (beginBtn) beginBtn.click();
     }
 
-    /* Wait two frames so the intro→wizard layout swap (height change)
-       has been painted before we measure the final position.
-       This is what makes the scroll land correctly on mobile, where the
-       whole page (not an inner panel) is the scroll container.
-       Anchor on .rsvp-card itself (not #wStep1) — that keeps the card
-       header as a visible buffer above Step 1 instead of jamming the
-       form flush against the top edge, and since the card sits right
-       after the invitation image section, this naturally leaves the
-       tail of that section visible above it too. */
-    requestAnimationFrame(function() {
-      requestAnimationFrame(function() {
-        var target = document.querySelector('.rsvp-card');
-        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      });
-    });
+    var step1   = document.getElementById('wStep1');
+    var visible = step1 && step1.offsetParent !== null;
+    var target  = visible ? step1 : document.querySelector('.rsvp-card');
+    if (!target) return;
+
+    /* getBoundingClientRect() forces a synchronous layout, so this is
+       always measuring the post-click DOM — no rAF/timing guesswork. */
+    var ribbon        = document.getElementById('weRsvpDeadline');
+    var ribbonVisible = ribbon && ribbon.classList.contains('we-visible');
+    var topBuffer     = ribbonVisible ? 68 : 14; /* ribbon height + gap, or just breathing room */
+
+    var rect = target.getBoundingClientRect();
+    var destY = window.pageYOffset + rect.top - topBuffer;
+    if (destY < 0) destY = 0;
+
+    window.scrollTo({ top: destY, behavior: 'smooth' });
   }
 
   function hideScrollLock() {
