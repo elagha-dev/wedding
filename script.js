@@ -1593,9 +1593,10 @@ function weScrollRsvpIntoView(target, topBufferPx) {
         var beginBtn = document.getElementById('rsvpBeginBtn');
         if (beginBtn) beginBtn.click();
 
-        var step1   = document.getElementById('wStep1');
-        var visible = step1 && step1.offsetParent !== null;
-        var target  = visible ? step1 : document.querySelector('.rsvp-card');
+        /* Target the card itself, not wStep1 — landing right at the
+           top of the step pushes the "01 / Participation" header
+           off-screen above it. */
+        var target = document.querySelector('.rsvp-card');
 
         var ribbon        = document.getElementById('weRsvpDeadline');
         var ribbonVisible = ribbon && ribbon.classList.contains('we-visible');
@@ -2013,9 +2014,10 @@ function weScrollRsvpIntoView(target, topBufferPx) {
         if (beginBtn) beginBtn.click();
       }
 
-      var step1   = document.getElementById('wStep1');
-      var visible = step1 && step1.offsetParent !== null;
-      var target  = visible ? step1 : document.querySelector('.rsvp-card');
+      /* Target the card itself, not wStep1 — landing right at the
+         top of the step pushes the "01 / Participation" header
+         off-screen above it. */
+      var target = document.querySelector('.rsvp-card');
 
       var ribbon        = document.getElementById('weRsvpDeadline');
       var ribbonVisible = ribbon && ribbon.classList.contains('we-visible');
