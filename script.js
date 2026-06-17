@@ -1564,10 +1564,16 @@ if (newRsvpBtn2) {
       e.preventDefault();
       closeOverlay();
       setTimeout(function () {
-        var rsvpCard = document.querySelector('.rsvp-card');
-        if (rsvpCard) rsvpCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
         var beginBtn = document.getElementById('rsvpBeginBtn');
         if (beginBtn) beginBtn.click();
+        requestAnimationFrame(function() {
+          requestAnimationFrame(function() {
+            var step1   = document.getElementById('wStep1');
+            var visible = step1 && step1.offsetParent !== null;
+            var target  = visible ? step1 : document.querySelector('.rsvp-card');
+            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          });
+        });
       }, 260);
     }
   });
@@ -1968,17 +1974,27 @@ if (newRsvpBtn2) {
     seatVisible = false;
   }
 
-  function scrollToRSVP() {
-    var card = document.querySelector('.rsvp-card');
-    if (card) {
-      var right = document.querySelector('.right');
-      if (right) {
-        right.scrollTop = card.offsetTop;
-      } else {
-        card.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }
+  function scrollToRSVP(opts) {
+    opts = opts || {};
     hideScrollLock();
+
+    if (opts.openWizard) {
+      var beginBtn = document.getElementById('rsvpBeginBtn');
+      if (beginBtn) beginBtn.click();
+    }
+
+    /* Wait two frames so the intro→wizard layout swap (height change)
+       has been painted before we measure where Step 1 actually sits.
+       This is what makes the scroll land correctly on mobile, where the
+       whole page (not an inner panel) is the scroll container. */
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        var step1   = document.getElementById('wStep1');
+        var visible = step1 && step1.offsetParent !== null;
+        var target  = visible ? step1 : document.querySelector('.rsvp-card');
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
   }
 
   function hideScrollLock() {
@@ -1999,9 +2015,7 @@ if (newRsvpBtn2) {
     showDeadline();
     gateSkipped = false;
     setTimeout(function() {
-      scrollToRSVP();
-      var beginBtn = document.getElementById('rsvpBeginBtn');
-      if (beginBtn) beginBtn.click();
+      scrollToRSVP({ openWizard: true });
     }, 500);
   });
 
@@ -2015,8 +2029,7 @@ if (newRsvpBtn2) {
   /* ── Seat card ── */
   document.getElementById('weSeatInner').addEventListener('click', function() {
     hideSeatCard();
-    scrollToRSVP();
-    /* NOTE: Do NOT auto-click rsvpBeginBtn — guest reads the note first */
+    scrollToRSVP({ openWizard: true });
   });
   document.getElementById('weSeatDismiss').addEventListener('click', function(e) {
     e.stopPropagation();
@@ -2026,10 +2039,7 @@ if (newRsvpBtn2) {
 
   /* ── Scroll lock buttons ── */
   document.getElementById('weScrollLockCta').addEventListener('click', function() {
-    hideScrollLock();
-    scrollToRSVP();
-    var beginBtn = document.getElementById('rsvpBeginBtn');
-    if (beginBtn) beginBtn.click();
+    scrollToRSVP({ openWizard: true });
   });
   document.getElementById('weScrollLockSkip').addEventListener('click', function() {
     hideScrollLock();
