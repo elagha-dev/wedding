@@ -1127,6 +1127,23 @@ if (bsSubmit) bsSubmit.addEventListener("click", async function() {
 
     /* Clear the old instructions container */
     if (instrEl) instrEl.innerHTML = '<p class="rsvp-intro-note">' + t('crewNote') + '</p>';
+
+    /* ── Mirror the same letter inside the form itself ──────
+       Guests now land directly in the RSVP form (the intro
+       step is skipped), so the witness message, arrival time
+       and location need to live here too — the intro/gate
+       copy above becomes a fallback for anyone who scrolls in
+       manually before the form auto-opens. ── */
+    if (rsvpWizardEl && !document.getElementById('rsvp-wizard-letter')) {
+      var wizardLetterBox = document.createElement('div');
+      wizardLetterBox.id        = 'rsvp-wizard-letter';
+      wizardLetterBox.className = 'rsvp-wizard-letter';
+      var wizardLetterInner = document.createElement('div');
+      wizardLetterInner.className = 'rsvp-greeting-letter';
+      wizardLetterInner.innerHTML = letterDiv.innerHTML;
+      wizardLetterBox.appendChild(wizardLetterInner);
+      rsvpWizardEl.insertAdjacentElement('afterbegin', wizardLetterBox);
+    }
   }
 
   /* ── "Begin your RSVP" button ───────────────────────────── */
@@ -1972,6 +1989,13 @@ if (newRsvpBtn2) {
     var card = document.querySelector('.rsvp-card');
     if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
     hideScrollLock();
+    /* Go straight into the RSVP form itself — skip the extra
+       "Begin your RSVP" tap so guests land directly on the form,
+       in the same canvas, without ever leaving the page. */
+    setTimeout(function() {
+      var beginBtn = document.getElementById('rsvpBeginBtn');
+      if (beginBtn) beginBtn.click();
+    }, 450);
   }
 
   function hideScrollLock() {
@@ -1992,8 +2016,7 @@ if (newRsvpBtn2) {
     showDeadline();
     gateSkipped = false;
     setTimeout(function() {
-      scrollToRSVP();
-      /* NOTE: Do NOT auto-click rsvpBeginBtn — guest reads the note in the RSVP intro first */
+      scrollToRSVP(); /* scrolls to the RSVP card and opens the form directly */
     }, 500);
   });
 
@@ -2007,8 +2030,7 @@ if (newRsvpBtn2) {
   /* ── Seat card ── */
   document.getElementById('weSeatInner').addEventListener('click', function() {
     hideSeatCard();
-    scrollToRSVP();
-    /* NOTE: Do NOT auto-click rsvpBeginBtn — guest reads the note first */
+    scrollToRSVP(); /* scrolls to the RSVP card and opens the form directly */
   });
   document.getElementById('weSeatDismiss').addEventListener('click', function(e) {
     e.stopPropagation();
@@ -2019,8 +2041,7 @@ if (newRsvpBtn2) {
   /* ── Scroll lock buttons ── */
   document.getElementById('weScrollLockCta').addEventListener('click', function() {
     hideScrollLock();
-    scrollToRSVP();
-    /* NOTE: Do NOT auto-click rsvpBeginBtn — guest reads the note first */
+    scrollToRSVP(); /* scrolls to the RSVP card and opens the form directly */
   });
   document.getElementById('weScrollLockSkip').addEventListener('click', function() {
     hideScrollLock();
