@@ -131,9 +131,9 @@
     }
     patchGreeting();
     /* Also watch for late injection */
-    var obs = new MutationObserver(function() { patchGreeting(); });
+    var obs = new MutationObserver(function() { obs.disconnect(); patchGreeting(); });
     obs.observe(rsvpIntro, { childList: true, subtree: true });
-    setTimeout(function() { patchGreeting(); obs.disconnect(); }, 600);
+    setTimeout(function() { obs.disconnect(); patchGreeting(); }, 600);
   }
 
   /* ── 10. Success overlay (shown on RSVP submit — patch showSuccessScreen) ── */
