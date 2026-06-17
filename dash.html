@@ -3387,7 +3387,7 @@ applyAppSettings();
 // doSyncSilent is exposed globally so it can also be called from other paths.
 function doSyncSilent(){
   var url = workerUrl; if(!url) return;
-  fetch(url)
+  fetch(url,{cache:'no-store'})
     .then(function(r){ return r.json(); })
     .then(function(data){
       var guests = Array.isArray(data) ? data : (data.results||data.guests||[]);
