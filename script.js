@@ -1568,9 +1568,7 @@ if (newRsvpBtn2) {
         if (beginBtn) beginBtn.click();
         requestAnimationFrame(function() {
           requestAnimationFrame(function() {
-            var step1   = document.getElementById('wStep1');
-            var visible = step1 && step1.offsetParent !== null;
-            var target  = visible ? step1 : document.querySelector('.rsvp-card');
+            var target = document.querySelector('.rsvp-card');
             if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
           });
         });
@@ -1984,14 +1982,17 @@ if (newRsvpBtn2) {
     }
 
     /* Wait two frames so the intro→wizard layout swap (height change)
-       has been painted before we measure where Step 1 actually sits.
+       has been painted before we measure the final position.
        This is what makes the scroll land correctly on mobile, where the
-       whole page (not an inner panel) is the scroll container. */
+       whole page (not an inner panel) is the scroll container.
+       Anchor on .rsvp-card itself (not #wStep1) — that keeps the card
+       header as a visible buffer above Step 1 instead of jamming the
+       form flush against the top edge, and since the card sits right
+       after the invitation image section, this naturally leaves the
+       tail of that section visible above it too. */
     requestAnimationFrame(function() {
       requestAnimationFrame(function() {
-        var step1   = document.getElementById('wStep1');
-        var visible = step1 && step1.offsetParent !== null;
-        var target  = visible ? step1 : document.querySelector('.rsvp-card');
+        var target = document.querySelector('.rsvp-card');
         if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
     });
