@@ -308,7 +308,7 @@ window.I18N = {
     countdownSec   : "Sek",
 
     card01Label : "Bitte antworten",
-    card01Title : "Participation",
+    card01Title : "Teilnahme",
     card02Label : "Unsere Geschichte",
     card02Title : "Unsere Geschichte",
     card03Label : "Unser Team",
@@ -578,7 +578,7 @@ window.I18N = {
     countdownSec   : "сек",
 
     card01Label : "Ждём ответа",
-    card01Title : "Participation",
+    card01Title : "Участие",
     card02Label : "Наша история",
     card02Title : "Наша история",
     card03Label : "Наша команда",
