@@ -1362,6 +1362,32 @@ if (newRsvpBtn2) {
   });
 }
 
+/* ── Shared: scroll the RSVP card/wizard into view ──────────
+   Desktop (≥921px) is a fixed two-pane layout — the page itself
+   never scrolls (html/body overflow:hidden); only .rsvp-card scrolls
+   internally. Mobile (≤920px) is a single column — the whole page
+   scrolls and .rsvp-card has no internal scroll of its own.
+   window.scrollTo() only ever covers the mobile case (and is a
+   silent no-op on desktop), so this checks which one actually
+   applies at call time and scrolls the right thing. */
+function weScrollRsvpIntoView(target, topBufferPx) {
+  if (!target) return;
+  var card        = document.querySelector('.rsvp-card');
+  var cardScrolls = card && card.scrollHeight > card.clientHeight + 1;
+
+  if (cardScrolls) {
+    /* Desktop: .rsvp-card is the scroll container. */
+    var targetTop = target.getBoundingClientRect().top
+                   - card.getBoundingClientRect().top
+                   + card.scrollTop;
+    card.scrollTo({ top: Math.max(targetTop - 8, 0), behavior: 'smooth' });
+  } else {
+    /* Mobile: the whole page scrolls. */
+    target.style.scrollMarginTop = (topBufferPx || 14) + 'px';
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
 
 /* ============================================================
    CARD ZOOM OVERLAY — Desktop only (≥ 921px)
@@ -1570,17 +1596,12 @@ if (newRsvpBtn2) {
         var step1   = document.getElementById('wStep1');
         var visible = step1 && step1.offsetParent !== null;
         var target  = visible ? step1 : document.querySelector('.rsvp-card');
-        if (!target) return;
 
         var ribbon        = document.getElementById('weRsvpDeadline');
         var ribbonVisible = ribbon && ribbon.classList.contains('we-visible');
         var topBuffer     = ribbonVisible ? 68 : 14;
 
-        var rect  = target.getBoundingClientRect();
-        var destY = window.pageYOffset + rect.top - topBuffer;
-        if (destY < 0) destY = 0;
-
-        window.scrollTo({ top: destY, behavior: 'smooth' });
+        weScrollRsvpIntoView(target, topBuffer);
       }, 260);
     }
   });
@@ -1983,29 +2004,35 @@ if (newRsvpBtn2) {
 
   function scrollToRSVP(opts) {
     opts = opts || {};
+    var wasLocked = lockActive;
     hideScrollLock();
 
-    if (opts.openWizard) {
-      var beginBtn = document.getElementById('rsvpBeginBtn');
-      if (beginBtn) beginBtn.click();
+    function go() {
+      if (opts.openWizard) {
+        var beginBtn = document.getElementById('rsvpBeginBtn');
+        if (beginBtn) beginBtn.click();
+      }
+
+      var step1   = document.getElementById('wStep1');
+      var visible = step1 && step1.offsetParent !== null;
+      var target  = visible ? step1 : document.querySelector('.rsvp-card');
+
+      var ribbon        = document.getElementById('weRsvpDeadline');
+      var ribbonVisible = ribbon && ribbon.classList.contains('we-visible');
+      var topBuffer     = ribbonVisible ? 68 : 14; /* ribbon height + gap, or just breathing room */
+
+      weScrollRsvpIntoView(target, topBuffer);
     }
 
-    var step1   = document.getElementById('wStep1');
-    var visible = step1 && step1.offsetParent !== null;
-    var target  = visible ? step1 : document.querySelector('.rsvp-card');
-    if (!target) return;
-
-    /* getBoundingClientRect() forces a synchronous layout, so this is
-       always measuring the post-click DOM — no rAF/timing guesswork. */
-    var ribbon        = document.getElementById('weRsvpDeadline');
-    var ribbonVisible = ribbon && ribbon.classList.contains('we-visible');
-    var topBuffer     = ribbonVisible ? 68 : 14; /* ribbon height + gap, or just breathing room */
-
-    var rect = target.getBoundingClientRect();
-    var destY = window.pageYOffset + rect.top - topBuffer;
-    if (destY < 0) destY = 0;
-
-    window.scrollTo({ top: destY, behavior: 'smooth' });
+    /* If the scroll-lock backdrop was up, its .5s fade is still covering
+       the screen — wait for it to clear before opening/scrolling to the
+       wizard. Triggering it immediately is what made the wizard appear
+       to "bleed" through the still-dissolving overlay. */
+    if (wasLocked) {
+      setTimeout(go, 520);
+    } else {
+      go();
+    }
   }
 
   function hideScrollLock() {
@@ -2027,7 +2054,9 @@ if (newRsvpBtn2) {
     gateSkipped = false;
     setTimeout(function() {
       scrollToRSVP({ openWizard: true });
-    }, 500);
+    }, 720); /* gate fades over .7s — wait it out so the wizard
+                 doesn't appear/scroll while it's still dissolving
+                 over the invite section */
   });
 
   document.getElementById('weGateSkip').addEventListener('click', function() {
@@ -2040,7 +2069,9 @@ if (newRsvpBtn2) {
   /* ── Seat card ── */
   document.getElementById('weSeatInner').addEventListener('click', function() {
     hideSeatCard();
-    scrollToRSVP({ openWizard: true });
+    setTimeout(function() {
+      scrollToRSVP({ openWizard: true });
+    }, 560); /* seat card fades over .55s */
   });
   document.getElementById('weSeatDismiss').addEventListener('click', function(e) {
     e.stopPropagation();
