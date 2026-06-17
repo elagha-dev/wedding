@@ -532,7 +532,25 @@ function fillNameFromGuests() {
     firstField.value = checked.join(' & ');
     if (lastField) lastField.value = '';
   }
+  autoFitNameField(firstField);
 }
+
+/* Shrinks font-size for long combined names so they fit without being clipped */
+function autoFitNameField(field) {
+  if (!field) return;
+  var len = (field.value || '').length;
+  var size;
+  if (len <= 16)      size = 12;
+  else if (len <= 22) size = 11;
+  else if (len <= 28) size = 10;
+  else if (len <= 34) size = 9;
+  else                size = 8;
+  field.style.fontSize = size + 'px';
+}
+(function() {
+  var fnField = document.querySelector('[name="first_name"]');
+  if (fnField) fnField.addEventListener('input', function() { autoFitNameField(fnField); });
+})();
 
 function buildGuestChecks(guests) {
   if (!guestChecksEl || !guests || !guests.length) return;
@@ -1664,8 +1682,9 @@ if (newRsvpBtn2) {
     }
     #weGateCard .we-guestname {
       font-family: WeddingSerif, Georgia, serif;
-      font-size: 36px; font-weight: 300; color: #2A201A;
-      line-height: 1.1; margin-bottom: 18px; letter-spacing: -.01em;
+      font-size: clamp(20px, 8vw, 36px); font-weight: 300; color: #2A201A;
+      line-height: 1.15; margin-bottom: 18px; letter-spacing: -.01em;
+      overflow-wrap: break-word; word-break: break-word; hyphens: auto;
     }
     #weGateCard .we-seat-badge {
       display: inline-flex; align-items: center; gap: 6px;
@@ -1847,7 +1866,6 @@ if (newRsvpBtn2) {
 
     @media (max-width: 480px) {
       #weGateCard { padding: 32px 22px 26px; }
-      #weGateCard .we-guestname { font-size: 30px; }
       #weSeatCard { bottom: 72px; right: 14px; }
     }
   `;
