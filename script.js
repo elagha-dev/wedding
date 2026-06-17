@@ -1645,6 +1645,9 @@ if (newRsvpBtn2) {
   /* ── Inject styles ── */
   var css = document.createElement('style');
   css.textContent = `
+    /* ── Keep room below the fixed deadline ribbon when scrolling here ── */
+    .rsvp-card { scroll-margin-top: 76px; }
+
     /* ── Soft Gate ─────────────────────────────── */
     #weGate {
       position: fixed; inset: 0; z-index: 8000;
