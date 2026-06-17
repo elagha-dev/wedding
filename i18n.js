@@ -79,17 +79,11 @@ window.I18N = {
       "<p class=\"deadline\">Please confirm your attendance by <strong>18 September</strong>.</p>",
 
     greetingLetterCeremony:
-      "<p>Ceremony begins at: <strong>14:00</strong></p>" +
-      "<p>Please arrive at: <strong>13:30</strong></p>" +
-      "<p><div class=\"loc-chip\">⛪ Schlosskirche &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div></p>" +
-      "<p>After the ceremony, we would love you to stay for a <strong>small reception</strong> / <strong>bring-and-share</strong> outside the church building.</p>" +
+      "<p>Get together <strong>13:30</strong> → Ceremony: <strong>14:00</strong> → Bring & Share Reception: <strong>15:00-16:00</strong></p><div class=\"loc-chip\">⛪ Schlosskirche &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
       "<p class=\"deadline\">Please confirm your attendance by <strong>18 September</strong>.</p>",
 
     greetingLetterCeremonySingle:
-      "<p>Ceremony begins at: <strong>14:00</strong></p>" +
-      "<p>Please arrive at: <strong>13:30</strong></p>" +
-      "<p><div class=\"loc-chip\">⛪ Schlosskirche &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div></p>" +
-      "<p>After the ceremony, we would love you to stay for a <strong>small reception</strong> / <strong>bring-and-share</strong> outside the church building.</p>" +
+      "<p>Get together <strong>13:30</strong> → Ceremony: <strong>14:00</strong> → Bring & Share Reception: <strong>15:00-16:00</strong></p><div class=\"loc-chip\">⛪ Schlosskirche &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
       "<p class=\"deadline\">Please confirm your attendance by <strong>18 September</strong>.</p>",
 
     /* ── RSVP Wizard ── */
@@ -164,8 +158,8 @@ window.I18N = {
     bannerText: "📋 Please confirm your attendance",
 
     /* ── Soft Gate / Floating Card / Scroll Lock ── */
-    gateSalutation   : "You are invited,",
-    gateSeatsText    : "We kindly request the honour of your presence at our Wedding Ceremony<br>Time<strong>14:00</strong> Please arrive by 13:30<br>Location: Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a>",
+    gateSalutation   : "You are invited to our Weddign Ceremony",
+    gateSeatsText    : "Time<strong>14:00</strong> &nbsp;·&nbsp; Location: Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a>",
     gateBody         : "After the ceremony, we would love you to stay for a small <strong>Reception</strong> outside the church building. We would like to have a <strong>Bring & Share</strong> and would really appreciate guests bringing cakes, pies, or finger food to share.",
     gateNote         : "If you would like to contribute to the <strong>Bring & Share</strong>, you can sign up later when you respond to the invitation. ♡",
     gateCtaBtn       : "Confirm My Attendance →",
