@@ -905,12 +905,6 @@ if (bsNext1) bsNext1.addEventListener("click", function() {
 
 if (bsBack2) bsBack2.addEventListener("click", function() { bsShow(bsStep1); });
 if (bsNext2) bsNext2.addEventListener("click", function() {
-  var foodTypes = document.querySelectorAll('input[name="food_type"]:checked');
-  if (!foodTypes.length) {
-    if (bsStatus) bsStatus.textContent = "Please select at least one food type.";
-    bsShow(bsStep2);
-    return;
-  }
   if (bsStatus) bsStatus.textContent = "";
   bsShow(bsStep3);
 });
