@@ -1891,7 +1891,7 @@ if (newRsvpBtn2) {
     '<div id="weGateCard">' +
       '<div class="we-mono">Arina &amp; Elnur\'s Wedding</div>' +
       '<div class="we-rule"></div>' +
-      '<div class="we-salut">You are invited,</div>' +
+      '<div class="we-salut">' + salutation + '</div>' +
       '<div class="we-guestname">' + displayName + '</div>' +
       '<div class="we-seat-badge">♡ ' + seatsText + '</div>' +
       '<div class="we-body">' + t('gateBody') + '</div>' +
