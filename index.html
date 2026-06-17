@@ -334,16 +334,6 @@
     .rsvp-wizard {
       position: relative;
     }
-    /* Ceremony details mirrored at the top of the form itself,
-       so they're visible the moment the form opens directly. */
-    .rsvp-wizard-letter {
-      margin: 0 0 16px;
-      padding: 12px 14px;
-      background: rgba(49,39,28,.05);
-      border-left: 2px solid #624E38;
-      box-sizing: border-box;
-    }
-    .rsvp-wizard-letter .rsvp-greeting-letter { margin-top: 0; }
     .rsvp-wizard.is-hidden { display: none !important; }
     .wizard-dots {
       display: flex;
@@ -846,6 +836,11 @@
           </div>
 
         </div><!-- /.rsvp-wizard -->
+
+        <!-- ── Scroll indicator ── -->
+        <div class="rsvp-scroll-hint" id="rsvpScrollHint" aria-hidden="true">
+          <span class="rsvp-scroll-hint-chevron">↓</span>
+        </div>
 
         <!-- ── In-card thank you (shown after submit, overlay is closeable) ── -->
         <div class="rsvp-card-thanks" id="rsvpCardThanks">
