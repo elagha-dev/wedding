@@ -159,8 +159,8 @@ window.I18N = {
 
     /* ── Soft Gate / Floating Card / Scroll Lock ── */
     gateSalutation   : "You are invited to our Weddign Ceremony",
-    gateSeatsText    : "Time<strong>14:00</strong> &nbsp;·&nbsp; Location: Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a>",
-    gateBody         : "After the ceremony, we would love you to stay for a small <strong>Reception</strong> outside the church building. We would like to have a <strong>Bring & Share</strong> and would really appreciate guests bringing cakes, pies, or finger food to share.",
+    gateSeatsText    : "Location: Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a>",
+    gateBody         : "Get together <strong>13:30</strong> → Ceremony: <strong>14:00</strong> → Bring & Share Reception: <strong>15:00-16:00</br>After the ceremony, we would love you to stay for a small <strong>Reception</strong> outside the church building. We would like to have a <strong>Bring & Share</strong> and would really appreciate guests bringing cakes, pies, or finger food to share.",
     gateNote         : "If you would like to contribute to the <strong>Bring & Share</strong>, you can sign up later when you respond to the invitation. ♡",
     gateCtaBtn       : "Confirm My Attendance →",
     gateSkipBtn      : "I'll explore first",
