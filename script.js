@@ -2000,7 +2000,8 @@ if (newRsvpBtn2) {
     gateSkipped = false;
     setTimeout(function() {
       scrollToRSVP();
-      /* NOTE: Do NOT auto-click rsvpBeginBtn — guest reads the note in the RSVP intro first */
+      var beginBtn = document.getElementById('rsvpBeginBtn');
+      if (beginBtn) beginBtn.click();
     }, 500);
   });
 
@@ -2027,7 +2028,8 @@ if (newRsvpBtn2) {
   document.getElementById('weScrollLockCta').addEventListener('click', function() {
     hideScrollLock();
     scrollToRSVP();
-    /* NOTE: Do NOT auto-click rsvpBeginBtn — guest reads the note first */
+    var beginBtn = document.getElementById('rsvpBeginBtn');
+    if (beginBtn) beginBtn.click();
   });
   document.getElementById('weScrollLockSkip').addEventListener('click', function() {
     hideScrollLock();
