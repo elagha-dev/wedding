@@ -2149,8 +2149,10 @@ if (newRsvpBtn2) {
   var hint = document.getElementById('rsvpScrollHint');
   if (!card || !hint) return;
 
+  var updating = false;
   function updateHint() {
-    // Hide if card doesn't overflow, or if scrolled near the bottom
+    if (updating) return;
+    updating = true;
     var overflows = card.scrollHeight > card.clientHeight + 8;
     var nearBottom = card.scrollTop + card.clientHeight >= card.scrollHeight - 32;
     if (!overflows || nearBottom) {
@@ -2158,15 +2160,13 @@ if (newRsvpBtn2) {
     } else {
       hint.classList.remove('is-hidden');
     }
+    updating = false;
   }
 
-  // Re-check whenever card content changes (wizard steps swap in/out)
   var observer = new MutationObserver(updateHint);
   observer.observe(card, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
 
   card.addEventListener('scroll', updateHint, { passive: true });
   window.addEventListener('resize', updateHint, { passive: true });
-
-  // Initial check after a brief paint delay
   setTimeout(updateHint, 200);
 })();
