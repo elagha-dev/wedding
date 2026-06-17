@@ -62,7 +62,7 @@ window.I18N = {
     navParty   : "🥂 Evening Reception",
 
     /* ── RSVP card ── */
-    rsvpBeginBtn   : "Confirm your attendance →",
+    rsvpBeginBtn   : "Let us know you're coming →",
     greetingDear   : "Dear",
     crewNote       : "Any questions? Reach out to anyone in the crew — they're wonderful and happy to help.",
 
@@ -153,20 +153,20 @@ window.I18N = {
     bringShareNudge  : "Bring & Share 🧁",
 
     /* ── Sticky banner ── */
-    bannerText: "📋 Please confirm your attendance",
+    bannerText: "📋 Let us know you're coming",
 
     /* ── Soft Gate / Floating Card / Scroll Lock ── */
     gateSalutation   : "You are invited",
     gateSeatsText    : "Location: Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a>",
     gateBody         : "Get together <strong>13:30</strong> → Ceremony: <strong>14:00</strong> → Bring & Share Reception: <strong>15:00-16:00</strong></br>After the ceremony, we would love you to stay for a small <strong>Reception</strong> outside the church building. We would like to have a <strong>Bring & Share</strong> and would really appreciate guests bringing cakes, pies, or finger food to share.",
     gateNote         : "If you would like to contribute to the <strong>Bring & Share</strong>, you can sign up later when you respond to the invitation. ♡",
-    gateCtaBtn       : "Confirm My Attendance →",
+    gateCtaBtn       : "Send us your RSVP →",
     gateSkipBtn      : "I'll explore first",
     scrollLockTitle  : "One moment, {name}",
     scrollLockBody   : "You scrolled past Participation.<br>It takes less than a minute — and it means<br>everything to us to know you'll be there.",
-    scrollLockCta    : "Confirm Attendance →",
+    scrollLockCta    : "Send us your RSVP →",
     scrollLockSkip   : "Continue browsing",
-    bannerBtn : "Confirm now ↓",
+    bannerBtn : "RSVP here ↓",
 
     /* ── View on map ── */
     viewOnMap: "View on Map ↗",
@@ -337,7 +337,7 @@ window.I18N = {
     navCeremony: "💒 Kirchliche Trauung",
     navParty   : "🥂 Abendempfang",
 
-    rsvpBeginBtn   : "Teilnahme bestätigen →",
+    rsvpBeginBtn   : "Jetzt zur Anmeldung →",
     greetingDear   : "Liebe/Lieber",
     crewNote       : "Fragen? Wendet euch an jemanden aus dem Team — sie helfen euch gerne weiter.",
 
@@ -425,20 +425,20 @@ window.I18N = {
     giftNoteParty    : "In der Kirche und am Abendlocation steht auch eine Geschenkbox. ♡",
     bringShareNudge  : "Bring & Share 🧁",
 
-    bannerText: "📋 Bitte Teilnahme bestätigen",
+    bannerText: "📋 Bitte meldet euch an",
 
     /* ── Soft Gate / Floating Card / Scroll Lock ── */
     gateSalutation   : "Ihr seid herzlich eingeladen,",
     gateSeatsText    : "Standort: Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a>",
     gateBody         : "Ankommen <strong>13:30</strong> → Zeremonie: <strong>14:00</strong> → Bring & Share Empfang: <strong>15:00-16:00</strong></br>Im Anschluss an die Zeremonie laden wir euch herzlich ein, zu einem kleinen <strong>Empfang</strong> außerhalb des Kirchengebäudes zu bleiben. Wir möchten ein <strong>Bring & Share</strong> machen und würden uns sehr freuen, wenn Gäste Kuchen, Torten oder Fingerfood zum Teilen mitbringen.",
     gateNote         : "Wenn ihr zum <strong>Bring & Share</strong> beitragen möchtet, könnt ihr euch später bei eurer Rückmeldung zur Einladung anmelden. ♡",
-    gateCtaBtn       : "Teilnahme bestätigen →",
+    gateCtaBtn       : "Zur Anmeldung →",
     gateSkipBtn      : "Ich schaue mich erst um",
     scrollLockTitle  : "Kurz innehalten, {name}",
     scrollLockBody   : "Du hast die Teilnahme überscrollt.<br>Es dauert weniger als eine Minute — und es bedeutet<br>uns alles, zu wissen, dass du dabei bist.",
-    scrollLockCta    : "Teilnahme bestätigen →",
+    scrollLockCta    : "Zur Anmeldung →",
     scrollLockSkip   : "Weiter stöbern",
-    bannerBtn : "Jetzt bestätigen ↓",
+    bannerBtn : "Hier anmelden ↓",
     viewOnMap : "Auf der Karte anzeigen ↗",
 
     bsStep1Title    : "Was bringt ihr mit?",
@@ -601,7 +601,7 @@ window.I18N = {
     navCeremony: "💒 Венчание",
     navParty   : "🥂 Вечерний приём",
 
-    rsvpBeginBtn   : "Подтвердить участие →",
+    rsvpBeginBtn   : "Заполнить анкету →",
     greetingDear   : "Дорогие",
     crewNote       : "Есть вопросы? Обратитесь к кому-нибудь из команды — они будут рады помочь.",
 
@@ -689,20 +689,20 @@ window.I18N = {
     giftNoteParty    : "В церкви и на вечернем мероприятии также будет подарочная коробка. ♡",
     bringShareNudge  : "Bring & Share 🧁",
 
-    bannerText: "📋 Пожалуйста, подтвердите участие",
+    bannerText: "📋 Пожалуйста, заполните анкету",
 
     /* ── Soft Gate / Floating Card / Scroll Lock ── */
     gateSalutation   : "Вы приглашены,",
     gateSeatsText    : "Местоположение: Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a>",
     gateBody         : "Сбор гостей <strong>13:30</strong> → Церемония: <strong>14:00</strong> → Bring & Share приём: <strong>15:00-16:00</strong></br>После церемонии мы будем рады, если вы останетесь на небольшой <strong>приём</strong> у здания церкви. Мы хотели бы организовать <strong>Bring & Share</strong> и будем очень благодарны, если гости принесут торт, пирог или закуски для всех.вы можете принести торт, пирог или закуски для всех. Если вы хотите участвовать, вы сможете записаться позже.",
     gateNote         : "Если вы хотите принять участие в <strong>Bring & Share</strong>, вы сможете записаться позже, когда будете отвечать на приглашение. ♡",
-    gateCtaBtn       : "Подтвердить участие →",
+    gateCtaBtn       : "Заполнить анкету →",
     gateSkipBtn      : "Сначала посмотрю сайт",
     scrollLockTitle  : "Одну секунду, {name}",
     scrollLockBody   : "Вы пролистали раздел участия.<br>Это займёт меньше минуты — и для нас<br>очень важно знать, что вы будете с нами.",
-    scrollLockCta    : "Подтвердить участие →",
+    scrollLockCta    : "Заполнить анкету →",
     scrollLockSkip   : "Продолжить просмотр",
-    bannerBtn : "Подтвердить сейчас ↓",
+    bannerBtn : "Заполнить сейчас ↓",
     viewOnMap : "Посмотреть на карте ↗",
 
     bsStep1Title    : "Что вы принесёте?",
