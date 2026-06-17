@@ -83,13 +83,13 @@ window.I18N = {
     greetingLetterCeremony:
       "<p>We are so happy to invite you to witness one of the most meaningful moments of our lives — our wedding ceremony.</p>" +
       "<p>Please arrive by <strong>13:30</strong> — the ceremony begins at <strong>14:00</strong> sharp</p><div class=\"loc-chip\">⛪ Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
-      "<p>After the ceremony in the church, we would love you to stay for a <strong>small reception</strong> outside the church building. We would love to have a <strong>bring-and-share</strong>, meaning guests are invited to bring cakes, pies, or finger food to share. Please tick the box if you would like to bring something.</p>" +
+      "<p>After the ceremony, we would love you to stay for a <strong>small reception</strong> / <strong>bring-and-share</strong> outside the church building.</p>" +
       "<p class=\"deadline\">Please confirm your attendance by <strong>18 September</strong>.</p>",
 
     greetingLetterCeremonySingle:
       "<p>We are so happy to invite you to witness one of the most meaningful moments of our lives — our wedding ceremony.</p>" +
       "<p>Please arrive by <strong>13:30</strong> — the ceremony begins at <strong>14:00</strong> sharp</p><div class=\"loc-chip\">⛪ Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
-      "<p>After the ceremony in the church, we would love you to stay for a <strong>small reception</strong> outside the church building. We would love to have a <strong>bring-and-share</strong>, meaning guests are invited to bring cakes, pies, or finger food to share. Please tick the box if you would like to bring something.</p>" +
+      "<p>After the ceremony, we would love you to stay for a <strong>small reception</strong> / <strong>bring-and-share</strong> outside the church building.</p>" +
       "<p class=\"deadline\">Please confirm your attendance by <strong>18 September</strong>.</p>",
 
     /* ── RSVP Wizard ── */
@@ -353,26 +353,26 @@ window.I18N = {
       "<p>Wir freuen uns so sehr, euch an unserem Hochzeitstag bei uns zu haben — einem der wichtigsten Tage unseres Lebens. Wir möchten ihn nicht ohne euch erleben.</p>" +
       "<p>Bitte kommt bis <strong>13:30</strong> — die Trauung beginnt pünktlich um <strong>14:00 Uhr</strong></p><div class=\"loc-chip\">⛪ Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
       "<p>🥂 Abendempfang ab <strong>17:00 Uhr</strong></p><div class=\"loc-chip\">🥂 Rheinliebe am Deich &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Heerstra%C3%9Fe+45,+40549+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
-      "<p>Im Anschluss an die Zeremonie laden wir euch herzlich ein, zu einem <strong>kleinen Empfang</strong> außerhalb des Kirchengebäudes zu bleiben. Wir möchten ein <strong>„Bring and Share“</strong> machen, das bedeutet: Gäste bringen Kuchen, Torten oder Fingerfood zum Teilen mit. Bitte ankreuzen, wenn ihr etwas mitbringen möchtet.</p>" +
+      "<p>Im Anschluss an die Zeremonie laden wir euch herzlich ein, zu einem <strong>kleinen Empfang</strong> / „Bring and Share“</strong> außerhalb des Kirchengebäudes zu bleiben</p>" +
       "<p class=\"deadline\">Bitte bestätigt eure Teilnahme bis zum <strong>18. September</strong>.</p>",
 
     greetingLetterPartySingle:
       "<p>Wir freuen uns so sehr, dich an unserem Hochzeitstag bei uns zu haben — einem der wichtigsten Tage unseres Lebens. Wir möchten ihn nicht ohne dich erleben.</p>" +
       "<p>Bitte komm bis <strong>13:30</strong> — die Trauung beginnt pünktlich um <strong>14:00 Uhr</strong></p><div class=\"loc-chip\">⛪ Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
       "<p>🥂 Abendempfang ab <strong>17:00 Uhr</strong></p><div class=\"loc-chip\">🥂 Rheinliebe am Deich &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Heerstra%C3%9Fe+45,+40549+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
-      "<p>Im Anschluss an die Zeremonie laden wir dich herzlich ein, zu einem <strong>kleinen Empfang</strong> außerhalb des Kirchengebäudes zu bleiben. Wir möchten ein <strong>„Bring and Share“</strong> machen, das bedeutet: Gäste bringen Kuchen, Torten oder Fingerfood zum Teilen mit. Bitte ankreuzen, wenn du etwas mitbringen möchtest.</p>" +
+      "<p>Im Anschluss an die Zeremonie laden wir euch herzlich ein, zu einem <strong>kleinen Empfang</strong> / „Bring and Share“</strong> außerhalb des Kirchengebäudes zu bleiben</p>" +
       "<p class=\"deadline\">Bitte bestätige deine Teilnahme bis zum <strong>18. September</strong>.</p>",
 
     greetingLetterCeremony:
       "<p>Wir laden euch herzlich ein, einen der bedeutsamsten Momente unseres Lebens mitzuerleben — unsere Hochzeitszeremonie.</p>" +
       "<p>Bitte kommt bis <strong>13:30</strong> — die Trauung beginnt pünktlich um <strong>14:00 Uhr</strong></p><div class=\"loc-chip\">⛪ Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
-      "<p>Im Anschluss an die Zeremonie laden wir euch herzlich ein, zu einem <strong>kleinen Empfang</strong> außerhalb des Kirchengebäudes zu bleiben. Wir möchten ein <strong>„Bring and Share“</strong> machen, das bedeutet: Gäste bringen Kuchen, Torten oder Fingerfood zum Teilen mit. Bitte ankreuzen, wenn ihr etwas mitbringen möchtet.</p>" +
+      "<p>Im Anschluss an die Zeremonie laden wir euch herzlich ein, zu einem <strong>kleinen Empfang</strong> / „Bring and Share“</strong> außerhalb des Kirchengebäudes zu bleiben</p>" +
       "<p class=\"deadline\">Bitte bestätigt eure Teilnahme bis zum <strong>18. September</strong>.</p>",
 
     greetingLetterCeremonySingle:
       "<p>Wir laden dich herzlich ein, einen der bedeutsamsten Momente unseres Lebens mitzuerleben — unsere Hochzeitszeremonie.</p>" +
       "<p>Bitte komm bis <strong>13:30</strong> — die Trauung beginnt pünktlich um <strong>14:00 Uhr</strong></p><div class=\"loc-chip\">⛪ Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
-      "<p>Im Anschluss an die Zeremonie laden wir dich herzlich ein, zu einem kleinen Empfang außerhalb des Kirchengebäudes zu bleiben. Wir möchten ein <strong>„Bring and Share“</strong> machen, das bedeutet: Gäste bringen Kuchen, Torten oder Fingerfood zum Teilen mit. Bitte ankreuzen, wenn du etwas mitbringen möchtest.</p>" +
+      "<p>Im Anschluss an die Zeremonie laden wir euch herzlich ein, zu einem <strong>kleinen Empfang</strong> / „Bring and Share“</strong> außerhalb des Kirchengebäudes zu bleiben</p>" +
       "<p class=\"deadline\">Bitte bestätige deine Teilnahme bis zum <strong>18. September</strong>.</p>",
 
     step1Label    : "Schritt 1 von 3 — Eure Daten",
@@ -636,13 +636,13 @@ window.I18N = {
     greetingLetterCeremony:
       "<p>Мы с радостью приглашаем вас стать свидетелями одного из самых важных моментов нашей жизни — нашего венчания.</p>" +
       "<p>Пожалуйста, приходите к <strong>13:30</strong> — венчание начнётся ровно в <strong>14:00</strong></p><div class=\"loc-chip\">⛪ Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
-      "<p>После церемонии мы будем рады, если вы останетесь на <strong>небольшой приём</strong> у здания церкви. Мы хотели бы организовать <strong>«bring and share»</strong>, то есть гости приносят торт, пирог или закуски для всех. Пожалуйста, отметьте, если хотите что-то принести.</p>" +
+      "<p>После церемонии мы будем рады, если вы останетесь на <strong>небольшой приём</strong> / <strong>«bring and share»</strong> у здания церкви.</p>" +
       "<p class=\"deadline\">Пожалуйста, подтвердите участие до <strong>18 сентября</strong>.</p>",
 
     greetingLetterCeremonySingle:
       "<p>Мы с радостью приглашаем тебя стать свидетелем одного из самых важных моментов нашей жизни — нашего венчания.</p>" +
       "<p>Пожалуйста, приходи к <strong>13:30</strong> — венчание начнётся ровно в <strong>14:00</strong></p><div class=\"loc-chip\">⛪ Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
-      "<p>После церемонии мы будем рады, если вы останетесь на <strong>небольшой приём</strong> у здания церкви. Мы хотели бы организовать <strong>«bring and share»</strong>, то есть гости приносят торт, пирог или закуски для всех. Пожалуйста, отметьте, если хотите что-то принести.</p>" +
+      "<p>После церемонии мы будем рады, если вы останетесь на <strong>небольшой приём</strong> / <strong>«bring and share»</strong> у здания церкви.</p>" +
       "<p class=\"deadline\">Пожалуйста, подтверди участие до <strong>18 сентября</strong>.</p>",
 
     step1Label    : "Шаг 1 из 3 — Ваши данные",
