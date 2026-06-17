@@ -166,8 +166,8 @@ window.I18N = {
     /* ── Soft Gate / Floating Card / Scroll Lock ── */
     gateSalutation   : "You are invited,",
     gateSeatsText    : "We kindly request the honour of your presence",
-    gateBody         : "We'd love to know you're coming. Takes a minute. ♡",
-    gateNote         : "A small note before you begin: please read the message on the Participation card — it has everything you need to know.",
+    gateBody         : "After the ceremony in the church, I would love you to stay for a <strong>small reception</strong> outside the church building. I would love to have a <strong>bring-and-share</strong>, meaning you are invited to bring cakes, pies, or finger food to share. If you would like to take part, you can sign up later. ♡",
+    gateNote         : "",
     gateCtaBtn       : "Confirm My Attendance →",
     gateSkipBtn      : "I'll explore first",
     scrollLockTitle  : "One moment, {name}",
@@ -444,8 +444,8 @@ window.I18N = {
     /* ── Soft Gate / Floating Card / Scroll Lock ── */
     gateSalutation   : "Ihr seid herzlich eingeladen,",
     gateSeatsText    : "Wir freuen uns auf eure Anwesenheit",
-    gateBody         : "Wir würden so gerne wissen, dass ihr kommt. Dauert eine Minute. ♡",
-    gateNote         : "Ein kleiner Hinweis vorab: Bitte lest die Nachricht auf der Teilnahmekarte — dort findet ihr alles Wichtige.",
+    gateBody         : "Im Anschluss an die Zeremonie laden wir euch herzlich ein, zu einem <strong>kleinen Empfang</strong> außerhalb des Kirchengebäudes zu bleiben. Wir möchten ein <strong>„Bring and Share“</strong> machen, das bedeutet: Ihr könnt Kuchen, Torten oder Fingerfood zum Teilen mitbringen. Wenn ihr teilnehmen möchtet, könnt ihr euch später anmelden. ♡",
+    gateNote         : "",
     gateCtaBtn       : "Teilnahme bestätigen →",
     gateSkipBtn      : "Ich schaue mich erst um",
     scrollLockTitle  : "Kurz innehalten, {name}",
@@ -714,8 +714,8 @@ window.I18N = {
     /* ── Soft Gate / Floating Card / Scroll Lock ── */
     gateSalutation   : "Вы приглашены,",
     gateSeatsText    : "Мы будем рады видеть вас",
-    gateBody         : "Мы хотим знать, что ты придёшь. Займёт минуту. ♡",
-    gateNote         : "Небольшое примечание: пожалуйста, прочитайте сообщение на карточке участия — там есть всё, что вам нужно знать.",
+    gateBody         : "После церемонии мы будем рады, если вы останетесь на небольшой приём у здания церкви. Мы хотели бы организовать <strong>«bring and share»</strong>, то есть вы можете принести торт, пирог или закуски для всех. Если вы хотите участвовать, вы сможете записаться позже. ♡",
+    gateNote         : "",
     gateCtaBtn       : "Подтвердить участие →",
     gateSkipBtn      : "Сначала посмотрю сайт",
     scrollLockTitle  : "Одну секунду, {name}",
