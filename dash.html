@@ -1591,7 +1591,7 @@ function firstName(n){var w=(n||'').trim().split(/[\s&]+/)[0];if(!w)return'';ret
 function lastName(n){var parts=(n||'').trim().split(/\s+/);return parts.length>1?parts[parts.length-1]:'';}
 function pairDisplayName(n1,n2){var ln1=lastName(n1),ln2=lastName(n2);if(ln1&&ln2&&ln1.toLowerCase()===ln2.toLowerCase())return firstName(n1)+' & '+firstName(n2)+' '+ln1;return n1+' & '+n2;}
 function fmtSentAt(s){if(!s)return'';try{var d=new Date(s);if(isNaN(d))return s;var day=String(d.getDate()).padStart(2,'0'),mon=String(d.getMonth()+1).padStart(2,'0');return day+'.'+mon;}catch(e){return s;}}
-function buildUrl(p1,p2,type,lang){var n1=firstName(p1).toLowerCase(),n2=p2?firstName(p2).toLowerCase():'';var isP=type==='ceremony-party-single'||type==='couple-party';var q=new URLSearchParams();q.set('w',n2?n1+'-'+n2:n1);if(isP)q.set('v','1');if(lang&&lang!=='en')q.set('lang',lang);return BASE+'?'+q.toString();}
+function buildUrl(p1,p2,type,lang){var n1=firstName(p1),n2=p2?firstName(p2):'';var isP=type==='ceremony-party-single'||type==='couple-party';var q=new URLSearchParams();q.set('p1',n1);if(n2)q.set('p2',n2);if(isP)q.set('party','1');if(lang&&lang!=='en')q.set('lang',lang);return BASE+'?'+q.toString();}
 var FAMILY_WORD={'en':'Family','de':'Familie','ru':'Семья'};
 function buildMsg(name,type,lang,url,isPlural,p1,p2){
   var isP=type==='ceremony-party-single'||type==='couple-party';
