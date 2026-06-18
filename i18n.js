@@ -85,9 +85,9 @@ window.I18N = {
       "<p class=\"deadline\">Please confirm your attendance by <strong>18 September</strong>.</p>",
 
     /* ── RSVP Wizard ── */
-    step1Label    : "Step 1 of 3 — Your Details",
-    step2Label    : "Step 2 of 3 — Attendance",
-    step3Label    : "Step 3 of 3 — Confirm Seats",
+    step1Label       : "Step 1 of 2 — Your Details & Attendance",
+    step1LabelChurch : "Step 1 of 2 — Your Details & Ceremony Attendance",
+    step2Label    : "Step 2 of 2 — Confirm Seats",
     firstNameLabel: "First name",
     lastNameLabel : "Last name",
     firstNamePlaceholder: "First name",
@@ -361,9 +361,9 @@ window.I18N = {
     greetingLetterCeremonySingle:
       "<p class=\"deadline\">Bitte bestätige deine Teilnahme bis zum <strong>18. September</strong>.</p>",
 
-    step1Label    : "Schritt 1 von 3 — Eure Daten",
-    step2Label    : "Schritt 2 von 3 — Teilnahme",
-    step3Label    : "Schritt 3 von 3 — Plätze bestätigen",
+    step1Label       : "Schritt 1 von 2 — Eure Daten & Teilnahme",
+    step1LabelChurch : "Schritt 1 von 2 — Eure Daten & Teilnahme an der Trauung",
+    step2Label    : "Schritt 2 von 2 — Plätze bestätigen",
     firstNameLabel: "Vorname",
     lastNameLabel : "Nachname",
     firstNamePlaceholder: "Vorname",
@@ -625,9 +625,9 @@ window.I18N = {
     greetingLetterCeremonySingle:
       "<p class=\"deadline\">Пожалуйста, подтверди участие до <strong>18 сентября</strong>.</p>",
 
-    step1Label    : "Шаг 1 из 3 — Ваши данные",
-    step2Label    : "Шаг 2 из 3 — Посещение",
-    step3Label    : "Шаг 3 из 3 — Подтверждение мест",
+    step1Label       : "Шаг 1 из 2 — Ваши данные и посещение",
+    step1LabelChurch : "Шаг 1 из 2 — Ваши данные и посещение венчания",
+    step2Label    : "Шаг 2 из 2 — Подтверждение мест",
     firstNameLabel: "Имя",
     lastNameLabel : "Фамилия",
     firstNamePlaceholder: "Имя",

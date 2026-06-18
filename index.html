@@ -721,7 +721,6 @@
           <div class="wizard-dots" id="wizardDots">
             <span class="wizard-dot is-active" data-step="1"></span>
             <span class="wizard-dot" data-step="2"></span>
-            <span class="wizard-dot" data-step="3"></span>
           </div>
 
           <!-- Hidden fields -->
@@ -730,9 +729,9 @@
           <input type="hidden" name="children_count"   id="kidsCount"         value="0"   />
           <input type="hidden" name="seats_count"      id="totalSeats"        value="1"   />
 
-          <!-- ── Step 1: Personal details ── -->
+          <!-- ── Step 1: Your details + Attendance (merged) ── -->
           <div class="wizard-step is-active" id="wStep1">
-            <div class="wizard-step-label"><span data-i18n="step1Label">Step 1 of 3 — Your Details</span></div>
+            <div class="wizard-step-label"><span data-i18n="step1Label">Step 1 of 2 — Your Details &amp; Attendance</span></div>
 
             <!-- Guest checkboxes for couples — populated by JS -->
             <div id="guestChecks" class="guest-checks"></div>
@@ -748,28 +747,8 @@
               </label>
             </div>
 
-            <div class="contact-row">
-              <label class="field-label">
-                <span data-i18n="emailLabel">Email</span>
-                <input required name="email" type="email" inputmode="email"
-                       autocomplete="email" placeholder="Email address" data-i18n-ph="emailPlaceholder" />
-              </label>
-              <label class="field-label">
-                <span data-i18n="phoneLabel">Phone</span>
-                <input name="phone" type="tel" inputmode="tel"
-                       autocomplete="tel" placeholder="Optional" data-i18n-ph="phonePlaceholder" />
-              </label>
-            </div>
-
-            <button type="button" class="wizard-next-btn" id="wNext1" style="margin-top:14px;"><span data-i18n="nextBtn">Next →</span></button>
-          </div>
-
-          <!-- ── Step 2: Attendance ── -->
-          <div class="wizard-step" id="wStep2">
-            <div class="wizard-step-label"><span data-i18n="step2Label">Step 2 of 3 — Attendance</span></div>
-
             <!-- Church ceremony row — always shown -->
-            <div class="attend-field">
+            <div class="attend-field" style="margin-top:14px;">
               <span class="attend-label"><span data-i18n="ceremonyAttendLabel">💒 Church Ceremony · 16 Oct, 14:00</span></span>
               <div class="attend-btns">
                 <button type="button" class="attend-btn attend-btn--yes" id="attendYes"><span data-i18n="attendingBtn">Attending</span></button>
@@ -811,15 +790,26 @@
               <span><span data-i18n="bringShareLabel">I'll join the Bring &amp; Share</span></span>
             </label>
 
-            <div class="wizard-nav" style="margin-top:16px;">
-              <button type="button" class="wizard-back-btn" id="wBack2"><span data-i18n="backBtn">← Back</span></button>
-              <button type="button" class="wizard-next-btn" id="wNext2"><span data-i18n="nextBtn">Next →</span></button>
-            </div>
+            <button type="button" class="wizard-next-btn" id="wNext1" style="margin-top:14px;"><span data-i18n="nextBtn">Next →</span></button>
           </div>
 
-          <!-- ── Step 3: Seat confirmation ── -->
-          <div class="wizard-step" id="wStep3">
-            <div class="wizard-step-label"><span data-i18n="step3Label">Step 3 of 3 — Confirm Seats</span></div>
+          <!-- ── Step 2: Contact details (if attending) + Seat confirmation ── -->
+          <div class="wizard-step" id="wStep2">
+            <div class="wizard-step-label"><span data-i18n="step2Label">Step 2 of 2 — Confirm Seats</span></div>
+
+            <!-- Contact details — only requested when attending -->
+            <div class="contact-row" id="contactRow" style="display:none;">
+              <label class="field-label">
+                <span data-i18n="emailLabel">Email</span>
+                <input name="email" type="email" inputmode="email"
+                       autocomplete="email" placeholder="Email address" data-i18n-ph="emailPlaceholder" />
+              </label>
+              <label class="field-label">
+                <span data-i18n="phoneLabel">Phone</span>
+                <input name="phone" type="tel" inputmode="tel"
+                       autocomplete="tel" placeholder="Optional" data-i18n-ph="phonePlaceholder" />
+              </label>
+            </div>
 
             <div class="seat-confirm" id="seatConfirm">
               <p class="seat-confirm-label"><span data-i18n="seatConfirmLabel">Total seats reserved for you</span></p>
@@ -839,7 +829,7 @@
             </div>
 
             <div class="wizard-nav" style="margin-top:16px;">
-              <button type="button" class="wizard-back-btn" id="wBack3"><span data-i18n="backBtn">← Back</span></button>
+              <button type="button" class="wizard-back-btn" id="wBack2"><span data-i18n="backBtn">← Back</span></button>
               <button type="button" class="wizard-next-btn" id="wSubmit"><span data-i18n="sendRsvpBtn">Send RSVP ✓</span></button>
             </div>
             <p class="rsvp-status" id="rsvpStatus" aria-live="polite"></p>

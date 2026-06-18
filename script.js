@@ -423,12 +423,10 @@ var giftBanner        = document.getElementById("giftBanner");
 /* Wizard step elements */
 var wStep1  = document.getElementById("wStep1");
 var wStep2  = document.getElementById("wStep2");
-var wStep3  = document.getElementById("wStep3");
 var wNext1  = document.getElementById("wNext1");
 var wBack2  = document.getElementById("wBack2");
-var wNext2  = document.getElementById("wNext2");
-var wBack3  = document.getElementById("wBack3");
 var wSubmit = document.getElementById("wSubmit");
+var contactRow = document.getElementById("contactRow");
 
 /* Seat stepper (step 3) */
 var seatDisplay = document.getElementById("seatDisplay");
@@ -457,7 +455,7 @@ function getGuestCode() {
 
 /* ── Wizard dot progress ──────────────────────────────────── */
 function setWizardStep(n) {
-  [wStep1, wStep2, wStep3].forEach(function(s, i) {
+  [wStep1, wStep2].forEach(function(s, i) {
     if (!s) return;
     s.classList.toggle("is-active", i + 1 === n);
   });
@@ -465,6 +463,15 @@ function setWizardStep(n) {
     d.classList.toggle("is-active", i + 1 === n);
     d.classList.toggle("is-done",   i + 1 < n);
   });
+}
+
+/* ── Sync invite-type dependent UI: evening row + step 1 label ── */
+function applyInviteTypeUI() {
+  if (eveningAttendField) eveningAttendField.style.display = __inviteParty ? "" : "none";
+  if (wStep1) {
+    var labelEl = wStep1.querySelector('.wizard-step-label [data-i18n]');
+    if (labelEl) labelEl.textContent = t(__inviteParty ? 'step1Label' : 'step1LabelChurch');
+  }
 }
 
 /* ── Attendance helpers ──────────────────────────────────── */
@@ -498,6 +505,15 @@ function onAttendanceChange() {
   var childrenRow = document.getElementById("childrenRow");
   if (childrenRow) childrenRow.style.display = anyAttending ? "" : "none";
   if (!anyAttending) setChildrenCount(0);
+  /* Contact details only requested when attending something */
+  if (contactRow) {
+    contactRow.style.display = anyAttending ? "" : "none";
+    var emailField = contactRow.querySelector('[name="email"]');
+    if (emailField) {
+      if (anyAttending) emailField.setAttribute("required", "required");
+      else emailField.removeAttribute("required");
+    }
+  }
   recalcSeats();
 }
 
@@ -731,18 +747,8 @@ if (newRsvpBtn) newRsvpBtn.addEventListener("click", function(e) { e.preventDefa
 /* ── Wizard step navigation ───────────────────────────────── */
 if (wNext1) wNext1.addEventListener("click", function() {
   var fn = rsvpWizard && rsvpWizard.querySelector('[name="first_name"]');
-  var em = rsvpWizard && rsvpWizard.querySelector('[name="email"]');
   if (fn && !fn.value.trim()) { fn.focus(); fn.setAttribute("placeholder", "Required ↑"); return; }
-  if (em && !em.checkValidity()) { em.focus(); return; }
-  setWizardStep(2);
-  /* Show evening row if party invite */
-  if (eveningAttendField) eveningAttendField.style.display = __inviteParty ? "" : "none";
-  onAttendanceChange();
-});
 
-if (wBack2) wBack2.addEventListener("click", function() { setWizardStep(1); });
-
-if (wNext2) wNext2.addEventListener("click", function() {
   /* Validate: ceremony attendance must be chosen */
   if (!attendanceSelect || attendanceSelect.value === "") {
     var rsvpSt = document.getElementById("rsvpStatus") || { textContent: "" };
@@ -758,18 +764,22 @@ if (wNext2) wNext2.addEventListener("click", function() {
   }
   var existingErr = document.getElementById("attendErr");
   if (existingErr) existingErr.remove();
+
   /* Build seat total from current state */
   __manualSeatOverride = false;
   recalcSeats();
-  /* Show/hide decline block */
+  onAttendanceChange();
+
+  /* Show/hide decline block + seat confirm + contact row */
   var anyAttending = isAttending() || isPartyAttending();
   if (declineBlock) declineBlock.style.display = !anyAttending ? "" : "none";
   if (seatConfirm)  seatConfirm.style.display  =  anyAttending ? "" : "none";
-  setWizardStep(3);
+
+  setWizardStep(2);
   updateSeatDisplay();
 });
 
-if (wBack3) wBack3.addEventListener("click", function() { setWizardStep(2); });
+if (wBack2) wBack2.addEventListener("click", function() { setWizardStep(1); });
 
 if (wSubmit) wSubmit.addEventListener("click", async function() {
   var attending      = isAttending();
@@ -835,6 +845,7 @@ if (wSubmit) wSubmit.addEventListener("click", async function() {
 });
 
 /* Initialise */
+applyInviteTypeUI();
 onAttendanceChange();
 setWizardStep(1);
 
@@ -1043,6 +1054,7 @@ if (bsSubmit) bsSubmit.addEventListener("click", async function() {
       rsvpBeginBtnGeneric.addEventListener('click', function() {
         if (rsvpIntroGeneric)  rsvpIntroGeneric.classList.add('is-hidden');
         if (rsvpWizardEl0)     rsvpWizardEl0.classList.remove('is-hidden');
+        applyInviteTypeUI();
         setWizardStep(1);
       });
     }
@@ -1135,6 +1147,7 @@ if (bsSubmit) bsSubmit.addEventListener("click", async function() {
     rsvpBeginBtn.addEventListener('click', function() {
       if (rsvpIntroEl)   rsvpIntroEl.classList.add('is-hidden');
       if (rsvpWizardEl)  rsvpWizardEl.classList.remove('is-hidden');
+      applyInviteTypeUI();
       setWizardStep(1);
     });
   }
