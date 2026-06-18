@@ -1432,8 +1432,6 @@ document.getElementById('undoToastBtn').addEventListener('click',function(){if(u
 /* ══ PERSISTENCE ═════════════════════════════ */
 function save(){try{localStorage.setItem('wt',JSON.stringify(mem));}catch(e){}}
 function load(){try{var d=localStorage.getItem('wt');return d?JSON.parse(d):[];}catch(e){return[];}}
-/* 
-
 function saveGuestMeta(){
   try{
     var m={};
@@ -1441,23 +1439,8 @@ function saveGuestMeta(){
       m[g.name]={note:g.note||'',followup:!!g.followup,skipped:!!g.skipped,pendingSent:!!g.pendingSent,sent:!!g.sent,sentAt:g.sentAt||'',sentBy:g.sentBy||'',msgLang:g.msgLang||'',bulkWith:g.bulkWith||'',sentGroupId:g.sentGroupId||'',sender:g.sender||'',phone:g.phone||'',type:g.type||'',lang:g.lang||'',group:g.group||''};
     });
     localStorage.setItem('ww_gm',JSON.stringify(m));
-    // Also persist the full queue so actions survive reload without a re-sync
     if(importQueue.length)localStorage.setItem('ww_pending',JSON.stringify(importQueue));
   }catch(e){}
-} 
-  
-*/
-
-function saveGuestMeta() {
-  try {
-    localStorage.setItem('ww_gm', JSON.stringify(importQueue));
-    localStorage.setItem('ww_pending', JSON.stringify(importQueue));
-    localStorage.setItem('ww_ls', ts());
-  } catch (e) {
-    console.error("Local storage write exception:", e);
-  }
-  // Dedicated /sent and /unsent endpoints handle per-guest pushes.
-  // No bulk POST here — it would clobber the worker's KV with stale data.
 }
 // ── Retry queue: persists failed pushes and retries on next sync ──
 var _retryQueue=[];
