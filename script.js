@@ -341,19 +341,17 @@ function applyI18n() {
     var val = t(key);
     if (typeof val === 'string') el.placeholder = val;
   });
-  /* Ceremony attend buttons: church-only vs combined */
-  var attendLabel = document.querySelector('.attend-field .attend-label [data-i18n="ceremonyAttendLabel"]');
+  /* Ceremony attend label: default key is churchOnlyQuestion ("Will you be joining us?")
+     For party invites, swap to the full "💒 Church Ceremony · 16 Oct, 14:00" label. */
+  var attendLabel = document.querySelector('.attend-field .attend-label [data-i18n]');
   if (attendLabel) {
-    if (__inviteParty) {
-      attendLabel.textContent = t('ceremonyAttendLabel');
-    } else {
-      /* Church-only: replace label text with the attendance question */
-      attendLabel.textContent = t('churchOnlyQuestion');
-    }
+    attendLabel.textContent = __inviteParty ? t('ceremonyAttendLabel') : t('churchOnlyQuestion');
   }
-  /* Attend Yes/No buttons — church row */
-  var attendYesBtnSpan = document.querySelector('#attendYes [data-i18n="attendingBtn"]');
-  var attendNoBtnSpan  = document.querySelector('#attendNo [data-i18n="notAttendingBtn"]');
+  /* Attend Yes/No buttons — church row
+     HTML uses churchOnlyYesBtn/churchOnlyNoBtn keys by default.
+     For party invites, swap to the combined phrasing. */
+  var attendYesBtnSpan = document.querySelector('#attendYes [data-i18n]');
+  var attendNoBtnSpan  = document.querySelector('#attendNo [data-i18n]');
   if (attendYesBtnSpan) attendYesBtnSpan.textContent = __inviteParty ? t('attendingBtn') : t('churchOnlyYesBtn');
   if (attendNoBtnSpan)  attendNoBtnSpan.textContent  = __inviteParty ? t('notAttendingBtn') : t('churchOnlyNoBtn');
   /* Party row: use separate party button labels for combined invites */
