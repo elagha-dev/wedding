@@ -827,12 +827,17 @@ if (wSubmit) wSubmit.addEventListener("click", async function() {
   var anyAttending   = attending || partyAttending;
   var fn  = (rsvpWizard && rsvpWizard.querySelector('[name="first_name"]') || {}).value || "";
   
-  var guestNames = __guests.length
+  var checkedGuestNames = __guests.length
     ? __guests.filter(function(_, i) {
         var cb = guestChecksEl && guestChecksEl.querySelector('input[name="guest_' + i + '"]');
         return !cb || cb.checked;
       }).join(", ")
     : (fn + " " + ln).trim();
+
+  /* If everyone was deselected (declining), still record who the
+     decline belongs to — fall back to the full guest list instead
+     of sending an empty string, so the sheet shows who can't make it. */
+  var guestNames = checkedGuestNames || __guests.join(", ") || (fn + " " + ln).trim();
 
   var scriptUrl = window.__GOOGLE_SCRIPT_URL;
   if (!scriptUrl) {
