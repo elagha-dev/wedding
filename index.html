@@ -708,76 +708,6 @@
       }
     }
 
-    /* ── Day-of timeline (top of right section, mobile only) ── */
-    .day-timeline {
-      display: flex;
-      flex-direction: row;
-      align-items: flex-start;
-      justify-content: center;
-      gap: 0;
-      width: 100%;
-      padding: 14px 16px 10px;
-      box-sizing: border-box;
-      /* Hidden on desktop — the invitation image already shows the schedule */
-    }
-    @media (min-width: 921px) {
-      .day-timeline { display: none; }
-    }
-    .day-timeline-item {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      flex: 1;
-      min-width: 0;
-    }
-    .day-timeline-dot-col {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      width: 100%;
-      margin-bottom: 7px;
-    }
-    .day-timeline-dot {
-      flex-shrink: 0;
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-      background: #7a5133;
-      box-shadow: 0 0 0 3px rgba(122,81,51,.14);
-      z-index: 1;
-    }
-    .day-timeline-dot--party {
-      background: #C4956A;
-      box-shadow: 0 0 0 3px rgba(196,149,106,.18);
-    }
-    .day-timeline-line {
-      flex: 1;
-      height: 1px;
-      background: rgba(122,81,51,.28);
-      margin-left: 3px;
-    }
-    .day-timeline-body {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      padding-right: 4px;
-    }
-    .day-timeline-time {
-      font-family: WeddingSerif, Georgia, serif;
-      font-size: 11px;
-      font-weight: 700;
-      color: #7a5133;
-      letter-spacing: .01em;
-      line-height: 1.2;
-    }
-    .day-timeline-label {
-      font-family: WeddingSerif, Georgia, serif;
-      font-size: 9px;
-      color: rgba(49,39,28,.60);
-      letter-spacing: .01em;
-      line-height: 1.3;
-      margin-top: 2px;
-    }
   </style>
 </head>
 <body>
@@ -817,50 +747,6 @@
 
     <!-- ── Right: 3×2 card grid ─────────────────────────── -->
     <section class="right">
-
-      <!-- ── Day-of timeline ─────────────────────────────── -->
-      <div class="day-timeline" id="dayTimeline">
-        <div class="day-timeline-item">
-          <div class="day-timeline-dot-col">
-            <div class="day-timeline-dot"></div>
-            <div class="day-timeline-line"></div>
-          </div>
-          <div class="day-timeline-body">
-            <span class="day-timeline-time">13:30</span>
-            <span class="day-timeline-label"><span data-i18n="tlGetTogether">Get together</span></span>
-          </div>
-        </div>
-        <div class="day-timeline-item">
-          <div class="day-timeline-dot-col">
-            <div class="day-timeline-dot"></div>
-            <div class="day-timeline-line"></div>
-          </div>
-          <div class="day-timeline-body">
-            <span class="day-timeline-time">14:00</span>
-            <span class="day-timeline-label"><span data-i18n="tlCeremony">Ceremony</span></span>
-          </div>
-        </div>
-        <div class="day-timeline-item">
-          <div class="day-timeline-dot-col">
-            <div class="day-timeline-dot"></div>
-            <div class="day-timeline-line" id="tlLine3"></div>
-          </div>
-          <div class="day-timeline-body">
-            <span class="day-timeline-time">15:00–16:00</span>
-            <span class="day-timeline-label"><span data-i18n="tlReception">Bring &amp; Share</span></span>
-          </div>
-        </div>
-        <!-- Party stop — shown only when party=1 -->
-        <div class="day-timeline-item" id="tlPartyStop" style="display:none">
-          <div class="day-timeline-dot-col">
-            <div class="day-timeline-dot day-timeline-dot--party"></div>
-          </div>
-          <div class="day-timeline-body">
-            <span class="day-timeline-time">17:00</span>
-            <span class="day-timeline-label"><span data-i18n="tlParty">Evening Party</span></span>
-          </div>
-        </div>
-      </div>
 
       <!-- 01 RSVP ─────────────────────────────────────────── -->
       <article class="card rsvp-card">
@@ -1354,27 +1240,6 @@
 
     </div>
   </div>
-
-  <script>
-  // Show party stop in day-of timeline when party=1
-  (function() {
-    function initDayTimeline() {
-      var partyStop = document.getElementById('tlPartyStop');
-      var line3     = document.getElementById('tlLine3');
-      if (!partyStop) return;
-      var isParty = (new URLSearchParams(window.location.search)).get('party') === '1';
-      if (isParty) {
-        partyStop.style.display = '';
-      } else {
-        // hide the connector line after the last visible stop
-        if (line3) line3.style.display = 'none';
-      }
-    }
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initDayTimeline);
-    } else { initDayTimeline(); }
-  })();
-  </script>
 
   <script>
   // Kathi hover card in B&S done screen
