@@ -1777,9 +1777,10 @@ button.sa-btn {
 .rsvp-early-hint-body.is-hidden { display: none; }
 .rsvp-early-hint-body p { margin: 0; }
 
-/* ── Wedding Countdown — left panel overlay ─────────────── */
-.left {
-  position: relative; /* needed for absolute countdown */
+/* ── Wedding Countdown — anchors to the photo, not the whole
+      left column (which also holds the day-timeline strip) ── */
+.hero-media {
+  position: relative;
 }
 
 .countdown-overlay {
