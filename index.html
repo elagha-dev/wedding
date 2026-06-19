@@ -210,13 +210,13 @@
       gap: 6px;
     }
     .attend-btn {
-      flex: 1 1 auto;
-      min-width: 90px;
-      max-width: 220px;
-      width: max-content;
+      flex: 0 0 auto;
+      min-width: 0;
+      max-width: none;
+      width: auto;
       min-height: 36px;
       height: auto;
-      padding: 6px 14px 6px 10px;
+      padding: 6px 18px;
       border: 1px solid rgba(49,39,28,.22);
       background: transparent;
       font-family: WeddingSerif, Georgia, serif;
@@ -225,13 +225,13 @@
       text-transform: uppercase;
       color: rgba(49,39,28,.45);
       cursor: pointer;
-      white-space: normal;
-      word-break: break-word;
+      white-space: nowrap;
       line-height: 1.35;
       transition: background .15s, color .15s, border-color .15s;
       border-radius: 0;
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 7px;
     }
     .attend-btn::before {
