@@ -671,6 +671,20 @@
       letter-spacing: .03em;
       margin: 0;
     }
+    /* ── RSVP payload preview bar (prototype debug line) ── */
+    .rsvp-payload-bar {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(49,39,28,.12);
+      font-family: WeddingSerif, Georgia, serif;
+      font-size: 9px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: rgba(49,39,28,.40);
+    }
+    .rsvp-payload-label { color: rgba(49,39,28,.38); }
+    .rsvp-payload-value { color: #7a5133; font-weight: 600; }
+
     /* field-label: label above, underline-only input */
     .field-label {
       display: flex !important;
@@ -884,6 +898,15 @@
 
             <button type="button" class="wizard-next-btn" id="wSubmit" style="margin-top:14px;"><span data-i18n="sendRsvpBtn">Send RSVP ✓</span></button>
             <p class="rsvp-status" id="rsvpStatus" aria-live="polite"></p>
+
+            <!-- Prototype-style payload preview -->
+            <div class="rsvp-payload-bar" id="rsvpPayloadBar">
+              <span class="rsvp-payload-label" data-i18n="payloadAttendance">attendance:</span>
+              <span class="rsvp-payload-value" id="ppAttendance">—</span>
+              &nbsp;&nbsp;|&nbsp;&nbsp;
+              <span class="rsvp-payload-label" data-i18n="payloadGuests">guests attending:</span>
+              <span class="rsvp-payload-value" id="ppGuests">—</span>
+            </div>
           </div>
 
         </div><!-- /.rsvp-wizard -->

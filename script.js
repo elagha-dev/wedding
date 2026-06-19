@@ -540,6 +540,7 @@ function onAttendanceChange() {
   /* Decline note only when not attending anything, and only once a choice has been made */
   var choiceMade = (attendanceSelect && attendanceSelect.value !== "");
   recalcSeats();
+  updateSelectionSummary();
 }
 
 /* ── Children stepper ─────────────────────────────────────── */
@@ -628,7 +629,7 @@ function buildGuestChecks(guests) {
     btn.addEventListener('click', function() {
       var active = btn.classList.toggle('is-active');
       cb.checked = active;
-      recalcSeats(); fillNameFromGuests();
+      recalcSeats(); fillNameFromGuests(); updateSelectionSummary();
     });
     wrap.appendChild(btn);
     wrap.appendChild(cb);
@@ -660,6 +661,33 @@ function recalcSeats() {
 function updateSeatDisplay() {
   /* Seat UI removed from the simplified RSVP; __seatCount is still tracked
      internally for the submitted payload (used by Bring & Share / planning). */
+}
+
+/* ── Live selection summary (shown below submit button) ───── */
+function updateSelectionSummary() {
+  var ppAttendance = document.getElementById('ppAttendance');
+  var ppGuests     = document.getElementById('ppGuests');
+  if (!ppAttendance || !ppGuests) return;
+
+  var attending  = isAttending();
+  var choiceMade = (attendanceSelect && attendanceSelect.value !== '');
+
+  var activeNames = [];
+  if (guestChecksEl) {
+    guestChecksEl.querySelectorAll('.guest-toggle-btn.is-active').forEach(function(btn) {
+      activeNames.push(btn.dataset.guestName || btn.textContent.trim());
+    });
+  }
+
+  if (!choiceMade) {
+    ppAttendance.textContent = '—';
+    ppGuests.textContent     = '—';
+    return;
+  }
+
+  var attendingEffectively = attending && activeNames.length > 0;
+  ppAttendance.textContent = attendingEffectively ? 'Yes' : 'No';
+  ppGuests.textContent     = attendingEffectively ? activeNames.join(', ') : '—';
 }
 
 function setSeatCount(v) {
@@ -747,8 +775,8 @@ if (partyYesBtn)  partyYesBtn.addEventListener("click",  function() { setPartyAt
 if (partyNoBtn)   partyNoBtn.addEventListener("click",   function() { setPartyAttendance("No");  });
 
 /* Kids stepper */
-if (kidsMinus) kidsMinus.addEventListener("click", function() { setChildrenCount(getChildrenCount() - 1); });
-if (kidsPlus)  kidsPlus.addEventListener("click",  function() { setChildrenCount(getChildrenCount() + 1); });
+if (kidsMinus) kidsMinus.addEventListener("click", function() { setChildrenCount(getChildrenCount() - 1); updateSelectionSummary(); });
+if (kidsPlus)  kidsPlus.addEventListener("click",  function() { setChildrenCount(getChildrenCount() + 1); updateSelectionSummary(); });
 
 /* New RSVP button */
 if (newRsvpBtn) newRsvpBtn.addEventListener("click", function(e) { e.preventDefault(); resetWizard(); });
@@ -880,7 +908,7 @@ if (bringShareCheckbox) {
   bringShareCheckbox.addEventListener("click", function() {
     var active = bringShareCheckbox.classList.toggle('is-active');
     bringShareCheckbox.setAttribute('aria-pressed', active ? 'true' : 'false');
-    /* Just track the checkbox — modal opens after RSVP submit if checked */
+    updateSelectionSummary(); /* Just track the checkbox — modal opens after RSVP submit if checked */
   });
 }
 
