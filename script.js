@@ -629,7 +629,12 @@ function buildGuestChecks(guests) {
     btn.addEventListener('click', function() {
       var active = btn.classList.toggle('is-active');
       cb.checked = active;
-      recalcSeats(); fillNameFromGuests(); updateSelectionSummary();
+      /* For couple invites, derive attendance from guest selections */
+        if (guestChecksEl && guestChecksEl.querySelectorAll('.guest-toggle-btn').length > 0) {
+          var anyActive = guestChecksEl.querySelectorAll('.guest-toggle-btn.is-active').length > 0;
+          setAttendance(anyActive ? 'Yes' : 'No');
+        }
+        recalcSeats(); fillNameFromGuests(); updateSelectionSummary();
     });
     wrap.appendChild(btn);
     wrap.appendChild(cb);
@@ -663,15 +668,12 @@ function updateSeatDisplay() {
      internally for the submitted payload (used by Bring & Share / planning). */
 }
 
-/* ── Live selection summary (shown below submit button) ───── */
+/* ── Live payload bar + submit button update ─────────────── */
 function updateSelectionSummary() {
   var ppAttendance = document.getElementById('ppAttendance');
   var ppGuests     = document.getElementById('ppGuests');
-  if (!ppAttendance || !ppGuests) return;
 
-  var attending  = isAttending();
-  var choiceMade = (attendanceSelect && attendanceSelect.value !== '');
-
+  /* Collect active guest names */
   var activeNames = [];
   if (guestChecksEl) {
     guestChecksEl.querySelectorAll('.guest-toggle-btn.is-active').forEach(function(btn) {
@@ -679,15 +681,30 @@ function updateSelectionSummary() {
     });
   }
 
-  if (!choiceMade) {
-    ppAttendance.textContent = '—';
-    ppGuests.textContent     = '—';
-    return;
-  }
+  var hasGuests = guestChecksEl && guestChecksEl.querySelectorAll('.guest-toggle-btn').length > 0;
+  var attendingEffectively = isAttending() && (!hasGuests || activeNames.length > 0);
 
-  var attendingEffectively = attending && activeNames.length > 0;
-  ppAttendance.textContent = attendingEffectively ? 'Yes' : 'No';
-  ppGuests.textContent     = attendingEffectively ? activeNames.join(', ') : '—';
+  /* ── Payload bar ── */
+  if (ppAttendance) ppAttendance.textContent = attendingEffectively ? 'Yes' : 'No';
+  if (ppGuests)     ppGuests.textContent     = activeNames.length > 0 ? activeNames.join(', ') : '—';
+
+  /* ── Submit button morphs like the prototype ── */
+  if (wSubmit && hasGuests) {
+    var btnSpan = wSubmit.querySelector('span') || wSubmit;
+    if (activeNames.length === 0) {
+      /* Decline state — ghost button */
+      btnSpan.textContent = t('sendRsvpBtnDecline') || 'We sadly can't make it';
+      wSubmit.style.background   = 'transparent';
+      wSubmit.style.color        = 'rgba(49,39,28,.5)';
+      wSubmit.style.border       = '1px solid rgba(49,39,28,.22)';
+    } else {
+      /* Attending state — filled orange */
+      btnSpan.textContent = t('sendRsvpBtn') || 'Confirm attendance ✓';
+      wSubmit.style.background   = '#E07020';
+      wSubmit.style.color        = '#fff';
+      wSubmit.style.border       = '1px solid #E07020';
+    }
+  }
 }
 
 function setSeatCount(v) {
@@ -1117,6 +1134,13 @@ if (bsSubmit) bsSubmit.addEventListener("click", async function() {
     recalcSeats();
     updateAttendanceLabel();
     fillNameFromGuests();
+    /* Hide the Yes/No attend buttons — guest toggles ARE the attendance mechanism */
+    var churchAttendField = document.querySelector('.attend-field');
+    if (churchAttendField) churchAttendField.style.display = 'none';
+    /* Auto-set attendance to Yes since all guests are pre-selected */
+    setAttendance('Yes');
+    /* Sync submit button and payload bar to initial state */
+    updateSelectionSummary();
   }
 
   /* ── Hide wizard until Begin is clicked ───────────────── */
