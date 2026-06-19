@@ -326,6 +326,72 @@ var __inviteParty = (new URLSearchParams(window.location.search)).get('party') =
 
 loadContent();
 
+/* ── applyI18n: update all data-i18n elements with current language ── */
+function applyI18n() {
+  /* Text content — only leaf nodes (no nested data-i18n children) */
+  document.querySelectorAll('[data-i18n]').forEach(function(el) {
+    if (el.querySelector('[data-i18n]')) return; /* skip non-leaf */
+    var key = el.getAttribute('data-i18n');
+    var val = t(key);
+    if (typeof val === 'string') el.textContent = val;
+  });
+  /* Placeholders */
+  document.querySelectorAll('[data-i18n-ph]').forEach(function(el) {
+    var key = el.getAttribute('data-i18n-ph');
+    var val = t(key);
+    if (typeof val === 'string') el.placeholder = val;
+  });
+  /* Ceremony attend buttons: church-only vs combined */
+  var attendLabel = document.querySelector('.attend-field .attend-label [data-i18n="ceremonyAttendLabel"]');
+  if (attendLabel) {
+    if (__inviteParty) {
+      attendLabel.textContent = t('ceremonyAttendLabel');
+    } else {
+      /* Church-only: replace label text with the attendance question */
+      attendLabel.textContent = t('churchOnlyQuestion');
+    }
+  }
+  /* Attend Yes/No buttons — church row */
+  var attendYesBtnSpan = document.querySelector('#attendYes [data-i18n="attendingBtn"]');
+  var attendNoBtnSpan  = document.querySelector('#attendNo [data-i18n="notAttendingBtn"]');
+  if (attendYesBtnSpan) attendYesBtnSpan.textContent = t('attendingBtn');
+  if (attendNoBtnSpan)  attendNoBtnSpan.textContent  = t('notAttendingBtn');
+  /* Party row: use separate party button labels for combined invites */
+  var partyYesBtnSpan = document.querySelector('#partyYesBtn [data-i18n="attendingBtn"]');
+  var partyNoBtnSpan  = document.querySelector('#partyNoBtn [data-i18n="notAttendingBtn"]');
+  if (partyYesBtnSpan) partyYesBtnSpan.textContent = t(__inviteParty ? 'attendingBtnParty' : 'attendingBtn');
+  if (partyNoBtnSpan)  partyNoBtnSpan.textContent  = t(__inviteParty ? 'notAttendingBtnParty' : 'notAttendingBtn');
+  /* Mark active lang button */
+  document.querySelectorAll('.lang-btn').forEach(function(btn) {
+    btn.classList.toggle('is-active', btn.getAttribute('data-lang') === window.__LANG);
+  });
+}
+
+/* ── Language switcher ────────────────────────────────────── */
+document.querySelectorAll('.lang-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    var lang = btn.getAttribute('data-lang');
+    if (!lang || !window.I18N[lang]) return;
+    window.__LANG = lang;
+    localStorage.setItem('wedding_lang', lang);
+    /* Re-run content rendering with the new language */
+    var agendaEl = document.getElementById('ceremony-agenda');
+    if (agendaEl) agendaEl.innerHTML = '';
+    var storyEl = document.getElementById('story-paragraphs');
+    if (storyEl) storyEl.innerHTML = '';
+    var faqEl = document.getElementById('faq-list');
+    if (faqEl) faqEl.innerHTML = '';
+    var dressPalette = document.getElementById('dress-palette');
+    if (dressPalette) dressPalette.innerHTML = '';
+    /* Clear crew containers */
+    ['crew-groom','crew-bride','crew-other'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.innerHTML = '';
+    });
+    loadContent();
+    applyI18n();
+  });
+});
 
 /* ── 2. POPOVER LOGIC ────────────────────────────────────── */
 
@@ -1066,6 +1132,9 @@ if (bsSubmit) bsSubmit.addEventListener("click", async function() {
     });
   }
 })();
+
+/* ── applyI18n on initial load — runs here so __inviteParty is final ── */
+applyI18n();
 
 
 /* ── STICKY RSVP BANNER: removed — replaced by personalised gate + floating card system ── */
