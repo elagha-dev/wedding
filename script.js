@@ -407,8 +407,6 @@ var totalSeatsInput   = document.getElementById("totalSeats");
 var bringShareCheckbox= document.getElementById("bringShareCheckbox");
 var bringShareRow     = document.getElementById("bringShareRow");
 var eveningAttendField= document.getElementById("eveningAttendField");
-var declineMessage    = document.getElementById("declineMessage");
-var declineBlock      = document.getElementById("declineBlock");
 var rsvpStatus        = document.getElementById("rsvpStatus");
 var rsvpSuccess       = document.getElementById("rsvpSuccess");
 var rsvpCard          = document.querySelector(".rsvp-card");
@@ -477,7 +475,6 @@ function onAttendanceChange() {
   if (!anyAttending) setChildrenCount(0);
   /* Decline note only when not attending anything, and only once a choice has been made */
   var choiceMade = (attendanceSelect && attendanceSelect.value !== "");
-  if (declineBlock) declineBlock.style.display = (choiceMade && !anyAttending) ? "" : "none";
   recalcSeats();
 }
 
@@ -494,8 +491,7 @@ function setChildrenCount(next) {
 /* ── Guest checkboxes ─────────────────────────────────────── */
 function fillNameFromGuests() {
   var firstField = rsvpWizard && rsvpWizard.querySelector('[name="first_name"]');
-  var lastField  = rsvpWizard && rsvpWizard.querySelector('[name="last_name"]');
-  if (!firstField) return;
+    if (!firstField) return;
   var checked = [];
   if (guestChecksEl) {
     guestChecksEl.querySelectorAll('input[type="checkbox"]').forEach(function(cb) {
@@ -539,8 +535,7 @@ function buildGuestChecks(guests) {
 
   /* Update field labels based on guest count */
   var firstLabel = document.querySelector('[name="first_name"]');
-  var lastLabel  = document.querySelector('[name="last_name"]');
-  if (firstLabel) {
+    if (firstLabel) {
     var fl = firstLabel.closest('.field-label');
     if (fl) fl.querySelector('span').textContent = isMultiple ? 'Your names' : 'First name';
     firstLabel.placeholder = isMultiple ? 'Your names' : 'First name';
@@ -665,7 +660,6 @@ function resetWizard() {
     guestChecksEl.querySelectorAll('.guest-toggle-btn').forEach(function(btn) { btn.classList.add('is-active'); });
   }
   if (bringShareCheckbox) { bringShareCheckbox.classList.remove('is-active'); bringShareCheckbox.setAttribute('aria-pressed','false'); }
-  if (declineMessage) declineMessage.value = "";
   setChildrenCount(0);
   setAttendance("Yes");
   setPartyAttendance("No");
@@ -724,8 +718,7 @@ if (wSubmit) wSubmit.addEventListener("click", async function() {
   var partyAttending = isPartyAttending();
   var anyAttending   = attending || partyAttending;
   var fn  = (rsvpWizard && rsvpWizard.querySelector('[name="first_name"]') || {}).value || "";
-  var ln  = (rsvpWizard && rsvpWizard.querySelector('[name="last_name"]')  || {}).value || "";
-
+  
   var guestNames = __guests.length
     ? __guests.filter(function(_, i) {
         var cb = guestChecksEl && guestChecksEl.querySelector('input[name="guest_' + i + '"]');
@@ -744,8 +737,7 @@ if (wSubmit) wSubmit.addEventListener("click", async function() {
   var payload = {
     type:                "rsvp",
     first_name:          fn,
-    last_name:           ln,
-    name:                (fn + " " + ln).trim(),
+    name:                fn,
     invited_to_party:    __inviteParty  ? "Yes" : "No",
     attendance:          attending      ? "Yes" : "No",
     party_attendance:    partyAttending ? "Yes" : "No",
@@ -762,7 +754,7 @@ if (wSubmit) wSubmit.addEventListener("click", async function() {
       body: JSON.stringify(payload)
     });
     if (rsvpStatus) rsvpStatus.textContent = "";
-    var rsvpFullName = (fn + " " + ln).trim();
+    var rsvpFullName = fn.trim();
     window.__lastRsvpName = rsvpFullName;
     var wantsBringShare = attending && bringShareCheckbox && bringShareCheckbox.classList.contains('is-active');
     window.__pendingBringShare = wantsBringShare ? rsvpFullName : null;
@@ -1026,8 +1018,7 @@ if (bsSubmit) bsSubmit.addEventListener("click", async function() {
 
   /* ── Pre-fill name fields ──────────────────────────────── */
   var firstField = document.querySelector('[name="first_name"]');
-  var lastField  = document.querySelector('[name="last_name"]');
-  if (firstField && prefillFirst) firstField.value = prefillFirst;
+    if (firstField && prefillFirst) firstField.value = prefillFirst;
   if (lastField  && prefillLast)  lastField.value  = prefillLast;
 
   /* ── Guest checkboxes (couples only) ───────────────────── */

@@ -79,11 +79,19 @@ window.I18N = {
       "<p class=\"deadline\">Please confirm your attendance by <strong>18 September</strong>.</p>",
 
     greetingLetterCeremony:
-      
+      "<ul class=\"letter-timeline\">" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">13:30</span><span class=\"letter-timeline-label\">Get together</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">14:00</span><span class=\"letter-timeline-label\">Ceremony</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">15:00–16:00</span><span class=\"letter-timeline-label\">Bring &amp; Share Reception</span></div></li>" +
+      "</ul>" +
       "<p class=\"deadline\">Please confirm your attendance by <strong>18 September</strong>.</p>",
 
     greetingLetterCeremonySingle:
-      
+      "<ul class=\"letter-timeline\">" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">13:30</span><span class=\"letter-timeline-label\">Get together</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">14:00</span><span class=\"letter-timeline-label\">Ceremony</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">15:00–16:00</span><span class=\"letter-timeline-label\">Bring &amp; Share Reception</span></div></li>" +
+      "</ul>" +
       "<p class=\"deadline\">Please confirm your attendance by <strong>18 September</strong>.</p>",
 
     /* ── RSVP Wizard ── */
@@ -107,7 +115,8 @@ window.I18N = {
     attendingBtn   : "Attending",
     notAttendingBtn: "Not Attending",
     childrenLabel  : "Children attending",
-    bringShareLabel: "I'll join the Bring & Share",
+    bringShareAttendLabel: "🎂 Bring & Share · After ceremony",
+    bringShareLabel: "I'll join",
     seatConfirmLabel: "Total seats reserved for you",
     seatHint       : "Adjust if needed — every seat helps us plan. 🙏",
     declineLabel   : "Leave us a note (optional)",
@@ -358,11 +367,19 @@ window.I18N = {
       "<p class=\"deadline\">Bitte bestätige deine Teilnahme bis zum <strong>18. September</strong>.</p>",
 
     greetingLetterCeremony:
-      
+      "<ul class=\"letter-timeline\">" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">13:30</span><span class=\"letter-timeline-label\">Ankommen</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">14:00</span><span class=\"letter-timeline-label\">Zeremonie</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">15:00–16:00</span><span class=\"letter-timeline-label\">Bring &amp; Share Empfang</span></div></li>" +
+      "</ul>" +
       "<p class=\"deadline\">Bitte bestätigt eure Teilnahme bis zum <strong>18. September</strong>.</p>",
 
     greetingLetterCeremonySingle:
-      
+      "<ul class=\"letter-timeline\">" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">13:30</span><span class=\"letter-timeline-label\">Ankommen</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">14:00</span><span class=\"letter-timeline-label\">Zeremonie</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">15:00–16:00</span><span class=\"letter-timeline-label\">Bring &amp; Share Empfang</span></div></li>" +
+      "</ul>" +
       "<p class=\"deadline\">Bitte bestätige deine Teilnahme bis zum <strong>18. September</strong>.</p>",
 
     step1Label       : "Schritt 1 von 2 — Eure Daten & Teilnahme",
@@ -385,7 +402,8 @@ window.I18N = {
     attendingBtn   : "Ich komme",
     notAttendingBtn: "Ich kann nicht",
     childrenLabel  : "Kinder dabei",
-    bringShareLabel: "Ich mache beim Bring & Share mit",
+    bringShareAttendLabel: "🎂 Bring & Share · Nach der Zeremonie",
+    bringShareLabel: "Ich mache mit",
     seatConfirmLabel: "Reservierte Plätze insgesamt",
     seatHint       : "Bei Bedarf anpassen — jeder Platz hilft uns bei der Planung. 🙏",
     declineLabel   : "Hinterlasst uns eine Nachricht (optional)",
@@ -624,11 +642,19 @@ window.I18N = {
       "<p class=\"deadline\">Пожалуйста, подтверди участие до <strong>18 сентября</strong>.</p>",
 
     greetingLetterCeremony:
-      
+      "<ul class=\"letter-timeline\">" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">13:30</span><span class=\"letter-timeline-label\">Сбор гостей</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">14:00</span><span class=\"letter-timeline-label\">Церемония</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">15:00–16:00</span><span class=\"letter-timeline-label\">Bring &amp; Share приём</span></div></li>" +
+      "</ul>" +
       "<p class=\"deadline\">Пожалуйста, подтвердите участие до <strong>18 сентября</strong>.</p>",
 
     greetingLetterCeremonySingle:
-      
+      "<ul class=\"letter-timeline\">" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">13:30</span><span class=\"letter-timeline-label\">Сбор гостей</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">14:00</span><span class=\"letter-timeline-label\">Церемония</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">15:00–16:00</span><span class=\"letter-timeline-label\">Bring &amp; Share приём</span></div></li>" +
+      "</ul>" +
       "<p class=\"deadline\">Пожалуйста, подтверди участие до <strong>18 сентября</strong>.</p>",
 
     step1Label       : "Шаг 1 из 2 — Ваши данные и посещение",
@@ -651,7 +677,8 @@ window.I18N = {
     attendingBtn   : "Буду",
     notAttendingBtn: "Не смогу",
     childrenLabel  : "Дети",
-    bringShareLabel: "Я участвую в Bring & Share",
+    bringShareAttendLabel: "🎂 Bring & Share · После церемонии",
+    bringShareLabel: "Я участвую",
     seatConfirmLabel: "Зарезервировано мест",
     seatHint       : "Скорректируйте при необходимости — каждое место помогает нам в планировании. 🙏",
     declineLabel   : "Оставьте нам сообщение (необязательно)",
