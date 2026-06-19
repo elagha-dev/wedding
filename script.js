@@ -591,6 +591,8 @@ function autoFitNameField(field) {
 })();
 
 function buildGuestChecks(guests) {
+  /* Re-query in case the element wasn't in the DOM when the var was first set */
+  if (!guestChecksEl) guestChecksEl = document.getElementById('guestChecks');
   if (!guestChecksEl || !guests || !guests.length) return;
   guestChecksEl.innerHTML = '';
 
