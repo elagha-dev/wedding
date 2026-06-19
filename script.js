@@ -714,7 +714,11 @@ function updateSelectionSummary() {
 
   /* ── Payload bar ── */
   if (ppAttendance) ppAttendance.textContent = attendingEffectively ? 'Yes' : 'No';
-  if (ppGuests)     ppGuests.textContent     = activeNames.length > 0 ? activeNames.join(', ') : '—';
+  /* For single invites there are no guest-toggle-btns — fall back to the URL-parsed name */
+  var guestDisplay = activeNames.length > 0
+    ? activeNames.join(', ')
+    : (!hasGuests && isAttending() && __guests.length > 0 ? __guests.join(', ') : '—');
+  if (ppGuests) ppGuests.textContent = guestDisplay;
 
   /* ── Submit button morphs like the prototype ── */
   if (wSubmit && hasGuests) {
@@ -896,7 +900,7 @@ if (wSubmit) wSubmit.addEventListener("click", async function() {
       body: JSON.stringify(payload)
     });
     if (rsvpStatus) rsvpStatus.textContent = "";
-    var rsvpFullName = fn.trim();
+    var rsvpFullName = fn.trim() || (__guests.length === 1 ? __guests[0] : __guests.join(' & '));
     window.__lastRsvpName = rsvpFullName;
     var wantsBringShare = attending && bringShareCheckbox && bringShareCheckbox.classList.contains('is-active');
     window.__pendingBringShare = wantsBringShare ? rsvpFullName : null;
