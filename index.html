@@ -298,6 +298,56 @@
       text-decoration: underline;
     }
 
+    /* Mini schedule timeline inside the greeting letter */
+    .letter-timeline {
+      margin: 8px 0 14px;
+      padding: 0;
+      list-style: none;
+    }
+    .letter-timeline-item {
+      position: relative;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding-bottom: 16px;
+      padding-left: 2px;
+    }
+    .letter-timeline-item:last-child { padding-bottom: 0; }
+    .letter-timeline-item::before {
+      /* connecting line */
+      content: "";
+      position: absolute;
+      left: 4px;
+      top: 14px;
+      bottom: -2px;
+      width: 1px;
+      background: rgba(122,81,51,.28);
+    }
+    .letter-timeline-item:last-child::before { display: none; }
+    .letter-timeline-dot {
+      flex-shrink: 0;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #7a5133;
+      margin-top: 5px;
+      box-shadow: 0 0 0 3px rgba(122,81,51,.12);
+    }
+    .letter-timeline-body { flex: 1; }
+    .letter-timeline-time {
+      font-family: WeddingSerif, Georgia, serif;
+      font-size: 12px;
+      font-weight: 700;
+      color: #7a5133;
+      letter-spacing: .02em;
+    }
+    .letter-timeline-label {
+      font-family: WeddingSerif, Georgia, serif;
+      font-size: 11.5px;
+      color: rgba(49,39,28,.80);
+      margin-left: 6px;
+    }
+
     /* Letter paragraphs */
     .rsvp-intro-letter {
       font-family: WeddingSerif, Georgia, serif;
