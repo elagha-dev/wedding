@@ -555,22 +555,13 @@ function setChildrenCount(next) {
 
 /* ── Guest checkboxes ─────────────────────────────────────── */
 function fillNameFromGuests() {
+  /* Keep first_name locked to the full originally-invited party
+     (e.g. "Patrick & Steffi") regardless of which guests are toggled
+     on/off, so the sheet always shows who the RSVP belongs to —
+     even on a full decline. */
   var firstField = rsvpWizard && rsvpWizard.querySelector('[name="first_name"]');
-    if (!firstField) return;
-  var checked = [];
-  if (guestChecksEl) {
-    guestChecksEl.querySelectorAll('input[type="checkbox"]').forEach(function(cb) {
-      if (cb.checked) checked.push(cb.value);
-    });
-  }
-  if (checked.length === 0) {
-    firstField.value = '';
-  } else if (checked.length === 1) {
-    var parts = checked[0].split(/\s+/);
-    firstField.value = parts[0] || '';
-  } else {
-    firstField.value = checked.join(' & ');
-  }
+  if (!firstField) return;
+  firstField.value = __guests.length ? __guests.join(' & ') : firstField.value;
   autoFitNameField(firstField);
 }
 
