@@ -407,6 +407,8 @@ var totalSeatsInput   = document.getElementById("totalSeats");
 var bringShareCheckbox= document.getElementById("bringShareCheckbox");
 var bringShareRow     = document.getElementById("bringShareRow");
 var eveningAttendField= document.getElementById("eveningAttendField");
+var declineMessage    = document.getElementById("declineMessage");
+var declineBlock      = document.getElementById("declineBlock");
 var rsvpStatus        = document.getElementById("rsvpStatus");
 var rsvpSuccess       = document.getElementById("rsvpSuccess");
 var rsvpCard          = document.querySelector(".rsvp-card");
@@ -418,11 +420,24 @@ var successMessage    = document.getElementById("successMessage");
 var newRsvpBtn        = document.getElementById("newRsvpBtn");
 var giftBanner        = document.getElementById("giftBanner");
 
-/* Wizard elements (single step) */
+/* Wizard step elements */
 var wStep1  = document.getElementById("wStep1");
+var wStep2  = document.getElementById("wStep2");
+var wStep3  = document.getElementById("wStep3");
+var wNext1  = document.getElementById("wNext1");
+var wBack2  = document.getElementById("wBack2");
+var wNext2  = document.getElementById("wNext2");
+var wBack3  = document.getElementById("wBack3");
 var wSubmit = document.getElementById("wSubmit");
 
-/* Attend buttons */
+/* Seat stepper (step 3) */
+var seatDisplay = document.getElementById("seatDisplay");
+var seatSummary = document.getElementById("seatSummary");
+var seatMinus   = document.getElementById("seatMinus");
+var seatPlus    = document.getElementById("seatPlus");
+var seatConfirm = document.getElementById("seatConfirm");
+
+/* Attend buttons (step 2) */
 var attendYesBtn  = document.getElementById("attendYes");
 var attendNoBtn   = document.getElementById("attendNo");
 var partyYesBtn   = document.getElementById("partyYesBtn");
@@ -440,9 +455,16 @@ function getGuestCode() {
   return p.get("guest") || p.get("invite") || "";
 }
 
-/* ── Sync invite-type dependent UI: evening row ── */
-function applyInviteTypeUI() {
-  if (eveningAttendField) eveningAttendField.style.display = __inviteParty ? "" : "none";
+/* ── Wizard dot progress ──────────────────────────────────── */
+function setWizardStep(n) {
+  [wStep1, wStep2, wStep3].forEach(function(s, i) {
+    if (!s) return;
+    s.classList.toggle("is-active", i + 1 === n);
+  });
+  document.querySelectorAll(".wizard-dot").forEach(function(d, i) {
+    d.classList.toggle("is-active", i + 1 === n);
+    d.classList.toggle("is-done",   i + 1 < n);
+  });
 }
 
 /* ── Attendance helpers ──────────────────────────────────── */
@@ -460,6 +482,9 @@ function setPartyAttendance(val) {
   if (partyAttendSelect) partyAttendSelect.value = val;
   if (partyYesBtn) partyYesBtn.classList.toggle("is-active", val === "Yes");
   if (partyNoBtn)  partyNoBtn.classList.toggle("is-active",  val === "No");
+  /* Show car checkbox when evening is selected */
+  var carRow = document.getElementById("comingByCarRow");
+  if (carRow) carRow.style.display = (val === "Yes") ? "" : "none";
   onAttendanceChange();
 }
 
@@ -467,14 +492,12 @@ function onAttendanceChange() {
   var attending = isAttending();
   /* Bring & Share only for church attendees */
   if (bringShareRow) bringShareRow.style.display = attending ? "" : "none";
-  if (!attending && bringShareCheckbox) { bringShareCheckbox.classList.remove('is-active'); bringShareCheckbox.setAttribute('aria-pressed','false'); }
+  if (!attending && bringShareCheckbox) bringShareCheckbox.checked = false;
   /* Kids: show if attending anything */
   var anyAttending = attending || isPartyAttending();
   var childrenRow = document.getElementById("childrenRow");
   if (childrenRow) childrenRow.style.display = anyAttending ? "" : "none";
   if (!anyAttending) setChildrenCount(0);
-  /* Decline note only when not attending anything, and only once a choice has been made */
-  var choiceMade = (attendanceSelect && attendanceSelect.value !== "");
   recalcSeats();
 }
 
@@ -491,7 +514,8 @@ function setChildrenCount(next) {
 /* ── Guest checkboxes ─────────────────────────────────────── */
 function fillNameFromGuests() {
   var firstField = rsvpWizard && rsvpWizard.querySelector('[name="first_name"]');
-    if (!firstField) return;
+  var lastField  = rsvpWizard && rsvpWizard.querySelector('[name="last_name"]');
+  if (!firstField) return;
   var checked = [];
   if (guestChecksEl) {
     guestChecksEl.querySelectorAll('input[type="checkbox"]').forEach(function(cb) {
@@ -535,7 +559,8 @@ function buildGuestChecks(guests) {
 
   /* Update field labels based on guest count */
   var firstLabel = document.querySelector('[name="first_name"]');
-    if (firstLabel) {
+  var lastLabel  = document.querySelector('[name="last_name"]');
+  if (firstLabel) {
     var fl = firstLabel.closest('.field-label');
     if (fl) fl.querySelector('span').textContent = isMultiple ? 'Your names' : 'First name';
     firstLabel.placeholder = isMultiple ? 'Your names' : 'First name';
@@ -594,8 +619,16 @@ function recalcSeats() {
 }
 
 function updateSeatDisplay() {
-  /* Seat UI removed from the simplified RSVP; __seatCount is still tracked
-     internally for the submitted payload (used by Bring & Share / planning). */
+  if (seatDisplay) seatDisplay.textContent = String(__seatCount);
+  if (seatSummary) {
+    var adults   = isAttending() ? checkedGuestCount() : (isPartyAttending() ? checkedGuestCount() : 0);
+    var children = getChildrenCount();
+    var parts = [];
+    if (adults > 0)   parts.push(adults   + ' ' + t(adults   === 1 ? 'adultSingular'  : 'adultPlural'));
+    if (children > 0) parts.push(children + ' ' + t(children === 1 ? 'childSingular' : 'childPlural'));
+    seatSummary.textContent = parts.length ? "(" + parts.join(" + ") + ")" : "";
+  }
+  if (seatConfirm) seatConfirm.style.display = (__seatCount > 0) ? "" : "none";
 }
 
 function setSeatCount(v) {
@@ -640,7 +673,7 @@ function showSuccessScreen(attending) {
 
   /* Bring & Share nudge */
   var nudgeBtn = document.getElementById("bsNudgeBtn");
-  if (nudgeBtn) nudgeBtn.style.display = (attending && bringShareCheckbox && bringShareCheckbox.classList.contains('is-active')) ? "" : "none";
+  if (nudgeBtn) nudgeBtn.style.display = (attending && bringShareCheckbox && bringShareCheckbox.checked) ? "" : "none";
 
   /* Always show new RSVP link */
   if (newRsvpBtn) newRsvpBtn.style.display = "inline-flex";
@@ -659,7 +692,8 @@ function resetWizard() {
     guestChecksEl.querySelectorAll('input[type="checkbox"]').forEach(function(cb) { cb.checked = true; });
     guestChecksEl.querySelectorAll('.guest-toggle-btn').forEach(function(btn) { btn.classList.add('is-active'); });
   }
-  if (bringShareCheckbox) { bringShareCheckbox.classList.remove('is-active'); bringShareCheckbox.setAttribute('aria-pressed','false'); }
+  if (bringShareCheckbox) bringShareCheckbox.checked = false;
+  if (declineMessage) declineMessage.value = "";
   setChildrenCount(0);
   setAttendance("Yes");
   setPartyAttendance("No");
@@ -674,6 +708,7 @@ function resetWizard() {
   /* Also fix pre-selection state */
   if (attendanceSelect)  attendanceSelect.value = "";
   if (partyAttendSelect) partyAttendSelect.value = "";
+  setWizardStep(1);
 }
 
 /* ── Wire up attend buttons ───────────────────────────────── */
@@ -686,16 +721,31 @@ if (partyNoBtn)   partyNoBtn.addEventListener("click",   function() { setPartyAt
 if (kidsMinus) kidsMinus.addEventListener("click", function() { setChildrenCount(getChildrenCount() - 1); });
 if (kidsPlus)  kidsPlus.addEventListener("click",  function() { setChildrenCount(getChildrenCount() + 1); });
 
+/* Seat stepper */
+if (seatMinus) seatMinus.addEventListener("click", function() { __manualSeatOverride = true; setSeatCount(__seatCount - 1); });
+if (seatPlus)  seatPlus.addEventListener("click",  function() { __manualSeatOverride = true; setSeatCount(__seatCount + 1); });
+
 /* New RSVP button */
 if (newRsvpBtn) newRsvpBtn.addEventListener("click", function(e) { e.preventDefault(); resetWizard(); });
 
-/* ── Submit (single step: validate then send) ─────────────── */
-if (wSubmit) wSubmit.addEventListener("click", async function() {
-  var fnField = rsvpWizard && rsvpWizard.querySelector('[name="first_name"]');
-  if (fnField && !fnField.value.trim()) { fnField.focus(); fnField.setAttribute("placeholder", "Required ↑"); return; }
+/* ── Wizard step navigation ───────────────────────────────── */
+if (wNext1) wNext1.addEventListener("click", function() {
+  var fn = rsvpWizard && rsvpWizard.querySelector('[name="first_name"]');
+  var em = rsvpWizard && rsvpWizard.querySelector('[name="email"]');
+  if (fn && !fn.value.trim()) { fn.focus(); fn.setAttribute("placeholder", "Required ↑"); return; }
+  if (em && !em.checkValidity()) { em.focus(); return; }
+  setWizardStep(2);
+  /* Show evening row if party invite */
+  if (eveningAttendField) eveningAttendField.style.display = __inviteParty ? "" : "none";
+  onAttendanceChange();
+});
 
+if (wBack2) wBack2.addEventListener("click", function() { setWizardStep(1); });
+
+if (wNext2) wNext2.addEventListener("click", function() {
   /* Validate: ceremony attendance must be chosen */
   if (!attendanceSelect || attendanceSelect.value === "") {
+    var rsvpSt = document.getElementById("rsvpStatus") || { textContent: "" };
     var errMsg = document.createElement("p");
     errMsg.style.cssText = "color:#7a5133;font-size:10px;letter-spacing:.05em;margin:6px 0 0;font-family:WeddingSerif,Georgia,serif;";
     errMsg.id = "attendErr";
@@ -708,17 +758,29 @@ if (wSubmit) wSubmit.addEventListener("click", async function() {
   }
   var existingErr = document.getElementById("attendErr");
   if (existingErr) existingErr.remove();
-
   /* Build seat total from current state */
   __manualSeatOverride = false;
   recalcSeats();
-  onAttendanceChange();
+  /* Show/hide decline block */
+  var anyAttending = isAttending() || isPartyAttending();
+  if (declineBlock) declineBlock.style.display = !anyAttending ? "" : "none";
+  if (seatConfirm)  seatConfirm.style.display  =  anyAttending ? "" : "none";
+  setWizardStep(3);
+  updateSeatDisplay();
+});
 
+if (wBack3) wBack3.addEventListener("click", function() { setWizardStep(2); });
+
+if (wSubmit) wSubmit.addEventListener("click", async function() {
   var attending      = isAttending();
   var partyAttending = isPartyAttending();
   var anyAttending   = attending || partyAttending;
   var fn  = (rsvpWizard && rsvpWizard.querySelector('[name="first_name"]') || {}).value || "";
-  
+  var ln  = (rsvpWizard && rsvpWizard.querySelector('[name="last_name"]')  || {}).value || "";
+  var em  = (rsvpWizard && rsvpWizard.querySelector('[name="email"]')      || {}).value || "";
+  var ph  = (rsvpWizard && rsvpWizard.querySelector('[name="phone"]')      || {}).value || "";
+  var msg = (declineMessage && declineMessage.value) || "";
+
   var guestNames = __guests.length
     ? __guests.filter(function(_, i) {
         var cb = guestChecksEl && guestChecksEl.querySelector('input[name="guest_' + i + '"]');
@@ -737,14 +799,18 @@ if (wSubmit) wSubmit.addEventListener("click", async function() {
   var payload = {
     type:                "rsvp",
     first_name:          fn,
-    name:                fn,
+    last_name:           ln,
+    name:                (fn + " " + ln).trim(),
+    email:               em,
+    phone:               ph,
     invited_to_party:    __inviteParty  ? "Yes" : "No",
     attendance:          attending      ? "Yes" : "No",
     party_attendance:    partyAttending ? "Yes" : "No",
     guests_attending:    guestNames,
     children:            anyAttending   ? String(getChildrenCount()) : "0",
     seats:               anyAttending   ? String(__seatCount) : "0",
-    join_bring_share:    attending && bringShareCheckbox && bringShareCheckbox.classList.contains('is-active') ? "Yes" : "No"
+    join_bring_share:    attending && bringShareCheckbox && bringShareCheckbox.checked ? "Yes" : "No",
+    coming_by_car:       (document.getElementById('comingByCar') && document.getElementById('comingByCar').checked) ? "Yes" : "No"
   };
 
   try {
@@ -754,9 +820,9 @@ if (wSubmit) wSubmit.addEventListener("click", async function() {
       body: JSON.stringify(payload)
     });
     if (rsvpStatus) rsvpStatus.textContent = "";
-    var rsvpFullName = fn.trim();
+    var rsvpFullName = (fn + " " + ln).trim();
     window.__lastRsvpName = rsvpFullName;
-    var wantsBringShare = attending && bringShareCheckbox && bringShareCheckbox.classList.contains('is-active');
+    var wantsBringShare = attending && bringShareCheckbox && bringShareCheckbox.checked;
     window.__pendingBringShare = wantsBringShare ? rsvpFullName : null;
     showSuccessScreen(anyAttending);
     if (wantsBringShare) {
@@ -769,8 +835,8 @@ if (wSubmit) wSubmit.addEventListener("click", async function() {
 });
 
 /* Initialise */
-applyInviteTypeUI();
 onAttendanceChange();
+setWizardStep(1);
 
 
 /* ── BRING & SHARE MODAL ─────────────────────────────────── */
@@ -814,9 +880,7 @@ function closeBringShare() {
 
 /* Open modal when bring&share checkbox is ticked after RSVP success */
 if (bringShareCheckbox) {
-  bringShareCheckbox.addEventListener("click", function() {
-    var active = bringShareCheckbox.classList.toggle('is-active');
-    bringShareCheckbox.setAttribute('aria-pressed', active ? 'true' : 'false');
+  bringShareCheckbox.addEventListener("change", function() {
     /* Just track the checkbox — modal opens after RSVP submit if checked */
   });
 }
@@ -979,7 +1043,7 @@ if (bsSubmit) bsSubmit.addEventListener("click", async function() {
       rsvpBeginBtnGeneric.addEventListener('click', function() {
         if (rsvpIntroGeneric)  rsvpIntroGeneric.classList.add('is-hidden');
         if (rsvpWizardEl0)     rsvpWizardEl0.classList.remove('is-hidden');
-        applyInviteTypeUI();
+        setWizardStep(1);
       });
     }
     return;
@@ -1018,7 +1082,8 @@ if (bsSubmit) bsSubmit.addEventListener("click", async function() {
 
   /* ── Pre-fill name fields ──────────────────────────────── */
   var firstField = document.querySelector('[name="first_name"]');
-    if (firstField && prefillFirst) firstField.value = prefillFirst;
+  var lastField  = document.querySelector('[name="last_name"]');
+  if (firstField && prefillFirst) firstField.value = prefillFirst;
   if (lastField  && prefillLast)  lastField.value  = prefillLast;
 
   /* ── Guest checkboxes (couples only) ───────────────────── */
@@ -1070,7 +1135,7 @@ if (bsSubmit) bsSubmit.addEventListener("click", async function() {
     rsvpBeginBtn.addEventListener('click', function() {
       if (rsvpIntroEl)   rsvpIntroEl.classList.add('is-hidden');
       if (rsvpWizardEl)  rsvpWizardEl.classList.remove('is-hidden');
-      applyInviteTypeUI();
+      setWizardStep(1);
     });
   }
 })();
