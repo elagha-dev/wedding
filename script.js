@@ -328,12 +328,17 @@ loadContent();
 
 /* ── applyI18n: update all data-i18n elements with current language ── */
 function applyI18n() {
+  /* Keys whose values contain HTML markup — use innerHTML, not textContent */
+  var htmlKeys = ['bsArrivalText','bsContactHint','bsWarmHint'];
   /* Text content — only leaf nodes (no nested data-i18n children) */
   document.querySelectorAll('[data-i18n]').forEach(function(el) {
     if (el.querySelector('[data-i18n]')) return; /* skip non-leaf */
     var key = el.getAttribute('data-i18n');
     var val = t(key);
-    if (typeof val === 'string') el.textContent = val;
+    if (typeof val === 'string') {
+      if (htmlKeys.indexOf(key) !== -1) el.innerHTML = val;
+      else el.textContent = val;
+    }
   });
   /* Placeholders */
   document.querySelectorAll('[data-i18n-ph]').forEach(function(el) {
