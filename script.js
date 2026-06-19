@@ -354,8 +354,8 @@ function applyI18n() {
   /* Attend Yes/No buttons — church row */
   var attendYesBtnSpan = document.querySelector('#attendYes [data-i18n="attendingBtn"]');
   var attendNoBtnSpan  = document.querySelector('#attendNo [data-i18n="notAttendingBtn"]');
-  if (attendYesBtnSpan) attendYesBtnSpan.textContent = t('attendingBtn');
-  if (attendNoBtnSpan)  attendNoBtnSpan.textContent  = t('notAttendingBtn');
+  if (attendYesBtnSpan) attendYesBtnSpan.textContent = __inviteParty ? t('attendingBtn') : t('churchOnlyYesBtn');
+  if (attendNoBtnSpan)  attendNoBtnSpan.textContent  = __inviteParty ? t('notAttendingBtn') : t('churchOnlyNoBtn');
   /* Party row: use separate party button labels for combined invites */
   var partyYesBtnSpan = document.querySelector('#partyYesBtn [data-i18n="attendingBtn"]');
   var partyNoBtnSpan  = document.querySelector('#partyNoBtn [data-i18n="notAttendingBtn"]');
