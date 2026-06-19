@@ -693,7 +693,7 @@ function updateSelectionSummary() {
     var btnSpan = wSubmit.querySelector('span') || wSubmit;
     if (activeNames.length === 0) {
       /* Decline state — ghost button */
-      btnSpan.textContent = t('sendRsvpBtnDecline') || 'We sadly can't make it';
+      btnSpan.textContent = t('sendRsvpBtnDecline') || "We sadly can't make it";
       wSubmit.style.background   = 'transparent';
       wSubmit.style.color        = 'rgba(49,39,28,.5)';
       wSubmit.style.border       = '1px solid rgba(49,39,28,.22)';
