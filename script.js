@@ -602,33 +602,65 @@ function buildGuestChecks(guests) {
   guestHint.textContent = t('guestsHint') || 'Pre-selected — tap to deselect if someone can\'t attend.';
   guestChecksEl.appendChild(guestHint);
 
-  /* Build toggle buttons (no visible checkboxes) */
+  /* Build per-guest Yes/No rows. Each guest gets their own explicit
+     attendance choice instead of a single ambiguous toggle pill.
+     The "Yes" button carries .guest-toggle-btn.is-active so existing
+     downstream logic (checkedGuestCount, fillNameFromGuests, payload
+     building) keeps working unchanged — it just reads off the hidden
+     checkbox / is-active state as before. */
   var wrap = document.createElement('div');
-  wrap.className = 'guest-toggle-wrap';
+  wrap.className = 'guest-toggle-wrap guest-yesno-wrap';
   guests.forEach(function(name, i) {
-    var btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'attend-btn guest-toggle-btn is-active';
-    btn.dataset.guestIndex = i;
-    btn.dataset.guestName  = name;
-    btn.textContent = name;
-    /* Hidden checkbox behind the button for form data */
+    var row = document.createElement('div');
+    row.className = 'guest-yesno-row';
+
+    var nameLabel = document.createElement('span');
+    nameLabel.className = 'guest-yesno-name';
+    nameLabel.textContent = name;
+    row.appendChild(nameLabel);
+
+    /* Hidden checkbox behind the pair for form data — unchanged contract */
     var cb = document.createElement('input');
     cb.type = 'checkbox'; cb.name = 'guest_' + i; cb.value = name; cb.checked = true;
     cb.style.display = 'none';
     cb.id = 'guestCb_' + i;
-    btn.addEventListener('click', function() {
-      var active = btn.classList.toggle('is-active');
-      cb.checked = active;
+
+    var pair = document.createElement('div');
+    pair.className = 'guest-yesno-pair';
+
+    var yesBtn = document.createElement('button');
+    yesBtn.type = 'button';
+    yesBtn.className = 'attend-btn guest-toggle-btn guest-yes-btn is-active';
+    yesBtn.dataset.guestIndex = i;
+    yesBtn.dataset.guestName  = name;
+    yesBtn.textContent = t('yesBtnShort') || 'Yes';
+
+    var noBtn = document.createElement('button');
+    noBtn.type = 'button';
+    noBtn.className = 'attend-btn guest-no-btn';
+    noBtn.dataset.guestIndex = i;
+    noBtn.textContent = t('noBtnShort') || 'No';
+
+    function setGuestState(attending) {
+      cb.checked = attending;
+      yesBtn.classList.toggle('is-active', attending);
+      noBtn.classList.toggle('is-active', !attending);
       /* For couple invites, derive attendance from guest selections */
-        if (guestChecksEl && guestChecksEl.querySelectorAll('.guest-toggle-btn').length > 0) {
-          var anyActive = guestChecksEl.querySelectorAll('.guest-toggle-btn.is-active').length > 0;
-          setAttendance(anyActive ? 'Yes' : 'No');
-        }
-        recalcSeats(); fillNameFromGuests(); updateSelectionSummary();
-    });
-    wrap.appendChild(btn);
-    wrap.appendChild(cb);
+      if (guestChecksEl && guestChecksEl.querySelectorAll('.guest-toggle-btn').length > 0) {
+        var anyActive = guestChecksEl.querySelectorAll('.guest-toggle-btn.is-active').length > 0;
+        setAttendance(anyActive ? 'Yes' : 'No');
+      }
+      recalcSeats(); fillNameFromGuests(); updateSelectionSummary();
+    }
+
+    yesBtn.addEventListener('click', function() { setGuestState(true); });
+    noBtn.addEventListener('click', function() { setGuestState(false); });
+
+    pair.appendChild(yesBtn);
+    pair.appendChild(noBtn);
+    row.appendChild(pair);
+    row.appendChild(cb);
+    wrap.appendChild(row);
   });
   guestChecksEl.appendChild(wrap);
 }
@@ -758,6 +790,7 @@ function resetWizard() {
   if (guestChecksEl) {
     guestChecksEl.querySelectorAll('input[type="checkbox"]').forEach(function(cb) { cb.checked = true; });
     guestChecksEl.querySelectorAll('.guest-toggle-btn').forEach(function(btn) { btn.classList.add('is-active'); });
+    guestChecksEl.querySelectorAll('.guest-no-btn').forEach(function(btn) { btn.classList.remove('is-active'); });
   }
   if (bringShareCheckbox) { bringShareCheckbox.classList.remove('is-active'); bringShareCheckbox.setAttribute('aria-pressed','false'); }
   setChildrenCount(0);
