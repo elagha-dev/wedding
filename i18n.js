@@ -60,6 +60,10 @@ window.I18N = {
     /* ── Timeline nav ── */
     navCeremony: "💒 Wedding Ceremony",
     navParty   : "🥂 Evening Reception",
+    tlGetTogether: "Get together",
+    tlCeremony   : "Ceremony",
+    tlReception  : "Bring & Share",
+    tlParty      : "Evening Party",
 
     /* ── RSVP card ── */
     rsvpBeginBtn   : "Let us know you're coming →",
@@ -346,6 +350,10 @@ window.I18N = {
 
     navCeremony: "💒 Kirchliche Trauung",
     navParty   : "🥂 Abendempfang",
+    tlGetTogether: "Ankommen",
+    tlCeremony   : "Zeremonie",
+    tlReception  : "Bring & Share",
+    tlParty      : "Abendfeier",
 
     rsvpBeginBtn   : "Jetzt zur Anmeldung →",
     greetingDear   : "Liebe/Lieber",
@@ -620,6 +628,10 @@ window.I18N = {
 
     navCeremony: "💒 Венчание",
     navParty   : "🥂 Вечерний приём",
+    tlGetTogether: "Сбор гостей",
+    tlCeremony   : "Церемония",
+    tlReception  : "Bring & Share",
+    tlParty      : "Вечерний праздник",
 
     rsvpBeginBtn   : "Заполнить анкету →",
     greetingDear   : "Дорогие",
