@@ -469,7 +469,7 @@ function onAttendanceChange() {
   var attending = isAttending();
   /* Bring & Share only for church attendees */
   if (bringShareRow) bringShareRow.style.display = attending ? "" : "none";
-  if (!attending && bringShareCheckbox) bringShareCheckbox.checked = false;
+  if (!attending && bringShareCheckbox) { bringShareCheckbox.classList.remove('is-active'); bringShareCheckbox.setAttribute('aria-pressed','false'); }
   /* Kids: show if attending anything */
   var anyAttending = attending || isPartyAttending();
   var childrenRow = document.getElementById("childrenRow");
@@ -645,7 +645,7 @@ function showSuccessScreen(attending) {
 
   /* Bring & Share nudge */
   var nudgeBtn = document.getElementById("bsNudgeBtn");
-  if (nudgeBtn) nudgeBtn.style.display = (attending && bringShareCheckbox && bringShareCheckbox.checked) ? "" : "none";
+  if (nudgeBtn) nudgeBtn.style.display = (attending && bringShareCheckbox && bringShareCheckbox.classList.contains('is-active')) ? "" : "none";
 
   /* Always show new RSVP link */
   if (newRsvpBtn) newRsvpBtn.style.display = "inline-flex";
@@ -664,7 +664,7 @@ function resetWizard() {
     guestChecksEl.querySelectorAll('input[type="checkbox"]').forEach(function(cb) { cb.checked = true; });
     guestChecksEl.querySelectorAll('.guest-toggle-btn').forEach(function(btn) { btn.classList.add('is-active'); });
   }
-  if (bringShareCheckbox) bringShareCheckbox.checked = false;
+  if (bringShareCheckbox) { bringShareCheckbox.classList.remove('is-active'); bringShareCheckbox.setAttribute('aria-pressed','false'); }
   if (declineMessage) declineMessage.value = "";
   setChildrenCount(0);
   setAttendance("Yes");
@@ -752,7 +752,7 @@ if (wSubmit) wSubmit.addEventListener("click", async function() {
     guests_attending:    guestNames,
     children:            anyAttending   ? String(getChildrenCount()) : "0",
     seats:               anyAttending   ? String(__seatCount) : "0",
-    join_bring_share:    attending && bringShareCheckbox && bringShareCheckbox.checked ? "Yes" : "No"
+    join_bring_share:    attending && bringShareCheckbox && bringShareCheckbox.classList.contains('is-active') ? "Yes" : "No"
   };
 
   try {
@@ -764,7 +764,7 @@ if (wSubmit) wSubmit.addEventListener("click", async function() {
     if (rsvpStatus) rsvpStatus.textContent = "";
     var rsvpFullName = (fn + " " + ln).trim();
     window.__lastRsvpName = rsvpFullName;
-    var wantsBringShare = attending && bringShareCheckbox && bringShareCheckbox.checked;
+    var wantsBringShare = attending && bringShareCheckbox && bringShareCheckbox.classList.contains('is-active');
     window.__pendingBringShare = wantsBringShare ? rsvpFullName : null;
     showSuccessScreen(anyAttending);
     if (wantsBringShare) {
@@ -822,7 +822,9 @@ function closeBringShare() {
 
 /* Open modal when bring&share checkbox is ticked after RSVP success */
 if (bringShareCheckbox) {
-  bringShareCheckbox.addEventListener("change", function() {
+  bringShareCheckbox.addEventListener("click", function() {
+    var active = bringShareCheckbox.classList.toggle('is-active');
+    bringShareCheckbox.setAttribute('aria-pressed', active ? 'true' : 'false');
     /* Just track the checkbox — modal opens after RSVP submit if checked */
   });
 }
