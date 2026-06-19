@@ -593,15 +593,20 @@ function autoFitNameField(field) {
 function buildGuestChecks(guests) {
   if (!guestChecksEl || !guests || !guests.length) return;
   guestChecksEl.innerHTML = '';
-  var isMultiple = guests.length > 1;
 
-  /* Update field labels based on guest count */
-  var firstLabel = document.querySelector('[name="first_name"]');
-    if (firstLabel) {
-    var fl = firstLabel.closest('.field-label');
-    if (fl) fl.querySelector('span').textContent = isMultiple ? 'Your names' : 'First name';
-    firstLabel.placeholder = isMultiple ? 'Your names' : 'First name';
-  }
+  /* Add "Guests" label above the toggle buttons */
+  var guestLabel = document.createElement('span');
+  guestLabel.className = 'attend-label';
+  guestLabel.style.display = 'block';
+  guestLabel.style.marginBottom = '2px';
+  guestLabel.textContent = t('guestsLabel') || 'GUESTS';
+  guestChecksEl.appendChild(guestLabel);
+
+  /* Add hint about pre-selection */
+  var guestHint = document.createElement('p');
+  guestHint.style.cssText = 'font-family:WeddingSerif,Georgia,serif;font-size:10px;color:rgba(49,39,28,.45);letter-spacing:.02em;margin:0 0 8px;';
+  guestHint.textContent = t('guestsHint') || 'Pre-selected — tap to deselect if someone can\'t attend.';
+  guestChecksEl.appendChild(guestHint);
 
   /* Build toggle buttons (no visible checkboxes) */
   var wrap = document.createElement('div');
@@ -749,7 +754,6 @@ if (newRsvpBtn) newRsvpBtn.addEventListener("click", function(e) { e.preventDefa
 /* ── Submit (single step: validate then send) ─────────────── */
 if (wSubmit) wSubmit.addEventListener("click", async function() {
   var fnField = rsvpWizard && rsvpWizard.querySelector('[name="first_name"]');
-  if (fnField && !fnField.value.trim()) { fnField.focus(); fnField.setAttribute("placeholder", "Required ↑"); return; }
 
   /* Validate: ceremony attendance must be chosen */
   if (!attendanceSelect || attendanceSelect.value === "") {
