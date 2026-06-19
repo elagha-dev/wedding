@@ -714,14 +714,8 @@
           <button class="rsvp-begin-btn" id="rsvpBeginBtn" type="button"><span data-i18n="rsvpBeginBtn">Begin your RSVP →</span></button>
         </div>
 
-        <!-- RSVP Wizard -->
+        <!-- RSVP Wizard (single step) -->
         <div class="rsvp-wizard" id="rsvpWizard">
-
-          <!-- Step dots -->
-          <div class="wizard-dots" id="wizardDots">
-            <span class="wizard-dot is-active" data-step="1"></span>
-            <span class="wizard-dot" data-step="2"></span>
-          </div>
 
           <!-- Hidden fields -->
           <input type="hidden" name="attendance"       id="attendanceSelect"  value="" />
@@ -729,9 +723,8 @@
           <input type="hidden" name="children_count"   id="kidsCount"         value="0"   />
           <input type="hidden" name="seats_count"      id="totalSeats"        value="1"   />
 
-          <!-- ── Step 1: Your details + Attendance (merged) ── -->
+          <!-- ── Single step: Attendance + Name ── -->
           <div class="wizard-step is-active" id="wStep1">
-            <div class="wizard-step-label"><span data-i18n="step1Label">Step 1 of 2 — Your Details &amp; Attendance</span></div>
 
             <!-- Guest checkboxes for couples — populated by JS -->
             <div id="guestChecks" class="guest-checks"></div>
@@ -765,15 +758,6 @@
               </div>
             </div>
 
-            <!-- Car checkbox — shown when evening attendance is selected -->
-            <label class="check-row" id="comingByCarRow" style="display:none; margin-top:10px;">
-              <input type="checkbox" id="comingByCar" name="coming_by_car" value="Yes" />
-              <span>
-                <span data-i18n="comingByCarLabel" style="font-weight:600;">Coming by car?</span>
-                <span data-i18n="comingByCarHint" style="opacity:.65; font-size:.9em; display:block;">Tick this so we can help organise car sharing.</span>
-              </span>
-            </label>
-
             <!-- Kids stepper — shown when attending church OR evening -->
             <div class="attend-field" id="childrenRow" style="margin-top:14px;">
               <span class="attend-label" id="childrenLabel"><span data-i18n="childrenLabel">Children attending</span></span>
@@ -790,48 +774,13 @@
               <span><span data-i18n="bringShareLabel">I'll join the Bring &amp; Share</span></span>
             </label>
 
-            <button type="button" class="wizard-next-btn" id="wNext1" style="margin-top:14px;"><span data-i18n="nextBtn">Next →</span></button>
-          </div>
-
-          <!-- ── Step 2: Contact details (if attending) + Seat confirmation ── -->
-          <div class="wizard-step" id="wStep2">
-            <div class="wizard-step-label"><span data-i18n="step2Label">Step 2 of 2 — Confirm Seats</span></div>
-
-            <!-- Contact details — only requested when attending -->
-            <div class="contact-row" id="contactRow" style="display:none;">
-              <label class="field-label">
-                <span data-i18n="emailLabel">Email</span>
-                <input name="email" type="email" inputmode="email"
-                       autocomplete="email" placeholder="Email address" data-i18n-ph="emailPlaceholder" />
-              </label>
-              <label class="field-label">
-                <span data-i18n="phoneLabel">Phone</span>
-                <input name="phone" type="tel" inputmode="tel"
-                       autocomplete="tel" placeholder="Optional" data-i18n-ph="phonePlaceholder" />
-              </label>
-            </div>
-
-            <div class="seat-confirm" id="seatConfirm">
-              <p class="seat-confirm-label"><span data-i18n="seatConfirmLabel">Total seats reserved for you</span></p>
-              <div class="kids-stepper seat-stepper" id="seatStepper" aria-label="Total seats">
-                <button type="button" class="kids-cell kids-minus" id="seatMinus" aria-label="Decrease">−</button>
-                <span class="kids-cell kids-number" id="seatDisplay" aria-live="polite">1</span>
-                <button type="button" class="kids-cell kids-plus" id="seatPlus" aria-label="Increase">+</button>
-              </div>
-              <div class="seat-summary" id="seatSummary"><!-- filled by JS --></div>
-              <p class="seat-confirm-hint"><span data-i18n="seatHint">Adjust if needed — every seat helps us plan. 🙏</span></p>
-            </div>
-
-            <!-- Decline: optional note -->
-            <div id="declineBlock" style="display:none;">
+            <!-- Decline: optional note — shown when not attending anything -->
+            <div id="declineBlock" style="display:none; margin-top:14px;">
               <p class="wizard-step-label" style="margin-bottom:6px;"><span data-i18n="declineLabel">Leave us a note (optional)</span></p>
               <textarea id="declineMessage" name="decline_message" placeholder="We'll miss you — feel free to say something 💛" data-i18n-ph="declinePlaceholder" style="width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid rgba(49,39,28,.18);background:transparent;font-family:WeddingSerif,Georgia,serif;font-size:12px;color:#31271C;resize:vertical;min-height:60px;"></textarea>
             </div>
 
-            <div class="wizard-nav" style="margin-top:16px;">
-              <button type="button" class="wizard-back-btn" id="wBack2"><span data-i18n="backBtn">← Back</span></button>
-              <button type="button" class="wizard-next-btn" id="wSubmit"><span data-i18n="sendRsvpBtn">Send RSVP ✓</span></button>
-            </div>
+            <button type="button" class="wizard-next-btn" id="wSubmit" style="margin-top:14px;"><span data-i18n="sendRsvpBtn">Send RSVP ✓</span></button>
             <p class="rsvp-status" id="rsvpStatus" aria-live="polite"></p>
           </div>
 
