@@ -131,7 +131,7 @@ function renderContent(c) {
     /* Inject scroll anchors into timeline items */
     var steps = agendaEl.querySelectorAll('.agenda-step');
     visibleAgenda.forEach(function(item, idx) {
-      if (['CEREMONY','GET TOGETHER (BRING & SHARE)','ZEREMONIE','ANKOMMEN','ЦЕРЕМОНИЯ','ВСТРЕЧА'].indexOf(item.label) !== -1) {
+      if (['CEREMONY','GET TOGETHER','ZEREMONIE','ANKOMMEN','ЦЕРЕМОНИЯ','ВСТРЕЧА'].indexOf(item.label) !== -1) {
         if (steps[idx]) steps[idx].id = 'anchor-ceremony';
       }
       if (item.partyOnly) {
@@ -301,7 +301,7 @@ function loadContent() {
     },
     {
       "question": "Is there a wish list?",
-      "answer": "No wish list — but if you'd like to gift us something, we would be so grateful for a financial contribution toward starting our new home together and celebrating our honeymoon."
+      "answer": "No wish list — but if you'd like to gift us something, we would be so grateful for a financial contribution toward starting our new home together and celebrating our honeymoon. <a href='https://paypal.me/ElnurAghayev' target='_blank' rel='noreferrer' style='display:inline-block;margin-top:8px;padding:6px 14px;background:#003087;color:#fff;border-radius:4px;text-decoration:none;font-size:0.9em;'>Contribute via PayPal ↗</a>"
     },
     {
       "question": "Is there any place for kids?",

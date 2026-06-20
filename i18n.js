@@ -24,8 +24,8 @@ window.I18N = {
     card02Title : "Our Story",
     card03Label : "Planning Crew",
     card03Title : "The Crew",
-    card04Label : "The Day",
-    card04Title : "Church Ceremony",
+    card04Label : "Church Ceremony",
+    card04Title : "The Day",
     card04LabelParty : "The Moment",
     card04TitleParty : "The Day",
     card05Label : "Dress Code",
@@ -281,7 +281,7 @@ window.I18N = {
         description: "Please <strong>take your seat before 14:00</strong> so we can start on time. We kindly ask you to <strong>put your phones away</strong> and enjoy the moment with us. Our photographer and videographer will take care of capturing the ceremony."
       },
       {
-        time: "15:00–16:00", label: "GET TOGETHER (BRING & SHARE)", title: "Gather Outside · Bring & Share",
+        time: "15:00–16:00", label: "GET TOGETHER", title: "Hangout · Bring & Share",
         bringAndShare: true, bringAndShareFormUrl: "https://forms.gle/4C6RUZfEKunpWGoc8",
         description: "After the ceremony, we'll gather outside the church building for snacks and drinks — and some time together. You're very welcome to bring something to share. ❤️<br><br><strong>Already signed up during RSVP? You're all set — no need to fill anything in again.</strong>"
       },
@@ -334,8 +334,8 @@ window.I18N = {
     card02Title : "Unsere Geschichte",
     card03Label : "Unser Team",
     card03Title : "Das Team",
-    card04Label : "Der Tag",
-    card04Title : "Kirchliche Trauung",
+    card04Label : "Kirchliche Trauung",
+    card04Title : "Der Tag",
     card04LabelParty : "Der Moment",
     card04TitleParty : "Der Tag",
     card05Label : "Dresscode",
@@ -576,7 +576,7 @@ window.I18N = {
         description: "Bitte <strong>nehmt vor 14:00 Uhr Platz</strong>, damit wir pünktlich beginnen können. Wir bitten euch, <strong>die Handys wegzulegen</strong> und den Moment mit uns zu genießen. Unser Fotograf und Videograf kümmern sich darum, die Zeremonie festzuhalten."
       },
       {
-        time: "15:00–16:00", label: "GET TOGETHER (BRING & SHARE)", title: "Gather Outside · Bring & Share",
+        time: "15:00–16:00", label: "GET TOGETHER", title: "Hangout · Bring & Share",
         bringAndShare: true, bringAndShareFormUrl: "https://forms.gle/4C6RUZfEKunpWGoc8",
         description: "Nach der Zeremonie treffen wir uns draußen vor dem Kirchengebäude bei Snacks und Getränken — und verbringen Zeit miteinander. Wer möchte, bringt gerne etwas zum Teilen mit. ❤️<br><br><strong>Schon beim RSVP angemeldet? Alles gut — ihr müsst nichts weiter ausfüllen.</strong>"
       },
@@ -627,8 +627,8 @@ window.I18N = {
     card02Title : "Наша история",
     card03Label : "Наша команда",
     card03Title : "Команда",
-    card04Label : "День",
-    card04Title : "Венчание",
+    card04Label : "Венчание",
+    card04Title : "День",
     card04LabelParty : "Наш момент",
     card04TitleParty : "Этот день",
     card05Label : "Дресс-код",
@@ -869,7 +869,7 @@ window.I18N = {
         description: "Пожалуйста, <strong>займите место до 14:00</strong>, чтобы мы могли начать вовремя. Просим вас <strong>убрать телефоны</strong> и насладиться моментом вместе с нами. Наши фотограф и видеограф позаботятся о съёмке."
       },
       {
-        time: "15:00–16:00", label: "GET TOGETHER (BRING & SHARE)", title: "Gather Outside · Bring & Share",
+        time: "15:00–16:00", label: "GET TOGETHER", title: "Hangout · Bring & Share",
         bringAndShare: true, bringAndShareFormUrl: "https://forms.gle/4C6RUZfEKunpWGoc8",
         description: "Мы будем рады Bring & Share с нашими любимыми! Дайте нам знать, если хотите принести пирог, выпечку, закуски или что-нибудь вкусное. ❤️<br><br><strong>Уже зарегистрировались через форму участия? Всё готово — больше ничего заполнять не нужно.</strong>"
       },
