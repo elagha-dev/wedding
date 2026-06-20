@@ -187,7 +187,7 @@ window.I18N = {
     /* ── Soft Gate / Floating Card / Scroll Lock ── */
     gateSalutation   : "You are invited",
     gateSeatsText    : "Location: Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a>",
-    gateBody         : "<div class="gate-timeline"><span class="gate-tl-item"><strong>13:30</strong> Arrival</span><span class="gate-tl-sep">→</span><span class="gate-tl-item"><strong>14:00</strong> Ceremony</span><span class="gate-tl-sep">→</span><span class="gate-tl-item"><strong>15:00</strong> Get Together (Bring &amp; Share)</span></div><br>After the ceremony, we'll gather outside the church building for snacks and drinks — and some time together. You're very welcome to bring something to share. ♡",
+    gateBody         : "<div class='gate-timeline'><span class='gate-tl-item'><strong>13:30</strong> Arrival</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>14:00</strong> Ceremony</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>15:00</strong> Get Together (Bring &amp; Share)</span></div><br>After the ceremony, we'll gather outside the church building for snacks and drinks — and some time together. You're very welcome to bring something to share. ♡",
     gateNote         : "Want to bring something? You can sign up when you RSVP. ♡",
     gateCtaBtn       : "Send us your RSVP →",
     gateSkipBtn      : "I'll explore first",
@@ -488,7 +488,7 @@ window.I18N = {
     /* ── Soft Gate / Floating Card / Scroll Lock ── */
     gateSalutation   : "Ihr seid herzlich eingeladen,",
     gateSeatsText    : "Standort: Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a>",
-    gateBody         : "<div class="gate-timeline"><span class="gate-tl-item"><strong>13:30</strong> Arrival</span><span class="gate-tl-sep">→</span><span class="gate-tl-item"><strong>14:00</strong> Ceremony</span><span class="gate-tl-sep">→</span><span class="gate-tl-item"><strong>15:00</strong> Get Together (Bring &amp; Share)</span></div><br>Nach der Zeremonie treffen wir uns draußen vor dem Kirchengebäude bei Snacks und Getränken — und verbringen Zeit miteinander. Wer möchte, bringt gerne etwas zum Teilen mit. ♡",
+    gateBody         : "<div class='gate-timeline'><span class='gate-tl-item'><strong>13:30</strong> Arrival</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>14:00</strong> Ceremony</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>15:00</strong> Get Together (Bring &amp; Share)</span></div><br>Nach der Zeremonie treffen wir uns draußen vor dem Kirchengebäude bei Snacks und Getränken — und verbringen Zeit miteinander. Wer möchte, bringt gerne etwas zum Teilen mit. ♡",
     gateNote         : "Möchtet ihr etwas mitbringen? Ihr könnt euch bei eurer Rückmeldung eintragen. ♡",
     gateCtaBtn       : "Zur Anmeldung →",
     gateSkipBtn      : "Ich schaue mich erst um",
@@ -781,7 +781,7 @@ window.I18N = {
     /* ── Soft Gate / Floating Card / Scroll Lock ── */
     gateSalutation   : "Вы приглашены,",
     gateSeatsText    : "Местоположение: Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a>",
-    gateBody         : "<div class="gate-timeline"><span class="gate-tl-item"><strong>13:30</strong> Arrival</span><span class="gate-tl-sep">→</span><span class="gate-tl-item"><strong>14:00</strong> Ceremony</span><span class="gate-tl-sep">→</span><span class="gate-tl-item"><strong>15:00</strong> Get Together (Bring &amp; Share)</span></div><br>После церемонии мы будем рады, если все останутся на улице у церкви — каждый ставит что-нибудь на стол, и мы вместе перекусим и выпьем бокал шампанского. Торты, пироги, выпечка, закуски — всё приветствуется.",
+    gateBody         : "<div class='gate-timeline'><span class='gate-tl-item'><strong>13:30</strong> Arrival</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>14:00</strong> Ceremony</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>15:00</strong> Get Together (Bring &amp; Share)</span></div><br>После церемонии мы будем рады, если все останутся на улице у церкви — каждый ставит что-нибудь на стол, и мы вместе перекусим и выпьем бокал шампанского. Торты, пироги, выпечка, закуски — всё приветствуется.",
     gateNote         : "Хотите что-то принести? Можно записаться при ответе на приглашение. ♡",
     gateCtaBtn       : "Заполнить анкету →",
     gateSkipBtn      : "Сначала посмотрю сайт",
