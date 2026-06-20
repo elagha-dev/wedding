@@ -271,7 +271,7 @@ window.I18N = {
     /* ── Content: Ceremony agenda ── */
     agenda: [
       {
-        time: "13:30", label: "GET TOGETHER", title: "Get Together",
+        time: "13:30", label: "GET TOGETHER (BRING & SHARE)", title: "Get Together (Bring & Share)",
         location: "Schlosskirche Eller", address: "Schlossallee 6, 40229 Düsseldorf",
         mapUrl: "https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf",
         description: "Arrive, meet familiar faces, and settle in before the ceremony begins."

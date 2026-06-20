@@ -108,8 +108,8 @@
     "agenda": [
       {
         "time": "13:30",
-        "label": "GET TOGETHER",
-        "title": "Get Together",
+        "label": "GET TOGETHER (BRING & SHARE)",
+        "title": "Get Together (Bring & Share)",
         "location": "Schlosskirche Eller",
         "address": "Schlossallee 6, 40229 Düsseldorf",
         "mapUrl": "https://maps.google.com/?q=Schlossallee+6,+40229+Düsseldorf",
@@ -127,7 +127,7 @@
         "title": "Bring & Share Reception",
         "bringAndShare": true,
         "bringAndShareFormUrl": "https://forms.gle/4C6RUZfEKunpWGoc8",
-        "description": "We would love a bring & share with our dear ones! Let us know if you'd like to bring a pie, cake, bakery, finger foods, or anything for a little snack. ❤️"
+        "description": "Please join us for a reception. Guests are invited to bring a dish to share if they're able. Let us know if you'd like to bring a pie, cake, bakery, finger foods, or anything for a little snack. ❤️"
       }
     ]
   },
