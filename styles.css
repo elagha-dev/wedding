@@ -1556,16 +1556,25 @@ button.sa-btn {
   line-height: 0; /* kills any gap below grid */
 }
 
-.story-photo-grid {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
+.story-photo-grid,
+.story-photo-scroll {
+  display: flex;
   gap: 0;
   line-height: 0;
   filter: sepia(22%) contrast(0.90) brightness(1.05) saturate(0.80);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
 }
+.story-photo-grid::-webkit-scrollbar,
+.story-photo-scroll::-webkit-scrollbar { display: none; }
 
 .story-photo-box {
   position: relative;
+  flex: 0 0 33.333%;
+  scroll-snap-align: start;
   /* card is 66vw/3 = 22vw; each of 6 boxes = 3.67vw; height ~2x that */
   height: clamp(60px, 7.5vw, 110px);
   aspect-ratio: unset;
@@ -1575,7 +1584,9 @@ button.sa-btn {
   align-items: center;
   justify-content: center;
   border: none;
+  border-right: 1px solid rgba(255,255,255,.18);
 }
+.story-photo-box:last-child { border-right: none; }
 .story-photo-box img {
   position: absolute;
   inset: 0;
@@ -1638,9 +1649,24 @@ button.sa-btn {
 }
 
 @media (max-width: 480px) {
-  .story-photo-grid { grid-template-columns: repeat(3, 1fr); }
-  .story-photo-box  { height: clamp(100px, 28vw, 150px); }
+  .story-photo-box  { flex: 0 0 50%; height: clamp(100px, 28vw, 150px); }
 }
+
+.story-photo-dots {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  padding: 8px 0 2px;
+  background: var(--ink);
+}
+.story-photo-dots .dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.28);
+  transition: background .2s;
+}
+.story-photo-dots .dot.is-active { background: rgba(255,255,255,.85); }
 
 /* warm line in modal done step */
 .bs-hint--warm {

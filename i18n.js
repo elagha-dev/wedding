@@ -310,7 +310,7 @@ window.I18N = {
     faq: [
       { q: "Can I bring a plus one?",        a: "Please follow your invite. We would love to have our dear ones but have a limited number of seats in the church." },
       { q: "Are there any parking spots?",   a: "Yes! There are some directly at the church, as well as near the houses around it, and a bigger parking area within walking distance." },
-      { q: "Is there a wish list?",          a: "No wish list — but if you'd like to gift us something, we would be so grateful for a financial contribution toward starting our new home together and celebrating our honeymoon." },
+      { q: "Is there a wish list?",          a: "No wish list — but if you'd like to gift us something, we would be so grateful for a financial contribution toward starting our new home together and celebrating our honeymoon. <a href=\"https://paypal.me/ElnurAghayev\" target=\"_blank\" rel=\"noreferrer\" style=\"display:inline-block;margin-top:8px;padding:6px 14px;background:#003087;color:#fff;border-radius:4px;text-decoration:none;font-size:0.9em;\">Contribute via PayPal ↗</a>" },
       { q: "Is there any place for kids?",   a: "Kids are more than welcome! We would kindly ask that they sit or play in the kids' space at the back of the church during the ceremony. Thank you ❤️" },
       { q: "When should I arrive?",          a: "We'd love to see you at 13:30. If you're bringing something to share, that gives you time to get it sorted before the ceremony starts at 14:00 sharp." },
       { q: "Who can I contact?",             a: "The best man or maid of honor are your go-to contacts — find them in the Crew section." }
@@ -603,7 +603,7 @@ window.I18N = {
     faq: [
       { q: "Kann ich jemanden mitbringen?",     a: "Bitte haltet euch an eure Einladung. Wir hätten alle gerne dabei, haben aber begrenzte Plätze in der Kirche." },
       { q: "Gibt es Parkplätze?",               a: "Ja! Direkt bei der Kirche, in der Umgebung und in Gehweite gibt es einen größeren Parkplatz." },
-      { q: "Gibt es eine Wunschliste?",         a: "Keine Wunschliste — aber wenn ihr uns etwas schenken möchtet, würden wir uns sehr über einen finanziellen Beitrag für unser neues Zuhause und unsere Flitterwochen freuen." },
+      { q: "Gibt es eine Wunschliste?",         a: "Keine Wunschliste — aber wenn ihr uns etwas schenken möchtet, würden wir uns sehr über einen finanziellen Beitrag für unser neues Zuhause und unsere Flitterwochen freuen. <a href=\"https://paypal.me/ElnurAghayev\" target=\"_blank\" rel=\"noreferrer\" style=\"display:inline-block;margin-top:8px;padding:6px 14px;background:#003087;color:#fff;border-radius:4px;text-decoration:none;font-size:0.9em;\">Per PayPal überweisen ↗</a>" },
       { q: "Gibt es einen Platz für Kinder?",   a: "Kinder sind herzlich willkommen! Wir bitten nur darum, dass sie während der Zeremonie im Kinderbereich am hinteren Teil der Kirche spielen oder sitzen. Danke ❤️" },
       { q: "Wann sollte ich ankommen?",         a: "Wir freuen uns, wenn ihr um 13:30 Uhr da seid. Wer etwas zum Teilen mitbringt, hat so genug Zeit, alles zu organisieren, bevor die Zeremonie um 14:00 Uhr pünktlich beginnt." },
       { q: "Wen kann ich kontaktieren?",        a: "Der Trauzeuge oder die Trauzeugin sind eure Ansprechpartner — ihr findet sie im Bereich 'Das Team'." }
@@ -896,7 +896,7 @@ window.I18N = {
     faq: [
       { q: "Можно ли привести гостя?",       a: "Пожалуйста, следуйте своему приглашению. Мы рады всем, но количество мест в церкви ограничено." },
       { q: "Есть ли парковка?",              a: "Да! Прямо у церкви, рядом с домами и в пешей доступности есть большая парковка." },
-      { q: "Есть ли список подарков?",       a: "Списка нет — но если вы хотите нас порадовать, мы будем очень благодарны за денежный подарок для нашего нового дома и медового месяца." },
+      { q: "Есть ли список подарков?",       a: "Списка нет — но если вы хотите нас порадовать, мы будем очень благодарны за денежный подарок для нашего нового дома и медового месяца. <a href=\"https://paypal.me/ElnurAghayev\" target=\"_blank\" rel=\"noreferrer\" style=\"display:inline-block;margin-top:8px;padding:6px 14px;background:#003087;color:#fff;border-radius:4px;text-decoration:none;font-size:0.9em;\">Перевести через PayPal ↗</a>" },
       { q: "Есть ли место для детей?",       a: "Дети очень приветствуются! Просим лишь, чтобы во время церемонии они сидели или играли в детском уголке в конце церкви. Спасибо ❤️" },
       { q: "Когда прийти?",                  a: "Мы будем рады видеть вас в 13:30. Если вы что-то приносите, у вас будет время всё разложить до начала венчания в 14:00." },
       { q: "К кому обратиться?",             a: "Лучший друг или подружка невесты — ваши контактные лица, их вы найдёте в разделе «Команда»." }

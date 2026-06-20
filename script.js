@@ -1,3 +1,20 @@
+/* ============================================================
+   OUR STORY — PHOTOS
+   To add a photo to the scrollable strip on the site, just add
+   one line below with the image path and a short alt text.
+   That's it — nothing else needs to change anywhere else.
+   ============================================================ */
+var STORY_PHOTOS = [
+  { src: "img/us.jpg",        alt: "Our moment" },
+  { src: "img/photo2.jpg",    alt: "The proposal" },
+  { src: "img/photo6.jpg",    alt: "Our moment" },
+  { src: "img/photo4.jpg",    alt: "Golden hour" },
+  { src: "img/photo-847.jpg", alt: "Out and about together" },
+  { src: "img/photo-512.jpg", alt: "Mirror selfie" },
+  { src: "img/photo-963.jpg", alt: "Singing together on stage" },
+  { src: "img/photo-204.jpg", alt: "On stage together, black and white" }
+];
+
 /* ── Role translation map ── */
 function translateRole(role) {
   var map = {
@@ -205,7 +222,7 @@ function loadContent() {
     "description": "You are warmly invited to Arina & Elnur's wedding ceremony at the Schlosskirche in Eller Düsseldorf, Germany. Join us for a special celebration of love and unity.",
     "ogTitle": "Arina & Elnur Wedding Ceremony Invitation",
     "ogDescription": "You are warmly invited to Arina & Elnur's wedding ceremony at the Schlosskirche in Eller Düsseldorf, Germany. Join us for a special celebration of love and unity.",
-    "ogImage": "https://www.arinaelnur.de/us.jpg",
+    "ogImage": "https://www.arinaelnur.de/img/us.jpg",
     "twitterTitle": "Arina & Elnur Wedding Invitation",
     "twitterDescription": "You are warmly invited to Arina & Elnur's wedding ceremony.",
     "analyticsToken": "40223123959b40ce8820f84cd8bbae11"
@@ -226,19 +243,19 @@ function loadContent() {
   
   "crew": {
     "groomSide": [
-      { "name": "Islam",  "displayName": "Islam",  "photo": "isi.jpg",    "role": "Best Man", "email": "islamaghazada@gmail.com",  "phone": "+47 479 61 978" },
-      { "name": "Lars",   "displayName": "Lars",   "photo": "lars.jpg",   "role": "Groom's Man", "email": "lars.neuhausen@gmail.com",   "phone": "+31 6 10 00 95 29" },
-      { "name": "Lucas",  "displayName": "Lucas",  "photo": "lucas.jpg",  "role": "Groom's Man", "email": "heidenreich.lu@gmail.com",  "phone": "+49 178 3752258" }
+      { "name": "Islam",  "displayName": "Islam",  "photo": "img/isi.jpg",    "role": "Best Man", "email": "islamaghazada@gmail.com",  "phone": "+47 479 61 978" },
+      { "name": "Lars",   "displayName": "Lars",   "photo": "img/lars.jpg",   "role": "Groom's Man", "email": "lars.neuhausen@gmail.com",   "phone": "+31 6 10 00 95 29" },
+      { "name": "Lucas",  "displayName": "Lucas",  "photo": "img/lucas.jpg",  "role": "Groom's Man", "email": "heidenreich.lu@gmail.com",  "phone": "+49 178 3752258" }
     ],
     "brideSide": [
-      { "name": "Alicja", "displayName": "Alicja", "photo": "alicja.jpg",  "role": "Maid of Honor","email": "alicjabialkowski@gmail.com","phone": "+49 176 23191761" },
-      { "name": "Kris",   "displayName": "Kris",   "photo": "kris.jpg",    "role": "Bride's Maid", "email": "kristinenaal@gmail.com",   "phone": "+47 456 66 148" },
-      { "name": "Valerie","displayName": "Valerie","photo": "valerie.jpg", "role": "Bride's Maid", "email": "valneuhausen@gmail.com","phone": "+31 6 10970211" }
+      { "name": "Alicja", "displayName": "Alicja", "photo": "img/alicja.jpg",  "role": "Maid of Honor","email": "alicjabialkowski@gmail.com","phone": "+49 176 23191761" },
+      { "name": "Kris",   "displayName": "Kris",   "photo": "img/kris.jpg",    "role": "Bride's Maid", "email": "kristinenaal@gmail.com",   "phone": "+47 456 66 148" },
+      { "name": "Valerie","displayName": "Valerie","photo": "img/valerie.jpg", "role": "Bride's Maid", "email": "valneuhausen@gmail.com","phone": "+31 6 10970211" }
     ],
     "pastorAndBand": [
-      { "name": "Felipe", "displayName": "Pastor", "photo": "felipe.jpg", "role": "Pastor", "email": "felipe.schuerch@hillsong.de", "phone": "+49 175 2894775" },
-      { "name": "Jonas", "displayName": "Worship", "photo": "worship-team.jpg", "role": "Worship Team", "email": "jonas.rockhoff@hillsong.de", "phone": "+49 176 56900741" },
-      { "name": "Kathi", "displayName": "B&S", "photo": "kathi.jpg", "role": "Bring & Share", "phone": "+49 162 6247906" }
+      { "name": "Felipe", "displayName": "Pastor", "photo": "img/felipe.jpg", "role": "Pastor", "email": "felipe.schuerch@hillsong.de", "phone": "+49 175 2894775" },
+      { "name": "Jonas", "displayName": "Worship", "photo": "img/worship-team.jpg", "role": "Worship Team", "email": "jonas.rockhoff@hillsong.de", "phone": "+49 176 56900741" },
+      { "name": "Kathi", "displayName": "B&S", "photo": "img/kathi.jpg", "role": "Bring & Share", "phone": "+49 162 6247906" }
     ]
   },
   "ceremony": {
@@ -1573,12 +1590,10 @@ function weScrollRsvpIntoView(target, topBufferPx) {
   function buildStory(cardEl) {
     var parasEl = document.getElementById('story-paragraphs');
     var parasHtml = parasEl ? parasEl.innerHTML : '';
-    /* Collect photos */
-    var photos = [];
-    for (var i = 1; i <= 5; i++) {
-      var img = document.getElementById('storyPhoto' + i);
-      if (img) photos.push('<img src="' + img.src + '" alt="' + (img.alt || '') + '" loading="lazy">');
-    }
+    /* Collect photos straight from the single source of truth */
+    var photos = (window.STORY_PHOTOS || []).map(function (p) {
+      return '<img src="' + p.src + '" alt="' + (p.alt || '') + '" loading="lazy">';
+    });
     return kicker(cardEl) +
       h2(cardEl) +
       '<div>' + parasHtml + '</div>' +
@@ -2294,4 +2309,65 @@ function weScrollRsvpIntoView(target, topBufferPx) {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   });
+})();
+
+/* ── Love Story photo strip: render from STORY_PHOTOS + dot indicators ── */
+(function () {
+  function init() {
+    var strip = document.getElementById('storyPhotoScroll');
+    var dotsEl = document.getElementById('storyPhotoDots');
+    if (!strip) return;
+
+    var photos = window.STORY_PHOTOS || [];
+
+    /* Build the strip's HTML straight from the photo list above.
+       Adding a photo to STORY_PHOTOS is all that's needed — this
+       renders it, and the "coming soon" tile always stays last. */
+    var html = photos.map(function (p) {
+      return '<div class="story-photo-box">' +
+               '<img src="' + p.src + '" alt="' + (p.alt || '') + '" loading="lazy">' +
+             '</div>';
+    }).join('') +
+      '<div class="story-photo-box story-photo-gallery story-photo-gallery--soon">' +
+        '<span class="gallery-label">Photos from the wedding will be shared here</span>' +
+      '</div>';
+    strip.innerHTML = html;
+
+    if (!dotsEl) return;
+    var boxes = strip.querySelectorAll('.story-photo-box');
+    if (!boxes.length) return;
+
+    dotsEl.innerHTML = '';
+    var dots = [];
+    boxes.forEach(function () {
+      var d = document.createElement('span');
+      d.className = 'dot';
+      dotsEl.appendChild(d);
+      dots.push(d);
+    });
+
+    function setActive(idx) {
+      dots.forEach(function (d, i) { d.classList.toggle('is-active', i === idx); });
+    }
+    setActive(0);
+
+    var ticking = false;
+    strip.addEventListener('scroll', function () {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(function () {
+        var boxWidth = boxes[0].offsetWidth || 1;
+        var idx = Math.round(strip.scrollLeft / boxWidth);
+        idx = Math.max(0, Math.min(idx, boxes.length - 1));
+        setActive(idx);
+        ticking = false;
+      });
+    }, { passive: true });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
 })();
