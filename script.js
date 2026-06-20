@@ -17,7 +17,13 @@ var STORY_PHOTOS = [
   { src: "img/photo-847.jpg", alt: "Out and about together" },
   { src: "img/photo-512.jpg", alt: "Mirror selfie" },
   { src: "img/photo-963.jpg", alt: "Singing together on stage" },
-  { src: "img/photo-204.jpg", alt: "On stage together, black and white" }
+  { src: "img/photo-204.jpg", alt: "On stage together, black and white" },
+  { src: "img/photo-301.jpg", alt: "Watching the match with friends" },
+  { src: "img/photo-302.jpg", alt: "Sunset over the city, Norway" },
+  { src: "img/photo-303.jpg", alt: "Family gathered outside the church" },
+  { src: "img/photo-304.jpg", alt: "Frozen yogurt on a sunny day" },
+  { src: "img/photo-305.jpg", alt: "Leading worship together" },
+  { src: "img/photo-306.jpg", alt: "Group selfie above Alanya at sunset" }
 ];
 
 /* ── Role translation map ── */
