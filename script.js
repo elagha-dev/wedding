@@ -3,6 +3,11 @@
    To add a photo to the scrollable strip on the site, just add
    one line below with the image path and a short alt text.
    That's it — nothing else needs to change anywhere else.
+   Photos render in black & white automatically.
+   Optional "focus" field: a CSS object-position value (e.g.
+   "center 15%") to override the default top-weighted crop if a
+   particular photo still cuts off a face — add it per-photo only
+   when needed.
    ============================================================ */
 var STORY_PHOTOS = [
   { src: "img/us.jpg",        alt: "Our moment" },
@@ -2311,21 +2316,29 @@ function weScrollRsvpIntoView(target, topBufferPx) {
   });
 })();
 
-/* ── Love Story photo strip: render from STORY_PHOTOS + dot indicators ── */
+/* ── Love Story photo carousel: render from STORY_PHOTOS + progress/arrows ── */
 (function () {
   function init() {
     var strip = document.getElementById('storyPhotoScroll');
-    var dotsEl = document.getElementById('storyPhotoDots');
+    var fillEl = document.getElementById('storyPhotoProgressFill');
+    var counterEl = document.getElementById('storyPhotoCounter');
+    var prevBtn = document.getElementById('storyPhotoPrev');
+    var nextBtn = document.getElementById('storyPhotoNext');
     if (!strip) return;
 
     var photos = window.STORY_PHOTOS || [];
 
     /* Build the strip's HTML straight from the photo list above.
        Adding a photo to STORY_PHOTOS is all that's needed — this
-       renders it, and the "coming soon" tile always stays last. */
+       renders it, and the "coming soon" tile always stays last.
+       Photos render in black & white via the .story-photo-scroll
+       filter, so any new entry inherits it automatically. Each
+       entry can optionally set a "focus" (CSS object-position
+       value, e.g. "center 10%") to keep faces in frame. */
     var html = photos.map(function (p) {
+      var posStyle = p.focus ? ' style="object-position:' + p.focus + '"' : '';
       return '<div class="story-photo-box">' +
-               '<img src="' + p.src + '" alt="' + (p.alt || '') + '" loading="lazy">' +
+               '<img src="' + p.src + '" alt="' + (p.alt || '') + '" loading="lazy"' + posStyle + '>' +
              '</div>';
     }).join('') +
       '<div class="story-photo-box story-photo-gallery story-photo-gallery--soon">' +
@@ -2333,36 +2346,46 @@ function weScrollRsvpIntoView(target, topBufferPx) {
       '</div>';
     strip.innerHTML = html;
 
-    if (!dotsEl) return;
     var boxes = strip.querySelectorAll('.story-photo-box');
     if (!boxes.length) return;
 
-    dotsEl.innerHTML = '';
-    var dots = [];
-    boxes.forEach(function () {
-      var d = document.createElement('span');
-      d.className = 'dot';
-      dotsEl.appendChild(d);
-      dots.push(d);
-    });
+    var total = boxes.length;
+    if (counterEl) counterEl.textContent = '1 / ' + total;
+
+    function currentIndex() {
+      var boxWidth = boxes[0].offsetWidth || 1;
+      var idx = Math.round(strip.scrollLeft / boxWidth);
+      return Math.max(0, Math.min(idx, total - 1));
+    }
 
     function setActive(idx) {
-      dots.forEach(function (d, i) { d.classList.toggle('is-active', i === idx); });
+      if (fillEl) fillEl.style.width = (total > 1 ? (idx / (total - 1)) * 100 : 100) + '%';
+      if (counterEl) counterEl.textContent = (idx + 1) + ' / ' + total;
+      if (prevBtn) prevBtn.disabled = idx === 0;
+      if (nextBtn) nextBtn.disabled = idx === total - 1;
     }
     setActive(0);
+
+    function goTo(idx) {
+      idx = Math.max(0, Math.min(idx, total - 1));
+      var boxWidth = boxes[0].offsetWidth || 1;
+      strip.scrollTo({ left: idx * boxWidth, behavior: 'smooth' });
+    }
+
+    if (prevBtn) prevBtn.addEventListener('click', function () { goTo(currentIndex() - 1); });
+    if (nextBtn) nextBtn.addEventListener('click', function () { goTo(currentIndex() + 1); });
 
     var ticking = false;
     strip.addEventListener('scroll', function () {
       if (ticking) return;
       ticking = true;
       requestAnimationFrame(function () {
-        var boxWidth = boxes[0].offsetWidth || 1;
-        var idx = Math.round(strip.scrollLeft / boxWidth);
-        idx = Math.max(0, Math.min(idx, boxes.length - 1));
-        setActive(idx);
+        setActive(currentIndex());
         ticking = false;
       });
     }, { passive: true });
+
+    window.addEventListener('resize', function () { setActive(currentIndex()); });
   }
 
   if (document.readyState === 'loading') {

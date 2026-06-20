@@ -960,10 +960,23 @@
         </div>
 
         <div class="story-photos">
-          <div class="story-photo-scroll" id="storyPhotoScroll">
-            <!-- Populated by script.js from STORY_PHOTOS -->
+          <div class="story-photo-frame">
+            <div class="story-photo-scroll" id="storyPhotoScroll">
+              <!-- Populated by script.js from STORY_PHOTOS -->
+            </div>
+            <button type="button" class="story-photo-arrow story-photo-arrow--prev" id="storyPhotoPrev" aria-label="Previous photo">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+            <button type="button" class="story-photo-arrow story-photo-arrow--next" id="storyPhotoNext" aria-label="Next photo">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
           </div>
-          <div class="story-photo-dots" id="storyPhotoDots" aria-hidden="true"></div>
+          <div class="story-photo-dots" aria-hidden="true">
+            <div class="story-photo-progress-track">
+              <div class="story-photo-progress-fill" id="storyPhotoProgressFill"></div>
+            </div>
+            <span class="story-photo-counter" id="storyPhotoCounter">1 / 1</span>
+          </div>
         </div>
       </article>
 

@@ -1547,13 +1547,14 @@ button.sa-btn {
 #giftLink.is-visible { visibility: visible; pointer-events: auto; }
 .success-actions.is-hidden { display: none; }
 
-/* ── Story photo strip — flush sides+bottom ─────────────── */
+/* ── Story photo carousel — single frame, modern controls ── */
 .story-photos {
   width: 100%;
   flex-shrink: 0;
   position: relative;
   z-index: 2;
   line-height: 0; /* kills any gap below grid */
+  background: var(--ink);
 }
 
 .story-photo-grid,
@@ -1561,7 +1562,7 @@ button.sa-btn {
   display: flex;
   gap: 0;
   line-height: 0;
-  filter: sepia(22%) contrast(0.90) brightness(1.05) saturate(0.80);
+  filter: grayscale(100%) contrast(1.05) brightness(1.02);
   overflow-x: auto;
   overflow-y: hidden;
   scroll-snap-type: x mandatory;
@@ -1573,10 +1574,9 @@ button.sa-btn {
 
 .story-photo-box {
   position: relative;
-  flex: 0 0 33.333%;
+  flex: 0 0 100%;
   scroll-snap-align: start;
-  /* card is 66vw/3 = 22vw; each of 6 boxes = 3.67vw; height ~2x that */
-  height: clamp(60px, 7.5vw, 110px);
+  height: clamp(220px, 62vw, 380px);
   aspect-ratio: unset;
   background: rgba(49,39,28,.10);
   overflow: hidden;
@@ -1584,24 +1584,22 @@ button.sa-btn {
   align-items: center;
   justify-content: center;
   border: none;
-  border-right: 1px solid rgba(255,255,255,.18);
 }
-.story-photo-box:last-child { border-right: none; }
 .story-photo-box img {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center 22%;
   display: none;
-  transition: transform .4s ease;
+  transition: transform .5s ease;
 }
-.story-photo-box:hover img { transform: scale(1.04); }
+.story-photo-box:hover img { transform: scale(1.03); }
 .story-photo-box img[src]:not([src=""]) { display: block; }
 
 /* hide placeholder text when image is loaded */
 .story-photo-box img[src]:not([src=""]) ~ .photo-placeholder { display: none; }
-
 
 .photo-placeholder {
   font-family: var(--serif);
@@ -1614,7 +1612,7 @@ button.sa-btn {
 .story-photo-gallery {
   background: var(--ink);
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
   text-decoration: none;
   cursor: pointer;
   transition: opacity .15s;
@@ -1625,21 +1623,21 @@ button.sa-btn {
 }
 .story-photo-gallery:hover { opacity: .82; }
 .story-photo-gallery--soon {
-  background: rgba(49,39,28,.10);
+  background: rgba(255,255,255,.04);
   cursor: default;
   pointer-events: none;
 }
 .story-photo-gallery--soon .gallery-label {
-  color: rgba(49,39,28,.38);
+  color: rgba(255,255,255,.40);
 }
 .gallery-icon {
-  font-size: 14px;
+  font-size: 16px;
   color: var(--paper);
   flex-shrink: 0;
 }
 .gallery-label {
   font-family: var(--serif);
-  font-size: 6.5px;
+  font-size: 9px;
   letter-spacing: .14em;
   text-transform: uppercase;
   color: var(--paper);
@@ -1648,25 +1646,94 @@ button.sa-btn {
   word-break: break-word;
 }
 
-@media (max-width: 480px) {
-  .story-photo-box  { flex: 0 0 50%; height: clamp(100px, 28vw, 150px); }
+/* edge fades so the next/prev frame teases in at the sides */
+.story-photo-frame {
+  position: relative;
+}
+.story-photo-frame::before,
+.story-photo-frame::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 28px;
+  z-index: 3;
+  pointer-events: none;
+}
+.story-photo-frame::before {
+  left: 0;
+  background: linear-gradient(to right, var(--ink), transparent);
+}
+.story-photo-frame::after {
+  right: 0;
+  background: linear-gradient(to left, var(--ink), transparent);
 }
 
+/* prev/next arrow controls */
+.story-photo-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 4;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(20,16,12,.45);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  color: rgba(255,255,255,.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background .2s, opacity .2s;
+  opacity: .85;
+}
+.story-photo-arrow:hover { background: rgba(20,16,12,.65); opacity: 1; }
+.story-photo-arrow:active { transform: translateY(-50%) scale(.92); }
+.story-photo-arrow svg { width: 16px; height: 16px; }
+.story-photo-arrow--prev { left: 10px; }
+.story-photo-arrow--next { right: 10px; }
+.story-photo-arrow[disabled] { opacity: 0; pointer-events: none; }
+
+@media (max-width: 480px) {
+  .story-photo-arrow { display: none; } /* swipe is primary on touch */
+}
+
+/* progress bar + counter, replacing the old dot row */
 .story-photo-dots {
   display: flex;
+  align-items: center;
   justify-content: center;
-  gap: 5px;
-  padding: 8px 0 2px;
+  gap: 10px;
+  padding: 12px 16px 14px;
   background: var(--ink);
 }
-.story-photo-dots .dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: rgba(255,255,255,.28);
-  transition: background .2s;
+.story-photo-progress-track {
+  position: relative;
+  flex: 0 1 140px;
+  height: 3px;
+  border-radius: 3px;
+  background: rgba(255,255,255,.18);
+  overflow: hidden;
 }
-.story-photo-dots .dot.is-active { background: rgba(255,255,255,.85); }
+.story-photo-progress-fill {
+  position: absolute;
+  inset: 0;
+  width: 0%;
+  border-radius: 3px;
+  background: rgba(255,255,255,.92);
+  transition: width .3s ease;
+}
+.story-photo-counter {
+  font-family: var(--serif);
+  font-size: 10px;
+  letter-spacing: .08em;
+  color: rgba(255,255,255,.65);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
 
 /* warm line in modal done step */
 .bs-hint--warm {
@@ -2175,8 +2242,10 @@ button.sa-btn {
   width: 100%;
   aspect-ratio: 1;
   object-fit: cover;
+  object-position: center 22%;
   border-radius: 2px;
   display: block;
+  filter: grayscale(100%) contrast(1.05) brightness(1.02);
 }
 
 /* ── Overlay: crew grid ── */
