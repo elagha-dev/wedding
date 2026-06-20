@@ -2236,3 +2236,23 @@ button.sa-btn {
   text-decoration: none;
 }
 .overlay-rsvp-scroll-btn:hover { opacity: .82; }
+
+/* ── Gate timeline ── */
+.gate-timeline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+  margin-bottom: 8px;
+  justify-content: center;
+}
+.gate-tl-item {
+  white-space: nowrap;
+}
+.gate-tl-item strong {
+  font-weight: 700;
+}
+.gate-tl-sep {
+  color: #aaa;
+  font-size: 0.85em;
+}

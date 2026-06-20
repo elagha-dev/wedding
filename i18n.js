@@ -125,9 +125,9 @@ window.I18N = {
     noBtnShort         : "No",
     payloadAttendance  : "attendance:",
     payloadGuests      : "guests attending:",
-    tlGetTogether      : "Get together",
+    tlGetTogether      : "Arrival",
     tlCeremony         : "Ceremony",
-    tlReception        : "Bring & Share",
+    tlReception        : "Get Together (Bring & Share)",
     tlParty            : "Evening Party",
     bringShareAttendLabel: "🎂 Bring & Share",
     comingByCarLabel   : "I'll be coming by car",
@@ -174,9 +174,9 @@ window.I18N = {
     successCardDecline     : "We are sorry you cannot make it. Thank you for letting us know.",
 
     /* ── Gift banner ── */
-    giftBannerTitle  : "Your presence is already our greatest gift",
-    giftBannerBody   : "If you want to bless us with something — a contribution towards our new home or honeymoon would mean the world to us.",
-    giftPaypalBtn    : "Bless us digitally ↗",
+    giftBannerTitle  : "No wish list",
+    giftBannerBody   : "But if you'd like to gift us something, we would be so grateful for a financial contribution toward starting our new home together and celebrating our honeymoon.",
+    giftPaypalBtn    : "Contribute via PayPal ↗",
     giftNoteCeremony : "There'll also be a gift box at the church. ♡",
     giftNoteParty    : "There'll also be a gift box at the church and at the venue. ♡",
     bringShareNudge  : "Bring & Share 🧁",
@@ -187,7 +187,7 @@ window.I18N = {
     /* ── Soft Gate / Floating Card / Scroll Lock ── */
     gateSalutation   : "You are invited",
     gateSeatsText    : "Location: Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a>",
-    gateBody         : "Arrival · 13:30 → Ceremony · 14:00 → Get Together (Bring & Share) · 15:00</br>After the ceremony, we'll gather outside the church building for snacks and drinks — and some time together. You're very welcome to bring something to share. ♡",
+    gateBody         : "<div class="gate-timeline"><span class="gate-tl-item"><strong>13:30</strong> Arrival</span><span class="gate-tl-sep">→</span><span class="gate-tl-item"><strong>14:00</strong> Ceremony</span><span class="gate-tl-sep">→</span><span class="gate-tl-item"><strong>15:00</strong> Get Together (Bring &amp; Share)</span></div><br>After the ceremony, we'll gather outside the church building for snacks and drinks — and some time together. You're very welcome to bring something to share. ♡",
     gateNote         : "Want to bring something? You can sign up when you RSVP. ♡",
     gateCtaBtn       : "Send us your RSVP →",
     gateSkipBtn      : "I'll explore first",
@@ -312,7 +312,7 @@ window.I18N = {
       { q: "Are there any parking spots?",   a: "Yes! There are some directly at the church, as well as near the houses around it, and a bigger parking area within walking distance." },
       { q: "Is there a wish list?",          a: "No wish list — but if you'd like to gift us something, we would be so grateful for a financial contribution toward starting our new home together and celebrating our honeymoon." },
       { q: "Is there any place for kids?",   a: "Kids are more than welcome! We would kindly ask that they sit or play in the kids' space at the back of the church during the ceremony. Thank you ❤️" },
-      { q: "When should I arrive?",          a: "We'd love to see you at 13:30 for the Get Together — ceremony starts at 14:00." },
+      { q: "When should I arrive?",          a: "We'd love to see you at 13:30. If you're bringing something to share, that gives you time to get it sorted before the ceremony starts at 14:00 sharp." },
       { q: "Who can I contact?",             a: "The best man or maid of honor are your go-to contacts — find them in the Crew section." }
     ]
   },
@@ -430,9 +430,9 @@ window.I18N = {
     noBtnShort         : "Nein",
     payloadAttendance  : "Teilnahme:",
     payloadGuests      : "angemeldete Gäste:",
-    tlGetTogether      : "Ankommen",
+    tlGetTogether      : "Arrival",
     tlCeremony         : "Zeremonie",
-    tlReception        : "Bring & Share",
+    tlReception        : "Get Together (Bring & Share)",
     tlParty            : "Abendparty",
     bringShareAttendLabel: "🎂 Bring & Share",
     comingByCarLabel   : "Ich komme mit dem Auto",
@@ -476,9 +476,9 @@ window.I18N = {
     successCardAttending   : "Wir freuen uns riesig, euch an unserem besonderen Tag zu sehen.",
     successCardDecline     : "Schade, dass ihr nicht kommen könnt. Danke für eure Rückmeldung.",
 
-    giftBannerTitle  : "Eure Anwesenheit ist bereits unser größtes Geschenk",
-    giftBannerBody   : "Wenn ihr uns etwas schenken möchtet — ein Beitrag für unser neues Zuhause oder unsere Flitterwochen würde uns unglaublich viel bedeuten.",
-    giftPaypalBtn    : "Digital schenken ↗",
+    giftBannerTitle  : "Keine Wunschliste",
+    giftBannerBody   : "Aber wenn ihr uns etwas schenken möchtet, würden wir uns von Herzen über einen finanziellen Beitrag für unser neues Zuhause und unsere Flitterwochen freuen.",
+    giftPaypalBtn    : "Per PayPal überweisen ↗",
     giftNoteCeremony : "In der Kirche steht auch eine Geschenkbox. ♡",
     giftNoteParty    : "In der Kirche und am Abendlocation steht auch eine Geschenkbox. ♡",
     bringShareNudge  : "Bring & Share 🧁",
@@ -488,7 +488,7 @@ window.I18N = {
     /* ── Soft Gate / Floating Card / Scroll Lock ── */
     gateSalutation   : "Ihr seid herzlich eingeladen,",
     gateSeatsText    : "Standort: Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a>",
-    gateBody         : "Arrival · 13:30 → Ceremony · 14:00 → Get Together (Bring & Share) · 15:00</br>Nach der Zeremonie treffen wir uns draußen vor dem Kirchengebäude bei Snacks und Getränken — und verbringen Zeit miteinander. Wer möchte, bringt gerne etwas zum Teilen mit. ♡",
+    gateBody         : "<div class="gate-timeline"><span class="gate-tl-item"><strong>13:30</strong> Arrival</span><span class="gate-tl-sep">→</span><span class="gate-tl-item"><strong>14:00</strong> Ceremony</span><span class="gate-tl-sep">→</span><span class="gate-tl-item"><strong>15:00</strong> Get Together (Bring &amp; Share)</span></div><br>Nach der Zeremonie treffen wir uns draußen vor dem Kirchengebäude bei Snacks und Getränken — und verbringen Zeit miteinander. Wer möchte, bringt gerne etwas zum Teilen mit. ♡",
     gateNote         : "Möchtet ihr etwas mitbringen? Ihr könnt euch bei eurer Rückmeldung eintragen. ♡",
     gateCtaBtn       : "Zur Anmeldung →",
     gateSkipBtn      : "Ich schaue mich erst um",
@@ -605,7 +605,7 @@ window.I18N = {
       { q: "Gibt es Parkplätze?",               a: "Ja! Direkt bei der Kirche, in der Umgebung und in Gehweite gibt es einen größeren Parkplatz." },
       { q: "Gibt es eine Wunschliste?",         a: "Keine Wunschliste — aber wenn ihr uns etwas schenken möchtet, würden wir uns sehr über einen finanziellen Beitrag für unser neues Zuhause und unsere Flitterwochen freuen." },
       { q: "Gibt es einen Platz für Kinder?",   a: "Kinder sind herzlich willkommen! Wir bitten nur darum, dass sie während der Zeremonie im Kinderbereich am hinteren Teil der Kirche spielen oder sitzen. Danke ❤️" },
-      { q: "Wann sollte ich ankommen?",         a: "Bitte kommt bis 13:30 Uhr, um euren Platz zu finden und euch einzurichten, bevor die Zeremonie um 14:00 Uhr beginnt." },
+      { q: "Wann sollte ich ankommen?",         a: "Wir freuen uns, wenn ihr um 13:30 Uhr da seid. Wer etwas zum Teilen mitbringt, hat so genug Zeit, alles zu organisieren, bevor die Zeremonie um 14:00 Uhr pünktlich beginnt." },
       { q: "Wen kann ich kontaktieren?",        a: "Der Trauzeuge oder die Trauzeugin sind eure Ansprechpartner — ihr findet sie im Bereich 'Das Team'." }
     ]
   },
@@ -723,9 +723,9 @@ window.I18N = {
     noBtnShort         : "Нет",
     payloadAttendance  : "Участие:",
     payloadGuests      : "кто придёт:",
-    tlGetTogether      : "Встреча",
+    tlGetTogether      : "Arrival",
     tlCeremony         : "Церемония",
-    tlReception        : "Bring & Share",
+    tlReception        : "Get Together (Bring & Share)",
     tlParty            : "Вечеринка",
     bringShareAttendLabel: "🎂 Bring & Share",
     comingByCarLabel   : "Я приеду на машине",
@@ -769,9 +769,9 @@ window.I18N = {
     successCardAttending   : "Мы очень рады видеть вас в наш особенный день.",
     successCardDecline     : "Жаль, что вы не сможете прийти. Спасибо, что сообщили нам.",
 
-    giftBannerTitle  : "Ваше присутствие — уже наш самый большой подарок",
-    giftBannerBody   : "Если хотите нас порадовать — вклад в наш новый дом или медовый месяц значил бы для нас очень много.",
-    giftPaypalBtn    : "Благословить онлайн ↗",
+    giftBannerTitle  : "Списка подарков нет",
+    giftBannerBody   : "Но если вы хотите нас порадовать, мы будем очень благодарны за финансовый вклад в наш новый дом и медовый месяц.",
+    giftPaypalBtn    : "Перевести через PayPal ↗",
     giftNoteCeremony : "В церкви также будет подарочная коробка. ♡",
     giftNoteParty    : "В церкви и на вечернем мероприятии также будет подарочная коробка. ♡",
     bringShareNudge  : "Bring & Share 🧁",
@@ -781,7 +781,7 @@ window.I18N = {
     /* ── Soft Gate / Floating Card / Scroll Lock ── */
     gateSalutation   : "Вы приглашены,",
     gateSeatsText    : "Местоположение: Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a>",
-    gateBody         : "Arrival · 13:30 → Ceremony · 14:00 → Get Together (Bring & Share) · 15:00</br>После церемонии мы будем рады, если все останутся на улице у церкви — каждый ставит что-нибудь на стол, и мы вместе перекусим и выпьем бокал шампанского. Торты, пироги, выпечка, закуски — всё приветствуется.",
+    gateBody         : "<div class="gate-timeline"><span class="gate-tl-item"><strong>13:30</strong> Arrival</span><span class="gate-tl-sep">→</span><span class="gate-tl-item"><strong>14:00</strong> Ceremony</span><span class="gate-tl-sep">→</span><span class="gate-tl-item"><strong>15:00</strong> Get Together (Bring &amp; Share)</span></div><br>После церемонии мы будем рады, если все останутся на улице у церкви — каждый ставит что-нибудь на стол, и мы вместе перекусим и выпьем бокал шампанского. Торты, пироги, выпечка, закуски — всё приветствуется.",
     gateNote         : "Хотите что-то принести? Можно записаться при ответе на приглашение. ♡",
     gateCtaBtn       : "Заполнить анкету →",
     gateSkipBtn      : "Сначала посмотрю сайт",
@@ -898,7 +898,7 @@ window.I18N = {
       { q: "Есть ли парковка?",              a: "Да! Прямо у церкви, рядом с домами и в пешей доступности есть большая парковка." },
       { q: "Есть ли список подарков?",       a: "Списка нет — но если вы хотите нас порадовать, мы будем очень благодарны за денежный подарок для нашего нового дома и медового месяца." },
       { q: "Есть ли место для детей?",       a: "Дети очень приветствуются! Просим лишь, чтобы во время церемонии они сидели или играли в детском уголке в конце церкви. Спасибо ❤️" },
-      { q: "Когда прийти?",                  a: "Пожалуйста, приходите до 13:30, чтобы найти место и устроиться до начала венчания в 14:00." },
+      { q: "Когда прийти?",                  a: "Мы будем рады видеть вас в 13:30. Если вы что-то приносите, у вас будет время всё разложить до начала венчания в 14:00." },
       { q: "К кому обратиться?",             a: "Лучший друг или подружка невесты — ваши контактные лица, их вы найдёте в разделе «Команда»." }
     ]
   }
