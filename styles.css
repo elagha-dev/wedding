@@ -2256,3 +2256,14 @@ button.sa-btn {
   color: #aaa;
   font-size: 0.85em;
 }
+
+/* ── Card 04 swapped heading ── */
+#card04Label {
+  display: block;
+  font-size: 2.4rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: inherit;
+  margin-bottom: 0.15rem;
+}
