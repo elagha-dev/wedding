@@ -80,17 +80,17 @@ window.I18N = {
 
     greetingLetterCeremony:
       "<ul class=\"letter-timeline\">" +
-      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">13:30</span><span class=\"letter-timeline-label\">Get together</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">13:30</span><span class=\"letter-timeline-label\">Arrival</span></div></li>" +
       "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">14:00</span><span class=\"letter-timeline-label\">Ceremony</span></div></li>" +
-      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">15:00–16:00</span><span class=\"letter-timeline-label\">Bring &amp; Share Reception</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">15:00–16:00</span><span class=\"letter-timeline-label\">Get Together (Bring &amp; Share)</span></div></li>" +
       "</ul>" +
       "<p class=\"deadline\">Please confirm your attendance by <strong>18 September</strong>.</p>",
 
     greetingLetterCeremonySingle:
       "<ul class=\"letter-timeline\">" +
-      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">13:30</span><span class=\"letter-timeline-label\">Get together</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">13:30</span><span class=\"letter-timeline-label\">Arrival</span></div></li>" +
       "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">14:00</span><span class=\"letter-timeline-label\">Ceremony</span></div></li>" +
-      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">15:00–16:00</span><span class=\"letter-timeline-label\">Bring &amp; Share Reception</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">15:00–16:00</span><span class=\"letter-timeline-label\">Get Together (Bring &amp; Share)</span></div></li>" +
       "</ul>" +
       "<p class=\"deadline\">Please confirm your attendance by <strong>18 September</strong>.</p>",
 
@@ -187,7 +187,7 @@ window.I18N = {
     /* ── Soft Gate / Floating Card / Scroll Lock ── */
     gateSalutation   : "You are invited",
     gateSeatsText    : "Location: Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a>",
-    gateBody         : "Arrive <strong>13:30</strong> → Ceremony: <strong>14:00</strong> → Bring & Share: <strong>15:00–16:00</strong></br>After the ceremony, we'll gather outside the church building for snacks and drinks — and some time together. You're very welcome to bring something to share. ♡",
+    gateBody         : "Arrival · 13:30 → Ceremony · 14:00 → Get Together (Bring & Share) · 15:00</br>After the ceremony, we'll gather outside the church building for snacks and drinks — and some time together. You're very welcome to bring something to share. ♡",
     gateNote         : "Want to bring something? You can sign up when you RSVP. ♡",
     gateCtaBtn       : "Send us your RSVP →",
     gateSkipBtn      : "I'll explore first",
@@ -271,7 +271,7 @@ window.I18N = {
     /* ── Content: Ceremony agenda ── */
     agenda: [
       {
-        time: "13:30", label: "GET TOGETHER (BRING & SHARE)", title: "Get Together (Bring & Share)",
+        time: "13:30", label: "ARRIVAL", title: "Arrival",
         location: "Schlosskirche Eller", address: "Schlossallee 6, 40229 Düsseldorf",
         mapUrl: "https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf",
         description: "Arrive, meet familiar faces, and settle in before the ceremony begins."
@@ -281,7 +281,7 @@ window.I18N = {
         description: "Please <strong>take your seat before 14:00</strong> so we can start on time. We kindly ask you to <strong>put your phones away</strong> and enjoy the moment with us. Our photographer and videographer will take care of capturing the ceremony."
       },
       {
-        time: "15:00–16:00", label: "RECEPTION", title: "Bring & Share Reception",
+        time: "15:00–16:00", label: "GET TOGETHER (BRING & SHARE)", title: "Get Together (Bring & Share)",
         bringAndShare: true, bringAndShareFormUrl: "https://forms.gle/4C6RUZfEKunpWGoc8",
         description: "After the ceremony, we'll gather outside the church building for snacks and drinks — and some time together. You're very welcome to bring something to share. ❤️<br><br><strong>Already signed up during RSVP? You're all set — no need to fill anything in again.</strong>"
       },
@@ -312,7 +312,7 @@ window.I18N = {
       { q: "Are there any parking spots?",   a: "Yes! There are some directly at the church, as well as near the houses around it, and a bigger parking area within walking distance." },
       { q: "Is there a wish list?",          a: "No wish list — but if you'd like to gift us something, we would be so grateful for a financial contribution toward starting our new home together and celebrating our honeymoon." },
       { q: "Is there any place for kids?",   a: "Kids are more than welcome! We would kindly ask that they sit or play in the kids' space at the back of the church during the ceremony. Thank you ❤️" },
-      { q: "When should I arrive?",          a: "We'd love to see you at 13:30 for the get together — ceremony starts at 14:00." },
+      { q: "When should I arrive?",          a: "We'd love to see you at 13:30 for the Get Together — ceremony starts at 14:00." },
       { q: "Who can I contact?",             a: "The best man or maid of honor are your go-to contacts — find them in the Crew section." }
     ]
   },
@@ -374,29 +374,29 @@ window.I18N = {
       "<p>Wir freuen uns so sehr, euch an unserem Hochzeitstag bei uns zu haben — einem der wichtigsten Tage unseres Lebens. Wir möchten ihn nicht ohne euch erleben.</p>" +
       "<p>Bitte kommt bis <strong>13:30</strong> — die Trauung beginnt pünktlich um <strong>14:00 Uhr</strong></p><div class=\"loc-chip\">⛪ Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
       "<p>🥂 Abendempfang ab <strong>17:00 Uhr</strong></p><div class=\"loc-chip\">🥂 Rheinliebe am Deich &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Heerstra%C3%9Fe+45,+40549+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
-      "<p>Im Anschluss an die Zeremonie laden wir euch herzlich ein, zu einem kleinen<strong>Empfang</strong> / <strong>„Bring and Share“</strong> außerhalb des Kirchengebäudes zu bleiben</p>" +
+      "<p>Nach der Zeremonie treffen wir uns draußen vor dem Kirchengebäude zum Get Together (Bring & Share) — bei Snacks und Getränken und Zeit miteinander.</p>" +
       "<p class=\"deadline\">Bitte bestätigt eure Teilnahme bis zum <strong>18. September</strong>.</p>",
 
     greetingLetterPartySingle:
       "<p>Wir freuen uns so sehr, dich an unserem Hochzeitstag bei uns zu haben — einem der wichtigsten Tage unseres Lebens. Wir möchten ihn nicht ohne dich erleben.</p>" +
       "<p>Bitte komm bis <strong>13:30</strong> — die Trauung beginnt pünktlich um <strong>14:00 Uhr</strong></p><div class=\"loc-chip\">⛪ Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
       "<p>🥂 Abendempfang ab <strong>17:00 Uhr</strong></p><div class=\"loc-chip\">🥂 Rheinliebe am Deich &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Heerstra%C3%9Fe+45,+40549+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
-      "<p>Im Anschluss an die Zeremonie laden wir euch herzlich ein, zu einem kleinen<strong>Empfang</strong> / <strong>„Bring and Share“</strong> außerhalb des Kirchengebäudes zu bleiben</p>" +
+      "<p>Nach der Zeremonie treffen wir uns draußen vor dem Kirchengebäude zum Get Together (Bring & Share) — bei Snacks und Getränken und Zeit miteinander.</p>" +
       "<p class=\"deadline\">Bitte bestätige deine Teilnahme bis zum <strong>18. September</strong>.</p>",
 
     greetingLetterCeremony:
       "<ul class=\"letter-timeline\">" +
-      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">13:30</span><span class=\"letter-timeline-label\">Ankommen</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">13:30</span><span class=\"letter-timeline-label\">Arrival</span></div></li>" +
       "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">14:00</span><span class=\"letter-timeline-label\">Zeremonie</span></div></li>" +
-      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">15:00–16:00</span><span class=\"letter-timeline-label\">Bring &amp; Share Empfang</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">15:00–16:00</span><span class=\"letter-timeline-label\">Get Together (Bring &amp; Share)</span></div></li>" +
       "</ul>" +
       "<p class=\"deadline\">Bitte bestätigt eure Teilnahme bis zum <strong>18. September</strong>.</p>",
 
     greetingLetterCeremonySingle:
       "<ul class=\"letter-timeline\">" +
-      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">13:30</span><span class=\"letter-timeline-label\">Ankommen</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">13:30</span><span class=\"letter-timeline-label\">Arrival</span></div></li>" +
       "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">14:00</span><span class=\"letter-timeline-label\">Zeremonie</span></div></li>" +
-      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">15:00–16:00</span><span class=\"letter-timeline-label\">Bring &amp; Share Empfang</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">15:00–16:00</span><span class=\"letter-timeline-label\">Get Together (Bring &amp; Share)</span></div></li>" +
       "</ul>" +
       "<p class=\"deadline\">Bitte bestätige deine Teilnahme bis zum <strong>18. September</strong>.</p>",
 
@@ -488,7 +488,7 @@ window.I18N = {
     /* ── Soft Gate / Floating Card / Scroll Lock ── */
     gateSalutation   : "Ihr seid herzlich eingeladen,",
     gateSeatsText    : "Standort: Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a>",
-    gateBody         : "Ankommen <strong>13:30</strong> → Zeremonie: <strong>14:00</strong> → Bring & Share: <strong>15:00–16:00</strong></br>Nach der Zeremonie treffen wir uns draußen vor dem Kirchengebäude bei Snacks und Getränken — und verbringen Zeit miteinander. Wer möchte, bringt gerne etwas zum Teilen mit. ♡",
+    gateBody         : "Arrival · 13:30 → Ceremony · 14:00 → Get Together (Bring & Share) · 15:00</br>Nach der Zeremonie treffen wir uns draußen vor dem Kirchengebäude bei Snacks und Getränken — und verbringen Zeit miteinander. Wer möchte, bringt gerne etwas zum Teilen mit. ♡",
     gateNote         : "Möchtet ihr etwas mitbringen? Ihr könnt euch bei eurer Rückmeldung eintragen. ♡",
     gateCtaBtn       : "Zur Anmeldung →",
     gateSkipBtn      : "Ich schaue mich erst um",
@@ -566,7 +566,7 @@ window.I18N = {
 
     agenda: [
       {
-        time: "13:30", label: "ANKOMMEN", title: "Ankommen",
+        time: "13:30", label: "ARRIVAL", title: "Arrival",
         location: "Schlosskirche Eller", address: "Schlossallee 6, 40229 Düsseldorf",
         mapUrl: "https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf",
         description: "Ankunft, bekannte Gesichter treffen und ankommen, bevor die Zeremonie beginnt."
@@ -576,7 +576,7 @@ window.I18N = {
         description: "Bitte <strong>nehmt vor 14:00 Uhr Platz</strong>, damit wir pünktlich beginnen können. Wir bitten euch, <strong>die Handys wegzulegen</strong> und den Moment mit uns zu genießen. Unser Fotograf und Videograf kümmern sich darum, die Zeremonie festzuhalten."
       },
       {
-        time: "15:00–16:00", label: "EMPFANG", title: "Bring & Share Empfang",
+        time: "15:00–16:00", label: "GET TOGETHER (BRING & SHARE)", title: "Get Together (Bring & Share)",
         bringAndShare: true, bringAndShareFormUrl: "https://forms.gle/4C6RUZfEKunpWGoc8",
         description: "Nach der Zeremonie treffen wir uns draußen vor dem Kirchengebäude bei Snacks und Getränken — und verbringen Zeit miteinander. Wer möchte, bringt gerne etwas zum Teilen mit. ❤️<br><br><strong>Schon beim RSVP angemeldet? Alles gut — ihr müsst nichts weiter ausfüllen.</strong>"
       },
@@ -679,17 +679,17 @@ window.I18N = {
 
     greetingLetterCeremony:
       "<ul class=\"letter-timeline\">" +
-      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">13:30</span><span class=\"letter-timeline-label\">Сбор гостей</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">13:30</span><span class=\"letter-timeline-label\">Arrival</span></div></li>" +
       "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">14:00</span><span class=\"letter-timeline-label\">Церемония</span></div></li>" +
-      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">15:00–16:00</span><span class=\"letter-timeline-label\">Bring &amp; Share приём</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">15:00–16:00</span><span class=\"letter-timeline-label\">Get Together (Bring &amp; Share)</span></div></li>" +
       "</ul>" +
       "<p class=\"deadline\">Пожалуйста, подтвердите участие до <strong>18 сентября</strong>.</p>",
 
     greetingLetterCeremonySingle:
       "<ul class=\"letter-timeline\">" +
-      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">13:30</span><span class=\"letter-timeline-label\">Сбор гостей</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">13:30</span><span class=\"letter-timeline-label\">Arrival</span></div></li>" +
       "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">14:00</span><span class=\"letter-timeline-label\">Церемония</span></div></li>" +
-      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">15:00–16:00</span><span class=\"letter-timeline-label\">Bring &amp; Share приём</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">15:00–16:00</span><span class=\"letter-timeline-label\">Get Together (Bring &amp; Share)</span></div></li>" +
       "</ul>" +
       "<p class=\"deadline\">Пожалуйста, подтверди участие до <strong>18 сентября</strong>.</p>",
 
@@ -781,7 +781,7 @@ window.I18N = {
     /* ── Soft Gate / Floating Card / Scroll Lock ── */
     gateSalutation   : "Вы приглашены,",
     gateSeatsText    : "Местоположение: Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a>",
-    gateBody         : "Сбор гостей <strong>13:30</strong> → Церемония: <strong>14:00</strong> → Bring & Share: <strong>15:00–16:00</strong></br>После церемонии мы будем рады, если все останутся на улице у церкви — каждый ставит что-нибудь на стол, и мы вместе перекусим и выпьем бокал шампанского. Торты, пироги, выпечка, закуски — всё приветствуется.",
+    gateBody         : "Arrival · 13:30 → Ceremony · 14:00 → Get Together (Bring & Share) · 15:00</br>После церемонии мы будем рады, если все останутся на улице у церкви — каждый ставит что-нибудь на стол, и мы вместе перекусим и выпьем бокал шампанского. Торты, пироги, выпечка, закуски — всё приветствуется.",
     gateNote         : "Хотите что-то принести? Можно записаться при ответе на приглашение. ♡",
     gateCtaBtn       : "Заполнить анкету →",
     gateSkipBtn      : "Сначала посмотрю сайт",
@@ -859,7 +859,7 @@ window.I18N = {
 
     agenda: [
       {
-        time: "13:30", label: "ВСТРЕЧА", title: "Встреча гостей",
+        time: "13:30", label: "ARRIVAL", title: "Arrival",
         location: "Schlosskirche Eller", address: "Schlossallee 6, 40229 Düsseldorf",
         mapUrl: "https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf",
         description: "Приходите, встречайтесь с близкими и устраивайтесь, прежде чем начнётся церемония."
@@ -869,7 +869,7 @@ window.I18N = {
         description: "Пожалуйста, <strong>займите место до 14:00</strong>, чтобы мы могли начать вовремя. Просим вас <strong>убрать телефоны</strong> и насладиться моментом вместе с нами. Наши фотограф и видеограф позаботятся о съёмке."
       },
       {
-        time: "15:00–16:00", label: "ПРИЁМ", title: "Bring & Share приём",
+        time: "15:00–16:00", label: "GET TOGETHER (BRING & SHARE)", title: "Get Together (Bring & Share)",
         bringAndShare: true, bringAndShareFormUrl: "https://forms.gle/4C6RUZfEKunpWGoc8",
         description: "Мы будем рады Bring & Share с нашими любимыми! Дайте нам знать, если хотите принести пирог, выпечку, закуски или что-нибудь вкусное. ❤️<br><br><strong>Уже зарегистрировались через форму участия? Всё готово — больше ничего заполнять не нужно.</strong>"
       },
