@@ -984,21 +984,24 @@ p {
 
 .agenda-label {
   font-family: var(--serif);
+  font-size: clamp(12px,.95vw,14px);
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.2;
+  margin-bottom: 4px;
+  letter-spacing: -.01em;
+  text-transform: none;
+}
+
+.agenda-title {
+  font-family: var(--serif);
   font-size: clamp(6px,.52vw,8px);
   letter-spacing: .28em;
   text-transform: uppercase;
   color: var(--muted);
   line-height: 1;
-}
-
-.agenda-title {
-  font-family: var(--serif);
-  font-size: clamp(12px,.95vw,14px);
-  font-weight: 500;
-  color: var(--ink);
-  line-height: 1.2;
-  margin-bottom: 4px;
-  letter-spacing: -.01em;
+  font-weight: 400;
+  margin-bottom: 2px;
 }
 
 /* Location block */
@@ -1328,8 +1331,8 @@ p {
 
   /* ── Ceremony ── */
   .agenda-time  { font-size: 15px; font-weight: 700; }
-  .agenda-label { font-size: 10px; }
-  .agenda-title { font-size: 16px; font-weight: 600; }
+  .agenda-label { font-size: 16px; font-weight: 600; }
+  .agenda-title { font-size: 10px; font-weight: 400; }
   .agenda-location-name { font-size: 15px; }
   .agenda-address { font-size: 13px; }
   .agenda-desc  { font-size: 14px; line-height: 1.55; max-width: 100%; }
@@ -2257,13 +2260,4 @@ button.sa-btn {
   font-size: 0.85em;
 }
 
-/* ── Card 04 swapped heading ── */
-#card04Label {
-  display: block;
-  font-size: 2.4rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: inherit;
-  margin-bottom: 0.15rem;
-}
+
