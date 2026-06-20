@@ -1169,7 +1169,7 @@ p {
   cursor: pointer;
   list-style: none;
   color: var(--ink);
-  font-size: clamp(11px,.9vw,13px);
+  font-size: clamp(14px,1.1vw,16px);
   font-weight: 600;
   line-height: 1.2;
   letter-spacing: -.01em;
@@ -1190,11 +1190,11 @@ p {
   transform: rotate(45deg);
 }
 
-.faq-item p {
+.faq-item p, .faq-answer {
   margin: 0 0 clamp(7px,.9vh,10px);
-  color: var(--muted);
-  font-size: clamp(9.5px,.8vw,12px);
-  line-height: 1.5;
+  color: var(--ink);
+  font-size: clamp(13px,1vw,15px);
+  line-height: 1.6;
   max-width: 100%;
 }
 
@@ -1346,7 +1346,7 @@ p {
   .tone span { font-size: clamp(7px, 1.8vw, 9px); }
 
   /* ── FAQ ── */
-  .faq-item h3 { font-size: 16px; line-height: 1.3; }
+  .faq-item summary { font-size: 15px; line-height: 1.3; }
   .faq-item p  { font-size: 14px; line-height: 1.55; }
 }
 
@@ -2261,3 +2261,5 @@ button.sa-btn {
 }
 
 
+
+.faq-item p a { color: #003087; font-weight: 500; }

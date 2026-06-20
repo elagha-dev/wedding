@@ -175,7 +175,7 @@ function renderContent(c) {
   var faqEl = document.getElementById("faq-list");
   if (faqEl && c.faq) {
     faqEl.innerHTML = c.faq.map(function(item) {
-      return '<div class="faq-item"><details><summary>' + item.question + '</summary><p>' + item.answer + '</p></details></div>';
+      return '<div class="faq-item"><details><summary>' + item.question + '</summary><div class="faq-answer">' + item.answer + '</div></details></div>';
     }).join("");
   }
 
