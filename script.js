@@ -131,7 +131,7 @@ function renderContent(c) {
     /* Inject scroll anchors into timeline items */
     var steps = agendaEl.querySelectorAll('.agenda-step');
     visibleAgenda.forEach(function(item, idx) {
-      if (['CEREMONY','GET TOGETHER','ZEREMONIE','ANKOMMEN','ЦЕРЕМОНИЯ','ВСТРЕЧА'].indexOf(item.label) !== -1) {
+      if (['CEREMONY','GET TOGETHER (BRING & SHARE)','ZEREMONIE','ANKOMMEN','ЦЕРЕМОНИЯ','ВСТРЕЧА'].indexOf(item.label) !== -1) {
         if (steps[idx]) steps[idx].id = 'anchor-ceremony';
       }
       if (item.partyOnly) {
@@ -245,8 +245,8 @@ function loadContent() {
     "agenda": [
       {
         "time": "13:30",
-        "label": "GET TOGETHER",
-        "title": "Get Together",
+        "label": "GET TOGETHER (BRING & SHARE)",
+        "title": "Get Together (Bring & Share)",
         "location": "Schlosskirche Eller",
         "address": "Schlossallee 6, 40229 Düsseldorf",
         "mapUrl": "https://maps.google.com/?q=Schlosskirche+Eller+Düsseldorf",

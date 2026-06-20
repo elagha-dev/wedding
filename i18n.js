@@ -54,7 +54,7 @@ window.I18N = {
     /* ── Arrival notice / tooltip ── */
     arrivalNotice  : "Please arrive 30 minutes early.",
     arrivalTip     : "Arrive by",
-    arrivalTipBody : "This gives us time to welcome everyone, collect the Bring & Share items, and start the ceremony on time at",
+    arrivalTipBody : "This gives us time to welcome everyone, drop off any dishes to share, and start the ceremony on time at",
     arrivalTipNote : "Your punctuality is a gift to us. 🎁",
 
     /* ── Timeline nav ── */
@@ -153,7 +153,7 @@ window.I18N = {
     photoTileDesc      : "Share your photos from the day — coming soon",
     comingSoon         : "Soon",
     bsTileTitle        : "Bring & Share",
-    bsTileDesc         : "Everyone brings something to eat — cakes, pies, finger food. We share it together after the ceremony.",
+    bsTileDesc         : "After the ceremony, we'll gather outside the church building for snacks and drinks — and some time together. You're very welcome to bring something to share.",
     calTileTitle       : "Add to Calendar",
     calTileDescCeremony: "Save the ceremony to your calendar",
     calTileDescFull    : "Save both the ceremony & evening to your calendar",
@@ -187,7 +187,7 @@ window.I18N = {
     /* ── Soft Gate / Floating Card / Scroll Lock ── */
     gateSalutation   : "You are invited",
     gateSeatsText    : "Location: Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a>",
-    gateBody         : "Arrive <strong>13:30</strong> → Ceremony: <strong>14:00</strong> → Bring & Share: <strong>15:00–16:00</strong></br>After the ceremony, we'd love for everyone to stay outside the church for a relaxed <strong>Bring & Share</strong> — guests bring something to put on the table, and we all grab a bite and a drink together. Cakes, pies, pastries, finger food — anything welcome.",
+    gateBody         : "Arrive <strong>13:30</strong> → Ceremony: <strong>14:00</strong> → Bring & Share: <strong>15:00–16:00</strong></br>After the ceremony, we'll gather outside the church building for snacks and drinks — and some time together. You're very welcome to bring something to share. ♡",
     gateNote         : "Want to bring something? You can sign up when you RSVP. ♡",
     gateCtaBtn       : "Send us your RSVP →",
     gateSkipBtn      : "I'll explore first",
@@ -202,7 +202,7 @@ window.I18N = {
 
     /* ── Bring & Share modal ── */
     bsStep1Title    : "What are you bringing?",
-    bsStep1Hint     : "Tell us what you're planning to bring — that way we can make sure there's a good mix. No need to feed all 140! 🙂",
+    bsStep1Hint     : "Let us know what you're planning to bring so we can keep track of what's on the table. No need to bring a lot — anything is welcome. 🙂",
     bsWhatLabel     : "What will you bring? *",
     bsWhatPlaceholder: "e.g. apple pie, finger sandwiches…",
     bsPortionsLabel  : "How many portions? *",
@@ -228,7 +228,7 @@ window.I18N = {
     bsPhonePlaceholder: "+49 123 456 or email@...",
     bsDoneKicker    : "You're the best 🧁",
     bsDoneTitle     : "You're on the list — thank you!",
-    bsDoneHint      : "We've noted what you're bringing. Looking forward to grabbing a bite and a drink together after the ceremony. ♡",
+    bsDoneHint      : "We've noted what you're bringing. See you after the ceremony! ♡",
     bsArrivalText   : "Please arrive by <strong>13:30</strong> and drop your contribution on the <strong>Bring &amp; Share table</strong> at the church entrance — it will be clearly marked. Then stay and grab a bite and a drink with us!",
     bsContactHint   : "Any questions? Reach out to <strong>Kathi Meyer</strong> — <a href=\"tel:+491626247906\">+49 162 6247906</a>.",
     bsWarmHint      : "We can't wait to celebrate with you. ♡",
@@ -283,7 +283,7 @@ window.I18N = {
       {
         time: "15:00–16:00", label: "RECEPTION", title: "Bring & Share Reception",
         bringAndShare: true, bringAndShareFormUrl: "https://forms.gle/4C6RUZfEKunpWGoc8",
-        description: "We would love a bring & share with our dear ones! Let us know if you'd like to bring a pie, cake, bakery, finger foods, or anything for a little snack. ❤️<br><br><strong>Already signed up during Participation? You're all set — no need to fill anything in again.</strong>"
+        description: "After the ceremony, we'll gather outside the church building for snacks and drinks — and some time together. You're very welcome to bring something to share. ❤️<br><br><strong>Already signed up during RSVP? You're all set — no need to fill anything in again.</strong>"
       },
       {
         time: "17:00", label: "EVENING PARTY", title: "Evening Reception",
@@ -360,7 +360,7 @@ window.I18N = {
 
     arrivalNotice  : "Bitte 30 Minuten früher erscheinen.",
     arrivalTip     : "Ankunft bis",
-    arrivalTipBody : "So haben wir Zeit, alle zu begrüßen, die Bring-&-Share-Beiträge zu sammeln und die Zeremonie pünktlich um",
+    arrivalTipBody : "So haben wir Zeit, alle zu begrüßen, Mitgebrachtes abzustellen und die Zeremonie pünktlich um",
     arrivalTipNote : "Deine Pünktlichkeit ist ein Geschenk für uns. 🎁",
 
     navCeremony: "💒 Kirchliche Trauung",
@@ -458,7 +458,7 @@ window.I18N = {
     photoTileDesc      : "Teile deine Fotos vom Tag — demnächst verfügbar",
     comingSoon         : "Bald",
     bsTileTitle        : "Bring & Share",
-    bsTileDesc         : "Jeder bringt etwas zu essen mit — Kuchen, Torten, Fingerfood. Wir teilen es nach der Zeremonie gemeinsam.",
+    bsTileDesc         : "Nach der Zeremonie treffen wir uns draußen vor dem Kirchengebäude bei Snacks und Getränken — und verbringen Zeit miteinander. Wer möchte, bringt gerne etwas zum Teilen mit.",
     calTileTitle       : "Zum Kalender hinzufügen",
     calTileDescCeremony: "Trauung im Kalender speichern",
     calTileDescFull    : "Trauung & Abendempfang im Kalender speichern",
@@ -488,7 +488,7 @@ window.I18N = {
     /* ── Soft Gate / Floating Card / Scroll Lock ── */
     gateSalutation   : "Ihr seid herzlich eingeladen,",
     gateSeatsText    : "Standort: Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a>",
-    gateBody         : "Ankommen <strong>13:30</strong> → Zeremonie: <strong>14:00</strong> → Bring & Share: <strong>15:00–16:00</strong></br>Nach der Zeremonie würden wir uns freuen, wenn alle zusammen draußen vor der Kirche bleiben — jeder stellt etwas auf den Tisch, und wir genießen gemeinsam einen Happen und ein Glas Sekt. Kuchen, Torten, Gebäck, Fingerfood — alles willkommen.",
+    gateBody         : "Ankommen <strong>13:30</strong> → Zeremonie: <strong>14:00</strong> → Bring & Share: <strong>15:00–16:00</strong></br>Nach der Zeremonie treffen wir uns draußen vor dem Kirchengebäude bei Snacks und Getränken — und verbringen Zeit miteinander. Wer möchte, bringt gerne etwas zum Teilen mit. ♡",
     gateNote         : "Möchtet ihr etwas mitbringen? Ihr könnt euch bei eurer Rückmeldung eintragen. ♡",
     gateCtaBtn       : "Zur Anmeldung →",
     gateSkipBtn      : "Ich schaue mich erst um",
@@ -500,7 +500,7 @@ window.I18N = {
     viewOnMap : "Auf der Karte anzeigen ↗",
 
     bsStep1Title    : "Was bringt ihr mit?",
-    bsStep1Hint     : "Sagt uns, was ihr plant — damit wir für eine gute Mischung sorgen können. Ihr müsst nicht für 140 Personen kochen! 🙂",
+    bsStep1Hint     : "Sagt uns, was ihr mitbringen möchtet, damit wir wissen, was auf dem Tisch steht. Menge egal — alles ist willkommen. 🙂",
     bsWhatLabel     : "Was bringt ihr mit? *",
     bsWhatPlaceholder: "z.B. Apfelkuchen, Fingerfood…",
     bsPortionsLabel  : "Wie viele Portionen? *",
@@ -526,7 +526,7 @@ window.I18N = {
     bsPhonePlaceholder: "+49 123 456 oder email@...",
     bsDoneKicker    : "Ihr seid die Besten 🧁",
     bsDoneTitle     : "Ihr steht auf der Liste — danke!",
-    bsDoneHint      : "Wir haben notiert, was ihr mitbringt. Wir freuen uns auf einen Happen und ein Glas Sekt zusammen nach der Zeremonie. ♡",
+    bsDoneHint      : "Wir haben notiert, was ihr mitbringt. Wir sehen uns nach der Zeremonie! ♡",
     bsArrivalText   : "Bitte kommt bis <strong>13:30 Uhr</strong> und stellt euren Beitrag auf den <strong>Bring &amp; Share Tisch</strong> am Kircheneingang — er ist gut beschildert. Dann bleibt auf einen Happen und ein Glas Sekt mit uns!",
     bsContactHint   : "Fragen? Meldet euch bei <strong>Kathi Meyer</strong> — <a href=\"tel:+491626247906\">+49 162 6247906</a>.",
     bsWarmHint      : "Wir freuen uns riesig auf euch. ♡",
@@ -578,7 +578,7 @@ window.I18N = {
       {
         time: "15:00–16:00", label: "EMPFANG", title: "Bring & Share Empfang",
         bringAndShare: true, bringAndShareFormUrl: "https://forms.gle/4C6RUZfEKunpWGoc8",
-        description: "Wir freuen uns auf ein Bring & Share mit unseren Liebsten! Sagt uns gerne, ob ihr einen Kuchen, Gebäck, Fingerfood oder etwas zum Snacken mitbringen möchtet. ❤️<br><br><strong>Schon bei der Teilnahme angemeldet? Alles gut — ihr müsst nichts weiter ausfüllen.</strong>"
+        description: "Nach der Zeremonie treffen wir uns draußen vor dem Kirchengebäude bei Snacks und Getränken — und verbringen Zeit miteinander. Wer möchte, bringt gerne etwas zum Teilen mit. ❤️<br><br><strong>Schon beim RSVP angemeldet? Alles gut — ihr müsst nichts weiter ausfüllen.</strong>"
       },
       {
         time: "17:00", label: "ABENDPARTY", title: "Abendempfang",
