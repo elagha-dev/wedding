@@ -271,17 +271,17 @@ window.I18N = {
     /* ── Content: Ceremony agenda ── */
     agenda: [
       {
-        time: "13:30", label: "ARRIVAL", title: "Arrival",
+        time: "13:30", label: "ARRIVAL", title: "Welcome & Settle In",
         location: "Schlosskirche Eller", address: "Schlossallee 6, 40229 Düsseldorf",
         mapUrl: "https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf",
         description: "Arrive, meet familiar faces, and settle in before the ceremony begins."
       },
       {
-        time: "14:00", label: "CEREMONY", title: "Ceremony Start",
+        time: "14:00", label: "CEREMONY", title: "Ceremony Begins",
         description: "Please <strong>take your seat before 14:00</strong> so we can start on time. We kindly ask you to <strong>put your phones away</strong> and enjoy the moment with us. Our photographer and videographer will take care of capturing the ceremony."
       },
       {
-        time: "15:00–16:00", label: "GET TOGETHER (BRING & SHARE)", title: "Get Together (Bring & Share)",
+        time: "15:00–16:00", label: "GET TOGETHER (BRING & SHARE)", title: "Gather Outside",
         bringAndShare: true, bringAndShareFormUrl: "https://forms.gle/4C6RUZfEKunpWGoc8",
         description: "After the ceremony, we'll gather outside the church building for snacks and drinks — and some time together. You're very welcome to bring something to share. ❤️<br><br><strong>Already signed up during RSVP? You're all set — no need to fill anything in again.</strong>"
       },
@@ -566,17 +566,17 @@ window.I18N = {
 
     agenda: [
       {
-        time: "13:30", label: "ARRIVAL", title: "Arrival",
+        time: "13:30", label: "ARRIVAL", title: "Welcome & Settle In",
         location: "Schlosskirche Eller", address: "Schlossallee 6, 40229 Düsseldorf",
         mapUrl: "https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf",
         description: "Ankunft, bekannte Gesichter treffen und ankommen, bevor die Zeremonie beginnt."
       },
       {
-        time: "14:00", label: "ZEREMONIE", title: "Beginn der Zeremonie",
+        time: "14:00", label: "ZEREMONIE", title: "Die Zeremonie beginnt",
         description: "Bitte <strong>nehmt vor 14:00 Uhr Platz</strong>, damit wir pünktlich beginnen können. Wir bitten euch, <strong>die Handys wegzulegen</strong> und den Moment mit uns zu genießen. Unser Fotograf und Videograf kümmern sich darum, die Zeremonie festzuhalten."
       },
       {
-        time: "15:00–16:00", label: "GET TOGETHER (BRING & SHARE)", title: "Get Together (Bring & Share)",
+        time: "15:00–16:00", label: "GET TOGETHER (BRING & SHARE)", title: "Gather Outside",
         bringAndShare: true, bringAndShareFormUrl: "https://forms.gle/4C6RUZfEKunpWGoc8",
         description: "Nach der Zeremonie treffen wir uns draußen vor dem Kirchengebäude bei Snacks und Getränken — und verbringen Zeit miteinander. Wer möchte, bringt gerne etwas zum Teilen mit. ❤️<br><br><strong>Schon beim RSVP angemeldet? Alles gut — ihr müsst nichts weiter ausfüllen.</strong>"
       },
@@ -859,17 +859,17 @@ window.I18N = {
 
     agenda: [
       {
-        time: "13:30", label: "ARRIVAL", title: "Arrival",
+        time: "13:30", label: "ARRIVAL", title: "Welcome & Settle In",
         location: "Schlosskirche Eller", address: "Schlossallee 6, 40229 Düsseldorf",
         mapUrl: "https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf",
         description: "Приходите, встречайтесь с близкими и устраивайтесь, прежде чем начнётся церемония."
       },
       {
-        time: "14:00", label: "ЦЕРЕМОНИЯ", title: "Начало венчания",
+        time: "14:00", label: "ЦЕРЕМОНИЯ", title: "Венчание начинается",
         description: "Пожалуйста, <strong>займите место до 14:00</strong>, чтобы мы могли начать вовремя. Просим вас <strong>убрать телефоны</strong> и насладиться моментом вместе с нами. Наши фотограф и видеограф позаботятся о съёмке."
       },
       {
-        time: "15:00–16:00", label: "GET TOGETHER (BRING & SHARE)", title: "Get Together (Bring & Share)",
+        time: "15:00–16:00", label: "GET TOGETHER (BRING & SHARE)", title: "Gather Outside",
         bringAndShare: true, bringAndShareFormUrl: "https://forms.gle/4C6RUZfEKunpWGoc8",
         description: "Мы будем рады Bring & Share с нашими любимыми! Дайте нам знать, если хотите принести пирог, выпечку, закуски или что-нибудь вкусное. ❤️<br><br><strong>Уже зарегистрировались через форму участия? Всё готово — больше ничего заполнять не нужно.</strong>"
       },
