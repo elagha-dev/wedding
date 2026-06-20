@@ -2327,24 +2327,44 @@ function weScrollRsvpIntoView(target, topBufferPx) {
     if (!strip) return;
 
     var photos = window.STORY_PHOTOS || [];
+    var PER_SLIDE = 4;
 
     /* Build the strip's HTML straight from the photo list above.
        Adding a photo to STORY_PHOTOS is all that's needed — this
-       renders it, and the "coming soon" tile always stays last.
-       Photos render in black & white via the .story-photo-scroll
-       filter, so any new entry inherits it automatically. Each
-       entry can optionally set a "focus" (CSS object-position
-       value, e.g. "center 10%") to keep faces in frame. */
-    var html = photos.map(function (p) {
+       groups photos 4-per-slide into a 2x2 grid, and the "coming
+       soon" tile always stays last (filling any leftover cells on
+       the final slide, or getting its own slide if the last one is
+       already full). Photos render in black & white via the
+       .story-photo-scroll filter, so any new entry inherits it
+       automatically. Each entry can optionally set a "focus" (CSS
+       object-position value, e.g. "center 10%") to keep faces in
+       frame. */
+    function photoCellHtml(p) {
       var posStyle = p.focus ? ' style="object-position:' + p.focus + '"' : '';
-      return '<div class="story-photo-box">' +
+      return '<div class="story-photo-cell">' +
                '<img src="' + p.src + '" alt="' + (p.alt || '') + '" loading="lazy"' + posStyle + '>' +
              '</div>';
-    }).join('') +
-      '<div class="story-photo-box story-photo-gallery story-photo-gallery--soon">' +
+    }
+
+    var soonTileHtml = '<div class="story-photo-gallery story-photo-gallery--soon">' +
         '<span class="gallery-label">Photos from the wedding will be shared here</span>' +
       '</div>';
-    strip.innerHTML = html;
+
+    var slidesHtml = [];
+    for (var i = 0; i < photos.length; i += PER_SLIDE) {
+      var chunk = photos.slice(i, i + PER_SLIDE);
+      var isLastChunk = (i + PER_SLIDE) >= photos.length;
+      var cells = chunk.map(photoCellHtml).join('');
+      if (isLastChunk && chunk.length < PER_SLIDE) {
+        cells += soonTileHtml;
+      }
+      var singleClass = chunk.length === 1 && !(isLastChunk && chunk.length < PER_SLIDE) ? ' story-photo-box--single' : '';
+      slidesHtml.push('<div class="story-photo-box' + singleClass + '">' + cells + '</div>');
+    }
+    if (!photos.length || photos.length % PER_SLIDE === 0) {
+      slidesHtml.push('<div class="story-photo-box story-photo-box--single">' + soonTileHtml + '</div>');
+    }
+    strip.innerHTML = slidesHtml.join('');
 
     var boxes = strip.querySelectorAll('.story-photo-box');
     if (!boxes.length) return;

@@ -1576,14 +1576,24 @@ button.sa-btn {
   position: relative;
   flex: 0 0 100%;
   scroll-snap-align: start;
-  height: clamp(220px, 62vw, 380px);
+  height: clamp(280px, 88vw, 460px);
   aspect-ratio: unset;
   background: rgba(49,39,28,.10);
   overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 2px;
   border: none;
+}
+.story-photo-box.story-photo-box--single {
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+}
+.story-photo-cell {
+  position: relative;
+  overflow: hidden;
+  background: rgba(49,39,28,.10);
 }
 .story-photo-box img {
   position: absolute;
@@ -1595,7 +1605,7 @@ button.sa-btn {
   display: none;
   transition: transform .5s ease;
 }
-.story-photo-box:hover img { transform: scale(1.03); }
+.story-photo-cell:hover img { transform: scale(1.03); }
 .story-photo-box img[src]:not([src=""]) { display: block; }
 
 /* hide placeholder text when image is loaded */
@@ -1610,8 +1620,13 @@ button.sa-btn {
   opacity: .4;
 }
 .story-photo-gallery {
+  grid-column: 1 / -1;
+  grid-row: 1 / -1;
+  display: flex;
   background: var(--ink);
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
   gap: 8px;
   text-decoration: none;
   cursor: pointer;
@@ -1715,7 +1730,7 @@ button.sa-btn {
   flex: 0 1 140px;
   height: 3px;
   border-radius: 3px;
-  background: rgba(255,255,255,.18);
+  background: rgba(196,149,106,.22);
   overflow: hidden;
 }
 .story-photo-progress-fill {
@@ -1723,7 +1738,7 @@ button.sa-btn {
   inset: 0;
   width: 0%;
   border-radius: 3px;
-  background: rgba(255,255,255,.92);
+  background: #C4956A;
   transition: width .3s ease;
 }
 .story-photo-counter {
