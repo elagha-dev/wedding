@@ -6,6 +6,7 @@
 var RSVP_SHEET_NAME        = "RSVPs";
 var PARTY_SHEET_NAME       = "PartyRSVPs";
 var BRING_SHARE_SHEET_NAME = "BringShare";
+var GUEST_NOTES_SHEET_NAME = "GuestNotes";
 
 // Helper function to create a simple, clean date and time string
 function getSimpleTimestamp() {
@@ -49,6 +50,12 @@ function doPost(e) {
       bsSheet.appendRow(["Date & Time","Name","Contact","What","Portions","Food Type","Allergens"]);
     }
 
+    var notesSheet = ss.getSheetByName(GUEST_NOTES_SHEET_NAME);
+    if (!notesSheet) {
+      notesSheet = ss.insertSheet(GUEST_NOTES_SHEET_NAME);
+      notesSheet.appendRow(["Guest Name", "Note", "Updated At", "Updated By"]);
+    }
+
     // ── Route by type ─────────────────────────────────────────────
     if (type === "party_rsvp") {
       partySheet.appendRow([
@@ -70,6 +77,30 @@ function doPost(e) {
         data.food_type || "",
         data.allergens || ""
       ]);
+
+    } else if (type === "guest_note") {
+      var guestName = data.name || "";
+      var noteText  = data.note || "";
+      var updatedBy = data.by   || "";
+
+      // Find existing row for this guest (by name in column A) and update it;
+      // otherwise append a new row. Keeps one row per guest.
+      var existingRow = -1;
+      if (guestName) {
+        var lastDataRow = notesSheet.getLastRow();
+        if (lastDataRow > 1) {
+          var namesCol = notesSheet.getRange(2, 1, lastDataRow - 1, 1).getValues();
+          for (var i = 0; i < namesCol.length; i++) {
+            if (namesCol[i][0] === guestName) { existingRow = i + 2; break; }
+          }
+        }
+      }
+
+      if (existingRow > -1) {
+        notesSheet.getRange(existingRow, 2, 1, 3).setValues([[noteText, currentTimestamp, updatedBy]]);
+      } else {
+        notesSheet.appendRow([guestName, noteText, currentTimestamp, updatedBy]);
+      }
 
     } else {
       // Standard ceremony RSVP
@@ -116,7 +147,8 @@ function setupSheets() {
   var sheets = [
     { name: RSVP_SHEET_NAME, headers: ["Date & Time","First Name","Last Name","Full Name","Email","Phone","Invited to Party","Ceremony Attendance","Evening Attendance","Guests Attending","Children","Total Seats","Join Bring & Share"] },
     { name: PARTY_SHEET_NAME, headers: ["Date & Time","Name","Party Attending","Dietary","Notes","Coming by Car"] },
-    { name: BRING_SHARE_SHEET_NAME, headers: ["Date & Time","Name","Contact","What","Portions","Food Type","Allergens"] }
+    { name: BRING_SHARE_SHEET_NAME, headers: ["Date & Time","Name","Contact","What","Portions","Food Type","Allergens"] },
+    { name: GUEST_NOTES_SHEET_NAME, headers: ["Guest Name", "Note", "Updated At", "Updated By"] }
   ];
 
   sheets.forEach(function(s) {

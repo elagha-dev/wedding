@@ -1206,7 +1206,7 @@ body.lite-mode #liteModeTopBtn {
         </select>
       </div>
       <div class="s-row">
-        <div class="s-row-info"><div class="s-row-title">RSVP &amp; B&amp;S List</div><div class="s-row-sub">Opens from the ✓ button in toolbar</div></div>
+        <div class="s-row-info"><div class="s-row-title">RSVP &amp; B&amp;S List</div><div class="s-row-sub">Opens from the ✓ button in toolbar · guest notes sync to "GuestNotes" tab</div></div>
         <a href="https://docs.google.com/spreadsheets/d/1plydb1KSGgwbxCZzmSD8e12f-Rzzm9-dOlFml4ivUKQ/edit?usp=drivesdk" target="_blank" rel="noreferrer" style="font-size:10.5px;font-weight:600;color:var(--green);text-decoration:none;padding:5px 12px;border-radius:var(--r-pill);background:var(--green-bg);border:1.5px solid rgba(58,140,92,.3);white-space:nowrap;transition:all var(--ease)" onmouseover="this.style.background='rgba(58,140,92,.18)'" onmouseout="this.style.background='var(--green-bg)'">Open Sheet ↗</a>
       </div>
     </div>
@@ -1485,6 +1485,25 @@ function pushMetaToWorker(g){
   _localWrites[g.name].followup=!!g.followup;
   _localWrites[g.name].note=g.note||'';
   _pushWithRetry('/meta',{name:g.name,followup:!!g.followup,note:g.note||''},'meta:'+g.name);
+  pushNoteToSheet(g);
+}
+
+// Mirror the note into the Google Sheet (GuestNotes tab) so it shows up
+// alongside RSVP data, not just in the dashboard's own Worker KV store.
+function pushNoteToSheet(g){
+  if(!googleScriptUrl||!g||!g.name)return;
+  var payload={
+    type:'guest_note',
+    timestamp:new Date().toISOString(),
+    name:g.name,
+    note:g.note||'',
+    by:sessionSender||''
+  };
+  fetch(googleScriptUrl,{
+    method:'POST',mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(payload)
+  }).catch(function(){/* silent — best effort mirror */});
 }
 function pushSentToWorker(name){
   if(!workerUrl||!name)return;
@@ -2517,6 +2536,9 @@ document.getElementById('splitArina').addEventListener('click',function(){splitA
 document.getElementById('splitElnur').addEventListener('click',function(){splitAssign('Elnur');});
 document.getElementById('splitHalf').addEventListener('click',splitHalf);
 var DEFAULT_WORKER='https://guestlist.elnur-agha.workers.dev';
+var DEFAULT_GOOGLE_SCRIPT_URL='https://script.google.com/macros/s/AKfycbwTXSvlokP2p8Htn2K4BuuxpfEix2xJckTKjp068hjSkpk0mTut9DNs130KfofyZcM9QA/exec';
+function loadGoogleScriptUrl(){try{return localStorage.getItem('ww_gsurl')||'';}catch(e){return '';}}
+var googleScriptUrl=loadGoogleScriptUrl()||DEFAULT_GOOGLE_SCRIPT_URL;
 var workerUrl=loadWorkerUrl()||DEFAULT_WORKER;
 function setTopSynced(timeStr){
   var pill=document.getElementById('topSyncBtn');
