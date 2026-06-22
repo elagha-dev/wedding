@@ -1973,8 +1973,9 @@ function getGuestRsvpInfo(name){
       if(s>bestScore){bestScore=s;bestRow=r;}
     });
 
-    // require at least one token to match; bidirectional scoring prevents false positives
-    if(!bestRow||bestScore===0) return null;
+    // require score >= 0.6 to avoid first-name-only false positives
+    // e.g. "Jan Eisleben" vs RSVP row containing "Jan Strack" scores 0.5 and gets blocked
+    if(!bestRow||bestScore<0.6) return null;
 
     var att=(bestRow['Ceremony Attendance']||bestRow['attendance']||'').toString().toLowerCase();
     var isYes=att!==''&&att!=='no'&&att!=='declined';
