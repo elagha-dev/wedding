@@ -716,6 +716,74 @@
       gap: 0 !important;
       min-width: 0;
     }
+
+    /* ── Decline note box ── */
+    .decline-note {
+      margin: 20px 0 14px;
+      padding: 28px 32px;
+      border: 1px solid rgba(122,81,51,.25);
+      background: rgba(122,81,51,.05);
+      text-align: center;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .decline-note-icon {
+      font-size: 26px;
+      color: #7a5133;
+      margin-bottom: 10px;
+    }
+    .decline-note-label {
+      font-family: WeddingSerif, Georgia, serif;
+      font-size: 8px;
+      letter-spacing: .34em;
+      text-transform: uppercase;
+      color: #624E38;
+      margin: 0 0 14px;
+    }
+    .decline-note-textarea {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px 14px;
+      border: 1px solid rgba(49,39,28,.15);
+      background: rgba(255,255,255,.45);
+      font-family: WeddingSerif, Georgia, serif;
+      font-size: 12px;
+      color: #31271C;
+      resize: vertical;
+      min-height: 72px;
+      outline: none;
+      line-height: 1.6;
+      border-radius: 0;
+      -webkit-appearance: none;
+    }
+    .decline-note-textarea::placeholder { color: rgba(49,39,28,.38); }
+    .decline-note-textarea:focus { border-color: rgba(49,39,28,.35); background: rgba(255,255,255,.65); }
+    .decline-note-btn {
+      display: block;
+      width: 100%;
+      margin-top: 12px;
+      padding: 12px 16px;
+      background: #C9702A;
+      color: #fff;
+      border: none;
+      border-radius: 0;
+      font-family: WeddingSerif, Georgia, serif;
+      font-size: 9px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background .15s;
+      -webkit-appearance: none;
+    }
+    .decline-note-btn:hover { background: #8B4A12; }
+    .decline-note-btn:disabled { background: rgba(49,39,28,.25); cursor: default; }
+    .decline-note-status {
+      margin-top: 10px;
+      font-family: WeddingSerif, Georgia, serif;
+      font-size: 10.5px;
+      color: rgba(49,39,28,.5);
+      line-height: 1.5;
+    }
   </style>
 
   <style id="lang-switcher-css">
