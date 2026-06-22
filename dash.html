@@ -1858,35 +1858,9 @@ function renderGuestList(){
   var childGuests=guests.filter(function(g){return g.isChild;});
   var sentGuests=guests.filter(function(g){return g.sent;});
 
-  // Pair unsent guests: primary signal is shared `group` (exactly 2 in group),
-  // fallback is shared last name (exactly 2 unsent guests share a surname).
-  var unsentRendered={};
-  var unsentOrdered=[];
-  unsent.forEach(function(g){
-    if(unsentRendered[g.name])return;
-    unsentRendered[g.name]=true;
-    var partner=null;
-    var grp=g.group||'';
-    if(grp){
-      var sameGroup=unsent.filter(function(h){return(h.group||'')===grp;});
-      if(sameGroup.length===2)partner=sameGroup.find(function(h){return h.name!==g.name&&!unsentRendered[h.name];})||null;
-    }
-    if(!partner){
-      var ln=lastName(g.name);
-      if(ln){
-        var sameLast=unsent.filter(function(h){return!h.isChild&&lastName(h.name).toLowerCase()===ln.toLowerCase();});
-        if(sameLast.length===2)partner=sameLast.find(function(h){return h.name!==g.name&&!unsentRendered[h.name];})||null;
-      }
-    }
-    if(partner){unsentRendered[partner.name]=true;unsentOrdered.push({type:'pair',guests:[g,partner]});return;}
-    unsentOrdered.push({type:'single',guest:g});
-  });
-
+  // Unsent: no grouping — each guest rendered individually
   var html='';
-  unsentOrdered.forEach(function(item){
-    if(item.type==='pair')html+=buildPairUnsentCard(item.guests[0],item.guests[1]);
-    else html+=buildGuestCard(item.guest);
-  });
+  unsent.forEach(function(g){html+=buildGuestCard(g);});
 
   // Children section — no buttons, just names
   if(childGuests.length){
@@ -1900,9 +1874,33 @@ function renderGuestList(){
   // filled in, but two sent guests sharing a surname are reliably a couple.
   if(sentGuests.length){
     if(showSent){
-      // Sent guests render individually — no grouping
+      // Sent: group household partners together by shared group field or last name
+      var renderedNames={};
+      var sentOrdered=[];
+      sentGuests.forEach(function(g){
+        if(renderedNames[g.name])return;
+        renderedNames[g.name]=true;
+        var grp=g.group||'';
+        var partner=null;
+        if(grp){
+          var sameGroup=sentGuests.filter(function(h){return(h.group||'')===grp;});
+          if(sameGroup.length===2)partner=sameGroup.find(function(h){return h.name!==g.name&&!renderedNames[h.name];})||null;
+        }
+        if(!partner){
+          var ln=lastNameForPairing(g.name);
+          if(ln){
+            var sameLast=sentGuests.filter(function(h){return!h.isChild&&lastNameForPairing(h.name).toLowerCase()===ln.toLowerCase();});
+            if(sameLast.length===2)partner=sameLast.find(function(h){return h.name!==g.name&&!renderedNames[h.name];})||null;
+          }
+        }
+        if(partner){renderedNames[partner.name]=true;sentOrdered.push({type:'pair',guests:[g,partner]});return;}
+        sentOrdered.push({type:'single',guest:g});
+      });
       html+='<div class="g-group-hdr sent">Sent ('+sentGuests.length+')</div>';
-      sentGuests.forEach(function(g){html+=buildGuestCard(g);});
+      sentOrdered.forEach(function(item){
+        if(item.type==='pair')html+=buildPairSentCard(item.guests[0],item.guests[1]);
+        else html+=buildGuestCard(item.guest);
+      });
       html+='<button class="show-sent-btn" id="showSentBtn">Hide sent</button>';
     } else {
       html+='<button class="show-sent-btn" id="showSentBtn">Show '+sentGuests.length+' sent</button>';
