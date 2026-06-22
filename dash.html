@@ -3794,7 +3794,30 @@ function showChatNotif(who, text){
     function entryHtml(r){
       var name = r['Full Name'] || r['First Name'] || r.name || '—';
       var date = fmtDate(r['Date & Time'] || r.timestamp || '');
-      var rawDump = Object.keys(r).map(function(k){ return k + '=' + JSON.stringify(r[k]); }).join(' | ');
+      // Skip empty/zero/header-only fields and render nicely
+      var skipKeys = {'Date & Time': 1, 'First Name': 1, 'Last Name': 1};
+      var yesNoKeys = {'Ceremony Attendance':1,'Evening Attendance':1,'Invited to Party':1,'Join Bring & Share':1};
+      var rawDump = Object.keys(r).filter(function(k){
+        if(skipKeys[k]) return false;
+        var v = (r[k] === null || r[k] === undefined) ? '' : String(r[k]).trim();
+        return v !== '' && v !== '0';
+      }).map(function(k){
+        var v = (r[k] === null || r[k] === undefined) ? '' : String(r[k]).trim();
+        var isYes = /^yes$/i.test(v);
+        var isNo  = /^no$/i.test(v);
+        var valHtml;
+        if(isYes){
+          valHtml = '<span style="background:#d4f5e2;color:#1a7a4a;border-radius:100px;padding:1px 7px;font-size:8px;font-weight:800;letter-spacing:.04em">YES</span>';
+        } else if(isNo){
+          valHtml = '<span style="background:#fde8e8;color:#b91c1c;border-radius:100px;padding:1px 7px;font-size:8px;font-weight:800;letter-spacing:.04em">NO</span>';
+        } else {
+          valHtml = '<span style="color:var(--ink2);font-weight:600">' + v + '</span>';
+        }
+        return '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:3px 0;border-bottom:1px solid var(--parchment)">'
+          + '<span style="color:var(--soft);font-size:9px">' + k + '</span>'
+          + valHtml
+          + '</div>';
+      }).join('');
       var id = 'rdet' + (++entryCounter);
       var att = isAttending(r);
       var borderColor = att === true ? '#1a7a4a' : att === false ? '#b91c1c' : 'var(--parchment)';
@@ -3803,7 +3826,7 @@ function showChatNotif(who, text){
         : att === false
         ? '<span style="background:#fde8e8;color:#b91c1c;border-radius:100px;padding:2px 9px;font-size:9px;font-weight:800;letter-spacing:.04em;flex-shrink:0">NO</span>'
         : '';
-      return '<div class="rsvp-entry" data-name="' + name.toLowerCase().replace(/"/g,'') + '" style="border-left:3px solid ' + borderColor + ';padding-left:8px;margin-bottom:4px;border-radius:0 6px 6px 0">'        + '<div class="rsvp-row-top" data-det="' + id + '" style="display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;padding:6px 2px">'        + '<div style="flex:1;min-width:0"><div class="rsvp-entry-name" style="font-weight:600">' + name + '</div>'        + (date ? '<div class="rsvp-entry-meta" style="font-size:10px;color:var(--soft)">' + date + '</div>' : '') + '</div>'        + pillHtml        + '<span class="det-chev" style="font-size:8px;color:var(--soft);transition:transform .2s;flex-shrink:0;margin-left:4px">&#9660;</span>'        + '</div>'        + '<div id="' + id + '" style="display:none;margin-top:4px;padding:6px 4px 8px;border-top:1px solid var(--parchment);font-size:9px;color:var(--soft);word-break:break-all;line-height:1.7">' + rawDump + '</div>'        + '</div>';
+      return '<div class="rsvp-entry" data-name="' + name.toLowerCase().replace(/"/g,'') + '" style="border-left:3px solid ' + borderColor + ';padding-left:8px;margin-bottom:4px;border-radius:0 6px 6px 0">'        + '<div class="rsvp-row-top" data-det="' + id + '" style="display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;padding:6px 2px">'        + '<div style="flex:1;min-width:0"><div class="rsvp-entry-name" style="font-weight:600">' + name + '</div>'        + (date ? '<div class="rsvp-entry-meta" style="font-size:10px;color:var(--soft)">' + date + '</div>' : '') + '</div>'        + pillHtml        + '<span class="det-chev" style="font-size:8px;color:var(--soft);transition:transform .2s;flex-shrink:0;margin-left:4px">&#9660;</span>'        + '</div>'        + '<div id="' + id + '" style="display:none;margin-top:6px;padding:6px 4px 8px;border-top:1px solid var(--parchment);font-size:9px;line-height:1.7">' + rawDump + '</div>'        + '</div>';
     }
 
     var reversed = rows.slice().reverse();
