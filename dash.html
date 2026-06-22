@@ -313,6 +313,17 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .show-sent-btn{width:100%;padding:10px;background:none;border:1.5px dashed var(--parchment);border-radius:var(--r-sm);font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;transition:all var(--ease);margin-top:4px}
 .show-sent-btn:hover{border-color:var(--green);color:var(--green)}
 
+/* ── PAIR CARD (couple sharing one invite) ── */
+.g-pair-inner{padding:11px 12px 9px 16px;display:block}
+.g-pair-hdr{display:flex;align-items:center;gap:6px;padding-bottom:9px;margin-bottom:5px;border-bottom:1px solid var(--parchment)}
+.g-pair-hdr .g-name{font-size:15px}
+.g-pair-hdr .ga-btn-wa{margin-left:2px}
+.g-pair-rows{display:flex;flex-direction:column;gap:2px}
+.g-pair-row{display:flex;align-items:center;gap:7px;padding:4px 0}
+.g-pair-row .g-name{font-size:12.5px;color:var(--muted);font-weight:500}
+.g-pair-row .g-pair-acts{display:flex;align-items:center;gap:4px;flex-shrink:0;margin-left:auto}
+.g-pair-acts .g-del{position:static;width:14px;height:14px;font-size:11px}
+.g-card.sent .g-pair-hdr,.g-card.sent .g-pair-row{border-color:var(--parchment)}
 .g-tags:empty{margin-bottom:0}
 .g-swipe-hint{display:none}
 @keyframes sw-snap{0%{transform:translateX(var(--snap-x,0px)) scale(1)}25%{transform:translateX(var(--snap-x,0px)) scale(1.025) rotate(0.3deg)}55%{transform:translateX(var(--snap-x,0px)) scale(0.984) rotate(-0.15deg)}80%{transform:translateX(var(--snap-x,0px)) scale(1.006)}100%{transform:translateX(var(--snap-x,0px)) scale(1) rotate(0deg)}}
@@ -1973,19 +1984,17 @@ function buildPairUnsentCard(g1,g2){
   var waBtn='<button class="ga-btn ga-btn-wa'+(((g1.phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'')||((g2.phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'')))?' ': ' no-phone')+'" data-qi="'+ri1+'" data-action="wa" title="Send WhatsApp to couple"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.556 4.121 1.528 5.855L.057 23.882a.5.5 0 0 0 .614.612l6.094-1.597A11.937 11.937 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.808 9.808 0 0 1-5.032-1.384l-.36-.214-3.733.979.995-3.63-.234-.374A9.808 9.808 0 0 1 2.182 12C2.182 6.57 6.57 2.182 12 2.182c5.43 0 9.818 4.388 9.818 9.818 0 5.43-4.388 9.818-9.818 9.818z"/></svg></button>';
   function miniRow(g,ri){
     var rsvpPill=getGuestRsvpPill(g.name);
-    return '<div class="g-name-row" style="margin-top:2px">'
-      +'<span class="g-name" style="font-size:12.5px;color:var(--muted)">'+g.name+'</span>'
-      +(rsvpPill?'<span style="margin-left:4px">'+rsvpPill+'</span>':'')
-      +'<span style="flex:1"></span>'
-      +'<button class="g-del" data-qi="'+ri+'" data-action="del" style="position:static;width:14px;height:14px;color:var(--soft);border:none;background:none;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;border-radius:50%">×</button>'
+    return '<div class="g-pair-row">'
+      +'<span class="g-name">'+g.name+'</span>'
+      +(rsvpPill?rsvpPill:'')
+      +'<span class="g-pair-acts"><button class="g-del" data-qi="'+ri+'" data-action="del">×</button></span>'
     +'</div>';
   }
   return '<div class="g-swipe-wrap">'
     +'<div class="g-card">'
-      +'<div class="g-inner" style="display:block">'
-        +'<div class="g-name-row"><span class="g-name" style="font-size:15px">'+pairName+'</span>'+tC+langLabel+'<span style="flex:1"></span>'+waBtn+'</div>'
-        +miniRow(g1,ri1)
-        +miniRow(g2,ri2)
+      +'<div class="g-pair-inner">'
+        +'<div class="g-pair-hdr"><span class="g-name">'+pairName+'</span>'+tC+langLabel+'<span style="flex:1"></span>'+waBtn+'</div>'
+        +'<div class="g-pair-rows">'+miniRow(g1,ri1)+miniRow(g2,ri2)+'</div>'
       +'</div>'
     +'</div>'
   +'</div>';
@@ -2002,21 +2011,21 @@ function buildPairSentCard(g1,g2){
   // a couple invite is one message, but attendance is decided per person.
   function personRow(g,ri){
     var pill=getGuestRsvpPill(g.name);
-    return '<div class="g-name-row" style="margin-top:2px">'
-      +'<span class="g-name" style="font-size:12.5px;color:var(--muted)">'+g.name+'</span>'
-      +(pill?'<span style="margin-left:4px">'+pill+'</span>':'')
-      +'<span style="flex:1"></span>'
-      +'<button class="g-undo-btn" data-qi="'+ri+'" data-action="undo" title="Mark as unsent" style="width:15px;height:15px"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></button>'
-      +'<button class="g-del" data-qi="'+ri+'" data-action="del" style="position:static;width:14px;height:14px;color:var(--soft);border:none;background:none;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;border-radius:50%">×</button>'
+    return '<div class="g-pair-row">'
+      +'<span class="g-name">'+g.name+'</span>'
+      +(pill?pill:'')
+      +'<span class="g-pair-acts">'
+        +'<button class="g-undo-btn" data-qi="'+ri+'" data-action="undo" title="Mark as unsent" style="width:16px;height:16px"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></button>'
+        +'<button class="g-del" data-qi="'+ri+'" data-action="del">×</button>'
+      +'</span>'
     +'</div>';
   }
 
   return '<div class="g-swipe-wrap">'
     +'<div class="g-card sent">'
-      +'<div class="g-inner" style="display:block">'
-        +'<div class="g-name-row"><span class="g-name" style="font-size:15px">'+pairName+'</span>'+senderChip+sentTime+'</div>'
-        +personRow(g1,ri1)
-        +personRow(g2,ri2)
+      +'<div class="g-pair-inner">'
+        +'<div class="g-pair-hdr"><span class="g-name">'+pairName+'</span>'+senderChip+sentTime+'</div>'
+        +'<div class="g-pair-rows">'+personRow(g1,ri1)+personRow(g2,ri2)+'</div>'
       +'</div>'
     +'</div>'
   +'</div>';
