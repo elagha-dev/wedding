@@ -256,18 +256,74 @@ p {
 /* Decline note */
 .decline-note {
   display: none;
-  margin: 0;
-  padding: 7px 9px;
-  border: 1px solid rgba(49,39,28,.10);
-  background: rgba(255,255,255,.28);
-  color: var(--muted);
-  font-family: var(--serif);
-  font-size: 11px;
-  font-weight: 500;
-  line-height: 1.45;
-  max-width: 100%;
+  margin: 20px 0 14px;
+  padding: 28px 32px;
+  border: 1px solid rgba(122,81,51,.25);
+  background: rgba(122,81,51,.05);
+  text-align: center;
+  width: 100%;
+  box-sizing: border-box;
 }
 .decline-note.is-visible { display: block; }
+
+.decline-note-icon {
+  font-size: 26px;
+  color: #7a5133;
+  margin-bottom: 10px;
+}
+.decline-note-label {
+  font-family: var(--serif);
+  font-size: 8px;
+  letter-spacing: .34em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 14px;
+}
+.decline-note-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 1px solid rgba(49,39,28,.15);
+  background: rgba(255,255,255,.45);
+  font-family: var(--serif);
+  font-size: 12px;
+  color: var(--ink);
+  resize: vertical;
+  min-height: 72px;
+  outline: none;
+  line-height: 1.6;
+}
+.decline-note-textarea::placeholder {
+  color: rgba(49,39,28,.38);
+}
+.decline-note-textarea:focus {
+  border-color: rgba(49,39,28,.35);
+  background: rgba(255,255,255,.65);
+}
+.decline-note-btn {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px 16px;
+  background: #C9702A;
+  color: #fff;
+  border: none;
+  font-family: var(--serif);
+  font-size: 9px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background .15s;
+}
+.decline-note-btn:hover { background: #8B4A12; }
+.decline-note-btn:disabled { background: rgba(49,39,28,.25); cursor: default; }
+.decline-note-status {
+  margin-top: 10px;
+  font-family: var(--serif);
+  font-size: 10.5px;
+  color: rgba(49,39,28,.5);
+  line-height: 1.5;
+}
 
 .yes-only.is-hidden { display: none; }
 

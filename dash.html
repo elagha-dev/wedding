@@ -703,7 +703,7 @@ body.lite-mode #liteModeTopBtn {
       <div class="who-sub">Choose your session to continue</div>
       <div class="who-btns">
         <button class="who-btn btn-a" id="whoBtnA">
-          <img src="arina.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" alt="Arina">
+          <img src="img/arina.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" alt="Arina">
           <span class="who-btn-init" style="display:none">A</span>
           <span>Arina</span>
         </button>
@@ -714,7 +714,7 @@ body.lite-mode #liteModeTopBtn {
         </button>
         <button class="who-btn btn-g" id="whoBtnG">
           <span class="who-btn-init" style="background:var(--parchment);color:var(--muted);overflow:hidden;padding:0;position:relative;border-radius:50%">
-            <img src="arina.jpg" onerror="this.src='img/arina.jpg'" alt="" style="width:36px;height:36px;object-fit:cover;filter:blur(4px) brightness(.95);transform:scale(1.2);display:block">
+            <img src="img/arina.jpg" onerror="this.src='img/elnur.jpg'" alt="" style="width:36px;height:36px;object-fit:cover;filter:blur(4px) brightness(.95);transform:scale(1.2);display:block">
           </span>
           <span>Guest</span>
         </button>
@@ -4022,7 +4022,7 @@ window.addEventListener('unhandledrejection', function(e){ e.preventDefault(); }
     var otherEl  = document.getElementById('presenceOther');
     if (who === 'Guest') {
       if (meEl)  { meEl.classList.add('is-guest'); meEl.title = 'You are in view only mode'; }
-      if (meImg) { meImg.src = 'https://www.arinaelnur.de/img/arina.jpg'; meImg.onerror = function(){ this.src='img/arina.jpg'; }; meImg.alt = 'Guest'; }
+      if (meImg) { meImg.src = 'https://www.arinaelnur.de/img/arina.jpg'; meImg.onerror = function(){ this.src='img/elnur.jpg'; }; meImg.alt = 'Guest'; }
       if (otherEl) { otherEl.style.display = 'none'; }
     } else {
       if (meEl)    { meEl.classList.remove("is-guest"); meEl.title = who + " — tap for settings"; }
