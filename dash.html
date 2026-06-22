@@ -1949,8 +1949,15 @@ function _rsvpScore(guestTokens, row){
   if(!rsvpTokens.length) return 0;
   var hits=0;
   guestTokens.forEach(function(t){ if(rsvpTokens.indexOf(t)>-1) hits++; });
-  // normalise: fraction of guest tokens that matched
-  return hits/guestTokens.length;
+  // guest->rsvp: fraction of guest tokens found in rsvp row
+  var gScore=hits/guestTokens.length;
+  // rsvp->guest: fraction of rsvp tokens found in guest name
+  // catches cases where submitter omitted last name — all their tokens still appear in guest entry
+  var hits2=0;
+  rsvpTokens.forEach(function(t){ if(guestTokens.indexOf(t)>-1) hits2++; });
+  var rScore=hits2/rsvpTokens.length;
+  // use the higher of the two directions
+  return Math.max(gScore,rScore);
 }
 
 function getGuestRsvpInfo(name){
@@ -1966,9 +1973,8 @@ function getGuestRsvpInfo(name){
       if(s>bestScore){bestScore=s;bestRow=r;}
     });
 
-    // require ALL guest tokens to match (score===1.0) to avoid false positives
-    // e.g. "Jan Eisleben" must not match a row with "Jan [OtherLastName]"
-    if(!bestRow||bestScore<1) return null;
+    // require at least one token to match; bidirectional scoring prevents false positives
+    if(!bestRow||bestScore===0) return null;
 
     var att=(bestRow['Ceremony Attendance']||bestRow['attendance']||'').toString().toLowerCase();
     var isYes=att!==''&&att!=='no'&&att!=='declined';
