@@ -1831,16 +1831,34 @@ function renderGuestList(){
   var childGuests=guests.filter(function(g){return g.isChild;});
   var sentGuests=guests.filter(function(g){return g.sent;});
 
-  var sections={};
-  // preserve sorted order when bucketing into groups
-  unsent.forEach(function(g){var grp=g.group||'_';if(!sections[grp])sections[grp]=[];sections[grp].push(g);});
+  // Pair unsent guests: primary signal is shared `group` (exactly 2 in group),
+  // fallback is shared last name (exactly 2 unsent guests share a surname).
+  var unsentRendered={};
+  var unsentOrdered=[];
+  unsent.forEach(function(g){
+    if(unsentRendered[g.name])return;
+    unsentRendered[g.name]=true;
+    var partner=null;
+    var grp=g.group||'';
+    if(grp){
+      var sameGroup=unsent.filter(function(h){return(h.group||'')===grp;});
+      if(sameGroup.length===2)partner=sameGroup.find(function(h){return h.name!==g.name&&!unsentRendered[h.name];})||null;
+    }
+    if(!partner){
+      var ln=lastName(g.name);
+      if(ln){
+        var sameLast=unsent.filter(function(h){return!h.isChild&&lastName(h.name).toLowerCase()===ln.toLowerCase();});
+        if(sameLast.length===2)partner=sameLast.find(function(h){return h.name!==g.name&&!unsentRendered[h.name];})||null;
+      }
+    }
+    if(partner){unsentRendered[partner.name]=true;unsentOrdered.push({type:'pair',guests:[g,partner]});return;}
+    unsentOrdered.push({type:'single',guest:g});
+  });
 
   var html='';
-  // Sort group keys: '_' first, then alphabetically; within each group preserve sorted order from getFiltered
-  var grpKeys=Object.keys(sections).sort(function(a,b){if(a==='_')return-1;if(b==='_')return 1;return a.localeCompare(b);});
-  grpKeys.forEach(function(grp){
-    if(grp!=='_')html+='<div class="g-group-hdr">'+grp+' <span style="opacity:.4">('+sections[grp].length+')</span></div>';
-    sections[grp].forEach(function(g){html+=buildGuestCard(g);});
+  unsentOrdered.forEach(function(item){
+    if(item.type==='pair')html+=buildPairUnsentCard(item.guests[0],item.guests[1]);
+    else html+=buildGuestCard(item.guest);
   });
 
   // Children section — no buttons, just names
@@ -1939,6 +1957,38 @@ function renderGuestList(){
 
   updateBulkBar();
   initSplitBar();
+}
+
+function buildPairUnsentCard(g1,g2){
+  var ri1=importQueue.indexOf(g1),ri2=importQueue.indexOf(g2);
+  var pairName=pairDisplayName(g1.name,g2.name);
+  // Determine combined type: if either is party, card shows Party; use the more inclusive one
+  var hasParty=(g1.type==='ceremony-party-single'||g1.type==='couple-party')||(g2.type==='ceremony-party-single'||g2.type==='couple-party');
+  var tC=hasParty?'<span class="chip chip-type">Party</span>':'<span class="chip chip-type">Church</span>';
+  // Language chip — show if both match; if they differ show both
+  var langLabel='';
+  if(g1.lang&&g1.lang!=='en'&&g2.lang&&g2.lang!=='en'&&g1.lang===g2.lang)langLabel='<span class="chip chip-lang">'+(g1.lang==='de'?'DE':'RU')+'</span>';
+  else{if(g1.lang&&g1.lang!=='en')langLabel+='<span class="chip chip-lang">'+(g1.lang==='de'?'DE':'RU')+'</span>';if(g2.lang&&g2.lang!=='en')langLabel+='<span class="chip chip-lang">'+(g2.lang==='de'?'DE':'RU')+'</span>';}
+  // Pick the WA action from g1 (selecting the pair will open group-send flow with both)
+  var waBtn='<button class="ga-btn ga-btn-wa'+(((g1.phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'')||((g2.phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'')))?' ': ' no-phone')+'" data-qi="'+ri1+'" data-action="wa" title="Send WhatsApp to couple"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.556 4.121 1.528 5.855L.057 23.882a.5.5 0 0 0 .614.612l6.094-1.597A11.937 11.937 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.808 9.808 0 0 1-5.032-1.384l-.36-.214-3.733.979.995-3.63-.234-.374A9.808 9.808 0 0 1 2.182 12C2.182 6.57 6.57 2.182 12 2.182c5.43 0 9.818 4.388 9.818 9.818 0 5.43-4.388 9.818-9.818 9.818z"/></svg></button>';
+  function miniRow(g,ri){
+    var rsvpPill=getGuestRsvpPill(g.name);
+    return '<div class="g-name-row" style="margin-top:2px">'
+      +'<span class="g-name" style="font-size:12.5px;color:var(--muted)">'+g.name+'</span>'
+      +(rsvpPill?'<span style="margin-left:4px">'+rsvpPill+'</span>':'')
+      +'<span style="flex:1"></span>'
+      +'<button class="g-del" data-qi="'+ri+'" data-action="del" style="position:static;width:14px;height:14px;color:var(--soft);border:none;background:none;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;border-radius:50%">×</button>'
+    +'</div>';
+  }
+  return '<div class="g-swipe-wrap">'
+    +'<div class="g-card">'
+      +'<div class="g-inner" style="display:block">'
+        +'<div class="g-name-row"><span class="g-name" style="font-size:15px">'+pairName+'</span>'+tC+langLabel+'<span style="flex:1"></span>'+waBtn+'</div>'
+        +miniRow(g1,ri1)
+        +miniRow(g2,ri2)
+      +'</div>'
+    +'</div>'
+  +'</div>';
 }
 
 function buildPairSentCard(g1,g2){
