@@ -1498,24 +1498,6 @@ function pushSentToWorker(name){
   _localWrites[name].sent=true;
   _pushWithRetry('/sent',{name:name},'sent:'+name);
 }
-// One-time cleanup: split previously-merged sent pairs (old bulkWith/sentGroupId tags)
-// into separate entries so each gets its own RSVP tag. Only clears guests that are
-// already marked sent — does not touch pending/unsent guests or re-send anything.
-function splitMergedSentPairs(){
-  var affected=importQueue.filter(function(g){return g.sent&&(g.bulkWith||g.sentGroupId);});
-  if(!affected.length)return;
-  affected.forEach(function(g){
-    g.bulkWith='';g.sentGroupId='';
-    _localWrites[g.name]=_localWrites[g.name]||{};
-    _localWrites[g.name].bulkWith='';
-    _localWrites[g.name].sentGroupId='';
-    _pushWithRetry('/meta',{name:g.name,bulkWith:'',sentGroupId:''},'split:'+g.name);
-  });
-  saveGuestMeta();
-  renderGuestList();
-  renderDashboard();
-}
-
 function pushUnsentToWorker(name){
   if(!workerUrl||!name)return;
   _localWrites[name]=_localWrites[name]||{};
@@ -1831,34 +1813,16 @@ function renderGuestList(){
   var childGuests=guests.filter(function(g){return g.isChild;});
   var sentGuests=guests.filter(function(g){return g.sent;});
 
-  // Pair unsent guests: primary signal is shared `group` (exactly 2 in group),
-  // fallback is shared last name (exactly 2 unsent guests share a surname).
-  var unsentRendered={};
-  var unsentOrdered=[];
-  unsent.forEach(function(g){
-    if(unsentRendered[g.name])return;
-    unsentRendered[g.name]=true;
-    var partner=null;
-    var grp=g.group||'';
-    if(grp){
-      var sameGroup=unsent.filter(function(h){return(h.group||'')===grp;});
-      if(sameGroup.length===2)partner=sameGroup.find(function(h){return h.name!==g.name&&!unsentRendered[h.name];})||null;
-    }
-    if(!partner){
-      var ln=lastName(g.name);
-      if(ln){
-        var sameLast=unsent.filter(function(h){return!h.isChild&&lastName(h.name).toLowerCase()===ln.toLowerCase();});
-        if(sameLast.length===2)partner=sameLast.find(function(h){return h.name!==g.name&&!unsentRendered[h.name];})||null;
-      }
-    }
-    if(partner){unsentRendered[partner.name]=true;unsentOrdered.push({type:'pair',guests:[g,partner]});return;}
-    unsentOrdered.push({type:'single',guest:g});
-  });
+  var sections={};
+  // preserve sorted order when bucketing into groups
+  unsent.forEach(function(g){var grp=g.group||'_';if(!sections[grp])sections[grp]=[];sections[grp].push(g);});
 
   var html='';
-  unsentOrdered.forEach(function(item){
-    if(item.type==='pair')html+=buildPairUnsentCard(item.guests[0],item.guests[1]);
-    else html+=buildGuestCard(item.guest);
+  // Sort group keys: '_' first, then alphabetically; within each group preserve sorted order from getFiltered
+  var grpKeys=Object.keys(sections).sort(function(a,b){if(a==='_')return-1;if(b==='_')return 1;return a.localeCompare(b);});
+  grpKeys.forEach(function(grp){
+    if(grp!=='_')html+='<div class="g-group-hdr">'+grp+' <span style="opacity:.4">('+sections[grp].length+')</span></div>';
+    sections[grp].forEach(function(g){html+=buildGuestCard(g);});
   });
 
   // Children section — no buttons, just names
@@ -1867,40 +1831,24 @@ function renderGuestList(){
     childGuests.forEach(function(g){html+=buildGuestCard(g);});
   }
 
-  // Sent: group household partners together. Primary signal is the "group"/
-  // family field; fallback is a shared last name (e.g. "Ines Ziegler" +
-  // "Philipp Ziegler") since most guests won't have the manual group field
-  // filled in, but two sent guests sharing a surname are reliably a couple.
+  // Sent: group bulk-with partners together, then split couples vs singles
   if(sentGuests.length){
     if(showSent){
+      // Pair up guests that sent together (by shared sentGroupId, falling back to bulkWith)
       var renderedNames={};
       var sentOrdered=[];
       sentGuests.forEach(function(g){
         if(renderedNames[g.name])return;
         renderedNames[g.name]=true;
-        var grp=g.group||'';
-        var partner=null;
-        if(grp){
-          // only pair when exactly 2 sent guests share this group — 3+ (e.g. a
-          // family with kids) stays as individual cards rather than forcing a pair
-          var sameGroup=sentGuests.filter(function(h){return (h.group||'')===grp;});
-          if(sameGroup.length===2){
-            partner=sameGroup.find(function(h){return h.name!==g.name&&!renderedNames[h.name];})||null;
+        // Try sentGroupId first (most reliable), then bulkWith
+        var partnerName=g.bulkWith||'';
+        if(partnerName){
+          var partner=sentGuests.find(function(h){return h.name===partnerName&&!renderedNames[h.name];});
+          if(partner){
+            renderedNames[partner.name]=true;
+            sentOrdered.push({type:'pair',guests:[g,partner]});
+            return;
           }
-        }
-        if(!partner){
-          var ln=lastName(g.name);
-          if(ln){
-            var sameLast=sentGuests.filter(function(h){return !h.isChild&&lastName(h.name).toLowerCase()===ln.toLowerCase();});
-            if(sameLast.length===2){
-              partner=sameLast.find(function(h){return h.name!==g.name&&!renderedNames[h.name];})||null;
-            }
-          }
-        }
-        if(partner){
-          renderedNames[partner.name]=true;
-          sentOrdered.push({type:'pair',guests:[g,partner]});
-          return;
         }
         sentOrdered.push({type:'single',guest:g});
       });
@@ -1923,9 +1871,6 @@ function renderGuestList(){
 
   var ssBtn=document.getElementById('showSentBtn');
   if(ssBtn)ssBtn.addEventListener('click',function(e){e.stopPropagation();showSent=!showSent;renderGuestList();});
-
-  var spBtn=document.getElementById('splitPairsBtn');
-  if(spBtn)spBtn.addEventListener('click',function(e){e.stopPropagation();splitMergedSentPairs();});
 
   // Row tap = select
   list.querySelectorAll('.g-card').forEach(function(card){
@@ -1959,64 +1904,26 @@ function renderGuestList(){
   initSplitBar();
 }
 
-function buildPairUnsentCard(g1,g2){
-  var ri1=importQueue.indexOf(g1),ri2=importQueue.indexOf(g2);
-  var pairName=pairDisplayName(g1.name,g2.name);
-  // Determine combined type: if either is party, card shows Party; use the more inclusive one
-  var hasParty=(g1.type==='ceremony-party-single'||g1.type==='couple-party')||(g2.type==='ceremony-party-single'||g2.type==='couple-party');
-  var tC=hasParty?'<span class="chip chip-type">Party</span>':'<span class="chip chip-type">Church</span>';
-  // Language chip — show if both match; if they differ show both
-  var langLabel='';
-  if(g1.lang&&g1.lang!=='en'&&g2.lang&&g2.lang!=='en'&&g1.lang===g2.lang)langLabel='<span class="chip chip-lang">'+(g1.lang==='de'?'DE':'RU')+'</span>';
-  else{if(g1.lang&&g1.lang!=='en')langLabel+='<span class="chip chip-lang">'+(g1.lang==='de'?'DE':'RU')+'</span>';if(g2.lang&&g2.lang!=='en')langLabel+='<span class="chip chip-lang">'+(g2.lang==='de'?'DE':'RU')+'</span>';}
-  // Pick the WA action from g1 (selecting the pair will open group-send flow with both)
-  var waBtn='<button class="ga-btn ga-btn-wa'+(((g1.phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'')||((g2.phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'')))?' ': ' no-phone')+'" data-qi="'+ri1+'" data-action="wa" title="Send WhatsApp to couple"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.556 4.121 1.528 5.855L.057 23.882a.5.5 0 0 0 .614.612l6.094-1.597A11.937 11.937 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.808 9.808 0 0 1-5.032-1.384l-.36-.214-3.733.979.995-3.63-.234-.374A9.808 9.808 0 0 1 2.182 12C2.182 6.57 6.57 2.182 12 2.182c5.43 0 9.818 4.388 9.818 9.818 0 5.43-4.388 9.818-9.818 9.818z"/></svg></button>';
-  function miniRow(g,ri){
-    var rsvpPill=getGuestRsvpPill(g.name);
-    return '<div class="g-name-row" style="margin-top:2px">'
-      +'<span class="g-name" style="font-size:12.5px;color:var(--muted)">'+g.name+'</span>'
-      +(rsvpPill?'<span style="margin-left:4px">'+rsvpPill+'</span>':'')
-      +'<span style="flex:1"></span>'
-      +'<button class="g-del" data-qi="'+ri+'" data-action="del" style="position:static;width:14px;height:14px;color:var(--soft);border:none;background:none;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;border-radius:50%">×</button>'
-    +'</div>';
-  }
-  return '<div class="g-swipe-wrap">'
-    +'<div class="g-card">'
-      +'<div class="g-inner" style="display:block">'
-        +'<div class="g-name-row"><span class="g-name" style="font-size:15px">'+pairName+'</span>'+tC+langLabel+'<span style="flex:1"></span>'+waBtn+'</div>'
-        +miniRow(g1,ri1)
-        +miniRow(g2,ri2)
-      +'</div>'
-    +'</div>'
-  +'</div>';
-}
-
 function buildPairSentCard(g1,g2){
   var ri1=importQueue.indexOf(g1),ri2=importQueue.indexOf(g2);
-  var senderChip=g1.sender?('<span class="g-sender-br '+(g1.sender==='Arina'?'a':'e')+'">'+(g1.sender==='Arina'?'A':'E')+'</span>'):'';
+  var senderCls=g1.sender==='Arina'?'chip-a':'chip-e';
+  var senderLbl=g1.sender==='Arina'?'A':'E';
+  var senderChip=g1.sender?('<span class="g-sender-br '+(g1.sender==='Arina'?'a':'e')+'">'+senderLbl+'</span>'):'';
   var sentLetter1=g1.sentBy==='Arina'?'A':g1.sentBy==='Elnur'?'E':'';
   var sentTime=g1.sentAt?'<span class="g-sent-time">'+fmtSentAt(g1.sentAt)+(sentLetter1?' · '+sentLetter1:'')+'</span>':'';
   var pairName=pairDisplayName(g1.name,g2.name);
-
-  // Each partner gets their own RSVP pill and their own undo/delete pair —
-  // a couple invite is one message, but attendance is decided per person.
-  function personRow(g,ri){
-    var pill=getGuestRsvpPill(g.name);
-    return '<div class="g-name-row" style="margin-top:2px">'
-      +'<span class="g-name" style="font-size:12.5px;color:var(--muted)">'+g.name+'</span>'
-      +(pill?'<span style="margin-left:4px">'+pill+'</span>':'')
-      +'<span style="flex:1"></span>'
-      +'<button class="g-undo-btn" data-qi="'+ri+'" data-action="undo" title="Mark as unsent" style="width:15px;height:15px"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></button>'
-      +'<button class="g-del" data-qi="'+ri+'" data-action="del" style="position:static;width:14px;height:14px;color:var(--soft);border:none;background:none;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;border-radius:50%">×</button>'
-    +'</div>';
-  }
-
   return '<div class="g-swipe-wrap">'
     +'<div class="g-card sent">'
-      +'<div class="g-inner" style="display:block">'
-        +'<div class="g-name-row"><span class="g-name" style="font-size:15px">'+pairName+'</span>'+senderChip+sentTime+'</div>'
-        +personRow(g1,ri1)
-        +personRow(g2,ri2)
+      +'<div class="g-inner">'
+        +'<div class="g-inner-left">'
+          +'<div class="g-main">'
+            +'<div class="g-name-row"><span class="g-name" style="font-size:15px">'+pairName+'</span>'+senderChip+sentTime+'</div>'
+          +'</div>'
+        +'</div>'
+        +'<div class="g-inner-right">'
+          +'<button class="g-undo-btn" data-qi="'+ri1+'" data-action="undo" title="Mark as unsent"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></button>'
+          +'<button class="g-del" data-qi="'+ri1+'" data-action="del" style="position:static;width:16px;height:16px;color:var(--soft);border:none;background:none;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;border-radius:50%">×</button>'
+        +'</div>'
       +'</div>'
     +'</div>'
   +'</div>';
@@ -2036,10 +1943,8 @@ function _rsvpTokens(str){
 }
 
 function _rsvpScore(guestTokens, row){
-  // collect all name tokens from the RSVP row, including the "Guests Attending"
-  // list — for couple submissions, only the submitter's name lands in
-  // Full/First/Last Name, while the partner's name often only shows up here.
-  var rsvpStr=[row['Full Name']||'', row['First Name']||'', row['Last Name']||'', row['name']||'', row['Guests Attending']||'', row['guests_attending']||''].join(' ');
+  // collect all name tokens from the RSVP row
+  var rsvpStr=[row['Full Name']||'', row['First Name']||'', row['Last Name']||'', row['name']||''].join(' ');
   var rsvpTokens=_rsvpTokens(rsvpStr);
   if(!rsvpTokens.length) return 0;
   var hits=0;
@@ -2073,25 +1978,9 @@ function getGuestRsvpInfo(name){
     if(!bestRow||bestScore<0.6) return null;
 
     var att=(bestRow['Ceremony Attendance']||bestRow['attendance']||'').toString().toLowerCase();
-    var rowIsYes=att!==''&&att!=='no'&&att!=='declined';
-    var rowIsNo=att==='no'||att==='declined';
-
-    // Couples submit one row together, but "Guests Attending" lists which
-    // specific names actually opted in — each partner can attend or decline
-    // independently. If that list is present, use it to decide THIS person's
-    // status rather than applying the same row-level answer to both partners.
-    var attendingList=(bestRow['Guests Attending']||bestRow['guests_attending']||'').toString();
-    var listTokens=_rsvpTokens(attendingList);
-    if(listTokens.length){
-      var nameInList=gTokens.some(function(t){return listTokens.indexOf(t)>-1;});
-      if(rowIsNo){
-        // whole party declined — nobody in the list actually attends
-        return {isYes:false,isNo:true,matched:true,score:bestScore};
-      }
-      return {isYes:nameInList,isNo:!nameInList,matched:true,score:bestScore};
-    }
-
-    return {isYes:rowIsYes,isNo:rowIsNo,matched:true,score:bestScore};
+    var isYes=att!==''&&att!=='no'&&att!=='declined';
+    var isNo=att==='no'||att==='declined';
+    return {isYes:isYes,isNo:isNo,matched:true,score:bestScore};
   }catch(e){ return null; }
 }
 
@@ -2534,12 +2423,14 @@ function doGroupSend(guests,phone,msgLang){
   showPhoneConfirm(ownerName,ownerPhone,function(){
     window.open(waUrl,'_blank');
   });
-  // Note: previously this tagged guests with a shared bulkWith/sentGroupId so the
-  // Sent list would merge them into one combined card. That merged card never showed
-  // RSVP-status tags, so group-sent guests lost their colored RSVP indicator. Now we
-  // leave guests untagged so each one always renders as its own separate sent entry
-  // with its own working RSVP tag.
+  // Tag each guest with their partner AND a shared sentGroupId so sent view can pair them
+  if(guests.length>1){
+    var groupId=Date.now().toString(36);
+    guests[0].bulkWith=guests[1].name;guests[1].bulkWith=guests[0].name;
+    guests[0].sentGroupId=groupId;guests[1].sentGroupId=groupId;
+  }
   guests.forEach(function(g){g.pendingSent=true;g.followup=true;});selectedIdxs=[];saveGuestMeta();renderGuestList();renderDashboard();
+  if(guests.length>1){guests.forEach(function(g){_pushWithRetry('/meta',{name:g.name,bulkWith:g.bulkWith,sentGroupId:g.sentGroupId},'meta:'+g.name);});}
 }
 
 /* ══ FAB + QUICK SEND ════════════════════════ */
@@ -2904,8 +2795,8 @@ function startAutoPoll(){
           if(remote.claim!==undefined&&remote.claim!==g.claim){
             g.claim=remote.claim;dirty=true;
           }
-          if(remote.bulkWith!==undefined&&remote.bulkWith&&!g.bulkWith&&local.bulkWith===undefined){g.bulkWith=remote.bulkWith;dirty=true;}
-          if(remote.sentGroupId!==undefined&&remote.sentGroupId&&!g.sentGroupId&&local.sentGroupId===undefined){g.sentGroupId=remote.sentGroupId;dirty=true;}
+          if(remote.bulkWith!==undefined&&remote.bulkWith&&!g.bulkWith){g.bulkWith=remote.bulkWith;dirty=true;}
+          if(remote.sentGroupId!==undefined&&remote.sentGroupId&&!g.sentGroupId){g.sentGroupId=remote.sentGroupId;dirty=true;}
           if(remote.sentBy!==undefined&&remote.sentBy!==g.sentBy){
             g.sentBy=remote.sentBy;
           }
