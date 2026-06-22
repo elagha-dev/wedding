@@ -1921,6 +1921,30 @@ function buildPairSentCard(g1,g2){
   +'</div>';
 }
 
+function getGuestRsvpInfo(name){
+  try{
+    var cached=JSON.parse(localStorage.getItem('rsvpLastData'));
+    if(!cached||!Array.isArray(cached.rsvpRows)) return null;
+    var n=name.trim().toLowerCase();
+    var match=cached.rsvpRows.find(function(r){
+      return (r['Full Name']||r['name']||'').trim().toLowerCase()===n;
+    });
+    if(!match) return null;
+    var att=(match['Ceremony Attendance']||match['attendance']||'').toString().toLowerCase();
+    var isYes=att&&att!=='no'&&att!=='declined'&&att!=='';
+    var isNo=att==='no'||att==='declined';
+    return {isYes:isYes,isNo:isNo,matched:true};
+  }catch(e){ return null; }
+}
+
+function getGuestRsvpPill(name){
+  var info=getGuestRsvpInfo(name);
+  if(!info) return '';
+  if(info.isYes) return '<span style="background:#d4f5e2;color:#1a7a4a;border-radius:100px;padding:2px 8px;font-size:8px;font-weight:800;letter-spacing:.06em;flex-shrink:0">RSVP ✓</span>';
+  if(info.isNo)  return '<span style="background:#fde8e8;color:#b91c1c;border-radius:100px;padding:2px 8px;font-size:8px;font-weight:800;letter-spacing:.06em;flex-shrink:0">RSVP ✗</span>';
+  return '<span style="background:var(--cream2);color:var(--muted);border-radius:100px;padding:2px 8px;font-size:8px;font-weight:700;letter-spacing:.06em;flex-shrink:0">RSVP ?</span>';
+}
+
 function buildGuestCard(g){
   var ri=importQueue.indexOf(g);
   var isSel=selectedIdxs.indexOf(ri)>-1;
@@ -1939,15 +1963,19 @@ function buildGuestCard(g){
   var claimC=claimedBy?('<span class="claim-badge claim-badge-'+(claimedBy==='Arina'?'a':'e')+'"><span class="claim-dot claim-dot-'+(claimedBy==='Arina'?'a':'e')+'"></span>'+(claimedByMe?'You':''+claimedBy)+'</span>'):'';
   var sentBy=g.sentBy?g.sentBy:'';var sentLetter=sentBy==='Arina'?'A':sentBy==='Elnur'?'E':'';var sentTime=g.sent&&g.sentAt?'<span class="g-sent-time">'+fmtSentAt(g.sentAt)+(sentLetter?' · '+sentLetter:'')+'</span>':'';
 
-  // Sent cards: slim — just name, time, undo button in corner, no swipe
+  // Sent cards: slim — name, time, RSVP pill, undo button
   if(g.sent){
-    var senderChipSent=g.sender?('<span class="g-sender-br '+(g.sender==='Arina'?'a':'e')+'">'+(g.sender==='Arina'?'A':'E')+'</span>'):'';
-    return '<div class="g-swipe-wrap" data-qi="'+ri+'">'
-      +'<div class="'+cls+'" data-qi="'+ri+'">'
+    var senderChipSent=g.sender?('<span class="g-sender-br '+(g.sender==='Arina'?'a':'e')+'">'+(g.sender==='Arina'?'A':'E')+'</span>'):''
+    var rsvpInfo=getGuestRsvpInfo(g.name);
+    var rsvpPillSent=getGuestRsvpPill(g.name);
+    var rsvpBorder=rsvpInfo?(rsvpInfo.isYes?'inset 3px 0 0 #3A8C5C':rsvpInfo.isNo?'inset 3px 0 0 #b91c1c':'inset 3px 0 0 var(--amber)'):'inset 3px 0 0 var(--green)';
+    var rsvpBg=rsvpInfo?(rsvpInfo.isYes?'#f0faf4':rsvpInfo.isNo?'#fff5f5':'#fafafa'):'#fafafa';
+    return '<div class="g-swipe-wrap" data-qi="'+ri+'" style="box-shadow:'+rsvpBorder+'">'
+      +'<div class="'+cls+'" data-qi="'+ri+'" style="background:'+rsvpBg+'">'
         +'<div class="g-inner">'
           +'<div class="g-inner-left">'
             +'<div class="g-main">'
-              +'<div class="g-name-row"><span class="g-name" style="font-size:15px">'+g.name+'</span>'+senderChipSent+sentTime+'</div>'
+              +'<div class="g-name-row"><span class="g-name" style="font-size:15px">'+g.name+'</span>'+senderChipSent+sentTime+(rsvpPillSent?'<span style="margin-left:4px">'+rsvpPillSent+'</span>':'')+'</div>'
             +'</div>'
           +'</div>'
           +'<div class="g-inner-right">'
