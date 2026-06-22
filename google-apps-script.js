@@ -6,7 +6,6 @@
 var RSVP_SHEET_NAME        = "RSVPs";
 var PARTY_SHEET_NAME       = "PartyRSVPs";
 var BRING_SHARE_SHEET_NAME = "BringShare";
-var GUEST_NOTES_SHEET_NAME = "GuestNotes";
 
 // Helper function to create a simple, clean date and time string
 function getSimpleTimestamp() {
@@ -50,12 +49,6 @@ function doPost(e) {
       bsSheet.appendRow(["Date & Time","Name","Contact","What","Portions","Food Type","Allergens"]);
     }
 
-    var notesSheet = ss.getSheetByName(GUEST_NOTES_SHEET_NAME);
-    if (!notesSheet) {
-      notesSheet = ss.insertSheet(GUEST_NOTES_SHEET_NAME);
-      notesSheet.appendRow(["Guest Name", "Note", "Updated At", "Updated By"]);
-    }
-
     // ── Route by type ─────────────────────────────────────────────
     if (type === "party_rsvp") {
       partySheet.appendRow([
@@ -67,6 +60,28 @@ function doPost(e) {
         data.coming_by_car   || ""
       ]);
 
+    } else if (type === "rsvp_decline_note") {
+      var noteGuestName  = data.name || "";
+      var noteText        = data.decline_note || "";
+      var declineNoteCol  = 14; /* "Decline Note" is the 14th column on RSVPs */
+
+      var matchedRow = -1;
+      if (noteGuestName) {
+        var lastRsvpRow = rsvpSheet.getLastRow();
+        if (lastRsvpRow > 1) {
+          /* Column D = "Full Name" — search bottom-up so we match the
+             most recent RSVP from this guest, not an older one. */
+          var fullNames = rsvpSheet.getRange(2, 4, lastRsvpRow - 1, 1).getValues();
+          for (var j = fullNames.length - 1; j >= 0; j--) {
+            if (fullNames[j][0] === noteGuestName) { matchedRow = j + 2; break; }
+          }
+        }
+      }
+
+      if (matchedRow > -1) {
+        rsvpSheet.getRange(matchedRow, declineNoteCol).setValue(noteText);
+      }
+
     } else if (type === "bring_share") {
       bsSheet.appendRow([
         currentTimestamp,
@@ -77,30 +92,6 @@ function doPost(e) {
         data.food_type || "",
         data.allergens || ""
       ]);
-
-    } else if (type === "guest_note") {
-      var guestName = data.name || "";
-      var noteText  = data.note || "";
-      var updatedBy = data.by   || "";
-
-      // Find existing row for this guest (by name in column A) and update it;
-      // otherwise append a new row. Keeps one row per guest.
-      var existingRow = -1;
-      if (guestName) {
-        var lastDataRow = notesSheet.getLastRow();
-        if (lastDataRow > 1) {
-          var namesCol = notesSheet.getRange(2, 1, lastDataRow - 1, 1).getValues();
-          for (var i = 0; i < namesCol.length; i++) {
-            if (namesCol[i][0] === guestName) { existingRow = i + 2; break; }
-          }
-        }
-      }
-
-      if (existingRow > -1) {
-        notesSheet.getRange(existingRow, 2, 1, 3).setValues([[noteText, currentTimestamp, updatedBy]]);
-      } else {
-        notesSheet.appendRow([guestName, noteText, currentTimestamp, updatedBy]);
-      }
 
     } else {
       // Standard ceremony RSVP
@@ -142,7 +133,6 @@ function doPost(e) {
 }
 
 // ── SETUP: Run this manually once to force-generate your new clean headers ──
-// ── SETUP: Run this manually once to force-generate your new clean headers ──
 // SAFE VERSION: only creates sheets that don't exist yet and adds missing
 // headers to a blank row 1. It will NEVER clear or delete existing data.
 function setupSheets() {
@@ -151,8 +141,7 @@ function setupSheets() {
   var sheets = [
     { name: RSVP_SHEET_NAME, headers: ["Date & Time","First Name","Last Name","Full Name","Email","Phone","Invited to Party","Ceremony Attendance","Evening Attendance","Guests Attending","Children","Total Seats","Join Bring & Share","Decline Note"] },
     { name: PARTY_SHEET_NAME, headers: ["Date & Time","Name","Party Attending","Dietary","Notes","Coming by Car"] },
-    { name: BRING_SHARE_SHEET_NAME, headers: ["Date & Time","Name","Contact","What","Portions","Food Type","Allergens"] },
-    { name: GUEST_NOTES_SHEET_NAME, headers: ["Guest Name", "Note", "Updated At", "Updated By"] }
+    { name: BRING_SHARE_SHEET_NAME, headers: ["Date & Time","Name","Contact","What","Portions","Food Type","Allergens"] }
   ];
 
   sheets.forEach(function(s) {

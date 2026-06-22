@@ -526,6 +526,7 @@ var partyYesBtn   = document.getElementById("partyYesBtn");
 var partyNoBtn    = document.getElementById("partyNoBtn");
 var declineNoteRow = document.getElementById("declineNoteRow");
 var declineMessage = document.getElementById("declineMessage");
+var declineNoteSendBtn = document.getElementById("declineNoteSend");
 
 /* ── Global state ─────────────────────────────────────────── */
 var __guests    = [];
@@ -572,11 +573,7 @@ function onAttendanceChange() {
   var childrenRow = document.getElementById("childrenRow");
   if (childrenRow) childrenRow.style.display = anyAttending ? "" : "none";
   if (!anyAttending) setChildrenCount(0);
-  /* Decline note only when not attending anything, and only once a choice has been made */
-  var choiceMade = (attendanceSelect && attendanceSelect.value !== "");
-  var fullDecline = choiceMade && !anyAttending;
-  if (declineNoteRow) declineNoteRow.style.display = fullDecline ? "" : "none";
-  if (!fullDecline && declineMessage) declineMessage.value = "";
+  /* Decline note now lives on the success screen, not the wizard — see showSuccessScreen() */
   recalcSeats();
   updateSelectionSummary();
 }
@@ -757,11 +754,11 @@ function updateSelectionSummary() {
   if (wSubmit && hasGuests) {
     var btnSpan = wSubmit.querySelector('span') || wSubmit;
     if (activeNames.length === 0) {
-      /* Decline state — ghost button */
+      /* Decline state — same orange treatment as attending */
       btnSpan.textContent = t('sendRsvpBtnDecline') || "We sadly can't make it";
-      wSubmit.style.background   = 'transparent';
-      wSubmit.style.color        = 'rgba(49,39,28,.5)';
-      wSubmit.style.border       = '1px solid rgba(49,39,28,.22)';
+      wSubmit.style.background   = '#E07020';
+      wSubmit.style.color        = '#fff';
+      wSubmit.style.border       = '1px solid #E07020';
     } else {
       /* Attending state — filled orange */
       btnSpan.textContent = t('sendRsvpBtn') || 'Confirm attendance ✓';
@@ -797,6 +794,17 @@ function showSuccessScreen(attending) {
   if (successKicker) successKicker.textContent = t('successKicker');
   if (successTitle)  successTitle.textContent  = attending ? t('successTitleAttending') : t('successTitleDecline');
   if (successMessage) successMessage.textContent = attending ? t('successMsgAttending') : t('successMsgDecline');
+
+  /* Decline note: only on the decline screen, reset fresh each time */
+  if (declineNoteRow) {
+    declineNoteRow.style.display = attending ? "none" : "";
+    if (!attending) {
+      if (declineMessage) declineMessage.value = "";
+      var dnStatus = document.getElementById("declineNoteStatus");
+      if (dnStatus) dnStatus.textContent = "";
+      if (declineNoteSendBtn) declineNoteSendBtn.disabled = false;
+    }
+  }
 
   /* Gift banner: show when attending anything; note text depends on party */
   if (giftBanner) {
@@ -923,8 +931,7 @@ if (wSubmit) wSubmit.addEventListener("click", async function() {
     guests_attending:    guestNames,
     children:            anyAttending   ? String(getChildrenCount()) : "0",
     seats:               anyAttending   ? String(__seatCount) : "0",
-    join_bring_share:    attending && bringShareCheckbox && bringShareCheckbox.classList.contains('is-active') ? "Yes" : "No",
-    decline_note:        anyAttending ? "" : ((declineMessage && declineMessage.value) || "")
+    join_bring_share:    attending && bringShareCheckbox && bringShareCheckbox.classList.contains('is-active') ? "Yes" : "No"
   };
 
   try {
@@ -951,6 +958,42 @@ if (wSubmit) wSubmit.addEventListener("click", async function() {
 /* Initialise */
 applyInviteTypeUI();
 onAttendanceChange();
+
+/* ── Decline note — sent separately after the main RSVP, from the
+   success screen, since the note is typed after submission. ── */
+if (declineNoteSendBtn) {
+  declineNoteSendBtn.addEventListener("click", async function() {
+    var dnStatus = document.getElementById("declineNoteStatus");
+    var noteText = (declineMessage && declineMessage.value || "").trim();
+    if (!noteText) {
+      if (dnStatus) dnStatus.textContent = t('declineNoteEmptyErr') || "Write a short note first, or just close this.";
+      return;
+    }
+    var scriptUrl = window.__GOOGLE_SCRIPT_URL;
+    if (!scriptUrl) return;
+
+    declineNoteSendBtn.disabled = true;
+    if (dnStatus) dnStatus.textContent = t('declineNoteSending') || "Sending…";
+
+    var notePayload = {
+      type:         "rsvp_decline_note",
+      name:         window.__lastRsvpName || "",
+      decline_note: noteText
+    };
+
+    try {
+      await fetch(scriptUrl, {
+        method: "POST", mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(notePayload)
+      });
+      if (dnStatus) dnStatus.textContent = t('declineNoteSent') || "Thank you — your note has been sent. ♡";
+    } catch(err) {
+      declineNoteSendBtn.disabled = false;
+      if (dnStatus) dnStatus.textContent = t('declineNoteSendErr') || "Something went wrong. Please try again.";
+    }
+  });
+}
 
 
 /* ── BRING & SHARE MODAL ─────────────────────────────────── */
