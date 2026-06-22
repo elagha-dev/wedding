@@ -1929,19 +1929,50 @@ function buildPairSentCard(g1,g2){
   +'</div>';
 }
 
+/* ── RSVP NAME MATCHING ──────────────────────────────────────────
+   Guest list can have:  "Anja Kreutz"  /  "Teresa & Maxi Loose"
+   WhatsApp invite sent: "Anja"  /  "Loose"  (first or last name)
+   RSVP form returns:    First Name + Last Name + Full Name (any combo)
+
+   Strategy — build a set of tokens from the guest card name, then
+   score each RSVP row by how many of its tokens overlap. Best score wins.
+────────────────────────────────────────────────────────────────── */
+function _rsvpTokens(str){
+  // split on spaces, &, commas; lowercase; drop empties
+  return (str||'').toLowerCase().replace(/[&,]/g,' ').split(/\s+/).filter(Boolean);
+}
+
+function _rsvpScore(guestTokens, row){
+  // collect all name tokens from the RSVP row
+  var rsvpStr=[row['Full Name']||'', row['First Name']||'', row['Last Name']||'', row['name']||''].join(' ');
+  var rsvpTokens=_rsvpTokens(rsvpStr);
+  if(!rsvpTokens.length) return 0;
+  var hits=0;
+  guestTokens.forEach(function(t){ if(rsvpTokens.indexOf(t)>-1) hits++; });
+  // normalise: fraction of guest tokens that matched
+  return hits/guestTokens.length;
+}
+
 function getGuestRsvpInfo(name){
   try{
     var cached=JSON.parse(localStorage.getItem('rsvpLastData'));
-    if(!cached||!Array.isArray(cached.rsvpRows)) return null;
-    var n=name.trim().toLowerCase();
-    var match=cached.rsvpRows.find(function(r){
-      return (r['Full Name']||r['name']||'').trim().toLowerCase()===n;
+    if(!cached||!Array.isArray(cached.rsvpRows)||!cached.rsvpRows.length) return null;
+    var gTokens=_rsvpTokens(name);
+    if(!gTokens.length) return null;
+
+    var bestScore=0, bestRow=null;
+    cached.rsvpRows.forEach(function(r){
+      var s=_rsvpScore(gTokens,r);
+      if(s>bestScore){bestScore=s;bestRow=r;}
     });
-    if(!match) return null;
-    var att=(match['Ceremony Attendance']||match['attendance']||'').toString().toLowerCase();
-    var isYes=att&&att!=='no'&&att!=='declined'&&att!=='';
+
+    // require at least one token (last-name) to match
+    if(!bestRow||bestScore===0) return null;
+
+    var att=(bestRow['Ceremony Attendance']||bestRow['attendance']||'').toString().toLowerCase();
+    var isYes=att!==''&&att!=='no'&&att!=='declined';
     var isNo=att==='no'||att==='declined';
-    return {isYes:isYes,isNo:isNo,matched:true};
+    return {isYes:isYes,isNo:isNo,matched:true,score:bestScore};
   }catch(e){ return null; }
 }
 
