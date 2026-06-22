@@ -191,6 +191,16 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .f-pill.on{background:var(--rose);border-color:var(--rose);color:#fff;box-shadow:0 2px 8px rgba(201,135,106,.3)}
 .f-pill.on-a{background:var(--arina-bg);border-color:var(--arina-border);color:var(--arina-txt)}
 .f-pill.on-e{background:var(--elnur-bg);border-color:var(--elnur-border);color:var(--elnur-txt)}
+.f-pill-open{display:inline-flex;align-items:center;gap:0;padding:0;overflow:hidden}
+.f-pill-open .f-open-label{padding:6px 10px 6px 14px;font-size:10px;font-weight:600;letter-spacing:.06em;white-space:nowrap}
+.f-pill-open .f-open-divider{width:1px;background:var(--parchment);align-self:stretch;margin:4px 0}
+.f-pill-open .f-open-toggles{display:flex;align-items:center;gap:0;padding:0 6px}
+.f-pill-open .f-ae-btn{width:20px;height:20px;border-radius:50%;border:none;background:transparent;font-size:9px;font-weight:800;letter-spacing:.04em;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--ease);color:var(--muted);font-family:var(--sans)}
+.f-pill-open .f-ae-btn.ae-a.on{background:var(--arina-bg);color:var(--arina-txt)}
+.f-pill-open .f-ae-btn.ae-e.on{background:var(--elnur-bg);color:var(--elnur-txt)}
+.f-pill-open .f-ae-btn:hover{background:var(--cream2)}
+.f-pill-open .f-ae-btn.ae-a.on:hover{filter:brightness(.95)}
+.f-pill-open .f-ae-btn.ae-e.on:hover{filter:brightness(.95)}
 .f-pill.on-f{background:var(--amber-bg);border-color:rgba(176,120,48,.3);color:var(--amber)}
 /* Open / A / E filter pills — plain toggles, no container box */
 .f-pill.on-a{background:var(--arina-bg);border-color:var(--arina-border);color:var(--arina-txt)}
@@ -1781,12 +1791,44 @@ function renderFilterRow(){
   var isOpen = isAll||isA||isE;
   var fCls = importFilter==='followup' ? 'on-f' : '';
   var sCls = importFilter==='sent' ? 'on' : '';
+  /* Compound Open pill with embedded A/E toggles */
+  var openPillCls = 'f-pill f-pill-open'+(isOpen?' on':'');
   row.innerHTML = ''
-    +'<button class="f-pill'+(isAll?' on':'')+'" data-f="all">Open</button>'
-    +'<button class="f-pill'+(isA?' on-a':'')+'" data-f="Arina">A</button>'
-    +'<button class="f-pill'+(isE?' on-e':'')+'" data-f="Elnur">E</button>'
+    +'<button class="'+openPillCls+'" id="fPillOpen" data-f="all">'
+      +'<span class="f-open-label">Open</span>'
+      +'<span class="f-open-divider"></span>'
+      +'<span class="f-open-toggles">'
+        +'<span class="f-ae-btn ae-a'+(isA?' on':'')+'" id="fBtnA">A</span>'
+        +'<span class="f-ae-btn ae-e'+(isE?' on':'')+'" id="fBtnE">E</span>'
+      +'</span>'
+    +'</button>'
     +'<button class="f-pill '+fCls+'" data-f="followup">Flag</button>'
     +'<button class="f-pill f-sent-pill '+sCls+'" data-f="sent">Sent</button>';
+
+  /* Open pill: click label area → all open */
+  var pillOpen=document.getElementById('fPillOpen');
+  if(pillOpen){
+    pillOpen.addEventListener('click',function(e){
+      /* If click landed on an A/E toggle, let those handlers deal with it */
+      if(e.target.closest('.f-ae-btn')) return;
+      importFilter='all';selectedIdxs=[];renderFilterRow();renderGuestList();
+    });
+  }
+  /* A toggle */
+  var btnA=document.getElementById('fBtnA');
+  if(btnA) btnA.addEventListener('click',function(e){
+    e.stopPropagation();
+    importFilter=(importFilter==='Arina')?'all':'Arina';
+    selectedIdxs=[];renderFilterRow();renderGuestList();
+  });
+  /* E toggle */
+  var btnE=document.getElementById('fBtnE');
+  if(btnE) btnE.addEventListener('click',function(e){
+    e.stopPropagation();
+    importFilter=(importFilter==='Elnur')?'all':'Elnur';
+    selectedIdxs=[];renderFilterRow();renderGuestList();
+  });
+  /* Flag + Sent */
   row.querySelectorAll('[data-f]').forEach(function(b){
     b.addEventListener('click',function(){
       importFilter=this.dataset.f;
