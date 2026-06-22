@@ -3855,7 +3855,7 @@ function showChatNotif(who, text){
       var yn = countYesNo(items);
       var yesNoHtml = items.length
         ? (yn.yes ? '<span style="background:var(--green-bg);color:var(--green);border-radius:100px;padding:1px 7px;font-size:9px;font-weight:700">' + yn.yes + ' yes</span>' : '')
-          + (yn.no  ? '<span style="background:var(--red-bg,#fde8e8);color:var(--red,#b91c1c);border-radius:100px;padding:1px 7px;font-size:9px;font-weight:700">' + yn.no + ' no</span>' : '')
+          + (yn.no  ? '<span style="background:#b91c1c;color:#fff;border-radius:100px;padding:1px 7px;font-size:9px;font-weight:700">' + yn.no + ' no</span>' : '')
         : '';
       var entriesHtml = items.length
         ? items.map(entryHtml).join('')
