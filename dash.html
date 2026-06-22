@@ -253,26 +253,35 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-swipe-wrap:has(.g-card.fup){box-shadow:inset 3px 0 0 var(--amber),var(--shadow-sm)}
 .g-swipe-wrap:has(.g-card.sent){box-shadow:inset 3px 0 0 var(--green)}
 .g-swipe-wrap:has(.g-card.sent) .g-card{background:#fafafa}
-.g-swipe-wrap:has(.g-card.sent) .g-name,.g-swipe-wrap:has(.g-card.sent) .g-sent-time{color:var(--soft)}
 .g-swipe-wrap.rsvp-yes{box-shadow:inset 3px 0 0 #3A8C5C!important}
-.g-swipe-wrap.rsvp-yes .g-card.sent{background:#f0faf4!important}
-.g-swipe-wrap.rsvp-yes .g-name{color:#2d7a4a!important}
+.g-swipe-wrap.rsvp-yes .g-card.sent{background:#1a7a4a!important}
+.g-swipe-wrap.rsvp-yes .g-card.sent .g-name{color:#fff!important;font-weight:800!important}
+.g-swipe-wrap.rsvp-yes .g-card.sent .g-sent-time{color:rgba(255,255,255,.7)!important}
+.g-swipe-wrap.rsvp-yes .g-card.sent .g-undo-btn,.g-swipe-wrap.rsvp-yes .g-card.sent .g-del{color:rgba(255,255,255,.6)!important}
+.g-swipe-wrap.rsvp-yes .g-card.sent .g-sender-br{opacity:.8!important}
 .g-swipe-wrap.rsvp-no{box-shadow:inset 3px 0 0 #b91c1c!important}
-.g-swipe-wrap.rsvp-no .g-card.sent{background:#fff5f5!important}
-.g-swipe-wrap.rsvp-no .g-name{color:#b91c1c!important}
+.g-swipe-wrap.rsvp-no .g-card.sent{background:#b91c1c!important}
+.g-swipe-wrap.rsvp-no .g-card.sent .g-name{color:#fff!important;font-weight:800!important}
+.g-swipe-wrap.rsvp-no .g-card.sent .g-sent-time{color:rgba(255,255,255,.7)!important}
+.g-swipe-wrap.rsvp-no .g-card.sent .g-undo-btn,.g-swipe-wrap.rsvp-no .g-card.sent .g-del{color:rgba(255,255,255,.6)!important}
+.g-swipe-wrap.rsvp-no .g-card.sent .g-sender-br{opacity:.8!important}
 .g-swipe-wrap.rsvp-pending{box-shadow:inset 3px 0 0 var(--amber)!important}
-.g-swipe-wrap.rsvp-pending .g-card.sent{background:#fffbf0!important}
+.g-swipe-wrap.rsvp-pending .g-card.sent{background:#f59e0b!important}
+.g-swipe-wrap.rsvp-pending .g-card.sent .g-name{color:#fff!important;font-weight:800!important}
+.g-swipe-wrap.rsvp-pending .g-card.sent .g-sent-time{color:rgba(255,255,255,.7)!important}
+.g-swipe-wrap.rsvp-pending .g-card.sent .g-undo-btn,.g-swipe-wrap.rsvp-pending .g-card.sent .g-del{color:rgba(255,255,255,.6)!important}
 .g-swipe-wrap:has(.g-card.pending-sent){box-shadow:inset 3px 0 0 var(--rose),var(--shadow-sm)}
 /* ── SPLIT CARD LAYOUT ── */
 .g-inner{padding:0;display:flex;align-items:stretch}
 .g-inner-left{flex:1;min-width:0;padding:11px 12px 11px 16px;display:flex;align-items:center;gap:11px}
 .g-inner-right{display:flex;align-items:center;gap:6px;padding:0 12px 0 10px;background:var(--cream2);flex-shrink:0}
+.g-swipe-wrap.rsvp-yes .g-card.sent .g-inner-right,.g-swipe-wrap.rsvp-no .g-card.sent .g-inner-right,.g-swipe-wrap.rsvp-pending .g-card.sent .g-inner-right{background:rgba(0,0,0,.12)}
 .g-ring{width:20px;height:20px;border:1.5px solid var(--parchment);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px;color:#fff;background:transparent;transition:all var(--ease)}
 .g-card.sel .g-ring{background:var(--rose);border-color:var(--rose)}
 .g-main{flex:1;min-width:0}
 .g-name-row{display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:nowrap}
 .g-name{font-family:var(--sans);font-size:15px;font-weight:600;color:var(--ink);line-height:1.2;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.g-card.sent .g-name{color:var(--muted)}
+.g-card.sent .g-name{color:var(--ink2)}
 .g-sent-time{font-size:9.5px;color:var(--green);font-weight:500;flex-shrink:0;white-space:nowrap}
 /* Icon-only action buttons */
 .ga-btn{width:22px;height:22px;border-radius:50%;font-size:10px;font-family:var(--sans);cursor:pointer;border:none;background:none;color:var(--soft);transition:all var(--ease);display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;padding:0}
@@ -1933,21 +1942,84 @@ function getGuestRsvpInfo(name){
   try{
     var cached=JSON.parse(localStorage.getItem('rsvpLastData'));
     if(!cached||!Array.isArray(cached.rsvpRows)) return null;
-    var n=name.trim().toLowerCase();
-    var match=cached.rsvpRows.find(function(r){
-      return (r['Full Name']||r['name']||'').trim().toLowerCase()===n;
+    var rows=cached.rsvpRows;
+
+    /* ── helpers ── */
+    function normN(s){ return (s||'').trim().toLowerCase().replace(/\s+/g,' '); }
+    function toks(s){ return normN(s).split(/[\s&,]+/).filter(Boolean); }
+    function firstNms(s){
+      var t=toks(s);
+      if(s.indexOf('&')!==-1&&t.length>=3) return t.slice(0,t.length-1).filter(function(x){return x!=='&';});
+      return t.length?[t[0]]:[];
+    }
+    function lastNm(s){
+      var t=toks(s);
+      if(t.length<2) return '';
+      if(s.indexOf('&')!==-1&&t.length>=3) return t[t.length-1];
+      return t[t.length-1];
+    }
+
+    var n=normN(name);
+    var myFNs=firstNms(name);
+    var myLN=lastNm(name);
+    var match=null;
+
+    /* S1 — exact Full Name */
+    match=rows.find(function(r){ return normN(r['Full Name']||r['name']||'')===n; });
+
+    /* S2 — RSVP Full Name tokens contain all my first names */
+    if(!match) match=rows.find(function(r){
+      var rt=toks(normN(r['Full Name']||r['name']||''));
+      return myFNs.length>0&&myFNs.every(function(fn){return rt.indexOf(fn)!==-1;});
     });
+
+    /* S3 — shared last name + at least one shared first name (dedup "Jan") */
+    if(!match&&myLN){
+      var cands=rows.filter(function(r){ return normN(r['Full Name']||r['name']||'').indexOf(myLN)!==-1; });
+      if(cands.length===1) match=cands[0];
+      else if(cands.length>1) match=cands.find(function(r){
+        var rt=toks(normN(r['Full Name']||r['name']||''));
+        return myFNs.some(function(fn){return rt.indexOf(fn)!==-1;});
+      })||null;
+    }
+
+    /* S4 — my first name appears in Guests Attending of any row */
+    if(!match) match=rows.find(function(r){
+      var ga=toks(normN(r['Guests Attending']||r['guests_attending']||''));
+      return ga.length>0&&myFNs.some(function(fn){return ga.indexOf(fn)!==-1;});
+    });
+
     if(!match) return null;
+
     var att=(match['Ceremony Attendance']||match['attendance']||'').toString().toLowerCase();
     var isYes=att&&att!=='no'&&att!=='declined'&&att!=='';
     var isNo=att==='no'||att==='declined';
-    return {isYes:isYes,isNo:isNo,matched:true};
+
+    /* Per-person breakdown for couple cards */
+    var persons=[];
+    var gaStr=(match['Guests Attending']||match['guests_attending']||'').toString().trim();
+    if(name.indexOf('&')!==-1&&myFNs.length>1){
+      var gaToks=toks(gaStr);
+      myFNs.forEach(function(fn){
+        persons.push({name:fn.charAt(0).toUpperCase()+fn.slice(1),coming:gaToks.indexOf(fn)!==-1});
+      });
+    }
+
+    return {isYes:isYes,isNo:isNo,matched:true,persons:persons,guestsAttending:gaStr,row:match};
   }catch(e){ return null; }
 }
 
 function getGuestRsvpPill(name){
   var info=getGuestRsvpInfo(name);
   if(!info) return '';
+  /* For couples: show per-person mini tags */
+  if(info.persons&&info.persons.length>1){
+    return info.persons.map(function(p){
+      return p.coming
+        ?'<span style="background:#d4f5e2;color:#1a7a4a;border-radius:100px;padding:2px 7px;font-size:8px;font-weight:800;letter-spacing:.06em;flex-shrink:0">'+p.name+' ✓</span>'
+        :'<span style="background:#fde8e8;color:#b91c1c;border-radius:100px;padding:2px 7px;font-size:8px;font-weight:800;letter-spacing:.06em;flex-shrink:0">'+p.name+' ✗</span>';
+    }).join('');
+  }
   if(info.isYes) return '<span style="background:#d4f5e2;color:#1a7a4a;border-radius:100px;padding:2px 8px;font-size:8px;font-weight:800;letter-spacing:.06em;flex-shrink:0">RSVP ✓</span>';
   if(info.isNo)  return '<span style="background:#fde8e8;color:#b91c1c;border-radius:100px;padding:2px 8px;font-size:8px;font-weight:800;letter-spacing:.06em;flex-shrink:0">RSVP ✗</span>';
   return '<span style="background:var(--cream2);color:var(--muted);border-radius:100px;padding:2px 8px;font-size:8px;font-weight:700;letter-spacing:.06em;flex-shrink:0">RSVP ?</span>';
@@ -1976,13 +2048,28 @@ function buildGuestCard(g){
     var senderChipSent=g.sender?('<span class="g-sender-br '+(g.sender==='Arina'?'a':'e')+'">'+(g.sender==='Arina'?'A':'E')+'</span>'):''
     var rsvpInfo=getGuestRsvpInfo(g.name);
     var rsvpPillSent=getGuestRsvpPill(g.name);
-    var rsvpClass=rsvpInfo?(rsvpInfo.isYes?' rsvp-yes':rsvpInfo.isNo?' rsvp-no':' rsvp-pending'):'';
+    /* Determine card background class.
+       For couples: if some coming and some not → rsvp-partial (amber).
+       For single: yes→green, no→red */
+    var rsvpClass='';
+    if(rsvpInfo){
+      if(rsvpInfo.persons&&rsvpInfo.persons.length>1){
+        var comingCount=rsvpInfo.persons.filter(function(p){return p.coming;}).length;
+        if(comingCount===rsvpInfo.persons.length) rsvpClass=' rsvp-yes';
+        else if(comingCount===0) rsvpClass=' rsvp-no';
+        else rsvpClass=' rsvp-pending'; // partial — amber
+      } else {
+        rsvpClass=rsvpInfo.isYes?' rsvp-yes':rsvpInfo.isNo?' rsvp-no':' rsvp-pending';
+      }
+    }
+    /* Pills need flex-wrap so couple pills don't overflow */
+    var pillWrap=rsvpPillSent?'<span style="display:flex;gap:3px;flex-wrap:wrap;align-items:center;margin-left:4px">'+rsvpPillSent+'</span>':''
     return '<div class="g-swipe-wrap'+rsvpClass+'" data-qi="'+ri+'">'
       +'<div class="'+cls+'" data-qi="'+ri+'">'
         +'<div class="g-inner">'
           +'<div class="g-inner-left">'
             +'<div class="g-main">'
-              +'<div class="g-name-row"><span class="g-name" style="font-size:15px">'+g.name+'</span>'+senderChipSent+sentTime+(rsvpPillSent?'<span style="margin-left:4px">'+rsvpPillSent+'</span>':'')+'</div>'
+              +'<div class="g-name-row" style="flex-wrap:wrap"><span class="g-name" style="font-size:15px;flex-shrink:0">'+g.name+'</span>'+senderChipSent+sentTime+pillWrap+'</div>'
             +'</div>'
           +'</div>'
           +'<div class="g-inner-right">'
