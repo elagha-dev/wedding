@@ -42,10 +42,12 @@ html{font-size:15px;-webkit-text-size-adjust:100%}
 body{font-family:var(--sans);background:var(--cream);color:var(--ink);min-height:100vh;padding-bottom:100px}
 body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 130% 55% at 90% -5%,rgba(237,213,197,.5) 0%,transparent 58%),radial-gradient(ellipse 70% 45% at -5% 90%,rgba(196,149,106,.14) 0%,transparent 52%);pointer-events:none;z-index:0}
 .wrap{position:relative;z-index:1;max-width:640px;margin:0 auto;padding:0 16px 40px}
+.wrap.sync-blurring{filter:blur(2.5px);transition:filter .25s ease}
+.wrap{transition:filter .25s ease}
 
 /* ── TOPBAR ── */
 .topbar{position:sticky;top:0;z-index:100;background:rgba(253,248,243,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(196,149,106,.14);height:50px}
-.topbar-inner{max-width:640px;margin:0 auto;padding:6px 14px 6px 10px;display:flex;align-items:center;gap:5px;height:50px}
+.topbar-inner{max-width:640px;margin:0 auto;padding:6px 14px 6px 10px;display:flex;align-items:center;gap:5px;height:50px;position:relative}
 /* Session toggle */
 .session-toggle{display:flex;align-items:center;flex:0 0 auto;align-self:center;background:var(--parchment);border-radius:var(--r-pill);padding:2px;gap:2px;height:32px;box-sizing:border-box}
 .sess-btn{width:26px;height:26px;border-radius:50%;border:none;font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer;transition:all var(--ease);background:transparent;color:var(--muted);text-align:center;display:flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -58,7 +60,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .today-l{font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.7)}
 
 /* Sync pill */
-.sync-pill{display:flex;align-items:center;justify-content:center;gap:5px;min-width:32px;height:32px;padding:0 10px;background:var(--rose);color:#fff;border:none;border-radius:var(--r-pill);cursor:pointer;transition:all var(--ease);flex-shrink:0;align-self:center}
+.sync-pill{display:flex;align-items:center;justify-content:center;gap:5px;min-width:32px;height:32px;padding:0 10px;background:var(--rose);color:#fff;border:none;border-radius:var(--r-pill);cursor:pointer;transition:all var(--ease);flex-shrink:0}
 .sync-pill:hover{background:var(--rose-deep);transform:translateY(-1px)}
 .sync-pill.synced{background:var(--cream2);color:var(--green);box-shadow:none;border:none}
 .sync-pill.synced:hover{background:rgba(58,140,92,.24);transform:none}
@@ -195,13 +197,14 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .f-pill-open .f-open-label{padding:6px 10px 6px 14px;font-size:10px;font-weight:600;letter-spacing:.06em;white-space:nowrap}
 .f-pill-open .f-open-divider{display:none}
 .f-pill-open .f-open-toggles{display:flex;align-items:center;gap:0;padding:0 6px}
-.f-pill-open .f-ae-btn{width:20px;height:20px;border-radius:50%;border:none;background:transparent;font-size:9px;font-weight:800;letter-spacing:.04em;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--ease);color:rgba(255,255,255,.45);font-family:var(--sans)}
+.f-pill-open .f-ae-btn{width:20px;height:20px;border-radius:50%;border:none;background:transparent;font-size:9px;font-weight:800;letter-spacing:.04em;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--ease);color:rgba(255,255,255,.45);font-family:var(--sans);font-variant:small-caps}
 .f-pill-open.on .f-ae-btn{color:rgba(255,255,255,.45)}
 .f-pill-open .f-ae-btn.ae-a.on{background:var(--arina-bg);color:var(--arina-txt)}
 .f-pill-open .f-ae-btn.ae-e.on{background:var(--elnur-bg);color:var(--elnur-txt)}
 .f-pill-open .f-ae-btn:hover{background:rgba(255,255,255,.15)}
 .f-pill-open .f-ae-btn.ae-a.on:hover{filter:brightness(.95)}
 .f-pill-open .f-ae-btn.ae-e.on:hover{filter:brightness(.95)}
+.f-pill-open.on .f-open-label{background:rgba(255,255,255,.2);border-radius:var(--r-pill);padding:4px 10px 4px 10px;margin-left:4px}
 .f-pill.on-f{background:var(--amber-bg);border-color:rgba(176,120,48,.3);color:var(--amber)}
 /* Open / A / E filter pills — plain toggles, no container box */
 .f-pill.on-a{background:var(--arina-bg);border-color:var(--arina-border);color:var(--arina-txt)}
@@ -318,7 +321,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .chip-sender-corner{font-size:8px;padding:2px 7px;height:18px;opacity:.85}
 .g-corner-actions .g-del{position:static;top:auto;right:auto}
 /* Sender badge bottom-right */
-.g-sender-br{position:static;font-size:8px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 6px;border-radius:var(--r-pill);height:18px;display:inline-flex;align-items:center;opacity:.75}
+.g-sender-br{position:static;font-size:8px;font-weight:700;letter-spacing:.06em;padding:2px 6px;border-radius:var(--r-pill);height:18px;display:inline-flex;align-items:center;opacity:.75}
 .g-sender-br.a{background:var(--arina-bg);color:var(--arina-txt)}
 .g-sender-br.e{background:var(--elnur-bg);color:var(--elnur-txt)}
 .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none;flex-shrink:0;z-index:1;transition:opacity .15s}
@@ -673,8 +676,8 @@ body.lite-mode #liteModeTopBtn {
 
 
 /* sync prompt popup — shown for all users until first sync */
-#guestSyncBanner{display:none;position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-10px);z-index:400;background:transparent;padding:0;border-radius:0;box-shadow:none;align-items:center;opacity:0;transition:opacity .25s,transform .25s}
-#guestSyncBanner.visible{display:flex;opacity:1;transform:translateX(-50%) translateY(0)}
+#guestSyncBanner{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:400;background:transparent;padding:0;border-radius:0;box-shadow:none;align-items:center;opacity:0;transition:opacity .25s}
+#guestSyncBanner.visible{display:flex;opacity:1}
 .s-btn-small{font-family:var(--sans);font-size:11px;font-weight:700;padding:6px 14px;border-radius:var(--r-pill);border:1.5px solid var(--parchment);background:var(--cream2);color:var(--ink);cursor:pointer}
 
 .presence-avatar.is-guest img { display:block!important; filter:blur(4px) brightness(.95); transform:scale(1.2); clip-path:circle(50%); }
@@ -731,12 +734,12 @@ body.lite-mode #liteModeTopBtn {
       <div class="who-btns">
         <button class="who-btn btn-a" id="whoBtnA">
           <img src="img/arina.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" alt="Arina">
-          <span class="who-btn-init" style="display:none">A</span>
+          <span class="who-btn-init" style="display:none">a</span>
           <span>Arina</span>
         </button>
         <button class="who-btn btn-e" id="whoBtnE">
           <img src="img/elnur.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" alt="Elnur">
-          <span class="who-btn-init" style="display:none">E</span>
+          <span class="who-btn-init" style="display:none">e</span>
           <span>Elnur</span>
         </button>
         <button class="who-btn btn-g" id="whoBtnG">
@@ -816,6 +819,7 @@ body.lite-mode #liteModeTopBtn {
   <button id="settingsBtn" style="display:none"></button>
  </div>
 </div>
+
 
 <!-- SYNC INFO BANNER -->
 <div id="syncInfoBanner" style="display:flex;background:linear-gradient(135deg,#F2D8CC,#EDD5C5);color:var(--ink2);padding:9px 14px 9px 16px;font-family:var(--sans);font-size:11.5px;font-weight:500;line-height:1.4;align-items:center;gap:10px;border-bottom:1px solid rgba(201,135,106,.2)">
@@ -1799,8 +1803,8 @@ function renderFilterRow(){
       +'<span class="f-open-label">Open</span>'
       +'<span class="f-open-divider"></span>'
       +'<span class="f-open-toggles">'
-        +'<span class="f-ae-btn ae-a'+(isA?' on':'')+'" id="fBtnA">A</span>'
-        +'<span class="f-ae-btn ae-e'+(isE?' on':'')+'" id="fBtnE">E</span>'
+        +'<span class="f-ae-btn ae-a'+(isA?' on':'')+'" id="fBtnA">a</span>'
+        +'<span class="f-ae-btn ae-e'+(isE?' on':'')+'" id="fBtnE">e</span>'
       +'</span>'
     +'</button>'
     +'<button class="f-pill '+fCls+'" data-f="followup">Flag</button>'
@@ -1958,7 +1962,7 @@ function renderGuestList(){
 function buildPairSentCard(g1,g2){
   var ri1=importQueue.indexOf(g1),ri2=importQueue.indexOf(g2);
   var senderCls=g1.sender==='Arina'?'chip-a':'chip-e';
-  var senderLbl=g1.sender==='Arina'?'A':'E';
+  var senderLbl=g1.sender==='Arina'?'a':'e';
   var senderChip=g1.sender?('<span class="g-sender-br '+(g1.sender==='Arina'?'a':'e')+'">'+senderLbl+'</span>'):'';
   var sentLetter1=g1.sentBy==='Arina'?'A':g1.sentBy==='Elnur'?'E':'';
   var sentTime=g1.sentAt?'<span class="g-sent-time">'+fmtSentAt(g1.sentAt)+(sentLetter1?' · '+sentLetter1:'')+'</span>':'';
@@ -2076,18 +2080,18 @@ function buildGuestCard(g){
   var claimedByOther=claimedBy&&claimedBy!==sessionSender;
   var cls='g-card'+(isSel?' sel':'')+(g.followup&&!g.sent?' fup':'')+(g.sent?' sent':'')+(isPending?' pending-sent':'')+(claimedByOther?' claimed-other':'')+(g.isChild?' is-child':'');
   var senderCls=g.sender==='Arina'?'a':'e';
-  var sC=g.sender==='Arina'?'<span class="chip chip-a chip-sender-corner">A</span>':'<span class="chip chip-e chip-sender-corner">E</span>';
-  var sBR=g.sender?('<span class="g-sender-br '+senderCls+'">'+(g.sender==='Arina'?'A':'E')+'</span>'):'';
+  var sC=g.sender==='Arina'?'<span class="chip chip-a chip-sender-corner">a</span>':'<span class="chip chip-e chip-sender-corner">e</span>';
+  var sBR=g.sender?('<span class="g-sender-br '+senderCls+'">'+(g.sender==='Arina'?'a':'e')+'</span>'):'';
   var tC=(g.type==='ceremony-party-single'||g.type==='couple-party')?'<span class="chip chip-type">Party</span>':'<span class="chip chip-type">Church</span>';
   var lC=g.lang&&g.lang!=='en'?'<span class="chip chip-lang">'+(g.lang==='de'?'DE':'RU')+'</span>':'';
   var rC=g.confirmed?'<span class="chip chip-rsvp">RSVP</span>':'';
   var cC=g.isChild?'<span class="chip chip-child">Child</span>':'';
   var claimC=claimedBy?('<span class="claim-badge claim-badge-'+(claimedBy==='Arina'?'a':'e')+'"><span class="claim-dot claim-dot-'+(claimedBy==='Arina'?'a':'e')+'"></span>'+(claimedByMe?'You':''+claimedBy)+'</span>'):'';
-  var sentBy=g.sentBy?g.sentBy:'';var sentLetter=sentBy==='Arina'?'A':sentBy==='Elnur'?'E':'';var sentTime=g.sent&&g.sentAt?'<span class="g-sent-time">'+fmtSentAt(g.sentAt)+(sentLetter?' · '+sentLetter:'')+'</span>':'';
+  var sentBy=g.sentBy?g.sentBy:'';var sentLetter=sentBy==='Arina'?'a':sentBy==='Elnur'?'e':'';var sentTime=g.sent&&g.sentAt?'<span class="g-sent-time">'+fmtSentAt(g.sentAt)+(sentLetter?' · '+sentLetter:'')+'</span>':'';
 
   // Sent cards: slim — name, time, RSVP pill, undo button
   if(g.sent){
-    var senderChipSent=g.sender?('<span class="g-sender-br '+(g.sender==='Arina'?'a':'e')+'">'+(g.sender==='Arina'?'A':'E')+'</span>'):''
+    var senderChipSent=g.sender?('<span class="g-sender-br '+(g.sender==='Arina'?'a':'e')+'">'+(g.sender==='Arina'?'a':'e')+'</span>'):''
     var rsvpInfo=getGuestRsvpInfo(g.name);
     var rsvpPillSent=getGuestRsvpPill(g.name);
     /* Determine card background class.
@@ -2133,7 +2137,7 @@ function buildGuestCard(g){
           +'<div class="g-main">'
             +'<div class="g-name-row">'
               +'<span class="g-name">'+g.name+'</span>'
-              +(g.sender?'<span class="g-sender-br '+senderCls+'">'+(g.sender==='Arina'?'A':'E')+'</span>':'')
+              +(g.sender?'<span class="g-sender-br '+senderCls+'">'+(g.sender==='Arina'?'a':'e')+'</span>':'')
               +tC+rC
             +'</div>'
             +(lC||cC?'<div class="g-tags">'+lC+cC+'</div>':'')
@@ -2680,12 +2684,17 @@ document.getElementById('splitElnur').addEventListener('click',function(){splitA
 document.getElementById('splitHalf').addEventListener('click',splitHalf);
 var DEFAULT_WORKER='https://guestlist.elnur-agha.workers.dev';
 var workerUrl=loadWorkerUrl()||DEFAULT_WORKER;
+function setSyncBlur(on){
+  var wrap=document.querySelector('.wrap');
+  if(wrap) wrap.classList.toggle('sync-blurring',!!on);
+}
 function setTopSynced(timeStr){
   var pill=document.getElementById('topSyncBtn');
   pill.classList.add('synced');
   pill.style.background='';pill.style.boxShadow='';pill.title='';
   document.getElementById('topSyncLabel').textContent=timeStr;
   var dot=document.getElementById('syncDot');dot.classList.remove('live');dot.style.background='';
+  setSyncBlur(false);
 }
 function setTopSyncing(){
   var pill=document.getElementById('topSyncBtn');
@@ -2693,12 +2702,14 @@ function setTopSyncing(){
   pill.style.background='';pill.style.boxShadow='';pill.title='';
   document.getElementById('topSyncLabel').textContent='Syncing…';
   var dot=document.getElementById('syncDot');dot.classList.add('live');dot.style.background='';
+  setSyncBlur(true);
 }
 function setTopSyncFailed(){
   var pill=document.getElementById('topSyncBtn');
   pill.classList.remove('synced');
   document.getElementById('topSyncLabel').textContent='Retry';
   var dot=document.getElementById('syncDot');dot.classList.add('live');dot.style.background='var(--amber)';
+  setSyncBlur(false);
 }
 // Track last-known sent fingerprint so we can detect remote changes
 var _lastSyncFingerprint='';
@@ -3115,7 +3126,7 @@ function renderTracker(){
       return '<span style="background:var(--cream2);color:var(--muted);border-radius:100px;padding:2px 8px;font-size:8px;font-weight:700;letter-spacing:.06em;flex-shrink:0">RSVP ?</span>';
     }catch(e){ return ''; }
   }
-  function bGroup(items){return items.map(function(h){var i=mem.indexOf(h);return'<div class="track-card '+(!!h.tracked.waSent?'sent-row':'unsent-row')+'"><div class="track-top"><span class="track-name">'+h.name+'</span>'+getRsvpPill(h.name)+(h.sender==='Elnur'?'<span class="chip chip-e">E</span>':'<span class="chip chip-a">A</span>')+(h.hasParty?'<span class="chip chip-type">Party</span>':'')+'<span class="chip chip-lang">'+h.ll+'</span></div><div class="pip-row">'+bPip(h,i,'linkCopied','Link')+bPip(h,i,'msgCopied','Copied')+bPip(h,i,'waSent','Sent')+'</div><div class="track-footer"><span class="track-url">'+h.url+'</span><div class="track-acts"><button class="t-act resend" data-i="'+i+'">Resend</button><button class="t-act del" data-i="'+i+'">✕</button></div></div></div>';}).join('');}
+  function bGroup(items){return items.map(function(h){var i=mem.indexOf(h);return'<div class="track-card '+(!!h.tracked.waSent?'sent-row':'unsent-row')+'"><div class="track-top"><span class="track-name">'+h.name+'</span>'+getRsvpPill(h.name)+(h.sender==='Elnur'?'<span class="chip chip-e">e</span>':'<span class="chip chip-a">a</span>')+(h.hasParty?'<span class="chip chip-type">Party</span>':'')+'<span class="chip chip-lang">'+h.ll+'</span></div><div class="pip-row">'+bPip(h,i,'linkCopied','Link')+bPip(h,i,'msgCopied','Copied')+bPip(h,i,'waSent','Sent')+'</div><div class="track-footer"><span class="track-url">'+h.url+'</span><div class="track-acts"><button class="t-act resend" data-i="'+i+'">Resend</button><button class="t-act del" data-i="'+i+'">✕</button></div></div></div>';}).join('');}
   var html='';
   if(unsent.length)html+='<div class="g-group-hdr">Pending ('+unsent.length+')</div>'+bGroup(unsent);
   if(sent.length)html+='<div class="g-group-hdr sent">Sent ('+sent.length+')</div>'+bGroup(sent);
@@ -3244,8 +3255,8 @@ function applyAppSettings(){
   applyTheme(appSettings.theme);
   // Sender names in topbar — always show A/E
   var sa=document.getElementById('sessA'),se=document.getElementById('sessE');
-  if(sa)sa.textContent='A';
-  if(se)se.textContent='E';
+  if(sa)sa.textContent='a';
+  if(se)se.textContent='e';
 }
 function applyTheme(t){
   var root=document.documentElement;
