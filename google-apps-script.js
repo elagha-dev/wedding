@@ -142,6 +142,9 @@ function doPost(e) {
 }
 
 // ── SETUP: Run this manually once to force-generate your new clean headers ──
+// ── SETUP: Run this manually once to force-generate your new clean headers ──
+// SAFE VERSION: only creates sheets that don't exist yet and adds missing
+// headers to a blank row 1. It will NEVER clear or delete existing data.
 function setupSheets() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
 
@@ -154,11 +157,13 @@ function setupSheets() {
 
   sheets.forEach(function(s) {
     var sheet = ss.getSheetByName(s.name);
-    if (sheet) {
-      sheet.clear();
-    } else {
+    if (!sheet) {
       sheet = ss.insertSheet(s.name);
+      sheet.appendRow(s.headers);
+    } else if (sheet.getLastRow() === 0) {
+      sheet.appendRow(s.headers);
+    } else {
+      Logger.log('Skipped "' + s.name + '" — already has data, left untouched.');
     }
-    sheet.appendRow(s.headers);
   });
 }
