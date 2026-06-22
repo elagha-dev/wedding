@@ -3956,6 +3956,8 @@ function showChatNotif(who, text){
 
       // Cache data for drawer
       try{ localStorage.setItem(DATA_KEY, JSON.stringify(data)); } catch(e){}
+      // Re-render tracker so RSVP pills appear
+      if(typeof renderTracker === "function") renderTracker();
 
       // Notify on change
       if(count === null) return;
