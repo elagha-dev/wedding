@@ -3497,7 +3497,7 @@ function showChatNotif(who, text){
     '@keyframes cnFadeIn{from{opacity:0}to{opacity:1}}</style>' +
     '<div id="chatNotifBg" style="position:absolute;inset:0;background:rgba(253,248,243,.65);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)"></div>' +
     '<div style="position:relative;background:#fff;border-radius:20px;padding:24px 28px;max-width:320px;width:88vw;box-shadow:0 12px 48px rgba(0,0,0,.14);text-align:center;font-family:var(--sans)">' +
-      '<img src="https://www.arinaelnur.de/' + who.toLowerCase() + '.jpg" style="width:56px;height:56px;border-radius:50%;object-fit:cover;margin-bottom:12px;display:block;margin-left:auto;margin-right:auto" onerror="this.style.display=\'none\'">' +
+      '<img src="https://www.arinaelnur.de/img/' + who.toLowerCase() + '.jpg" style="width:56px;height:56px;border-radius:50%;object-fit:cover;margin-bottom:12px;display:block;margin-left:auto;margin-right:auto" onerror="this.style.display=\'none\'">' +
       '<div style="font-size:13px;font-weight:700;color:var(--ink2);margin-bottom:6px">' + who + '</div>' +
       '<div style="font-size:15px;color:var(--ink1);line-height:1.45;word-break:break-word">' + text.slice(0,120) + (text.length>120?'…':'') + '</div>' +
       '<div style="margin-top:16px;display:flex;gap:10px;justify-content:center">' +
@@ -4026,14 +4026,14 @@ window.addEventListener('unhandledrejection', function(e){ e.preventDefault(); }
       if (otherEl) { otherEl.style.display = 'none'; }
     } else {
       if (meEl)    { meEl.classList.remove("is-guest"); meEl.title = who + " — tap for settings"; }
-      if (meImg)   { meImg.src = "https://www.arinaelnur.de/" + who.toLowerCase() + ".jpg?v=2"; meImg.alt = who; }
+      if (meImg)   { meImg.src = "https://www.arinaelnur.de/img/" + who.toLowerCase() + ".jpg?v=2"; meImg.alt = who; }
       if (otherImg){
         var other = otherName();
         var fb = document.getElementById("presenceOtherFallback");
         otherImg.style.display = "";
         otherImg.alt = other;
         if (fb) { fb.textContent = other.charAt(0).toUpperCase(); }
-        otherImg.src = "https://www.arinaelnur.de/" + other.toLowerCase() + ".jpg?v=2";
+        otherImg.src = "https://www.arinaelnur.de/img/" + other.toLowerCase() + ".jpg?v=2";
       }
       if (otherEl) { otherEl.style.display = ""; }
     }
@@ -4182,7 +4182,7 @@ window.addEventListener('unhandledrejection', function(e){ e.preventDefault(); }
   function openChat(){
     chatOpen = true;
     var other = otherPerson();
-    headImg.src = 'https://www.arinaelnur.de/' + other.toLowerCase() + '.jpg';
+    headImg.src = 'https://www.arinaelnur.de/img/' + other.toLowerCase() + '.jpg';
     headImg.alt = other;
     headName.textContent = other;
     // reflect current online status
