@@ -797,7 +797,7 @@ function showSuccessScreen(attending) {
 
   /* Decline note: only on the decline screen, reset fresh each time */
   if (declineNoteRow) {
-    declineNoteRow.style.display = attending ? "none" : "";
+    declineNoteRow.classList.toggle("is-visible", !attending);
     if (!attending) {
       if (declineMessage) declineMessage.value = "";
       var dnStatus = document.getElementById("declineNoteStatus");
