@@ -1498,6 +1498,24 @@ function pushSentToWorker(name){
   _localWrites[name].sent=true;
   _pushWithRetry('/sent',{name:name},'sent:'+name);
 }
+// One-time cleanup: split previously-merged sent pairs (old bulkWith/sentGroupId tags)
+// into separate entries so each gets its own RSVP tag. Only clears guests that are
+// already marked sent — does not touch pending/unsent guests or re-send anything.
+function splitMergedSentPairs(){
+  var affected=importQueue.filter(function(g){return g.sent&&(g.bulkWith||g.sentGroupId);});
+  if(!affected.length)return;
+  affected.forEach(function(g){
+    g.bulkWith='';g.sentGroupId='';
+    _localWrites[g.name]=_localWrites[g.name]||{};
+    _localWrites[g.name].bulkWith='';
+    _localWrites[g.name].sentGroupId='';
+    _pushWithRetry('/meta',{name:g.name,bulkWith:'',sentGroupId:''},'split:'+g.name);
+  });
+  saveGuestMeta();
+  renderGuestList();
+  renderDashboard();
+}
+
 function pushUnsentToWorker(name){
   if(!workerUrl||!name)return;
   _localWrites[name]=_localWrites[name]||{};
@@ -1854,6 +1872,10 @@ function renderGuestList(){
       });
 
       html+='<div class="g-group-hdr sent">Sent ('+sentGuests.length+')</div>';
+      var mergedCount=sentOrdered.filter(function(item){return item.type==='pair';}).length;
+      if(mergedCount){
+        html+='<button class="show-sent-btn" id="splitPairsBtn" style="border-color:var(--amber);color:var(--amber);margin-bottom:8px">Split '+mergedCount+' merged pair'+(mergedCount>1?'s':'')+'</button>';
+      }
       sentOrdered.forEach(function(item){
         if(item.type==='pair'){
           html+=buildPairSentCard(item.guests[0],item.guests[1]);
@@ -1871,6 +1893,9 @@ function renderGuestList(){
 
   var ssBtn=document.getElementById('showSentBtn');
   if(ssBtn)ssBtn.addEventListener('click',function(e){e.stopPropagation();showSent=!showSent;renderGuestList();});
+
+  var spBtn=document.getElementById('splitPairsBtn');
+  if(spBtn)spBtn.addEventListener('click',function(e){e.stopPropagation();splitMergedSentPairs();});
 
   // Row tap = select
   list.querySelectorAll('.g-card').forEach(function(card){
