@@ -254,6 +254,14 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-swipe-wrap:has(.g-card.sent){box-shadow:inset 3px 0 0 var(--green)}
 .g-swipe-wrap:has(.g-card.sent) .g-card{background:#fafafa}
 .g-swipe-wrap:has(.g-card.sent) .g-name,.g-swipe-wrap:has(.g-card.sent) .g-sent-time{color:var(--soft)}
+.g-swipe-wrap.rsvp-yes{box-shadow:inset 3px 0 0 #3A8C5C!important}
+.g-swipe-wrap.rsvp-yes .g-card.sent{background:#f0faf4!important}
+.g-swipe-wrap.rsvp-yes .g-name{color:#2d7a4a!important}
+.g-swipe-wrap.rsvp-no{box-shadow:inset 3px 0 0 #b91c1c!important}
+.g-swipe-wrap.rsvp-no .g-card.sent{background:#fff5f5!important}
+.g-swipe-wrap.rsvp-no .g-name{color:#b91c1c!important}
+.g-swipe-wrap.rsvp-pending{box-shadow:inset 3px 0 0 var(--amber)!important}
+.g-swipe-wrap.rsvp-pending .g-card.sent{background:#fffbf0!important}
 .g-swipe-wrap:has(.g-card.pending-sent){box-shadow:inset 3px 0 0 var(--rose),var(--shadow-sm)}
 /* ── SPLIT CARD LAYOUT ── */
 .g-inner{padding:0;display:flex;align-items:stretch}
@@ -1968,10 +1976,9 @@ function buildGuestCard(g){
     var senderChipSent=g.sender?('<span class="g-sender-br '+(g.sender==='Arina'?'a':'e')+'">'+(g.sender==='Arina'?'A':'E')+'</span>'):''
     var rsvpInfo=getGuestRsvpInfo(g.name);
     var rsvpPillSent=getGuestRsvpPill(g.name);
-    var rsvpBorder=rsvpInfo?(rsvpInfo.isYes?'inset 3px 0 0 #3A8C5C':rsvpInfo.isNo?'inset 3px 0 0 #b91c1c':'inset 3px 0 0 var(--amber)'):'inset 3px 0 0 var(--green)';
-    var rsvpBg=rsvpInfo?(rsvpInfo.isYes?'#f0faf4':rsvpInfo.isNo?'#fff5f5':'#fafafa'):'#fafafa';
-    return '<div class="g-swipe-wrap" data-qi="'+ri+'" style="box-shadow:'+rsvpBorder+'">'
-      +'<div class="'+cls+'" data-qi="'+ri+'" style="background:'+rsvpBg+'">'
+    var rsvpClass=rsvpInfo?(rsvpInfo.isYes?' rsvp-yes':rsvpInfo.isNo?' rsvp-no':' rsvp-pending'):'';
+    return '<div class="g-swipe-wrap'+rsvpClass+'" data-qi="'+ri+'">'
+      +'<div class="'+cls+'" data-qi="'+ri+'">'
         +'<div class="g-inner">'
           +'<div class="g-inner-left">'
             +'<div class="g-main">'
