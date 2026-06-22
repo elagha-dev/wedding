@@ -1966,8 +1966,9 @@ function getGuestRsvpInfo(name){
       if(s>bestScore){bestScore=s;bestRow=r;}
     });
 
-    // require at least one token (last-name) to match
-    if(!bestRow||bestScore===0) return null;
+    // require ALL guest tokens to match (score===1.0) to avoid false positives
+    // e.g. "Jan Eisleben" must not match a row with "Jan [OtherLastName]"
+    if(!bestRow||bestScore<1) return null;
 
     var att=(bestRow['Ceremony Attendance']||bestRow['attendance']||'').toString().toLowerCase();
     var isYes=att!==''&&att!=='no'&&att!=='declined';
