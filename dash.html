@@ -254,6 +254,14 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-swipe-wrap:has(.g-card.sent){box-shadow:inset 3px 0 0 var(--green)}
 .g-swipe-wrap:has(.g-card.sent) .g-card{background:#fafafa}
 .g-swipe-wrap:has(.g-card.sent) .g-name,.g-swipe-wrap:has(.g-card.sent) .g-sent-time{color:var(--soft)}
+.g-swipe-wrap.rsvp-yes{box-shadow:inset 3px 0 0 #3A8C5C!important}
+.g-swipe-wrap.rsvp-yes .g-card.sent{background:#f0faf4!important}
+.g-swipe-wrap.rsvp-yes .g-name{color:#2d7a4a!important}
+.g-swipe-wrap.rsvp-no{box-shadow:inset 3px 0 0 #b91c1c!important}
+.g-swipe-wrap.rsvp-no .g-card.sent{background:#fff5f5!important}
+.g-swipe-wrap.rsvp-no .g-name{color:#b91c1c!important}
+.g-swipe-wrap.rsvp-pending{box-shadow:inset 3px 0 0 var(--amber)!important}
+.g-swipe-wrap.rsvp-pending .g-card.sent{background:#fffbf0!important}
 .g-swipe-wrap:has(.g-card.pending-sent){box-shadow:inset 3px 0 0 var(--rose),var(--shadow-sm)}
 /* ── SPLIT CARD LAYOUT ── */
 .g-inner{padding:0;display:flex;align-items:stretch}
@@ -385,7 +393,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .prog-sm{height:3px;background:var(--parchment);border-radius:2px;overflow:hidden;margin-bottom:14px}
 .prog-sm-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--rose));border-radius:2px;transition:width .6s ease}
 .track-card{background:#fff;border:1.5px solid var(--parchment);border-radius:var(--r-sm);padding:13px 14px;margin-bottom:8px;box-shadow:var(--shadow-sm)}
-.track-card.sent-row{border-left:3px solid var(--green)}.track-card.unsent-row{border-left:3px solid var(--gold)}
+.track-card.sent-row{border-left:none}.track-card.unsent-row{border-left:none}
 .track-top{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:9px}
 .track-name{font-family:var(--sans);font-size:16.5px;flex:1;color:var(--ink)}.track-card.sent-row .track-name{color:var(--muted)}
 .pip-row{display:flex;gap:6px;margin-bottom:9px}
@@ -646,7 +654,7 @@ body.lite-mode #liteModeTopBtn {
 
 
 /* sync prompt popup — shown for all users until first sync */
-#guestSyncBanner{display:none;position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(10px);z-index:400;background:var(--ink2);color:#fff;font-family:var(--sans);font-size:12px;font-weight:500;padding:10px 14px 10px 16px;border-radius:var(--r-pill);box-shadow:0 8px 30px rgba(0,0,0,.22);align-items:center;gap:10px;white-space:nowrap;opacity:0;transition:opacity .25s,transform .25s}
+#guestSyncBanner{display:none;position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-10px);z-index:400;background:transparent;padding:0;border-radius:0;box-shadow:none;align-items:center;opacity:0;transition:opacity .25s,transform .25s}
 #guestSyncBanner.visible{display:flex;opacity:1;transform:translateX(-50%) translateY(0)}
 .s-btn-small{font-family:var(--sans);font-size:11px;font-weight:700;padding:6px 14px;border-radius:var(--r-pill);border:1.5px solid var(--parchment);background:var(--cream2);color:var(--ink);cursor:pointer}
 
@@ -703,18 +711,18 @@ body.lite-mode #liteModeTopBtn {
       <div class="who-sub">Choose your session to continue</div>
       <div class="who-btns">
         <button class="who-btn btn-a" id="whoBtnA">
-          <img src="arina.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" alt="Arina">
+          <img src="img/arina.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" alt="Arina">
           <span class="who-btn-init" style="display:none">A</span>
           <span>Arina</span>
         </button>
         <button class="who-btn btn-e" id="whoBtnE">
-          <img src="elnur.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" alt="Elnur">
+          <img src="img/elnur.jpg" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" alt="Elnur">
           <span class="who-btn-init" style="display:none">E</span>
           <span>Elnur</span>
         </button>
         <button class="who-btn btn-g" id="whoBtnG">
           <span class="who-btn-init" style="background:var(--parchment);color:var(--muted);overflow:hidden;padding:0;position:relative;border-radius:50%">
-            <img src="arina.jpg" onerror="this.src='elnur.jpg'" alt="" style="width:36px;height:36px;object-fit:cover;filter:blur(4px) brightness(.95);transform:scale(1.2);display:block">
+            <img src="img/arina.jpg" onerror="this.src='img/elnur.jpg'" alt="" style="width:36px;height:36px;object-fit:cover;filter:blur(4px) brightness(.95);transform:scale(1.2);display:block">
           </span>
           <span>Guest</span>
         </button>
@@ -799,9 +807,7 @@ body.lite-mode #liteModeTopBtn {
 
 <!-- GUEST SYNC BANNER -->
 <div id="guestSyncBanner">
-  <span style="flex-shrink:0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></span>
-  <span style="color:rgba(255,255,255,.8)">Tap sync to load the list</span>
-  <button id="guestSyncNowBtn" style="background:rgba(255,255,255,.18);border:1.5px solid rgba(255,255,255,.3);color:#fff;border-radius:var(--r-pill);padding:4px 13px;font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0;letter-spacing:.04em;transition:background .15s" onmouseover="this.style.background='rgba(255,255,255,.28)'" onmouseout="this.style.background='rgba(255,255,255,.18)'">Sync now</button>
+  <button id="guestSyncNowBtn" style="display:inline-flex;align-items:center;gap:7px;background:#C9702A;border:none;color:#fff;border-radius:var(--r-pill);padding:8px 16px;font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0;letter-spacing:.04em;box-shadow:0 4px 16px rgba(0,0,0,.2);transition:background .15s" onmouseover="this.style.background='#8B4A12'" onmouseout="this.style.background='#C9702A'"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>Sync now</button>
 </div>
 <script>
 (function(){
@@ -1923,6 +1929,30 @@ function buildPairSentCard(g1,g2){
   +'</div>';
 }
 
+function getGuestRsvpInfo(name){
+  try{
+    var cached=JSON.parse(localStorage.getItem('rsvpLastData'));
+    if(!cached||!Array.isArray(cached.rsvpRows)) return null;
+    var n=name.trim().toLowerCase();
+    var match=cached.rsvpRows.find(function(r){
+      return (r['Full Name']||r['name']||'').trim().toLowerCase()===n;
+    });
+    if(!match) return null;
+    var att=(match['Ceremony Attendance']||match['attendance']||'').toString().toLowerCase();
+    var isYes=att&&att!=='no'&&att!=='declined'&&att!=='';
+    var isNo=att==='no'||att==='declined';
+    return {isYes:isYes,isNo:isNo,matched:true};
+  }catch(e){ return null; }
+}
+
+function getGuestRsvpPill(name){
+  var info=getGuestRsvpInfo(name);
+  if(!info) return '';
+  if(info.isYes) return '<span style="background:#d4f5e2;color:#1a7a4a;border-radius:100px;padding:2px 8px;font-size:8px;font-weight:800;letter-spacing:.06em;flex-shrink:0">RSVP ✓</span>';
+  if(info.isNo)  return '<span style="background:#fde8e8;color:#b91c1c;border-radius:100px;padding:2px 8px;font-size:8px;font-weight:800;letter-spacing:.06em;flex-shrink:0">RSVP ✗</span>';
+  return '<span style="background:var(--cream2);color:var(--muted);border-radius:100px;padding:2px 8px;font-size:8px;font-weight:700;letter-spacing:.06em;flex-shrink:0">RSVP ?</span>';
+}
+
 function buildGuestCard(g){
   var ri=importQueue.indexOf(g);
   var isSel=selectedIdxs.indexOf(ri)>-1;
@@ -1941,15 +1971,18 @@ function buildGuestCard(g){
   var claimC=claimedBy?('<span class="claim-badge claim-badge-'+(claimedBy==='Arina'?'a':'e')+'"><span class="claim-dot claim-dot-'+(claimedBy==='Arina'?'a':'e')+'"></span>'+(claimedByMe?'You':''+claimedBy)+'</span>'):'';
   var sentBy=g.sentBy?g.sentBy:'';var sentLetter=sentBy==='Arina'?'A':sentBy==='Elnur'?'E':'';var sentTime=g.sent&&g.sentAt?'<span class="g-sent-time">'+fmtSentAt(g.sentAt)+(sentLetter?' · '+sentLetter:'')+'</span>':'';
 
-  // Sent cards: slim — just name, time, undo button in corner, no swipe
+  // Sent cards: slim — name, time, RSVP pill, undo button
   if(g.sent){
-    var senderChipSent=g.sender?('<span class="g-sender-br '+(g.sender==='Arina'?'a':'e')+'">'+(g.sender==='Arina'?'A':'E')+'</span>'):'';
-    return '<div class="g-swipe-wrap" data-qi="'+ri+'">'
+    var senderChipSent=g.sender?('<span class="g-sender-br '+(g.sender==='Arina'?'a':'e')+'">'+(g.sender==='Arina'?'A':'E')+'</span>'):''
+    var rsvpInfo=getGuestRsvpInfo(g.name);
+    var rsvpPillSent=getGuestRsvpPill(g.name);
+    var rsvpClass=rsvpInfo?(rsvpInfo.isYes?' rsvp-yes':rsvpInfo.isNo?' rsvp-no':' rsvp-pending'):'';
+    return '<div class="g-swipe-wrap'+rsvpClass+'" data-qi="'+ri+'">'
       +'<div class="'+cls+'" data-qi="'+ri+'">'
         +'<div class="g-inner">'
           +'<div class="g-inner-left">'
             +'<div class="g-main">'
-              +'<div class="g-name-row"><span class="g-name" style="font-size:15px">'+g.name+'</span>'+senderChipSent+sentTime+'</div>'
+              +'<div class="g-name-row"><span class="g-name" style="font-size:15px">'+g.name+'</span>'+senderChipSent+sentTime+(rsvpPillSent?'<span style="margin-left:4px">'+rsvpPillSent+'</span>':'')+'</div>'
             +'</div>'
           +'</div>'
           +'<div class="g-inner-right">'
@@ -2936,7 +2969,24 @@ function renderTracker(){
   var pct=filtered.length?Math.round(sent.length/filtered.length*100):0;
   sumEl.innerHTML='<div class="track-sum"><div class="ts-cell s"><div class="ts-n">'+sent.length+'</div><div class="ts-l">Sent</div></div><div class="ts-cell u"><div class="ts-n">'+unsent.length+'</div><div class="ts-l">Pending</div></div><div class="ts-cell"><div class="ts-n">'+filtered.length+'</div><div class="ts-l">Total</div></div></div><div class="prog-sm"><div class="prog-sm-fill" style="width:'+pct+'%"></div></div>';
   function bPip(h,i,k,label){var done=!!(h.tracked||{})[k];return'<div class="pip'+(done?' done':'')+'" data-i="'+i+'" data-k="'+k+'"><span class="pip-lbl">'+label+'</span><span class="pip-time">'+(done?h.tracked[k]:'—')+'</span></div>';}
-  function bGroup(items){return items.map(function(h){var i=mem.indexOf(h);return'<div class="track-card '+(!!h.tracked.waSent?'sent-row':'unsent-row')+'"><div class="track-top"><span class="track-name">'+h.name+'</span>'+(h.sender==='Elnur'?'<span class="chip chip-e">E</span>':'<span class="chip chip-a">A</span>')+(h.hasParty?'<span class="chip chip-type">Party</span>':'')+'<span class="chip chip-lang">'+h.ll+'</span></div><div class="pip-row">'+bPip(h,i,'linkCopied','Link')+bPip(h,i,'msgCopied','Copied')+bPip(h,i,'waSent','Sent')+'</div><div class="track-footer"><span class="track-url">'+h.url+'</span><div class="track-acts"><button class="t-act resend" data-i="'+i+'">Resend</button><button class="t-act del" data-i="'+i+'">✕</button></div></div></div>';}).join('');}
+  function getRsvpPill(name){
+    try{
+      var cached=JSON.parse(localStorage.getItem('rsvpLastData'));
+      if(!cached||!Array.isArray(cached.rsvpRows)) return '';
+      var n=name.trim().toLowerCase();
+      var match=cached.rsvpRows.find(function(r){
+        return (r['Full Name']||r['name']||'').trim().toLowerCase()===n;
+      });
+      if(!match) return '';
+      var att=(match['Ceremony Attendance']||match['attendance']||'').toString().toLowerCase();
+      var isYes=att&&att!=='no'&&att!=='declined'&&att!=='';
+      var isNo=att==='no'||att==='declined';
+      if(isYes) return '<span style="background:#d4f5e2;color:#1a7a4a;border-radius:100px;padding:2px 8px;font-size:8px;font-weight:800;letter-spacing:.06em;flex-shrink:0">RSVP ✓</span>';
+      if(isNo)  return '<span style="background:#b91c1c;color:#fff;border-radius:100px;padding:2px 8px;font-size:8px;font-weight:800;letter-spacing:.06em;flex-shrink:0">RSVP ✗</span>';
+      return '<span style="background:var(--cream2);color:var(--muted);border-radius:100px;padding:2px 8px;font-size:8px;font-weight:700;letter-spacing:.06em;flex-shrink:0">RSVP ?</span>';
+    }catch(e){ return ''; }
+  }
+  function bGroup(items){return items.map(function(h){var i=mem.indexOf(h);return'<div class="track-card '+(!!h.tracked.waSent?'sent-row':'unsent-row')+'"><div class="track-top"><span class="track-name">'+h.name+'</span>'+getRsvpPill(h.name)+(h.sender==='Elnur'?'<span class="chip chip-e">E</span>':'<span class="chip chip-a">A</span>')+(h.hasParty?'<span class="chip chip-type">Party</span>':'')+'<span class="chip chip-lang">'+h.ll+'</span></div><div class="pip-row">'+bPip(h,i,'linkCopied','Link')+bPip(h,i,'msgCopied','Copied')+bPip(h,i,'waSent','Sent')+'</div><div class="track-footer"><span class="track-url">'+h.url+'</span><div class="track-acts"><button class="t-act resend" data-i="'+i+'">Resend</button><button class="t-act del" data-i="'+i+'">✕</button></div></div></div>';}).join('');}
   var html='';
   if(unsent.length)html+='<div class="g-group-hdr">Pending ('+unsent.length+')</div>'+bGroup(unsent);
   if(sent.length)html+='<div class="g-group-hdr sent">Sent ('+sent.length+')</div>'+bGroup(sent);
@@ -3497,7 +3547,7 @@ function showChatNotif(who, text){
     '@keyframes cnFadeIn{from{opacity:0}to{opacity:1}}</style>' +
     '<div id="chatNotifBg" style="position:absolute;inset:0;background:rgba(253,248,243,.65);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)"></div>' +
     '<div style="position:relative;background:#fff;border-radius:20px;padding:24px 28px;max-width:320px;width:88vw;box-shadow:0 12px 48px rgba(0,0,0,.14);text-align:center;font-family:var(--sans)">' +
-      '<img src="https://www.arinaelnur.de/' + who.toLowerCase() + '.jpg" style="width:56px;height:56px;border-radius:50%;object-fit:cover;margin-bottom:12px;display:block;margin-left:auto;margin-right:auto" onerror="this.style.display=\'none\'">' +
+      '<img src="https://www.arinaelnur.de/img/' + who.toLowerCase() + '.jpg" style="width:56px;height:56px;border-radius:50%;object-fit:cover;margin-bottom:12px;display:block;margin-left:auto;margin-right:auto" onerror="this.style.display=\'none\'">' +
       '<div style="font-size:13px;font-weight:700;color:var(--ink2);margin-bottom:6px">' + who + '</div>' +
       '<div style="font-size:15px;color:var(--ink1);line-height:1.45;word-break:break-word">' + text.slice(0,120) + (text.length>120?'…':'') + '</div>' +
       '<div style="margin-top:16px;display:flex;gap:10px;justify-content:center">' +
@@ -3794,16 +3844,39 @@ function showChatNotif(who, text){
     function entryHtml(r){
       var name = r['Full Name'] || r['First Name'] || r.name || '—';
       var date = fmtDate(r['Date & Time'] || r.timestamp || '');
-      var rawDump = Object.keys(r).map(function(k){ return k + '=' + JSON.stringify(r[k]); }).join(' | ');
+      // Skip empty/zero/header-only fields and render nicely
+      var skipKeys = {'Date & Time': 1, 'First Name': 1, 'Last Name': 1};
+      var yesNoKeys = {'Ceremony Attendance':1,'Evening Attendance':1,'Invited to Party':1,'Join Bring & Share':1};
+      var rawDump = Object.keys(r).filter(function(k){
+        if(skipKeys[k]) return false;
+        var v = (r[k] === null || r[k] === undefined) ? '' : String(r[k]).trim();
+        return v !== '' && v !== '0';
+      }).map(function(k){
+        var v = (r[k] === null || r[k] === undefined) ? '' : String(r[k]).trim();
+        var isYes = /^yes$/i.test(v);
+        var isNo  = /^no$/i.test(v);
+        var valHtml;
+        if(isYes){
+          valHtml = '<span style="background:#d4f5e2;color:#1a7a4a;border-radius:100px;padding:1px 7px;font-size:8px;font-weight:800;letter-spacing:.04em">YES</span>';
+        } else if(isNo){
+          valHtml = '<span style="background:#b91c1c;color:#fff;border-radius:100px;padding:1px 7px;font-size:8px;font-weight:800;letter-spacing:.04em">NO</span>';
+        } else {
+          valHtml = '<span style="color:var(--ink2);font-weight:600;word-break:break-word;white-space:normal;display:block;text-align:right">' + v + '</span>';
+        }
+        return '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;padding:3px 0;border-bottom:1px solid var(--parchment);flex-wrap:wrap">'
+          + '<span style="color:var(--soft);font-size:9px">' + k + '</span>'
+          + valHtml
+          + '</div>';
+      }).join('');
       var id = 'rdet' + (++entryCounter);
       var att = isAttending(r);
       var borderColor = att === true ? '#1a7a4a' : att === false ? '#b91c1c' : 'var(--parchment)';
       var pillHtml = att === true
         ? '<span style="background:#d4f5e2;color:#1a7a4a;border-radius:100px;padding:2px 9px;font-size:9px;font-weight:800;letter-spacing:.04em;flex-shrink:0">YES</span>'
         : att === false
-        ? '<span style="background:#fde8e8;color:#b91c1c;border-radius:100px;padding:2px 9px;font-size:9px;font-weight:800;letter-spacing:.04em;flex-shrink:0">NO</span>'
+        ? '<span style="background:#b91c1c;color:#fff;border-radius:100px;padding:2px 9px;font-size:9px;font-weight:800;letter-spacing:.04em;flex-shrink:0">NO</span>'
         : '';
-      return '<div class="rsvp-entry" data-name="' + name.toLowerCase().replace(/"/g,'') + '" style="border-left:3px solid ' + borderColor + ';padding-left:8px;margin-bottom:4px;border-radius:0 6px 6px 0">'        + '<div class="rsvp-row-top" data-det="' + id + '" style="display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;padding:6px 2px">'        + '<div style="flex:1;min-width:0"><div class="rsvp-entry-name" style="font-weight:600">' + name + '</div>'        + (date ? '<div class="rsvp-entry-meta" style="font-size:10px;color:var(--soft)">' + date + '</div>' : '') + '</div>'        + pillHtml        + '<span class="det-chev" style="font-size:8px;color:var(--soft);transition:transform .2s;flex-shrink:0;margin-left:4px">&#9660;</span>'        + '</div>'        + '<div id="' + id + '" style="display:none;margin-top:4px;padding:6px 4px 8px;border-top:1px solid var(--parchment);font-size:9px;color:var(--soft);word-break:break-all;line-height:1.7">' + rawDump + '</div>'        + '</div>';
+      return '<div class="rsvp-entry" data-name="' + name.toLowerCase().replace(/"/g,'') + '" style="border-left:3px solid ' + borderColor + ';padding-left:8px;margin-bottom:4px;border-radius:0 6px 6px 0">'        + '<div class="rsvp-row-top" data-det="' + id + '" style="display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;padding:6px 2px">'        + '<div style="flex:1;min-width:0"><div class="rsvp-entry-name" style="font-weight:600">' + name + '</div>'        + (date ? '<div class="rsvp-entry-meta" style="font-size:10px;color:var(--soft)">' + date + '</div>' : '') + '</div>'        + pillHtml        + '<span class="det-chev" style="font-size:8px;color:var(--soft);transition:transform .2s;flex-shrink:0;margin-left:4px">&#9660;</span>'        + '</div>'        + '<div id="' + id + '" style="display:none;margin-top:6px;padding:6px 4px 8px;border-top:1px solid var(--parchment);font-size:9px;line-height:1.7">' + rawDump + '</div>'        + '</div>';
     }
 
     var reversed = rows.slice().reverse();
@@ -3834,7 +3907,7 @@ function showChatNotif(who, text){
       var yn = countYesNo(items);
       var yesNoHtml = items.length
         ? (yn.yes ? '<span style="background:var(--green-bg);color:var(--green);border-radius:100px;padding:1px 7px;font-size:9px;font-weight:700">' + yn.yes + ' yes</span>' : '')
-          + (yn.no  ? '<span style="background:var(--red-bg,#fde8e8);color:var(--red,#b91c1c);border-radius:100px;padding:1px 7px;font-size:9px;font-weight:700">' + yn.no + ' no</span>' : '')
+          + (yn.no  ? '<span style="background:#b91c1c;color:#fff;border-radius:100px;padding:1px 7px;font-size:9px;font-weight:700">' + yn.no + ' no</span>' : '')
         : '';
       var entriesHtml = items.length
         ? items.map(entryHtml).join('')
@@ -3918,6 +3991,8 @@ function showChatNotif(who, text){
 
       // Cache data for drawer
       try{ localStorage.setItem(DATA_KEY, JSON.stringify(data)); } catch(e){}
+      // Re-render tracker so RSVP pills appear
+      if(typeof renderTracker === "function") renderTracker();
 
       // Notify on change
       if(count === null) return;
@@ -4022,18 +4097,18 @@ window.addEventListener('unhandledrejection', function(e){ e.preventDefault(); }
     var otherEl  = document.getElementById('presenceOther');
     if (who === 'Guest') {
       if (meEl)  { meEl.classList.add('is-guest'); meEl.title = 'You are in view only mode'; }
-      if (meImg) { meImg.src = 'https://www.arinaelnur.de/arina.jpg'; meImg.onerror = function(){ this.src='elnur.jpg'; }; meImg.alt = 'Guest'; }
+      if (meImg) { meImg.src = 'https://www.arinaelnur.de/img/arina.jpg'; meImg.onerror = function(){ this.src='img/elnur.jpg'; }; meImg.alt = 'Guest'; }
       if (otherEl) { otherEl.style.display = 'none'; }
     } else {
       if (meEl)    { meEl.classList.remove("is-guest"); meEl.title = who + " — tap for settings"; }
-      if (meImg)   { meImg.src = "https://www.arinaelnur.de/" + who.toLowerCase() + ".jpg?v=2"; meImg.alt = who; }
+      if (meImg)   { meImg.src = "https://www.arinaelnur.de/img/" + who.toLowerCase() + ".jpg?v=2"; meImg.alt = who; }
       if (otherImg){
         var other = otherName();
         var fb = document.getElementById("presenceOtherFallback");
         otherImg.style.display = "";
         otherImg.alt = other;
         if (fb) { fb.textContent = other.charAt(0).toUpperCase(); }
-        otherImg.src = "https://www.arinaelnur.de/" + other.toLowerCase() + ".jpg?v=2";
+        otherImg.src = "https://www.arinaelnur.de/img/" + other.toLowerCase() + ".jpg?v=2";
       }
       if (otherEl) { otherEl.style.display = ""; }
     }
@@ -4182,7 +4257,7 @@ window.addEventListener('unhandledrejection', function(e){ e.preventDefault(); }
   function openChat(){
     chatOpen = true;
     var other = otherPerson();
-    headImg.src = 'https://www.arinaelnur.de/' + other.toLowerCase() + '.jpg';
+    headImg.src = 'https://www.arinaelnur.de/img/' + other.toLowerCase() + '.jpg';
     headImg.alt = other;
     headName.textContent = other;
     // reflect current online status
