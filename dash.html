@@ -2423,14 +2423,12 @@ function doGroupSend(guests,phone,msgLang){
   showPhoneConfirm(ownerName,ownerPhone,function(){
     window.open(waUrl,'_blank');
   });
-  // Tag each guest with their partner AND a shared sentGroupId so sent view can pair them
-  if(guests.length>1){
-    var groupId=Date.now().toString(36);
-    guests[0].bulkWith=guests[1].name;guests[1].bulkWith=guests[0].name;
-    guests[0].sentGroupId=groupId;guests[1].sentGroupId=groupId;
-  }
+  // Note: previously this tagged guests with a shared bulkWith/sentGroupId so the
+  // Sent list would merge them into one combined card. That merged card never showed
+  // RSVP-status tags, so group-sent guests lost their colored RSVP indicator. Now we
+  // leave guests untagged so each one always renders as its own separate sent entry
+  // with its own working RSVP tag.
   guests.forEach(function(g){g.pendingSent=true;g.followup=true;});selectedIdxs=[];saveGuestMeta();renderGuestList();renderDashboard();
-  if(guests.length>1){guests.forEach(function(g){_pushWithRetry('/meta',{name:g.name,bulkWith:g.bulkWith,sentGroupId:g.sentGroupId},'meta:'+g.name);});}
 }
 
 /* ══ FAB + QUICK SEND ════════════════════════ */
