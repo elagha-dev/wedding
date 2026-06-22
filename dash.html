@@ -3807,13 +3807,13 @@ function showChatNotif(who, text){
         var isNo  = /^no$/i.test(v);
         var valHtml;
         if(isYes){
-          valHtml = '<span style="background:#d4f5e2;color:#1a7a4a;border-radius:100px;padding:1px 7px;font-size:8px;font-weight:800;letter-spacing:.04em">YES</span>';
+          valHtml = '<span style="background:#1a7a4a;color:#fff;border-radius:100px;padding:1px 7px;font-size:8px;font-weight:800;letter-spacing:.04em">YES</span>';
         } else if(isNo){
           valHtml = '<span style="background:#b91c1c;color:#fff;border-radius:100px;padding:1px 7px;font-size:8px;font-weight:800;letter-spacing:.04em">NO</span>';
         } else {
-          valHtml = '<span style="color:var(--ink2);font-weight:600">' + v + '</span>';
+          valHtml = '<span style="color:var(--ink2);font-weight:600;word-break:break-word;white-space:normal;display:block;text-align:right">' + v + '</span>';
         }
-        return '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:3px 0;border-bottom:1px solid var(--parchment)">'
+        return '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;padding:3px 0;border-bottom:1px solid var(--parchment);flex-wrap:wrap">'
           + '<span style="color:var(--soft);font-size:9px">' + k + '</span>'
           + valHtml
           + '</div>';
@@ -3822,7 +3822,7 @@ function showChatNotif(who, text){
       var att = isAttending(r);
       var borderColor = att === true ? '#1a7a4a' : att === false ? '#b91c1c' : 'var(--parchment)';
       var pillHtml = att === true
-        ? '<span style="background:#d4f5e2;color:#1a7a4a;border-radius:100px;padding:2px 9px;font-size:9px;font-weight:800;letter-spacing:.04em;flex-shrink:0">YES</span>'
+        ? '<span style="background:#1a7a4a;color:#fff;border-radius:100px;padding:2px 9px;font-size:9px;font-weight:800;letter-spacing:.04em;flex-shrink:0">YES</span>'
         : att === false
         ? '<span style="background:#b91c1c;color:#fff;border-radius:100px;padding:2px 9px;font-size:9px;font-weight:800;letter-spacing:.04em;flex-shrink:0">NO</span>'
         : '';
