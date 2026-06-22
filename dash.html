@@ -251,7 +251,6 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-card:not(.swiping):hover{box-shadow:none}
 .g-swipe-wrap:has(.g-card.sel){box-shadow:0 0 0 3px rgba(201,135,106,.18)}
 .g-swipe-wrap:has(.g-card.fup){box-shadow:inset 3px 0 0 var(--amber),var(--shadow-sm)}
-.g-swipe-wrap:has(.g-card.sent){box-shadow:inset 3px 0 0 var(--green)}
 .g-swipe-wrap:has(.g-card.sent) .g-card{background:#fafafa}
 .g-swipe-wrap.rsvp-yes{box-shadow:inset 3px 0 0 #3A8C5C!important}
 .g-swipe-wrap.rsvp-yes .g-card.sent{background:#1a7a4a!important}
@@ -1367,7 +1366,7 @@ var sessionSender='Arina'; // active session
 var todayCount=0; // sent this session
 // Unique per-tab ID so the poller can ignore events this tab generated
 var deviceId=(function(){try{var d=sessionStorage.getItem('ww_device');if(!d){d=Math.random().toString(36).slice(2)+Date.now().toString(36);sessionStorage.setItem('ww_device',d);}return d;}catch(e){return Math.random().toString(36).slice(2);}})();
-var showSent=false; // collapse sent guests
+var showSent=true; // collapse sent guests
 
 /* ══ CLAIM LOCKS ══════════════════════════════ */
 var claims={}; // {guestName: 'Arina'|'Elnur'}
