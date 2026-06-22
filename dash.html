@@ -646,7 +646,7 @@ body.lite-mode #liteModeTopBtn {
 
 
 /* sync prompt popup — shown for all users until first sync */
-#guestSyncBanner{display:none;position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(10px);z-index:400;background:var(--ink2);color:#fff;font-family:var(--sans);font-size:12px;font-weight:500;padding:10px 14px 10px 16px;border-radius:var(--r-pill);box-shadow:0 8px 30px rgba(0,0,0,.22);align-items:center;gap:10px;white-space:nowrap;opacity:0;transition:opacity .25s,transform .25s}
+#guestSyncBanner{display:none;position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-10px);z-index:400;background:transparent;padding:0;border-radius:0;box-shadow:none;align-items:center;opacity:0;transition:opacity .25s,transform .25s}
 #guestSyncBanner.visible{display:flex;opacity:1;transform:translateX(-50%) translateY(0)}
 .s-btn-small{font-family:var(--sans);font-size:11px;font-weight:700;padding:6px 14px;border-radius:var(--r-pill);border:1.5px solid var(--parchment);background:var(--cream2);color:var(--ink);cursor:pointer}
 
@@ -799,9 +799,7 @@ body.lite-mode #liteModeTopBtn {
 
 <!-- GUEST SYNC BANNER -->
 <div id="guestSyncBanner">
-  <span style="flex-shrink:0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></span>
-  <span style="color:rgba(255,255,255,.8)">Tap sync to load the list</span>
-  <button id="guestSyncNowBtn" style="background:rgba(255,255,255,.18);border:1.5px solid rgba(255,255,255,.3);color:#fff;border-radius:var(--r-pill);padding:4px 13px;font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0;letter-spacing:.04em;transition:background .15s" onmouseover="this.style.background='rgba(255,255,255,.28)'" onmouseout="this.style.background='rgba(255,255,255,.18)'">Sync now</button>
+  <button id="guestSyncNowBtn" style="display:inline-flex;align-items:center;gap:7px;background:#C9702A;border:none;color:#fff;border-radius:var(--r-pill);padding:8px 16px;font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0;letter-spacing:.04em;box-shadow:0 4px 16px rgba(0,0,0,.2);transition:background .15s" onmouseover="this.style.background='#8B4A12'" onmouseout="this.style.background='#C9702A'"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>Sync now</button>
 </div>
 <script>
 (function(){
@@ -3807,7 +3805,7 @@ function showChatNotif(who, text){
         var isNo  = /^no$/i.test(v);
         var valHtml;
         if(isYes){
-          valHtml = '<span style="background:#1a7a4a;color:#fff;border-radius:100px;padding:1px 7px;font-size:8px;font-weight:800;letter-spacing:.04em">YES</span>';
+          valHtml = '<span style="background:#d4f5e2;color:#1a7a4a;border-radius:100px;padding:1px 7px;font-size:8px;font-weight:800;letter-spacing:.04em">YES</span>';
         } else if(isNo){
           valHtml = '<span style="background:#b91c1c;color:#fff;border-radius:100px;padding:1px 7px;font-size:8px;font-weight:800;letter-spacing:.04em">NO</span>';
         } else {
@@ -3822,7 +3820,7 @@ function showChatNotif(who, text){
       var att = isAttending(r);
       var borderColor = att === true ? '#1a7a4a' : att === false ? '#b91c1c' : 'var(--parchment)';
       var pillHtml = att === true
-        ? '<span style="background:#1a7a4a;color:#fff;border-radius:100px;padding:2px 9px;font-size:9px;font-weight:800;letter-spacing:.04em;flex-shrink:0">YES</span>'
+        ? '<span style="background:#d4f5e2;color:#1a7a4a;border-radius:100px;padding:2px 9px;font-size:9px;font-weight:800;letter-spacing:.04em;flex-shrink:0">YES</span>'
         : att === false
         ? '<span style="background:#b91c1c;color:#fff;border-radius:100px;padding:2px 9px;font-size:9px;font-weight:800;letter-spacing:.04em;flex-shrink:0">NO</span>'
         : '';
