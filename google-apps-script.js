@@ -34,7 +34,7 @@ function doPost(e) {
       rsvpSheet.appendRow([
         "Date & Time","First Name","Last Name","Full Name",
         "Email","Phone","Invited to Party","Ceremony Attendance","Evening Attendance",
-        "Guests Attending","Children","Total Seats","Join Bring & Share"
+        "Guests Attending","Children","Total Seats","Join Bring & Share","Decline Note"
       ]);
     }
 
@@ -125,7 +125,8 @@ function doPost(e) {
         data.guests_attending || "0",
         data.children         || "0",
         data.seats            || "0",
-        data.join_bring_share || ""
+        data.join_bring_share || "",
+        data.decline_note     || ""
       ]);
     }
 
@@ -145,7 +146,7 @@ function setupSheets() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
 
   var sheets = [
-    { name: RSVP_SHEET_NAME, headers: ["Date & Time","First Name","Last Name","Full Name","Email","Phone","Invited to Party","Ceremony Attendance","Evening Attendance","Guests Attending","Children","Total Seats","Join Bring & Share"] },
+    { name: RSVP_SHEET_NAME, headers: ["Date & Time","First Name","Last Name","Full Name","Email","Phone","Invited to Party","Ceremony Attendance","Evening Attendance","Guests Attending","Children","Total Seats","Join Bring & Share","Decline Note"] },
     { name: PARTY_SHEET_NAME, headers: ["Date & Time","Name","Party Attending","Dietary","Notes","Coming by Car"] },
     { name: BRING_SHARE_SHEET_NAME, headers: ["Date & Time","Name","Contact","What","Portions","Food Type","Allergens"] },
     { name: GUEST_NOTES_SHEET_NAME, headers: ["Guest Name", "Note", "Updated At", "Updated By"] }

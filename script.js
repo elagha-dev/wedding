@@ -524,6 +524,8 @@ var attendYesBtn  = document.getElementById("attendYes");
 var attendNoBtn   = document.getElementById("attendNo");
 var partyYesBtn   = document.getElementById("partyYesBtn");
 var partyNoBtn    = document.getElementById("partyNoBtn");
+var declineNoteRow = document.getElementById("declineNoteRow");
+var declineMessage = document.getElementById("declineMessage");
 
 /* ── Global state ─────────────────────────────────────────── */
 var __guests    = [];
@@ -572,6 +574,9 @@ function onAttendanceChange() {
   if (!anyAttending) setChildrenCount(0);
   /* Decline note only when not attending anything, and only once a choice has been made */
   var choiceMade = (attendanceSelect && attendanceSelect.value !== "");
+  var fullDecline = choiceMade && !anyAttending;
+  if (declineNoteRow) declineNoteRow.style.display = fullDecline ? "" : "none";
+  if (!fullDecline && declineMessage) declineMessage.value = "";
   recalcSeats();
   updateSelectionSummary();
 }
@@ -918,7 +923,8 @@ if (wSubmit) wSubmit.addEventListener("click", async function() {
     guests_attending:    guestNames,
     children:            anyAttending   ? String(getChildrenCount()) : "0",
     seats:               anyAttending   ? String(__seatCount) : "0",
-    join_bring_share:    attending && bringShareCheckbox && bringShareCheckbox.classList.contains('is-active') ? "Yes" : "No"
+    join_bring_share:    attending && bringShareCheckbox && bringShareCheckbox.classList.contains('is-active') ? "Yes" : "No",
+    decline_note:        anyAttending ? "" : ((declineMessage && declineMessage.value) || "")
   };
 
   try {
