@@ -779,11 +779,15 @@
     .decline-note-btn:disabled { background: rgba(49,39,28,.25); cursor: default; }
     .decline-note-status {
       margin-top: 10px;
+      margin-bottom: 0;
       font-family: WeddingSerif, Georgia, serif;
       font-size: 10.5px;
       color: rgba(49,39,28,.5);
       line-height: 1.5;
+      text-align: center;
+      min-height: 0;
     }
+    .decline-note-status:empty { display: none; }
   </style>
 
   <style id="lang-switcher-css">
