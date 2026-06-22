@@ -1900,46 +1900,9 @@ function renderGuestList(){
   // filled in, but two sent guests sharing a surname are reliably a couple.
   if(sentGuests.length){
     if(showSent){
-      var renderedNames={};
-      var sentOrdered=[];
-      sentGuests.forEach(function(g){
-        if(renderedNames[g.name])return;
-        renderedNames[g.name]=true;
-        var grp=g.group||'';
-        var partner=null;
-        if(grp){
-          // only pair when exactly 2 sent guests share this group — 3+ (e.g. a
-          // family with kids) stays as individual cards rather than forcing a pair
-          var sameGroup=sentGuests.filter(function(h){return (h.group||'')===grp;});
-          if(sameGroup.length===2){
-            partner=sameGroup.find(function(h){return h.name!==g.name&&!renderedNames[h.name];})||null;
-          }
-        }
-        if(!partner){
-          var ln=lastNameForPairing(g.name);
-          if(ln){
-            var sameLast=sentGuests.filter(function(h){return !h.isChild&&lastNameForPairing(h.name).toLowerCase()===ln.toLowerCase();});
-            if(sameLast.length===2){
-              partner=sameLast.find(function(h){return h.name!==g.name&&!renderedNames[h.name];})||null;
-            }
-          }
-        }
-        if(partner){
-          renderedNames[partner.name]=true;
-          sentOrdered.push({type:'pair',guests:[g,partner]});
-          return;
-        }
-        sentOrdered.push({type:'single',guest:g});
-      });
-
+      // Sent guests render individually — no grouping
       html+='<div class="g-group-hdr sent">Sent ('+sentGuests.length+')</div>';
-      sentOrdered.forEach(function(item){
-        if(item.type==='pair'){
-          html+=buildPairSentCard(item.guests[0],item.guests[1]);
-        } else {
-          html+=buildGuestCard(item.guest);
-        }
-      });
+      sentGuests.forEach(function(g){html+=buildGuestCard(g);});
       html+='<button class="show-sent-btn" id="showSentBtn">Hide sent</button>';
     } else {
       html+='<button class="show-sent-btn" id="showSentBtn">Show '+sentGuests.length+' sent</button>';
