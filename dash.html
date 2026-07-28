@@ -2016,15 +2016,21 @@ function getGuestRsvpInfo(name, isCouple, knownPartnerName){
     var match=null;
 
     /* Loose "shared first name" matching strategies (S2-S4) stay available to every
-       guest, solo or coupled. But a solo guest (not part of a couple/household invite,
-       and whose own name isn't a combined "A & B") is only allowed to loosely match a
-       row that is ALSO a solo submission (no "&" in that row's Full Name). Otherwise a
-       solo guest with a common first name (e.g. "Jan Eisleben") could wrongly match an
-       unrelated couple's submission (e.g. "Jan & Elli") just because they share "Jan"
-       — even though that guest never responded at all. */
-    var isSoloGuest = !isCouple && name.indexOf('&')===-1;
+       guest, solo or coupled — including solo-type guests who are really invited as
+       part of a couple via bulkWith (e.g. two separate "single" entries like
+       "Jacqueline Kirillov" + "Phillip Kirillov" sent together), since those need to
+       match a joint household row like "Jacqueline & Phillip Kirillov" too. The
+       downstream partner-name check (below) already guards against a false match in
+       that case, by requiring the known partner's first name to actually appear in
+       the matched row.
+       The only guests who must NOT loosely match a household ("&") row are truly solo
+       guests with no known partner at all (isCouple false, name has no "&", and no
+       knownPartnerName) — otherwise a solo guest with a common first name (e.g. "Jan
+       Eisleben") could wrongly match an unrelated couple's submission (e.g. "Jan &
+       Elli") just because they share "Jan", with nothing downstream to catch it. */
+    var isTrulySolo = !isCouple && name.indexOf('&')===-1 && !knownPartnerName;
     function rowOk(r){
-      if(!isSoloGuest) return true;
+      if(!isTrulySolo) return true;
       return normN(r['Full Name']||r['name']||'').indexOf('&')===-1;
     }
 
