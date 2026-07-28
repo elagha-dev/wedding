@@ -2051,6 +2051,19 @@ function getGuestRsvpInfo(name){
       });
     }
 
+    /* Individual guest lookup against a couple/household row: the household said "yes"
+       overall, but only some of the invited people are actually attending (per
+       "Guests Attending"). Narrow this specific person's status accordingly instead of
+       inheriting the whole household's yes. */
+    var rowFullName=(match['Full Name']||match['name']||'').toString();
+    var isHouseholdRow=rowFullName.indexOf('&')!==-1 && name.indexOf('&')===-1;
+    if(isYes && isHouseholdRow && gaStr){
+      var myGaToks=toks(gaStr);
+      var thisPersonAttending=myFNs.length>0 && myFNs.some(function(fn){ return myGaToks.indexOf(fn)!==-1; });
+      isYes=thisPersonAttending;
+      isNo=!thisPersonAttending;
+    }
+
     return {isYes:isYes,isNo:isNo,matched:true,persons:persons,guestsAttending:gaStr,row:match};
   }catch(e){ return null; }
 }
@@ -3110,21 +3123,7 @@ function renderTracker(){
   sumEl.innerHTML='<div class="track-sum"><div class="ts-cell s"><div class="ts-n">'+sent.length+'</div><div class="ts-l">Sent</div></div><div class="ts-cell u"><div class="ts-n">'+unsent.length+'</div><div class="ts-l">Pending</div></div><div class="ts-cell"><div class="ts-n">'+filtered.length+'</div><div class="ts-l">Total</div></div></div><div class="prog-sm"><div class="prog-sm-fill" style="width:'+pct+'%"></div></div>';
   function bPip(h,i,k,label){var done=!!(h.tracked||{})[k];return'<div class="pip'+(done?' done':'')+'" data-i="'+i+'" data-k="'+k+'"><span class="pip-lbl">'+label+'</span><span class="pip-time">'+(done?h.tracked[k]:'—')+'</span></div>';}
   function getRsvpPill(name){
-    try{
-      var cached=JSON.parse(localStorage.getItem('rsvpLastData'));
-      if(!cached||!Array.isArray(cached.rsvpRows)) return '';
-      var n=name.trim().toLowerCase();
-      var match=cached.rsvpRows.find(function(r){
-        return (r['Full Name']||r['name']||'').trim().toLowerCase()===n;
-      });
-      if(!match) return '';
-      var att=(match['Ceremony Attendance']||match['attendance']||'').toString().toLowerCase();
-      var isYes=att&&att!=='no'&&att!=='declined'&&att!=='';
-      var isNo=att==='no'||att==='declined';
-      if(isYes) return '<span style="background:#d4f5e2;color:#1a7a4a;border-radius:100px;padding:2px 8px;font-size:8px;font-weight:800;letter-spacing:.06em;flex-shrink:0">RSVP ✓</span>';
-      if(isNo)  return '<span style="background:#b91c1c;color:#fff;border-radius:100px;padding:2px 8px;font-size:8px;font-weight:800;letter-spacing:.06em;flex-shrink:0">RSVP ✗</span>';
-      return '<span style="background:var(--cream2);color:var(--muted);border-radius:100px;padding:2px 8px;font-size:8px;font-weight:700;letter-spacing:.06em;flex-shrink:0">RSVP ?</span>';
-    }catch(e){ return ''; }
+    try{ return getGuestRsvpPill(name); }catch(e){ return ''; }
   }
   function bGroup(items){return items.map(function(h){var i=mem.indexOf(h);return'<div class="track-card '+(!!h.tracked.waSent?'sent-row':'unsent-row')+'"><div class="track-top"><span class="track-name">'+h.name+'</span>'+getRsvpPill(h.name)+(h.sender==='Elnur'?'<span class="chip chip-e">e</span>':'<span class="chip chip-a">a</span>')+(h.hasParty?'<span class="chip chip-type">Party</span>':'')+'<span class="chip chip-lang">'+h.ll+'</span></div><div class="pip-row">'+bPip(h,i,'linkCopied','Link')+bPip(h,i,'msgCopied','Copied')+bPip(h,i,'waSent','Sent')+'</div><div class="track-footer"><span class="track-url">'+h.url+'</span><div class="track-acts"><button class="t-act resend" data-i="'+i+'">Resend</button><button class="t-act del" data-i="'+i+'">✕</button></div></div></div>';}).join('');}
   var html='';
@@ -4050,12 +4049,20 @@ function showChatNotif(who, text){
       return {yes: yes, no: no, seats: seats};
     }
 
+    // Minimal number-only stat chip. bg/color set the look; no label text unless label is passed.
+    function statChip(bg, color, val, label){
+      return '<span style="background:' + bg + ';color:' + color + ';border-radius:100px;min-width:18px;height:18px;padding:0 6px;font-size:10px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1">'
+        + (label ? '<span style="font-size:8px;font-weight:700;opacity:.75;margin-right:3px">' + label + '</span>' : '')
+        + val + '</span>';
+    }
+
     function sectionHtml(id, label, items, badgeBg, badgeColor, topPad){
       var yn = countYesNo(items);
       var yesNoHtml = items.length
-        ? (yn.yes ? '<span style="background:var(--green-bg);color:var(--green);border-radius:100px;padding:1px 7px;font-size:9px;font-weight:700">' + yn.yes + ' yes</span>' : '')
-          + (yn.no  ? '<span style="background:#b91c1c;color:#fff;border-radius:100px;padding:1px 7px;font-size:9px;font-weight:700">' + yn.no + ' no</span>' : '')
-          + (yn.seats ? '<span style="background:var(--amber-bg);color:var(--amber);border-radius:100px;padding:1px 7px;font-size:9px;font-weight:700">' + yn.seats + ' seats</span>' : '')
+        ? statChip('var(--cream2)', 'var(--muted)', items.length)
+          + (yn.yes ? statChip('var(--green-bg)', 'var(--green)', yn.yes) : '')
+          + (yn.no  ? statChip('#fde3e3', '#b91c1c', yn.no) : '')
+          + (yn.seats ? statChip('var(--amber-bg)', 'var(--amber)', yn.seats, 'S') : '')
         : '';
       var entriesHtml = items.length
         ? items.map(entryHtml).join('')
@@ -4064,22 +4071,26 @@ function showChatNotif(who, text){
         + '<div class="rsvp-sec-hdr" data-sec="' + id + '" style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:' + (topPad||'4px') + ' 2px 8px;display:flex;align-items:center;gap:5px;cursor:pointer;user-select:none">'
         + '<span style="flex-shrink:0">' + label + '</span>'
         + '<span style="flex:1;height:1px;background:var(--parchment);display:inline-block;min-width:8px"></span>'
-        + yesNoHtml
-        + '<span style="background:' + badgeBg + ';color:' + badgeColor + ';border-radius:100px;padding:1px 8px;font-size:9px;font-weight:700;flex-shrink:0">' + items.length + '</span>'
-        + '<span class="rsvp-chev" style="font-size:8px;color:var(--soft);transition:transform .2s;display:inline-block;line-height:1;flex-shrink:0">&#9650;</span>'
+        + '<span style="display:flex;align-items:center;gap:3px;flex-shrink:0">' + yesNoHtml + '</span>'
+        + '<span class="rsvp-chev" style="font-size:8px;color:var(--soft);transition:transform .2s;display:inline-block;line-height:1;flex-shrink:0;margin-left:2px">&#9650;</span>'
         + '</div>'
         + '<div class="rsvp-sec-body" id="rsvp-sec-' + id + '">' + entriesHtml + '</div>'
         + '</div>';
     }
 
-    var totalHtml = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--parchment)">'
-      + '<div style="position:relative;flex:1">'
+    var seatsTotal = rows.reduce(function(sum, r){ return sum + (isAttending(r) === true ? getSeats(r) : 0); }, 0);
+    var yn0 = countYesNo(rows);
+    var totalHtml = '<div style="margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--parchment)">'
+      + '<div style="position:relative;margin-bottom:8px">'
       + '<svg style="position:absolute;left:9px;top:50%;transform:translateY(-50%);pointer-events:none" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--soft)" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>'
-      + '<input id="rsvpSearchInput" type="text" placeholder="Search…" style="width:100%;font-family:var(--sans);font-size:12px;padding:7px 10px 7px 28px;background:var(--cream2);border:1.5px solid var(--parchment);border-radius:100px;color:var(--ink);outline:none">'
+      + '<input id="rsvpSearchInput" type="text" placeholder="Search…" style="width:100%;font-family:var(--sans);font-size:12px;padding:7px 10px 7px 28px;background:var(--cream2);border:1.5px solid var(--parchment);border-radius:100px;color:var(--ink);outline:none;box-sizing:border-box">'
       + '</div>'
-      + '<span style="font-size:10px;font-weight:700;color:var(--muted);white-space:nowrap;flex-shrink:0">' + rows.length + ' submissions</span>'
-      + '<span style="font-size:10px;font-weight:800;color:var(--amber);white-space:nowrap;flex-shrink:0;background:var(--amber-bg);padding:2px 8px;border-radius:100px">'
-      +   rows.reduce(function(sum, r){ return sum + (isAttending(r) === true ? getSeats(r) : 0); }, 0) + ' seats</span>'
+      + '<div style="display:flex;align-items:center;justify-content:flex-end;gap:5px">'
+      + statChip('var(--cream2)', 'var(--muted)', rows.length)
+      + statChip('var(--green-bg)', 'var(--green)', yn0.yes)
+      + statChip('#fde3e3', '#b91c1c', yn0.no)
+      + statChip('var(--amber-bg)', 'var(--amber)', seatsTotal, 'S')
+      + '</div>'
       + '</div>';
 
     var html = totalHtml;
