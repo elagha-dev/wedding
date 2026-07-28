@@ -241,6 +241,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-group-hdr::after{content:'';flex:1;height:1px;background:var(--parchment)}
 .guest-list{padding-top:2px;margin-top:0}
 .g-group-hdr.sent{color:var(--green)}
+.g-group-hdr.sent-with-stats::after{content:none}
 .g-group-hdr.g-group-sub{font-size:8px;opacity:.6;padding:4px 2px 3px;margin-top:2px}
 
 /* Swipe wrapper — no overflow:hidden so action panels peek out from behind sliding card */
@@ -1908,7 +1909,11 @@ function renderGuestList(){
         sentOrdered.push({type:'single',guest:g});
       });
 
-      html+='<div class="g-group-hdr sent">Sent ('+sentGuests.length+')</div>';
+      var sentYes=sentGuests.filter(function(g){return getGuestRsvpYesNo(g)===true;}).length;
+      var sentNo=sentGuests.filter(function(g){return getGuestRsvpYesNo(g)===false;}).length;
+      html+='<div class="g-group-hdr sent sent-with-stats"><span style="flex-shrink:0">Sent ('+sentGuests.length+')</span>'
+        + '<span style="flex:1;height:1px;background:var(--parchment);display:inline-block;min-width:8px"></span>'
+        + entriesCluster(sentGuests.length, sentYes, sentNo) + '</div>';
       sentOrdered.forEach(function(item){
         if(item.type==='pair'){
           html+=buildPairSentCard(item.guests[0],item.guests[1]);
@@ -1984,7 +1989,7 @@ function buildPairSentCard(g1,g2){
   +'</div>';
 }
 
-function getGuestRsvpInfo(name){
+function getGuestRsvpInfo(name, isCouple, knownPartnerName){
   try{
     var cached=JSON.parse(localStorage.getItem('rsvpLastData'));
     if(!cached||!Array.isArray(cached.rsvpRows)) return null;
@@ -2010,17 +2015,25 @@ function getGuestRsvpInfo(name){
     var myLN=lastNm(name);
     var match=null;
 
+    /* Only allow the loose "shared first name" matching strategies (S2-S4) when this
+       guest is actually part of a couple/household invite, or the name we're looking
+       up is itself a combined "A & B" name. Otherwise a solo guest with a common first
+       name (e.g. "Jan Eisleben") can wrongly match an unrelated couple's submission
+       (e.g. "Jan & Elli") just because they share "Jan" — even though that guest never
+       responded at all. */
+    var allowLooseMatch = !!isCouple || name.indexOf('&')!==-1;
+
     /* S1 — exact Full Name */
     match=rows.find(function(r){ return normN(r['Full Name']||r['name']||'')===n; });
 
     /* S2 — RSVP Full Name tokens contain all my first names */
-    if(!match) match=rows.find(function(r){
+    if(!match && allowLooseMatch) match=rows.find(function(r){
       var rt=toks(normN(r['Full Name']||r['name']||''));
       return myFNs.length>0&&myFNs.every(function(fn){return rt.indexOf(fn)!==-1;});
     });
 
     /* S3 — shared last name + at least one shared first name (dedup "Jan") */
-    if(!match&&myLN){
+    if(!match&&myLN&&allowLooseMatch){
       var cands=rows.filter(function(r){ return normN(r['Full Name']||r['name']||'').indexOf(myLN)!==-1; });
       if(cands.length===1) match=cands[0];
       else if(cands.length>1) match=cands.find(function(r){
@@ -2030,12 +2043,28 @@ function getGuestRsvpInfo(name){
     }
 
     /* S4 — my first name appears in Guests Attending of any row */
-    if(!match) match=rows.find(function(r){
+    if(!match && allowLooseMatch) match=rows.find(function(r){
       var ga=toks(normN(r['Guests Attending']||r['guests_attending']||''));
       return ga.length>0&&myFNs.some(function(fn){return ga.indexOf(fn)!==-1;});
     });
 
     if(!match) return null;
+
+    /* Guard against a false-positive match: a loose strategy above may have
+       matched a household row just because one first name happens to be
+       shared (e.g. two different guests both named "Jan"). If we know who
+       this guest was actually invited with (their real partner), require
+       that partner's first name to actually show up in the matched row —
+       otherwise this is the wrong household and this guest has no real
+       RSVP on file yet. */
+    var matchFullName=(match['Full Name']||match['name']||'').toString();
+    if(matchFullName.indexOf('&')!==-1 && knownPartnerName){
+      var partnerFN=firstNms(knownPartnerName)[0]||'';
+      var matchTokens=toks(normN(matchFullName));
+      if(partnerFN && matchTokens.indexOf(partnerFN)===-1){
+        return null;
+      }
+    }
 
     var att=(match['Ceremony Attendance']||match['attendance']||'').toString().toLowerCase();
     var isYes=att&&att!=='no'&&att!=='declined'&&att!=='';
@@ -2068,20 +2097,53 @@ function getGuestRsvpInfo(name){
   }catch(e){ return null; }
 }
 
-function getGuestRsvpPill(name){
-  var info=getGuestRsvpInfo(name);
+function getGuestRsvpPill(name, isCouple, knownPartnerName){
+  var info=getGuestRsvpInfo(name, isCouple, knownPartnerName);
   if(!info) return '';
-  /* For couples: show per-person mini tags */
+  /* For couples: show per-person mini tags — color (not a symbol) carries yes/no */
   if(info.persons&&info.persons.length>1){
     return info.persons.map(function(p){
       return p.coming
-        ?'<span style="background:#d4f5e2;color:#1a7a4a;border-radius:100px;padding:2px 7px;font-size:8px;font-weight:800;letter-spacing:.06em;flex-shrink:0">'+p.name+' ✓</span>'
-        :'<span style="background:#fde8e8;color:#b91c1c;border-radius:100px;padding:2px 7px;font-size:8px;font-weight:800;letter-spacing:.06em;flex-shrink:0">'+p.name+' ✗</span>';
+        ?'<span style="background:#d4f5e2;color:#1a7a4a;border-radius:100px;padding:2px 8px;font-size:8px;font-weight:800;letter-spacing:.06em;flex-shrink:0">'+p.name+'</span>'
+        :'<span style="background:#fde8e8;color:#b91c1c;border-radius:100px;padding:2px 8px;font-size:8px;font-weight:800;letter-spacing:.06em;flex-shrink:0">'+p.name+'</span>';
     }).join('');
   }
-  if(info.isYes) return '<span style="background:#d4f5e2;color:#1a7a4a;border-radius:100px;padding:2px 8px;font-size:8px;font-weight:800;letter-spacing:.06em;flex-shrink:0">RSVP ✓</span>';
-  if(info.isNo)  return '<span style="background:#fde8e8;color:#b91c1c;border-radius:100px;padding:2px 8px;font-size:8px;font-weight:800;letter-spacing:.06em;flex-shrink:0">RSVP ✗</span>';
+  if(info.isYes) return '<span style="background:#d4f5e2;color:#1a7a4a;border-radius:100px;padding:2px 9px;font-size:8px;font-weight:800;letter-spacing:.06em;flex-shrink:0">RSVP</span>';
+  if(info.isNo)  return '<span style="background:#fde8e8;color:#b91c1c;border-radius:100px;padding:2px 9px;font-size:8px;font-weight:800;letter-spacing:.06em;flex-shrink:0">RSVP</span>';
   return '<span style="background:var(--cream2);color:var(--muted);border-radius:100px;padding:2px 8px;font-size:8px;font-weight:700;letter-spacing:.06em;flex-shrink:0">RSVP ?</span>';
+}
+
+// Segmented capsule: total / yes / no fused into ONE pill with thin dividers,
+// so it visually reads as "this many response entries" as a single unit.
+// Shared by the RSVP Responses drawer and the guest list's Sent header.
+function entriesCluster(total, yes, no){
+  function seg(val, color){
+    return '<span style="padding:0 7px;color:' + color + ';font-weight:800">' + val + '</span>';
+  }
+  var divider='<span style="width:1px;align-self:stretch;background:rgba(0,0,0,.08);flex-shrink:0"></span>';
+  var inner = seg(total, 'var(--muted)');
+  if(yes){ inner += divider + seg(yes, 'var(--green)'); }
+  if(no){  inner += divider + seg(no, '#b91c1c'); }
+  return '<span style="display:inline-flex;align-items:center;height:20px;background:var(--cream2);border:1px solid var(--parchment);border-radius:100px;font-size:10px;flex-shrink:0;overflow:hidden">'
+    + inner + '</span>';
+}
+
+// Seats badge: kept visually separate (extra gap + distinct amber pill + chair
+// icon) so it doesn't blend into the entries capsule — this is the "real
+// headcount" number, not a submission count.
+function seatsBadge(seats){
+  if(!seats) return '';
+  return '<span style="display:inline-flex;align-items:center;gap:3px;height:20px;background:var(--amber-bg);color:var(--amber);border-radius:100px;padding:0 8px;font-size:11px;font-weight:800;flex-shrink:0;margin-left:6px">'
+    + '<span style="font-size:10px;line-height:1">&#129681;</span>' + seats + '</span>';
+}
+
+// Individual guest's own yes/no (already narrowed to that specific person by
+// getGuestRsvpInfo's household logic), for tallying up e.g. the Sent section.
+function getGuestRsvpYesNo(g){
+  var isCoupleGuest=g.type==='couple-ceremony'||g.type==='couple-party';
+  var info=getGuestRsvpInfo(g.name, isCoupleGuest, g.bulkWith);
+  if(!info) return null;
+  return info.isYes ? true : (info.isNo ? false : null);
 }
 
 function buildGuestCard(g){
@@ -2105,8 +2167,9 @@ function buildGuestCard(g){
   // Sent cards: slim — name, time, RSVP pill, undo button
   if(g.sent){
     var senderChipSent=g.sender?('<span class="g-sender-br '+(g.sender==='Arina'?'a':'e')+'">'+(g.sender==='Arina'?'a':'e')+'</span>'):''
-    var rsvpInfo=getGuestRsvpInfo(g.name);
-    var rsvpPillSent=getGuestRsvpPill(g.name);
+    var isCoupleGuest=g.type==='couple-ceremony'||g.type==='couple-party';
+    var rsvpInfo=getGuestRsvpInfo(g.name, isCoupleGuest, g.bulkWith);
+    var rsvpPillSent=getGuestRsvpPill(g.name, isCoupleGuest, g.bulkWith);
     /* Determine card background class.
        For couples: if some coming and some not → rsvp-partial (amber).
        For single: yes→green, no→red */
@@ -3122,10 +3185,10 @@ function renderTracker(){
   var pct=filtered.length?Math.round(sent.length/filtered.length*100):0;
   sumEl.innerHTML='<div class="track-sum"><div class="ts-cell s"><div class="ts-n">'+sent.length+'</div><div class="ts-l">Sent</div></div><div class="ts-cell u"><div class="ts-n">'+unsent.length+'</div><div class="ts-l">Pending</div></div><div class="ts-cell"><div class="ts-n">'+filtered.length+'</div><div class="ts-l">Total</div></div></div><div class="prog-sm"><div class="prog-sm-fill" style="width:'+pct+'%"></div></div>';
   function bPip(h,i,k,label){var done=!!(h.tracked||{})[k];return'<div class="pip'+(done?' done':'')+'" data-i="'+i+'" data-k="'+k+'"><span class="pip-lbl">'+label+'</span><span class="pip-time">'+(done?h.tracked[k]:'—')+'</span></div>';}
-  function getRsvpPill(name){
-    try{ return getGuestRsvpPill(name); }catch(e){ return ''; }
+  function getRsvpPill(name, isCouple){
+    try{ return getGuestRsvpPill(name, isCouple); }catch(e){ return ''; }
   }
-  function bGroup(items){return items.map(function(h){var i=mem.indexOf(h);return'<div class="track-card '+(!!h.tracked.waSent?'sent-row':'unsent-row')+'"><div class="track-top"><span class="track-name">'+h.name+'</span>'+getRsvpPill(h.name)+(h.sender==='Elnur'?'<span class="chip chip-e">e</span>':'<span class="chip chip-a">a</span>')+(h.hasParty?'<span class="chip chip-type">Party</span>':'')+'<span class="chip chip-lang">'+h.ll+'</span></div><div class="pip-row">'+bPip(h,i,'linkCopied','Link')+bPip(h,i,'msgCopied','Copied')+bPip(h,i,'waSent','Sent')+'</div><div class="track-footer"><span class="track-url">'+h.url+'</span><div class="track-acts"><button class="t-act resend" data-i="'+i+'">Resend</button><button class="t-act del" data-i="'+i+'">✕</button></div></div></div>';}).join('');}
+  function bGroup(items){return items.map(function(h){var i=mem.indexOf(h);return'<div class="track-card '+(!!h.tracked.waSent?'sent-row':'unsent-row')+'"><div class="track-top"><span class="track-name">'+h.name+'</span>'+getRsvpPill(h.name, h.isCouple)+(h.sender==='Elnur'?'<span class="chip chip-e">e</span>':'<span class="chip chip-a">a</span>')+(h.hasParty?'<span class="chip chip-type">Party</span>':'')+'<span class="chip chip-lang">'+h.ll+'</span></div><div class="pip-row">'+bPip(h,i,'linkCopied','Link')+bPip(h,i,'msgCopied','Copied')+bPip(h,i,'waSent','Sent')+'</div><div class="track-footer"><span class="track-url">'+h.url+'</span><div class="track-acts"><button class="t-act resend" data-i="'+i+'">Resend</button><button class="t-act del" data-i="'+i+'">✕</button></div></div></div>';}).join('');}
   var html='';
   if(unsent.length)html+='<div class="g-group-hdr">Pending ('+unsent.length+')</div>'+bGroup(unsent);
   if(sent.length)html+='<div class="g-group-hdr sent">Sent ('+sent.length+')</div>'+bGroup(sent);
@@ -4049,20 +4112,13 @@ function showChatNotif(who, text){
       return {yes: yes, no: no, seats: seats};
     }
 
-    // Minimal number-only stat chip. bg/color set the look; no label text unless label is passed.
-    function statChip(bg, color, val, label){
-      return '<span style="background:' + bg + ';color:' + color + ';border-radius:100px;min-width:18px;height:18px;padding:0 6px;font-size:10px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1">'
-        + (label ? '<span style="font-size:8px;font-weight:700;opacity:.75;margin-right:3px">' + label + '</span>' : '')
-        + val + '</span>';
-    }
+    // entriesCluster() and seatsBadge() are defined globally (shared with the
+    // guest list's Sent header) — see above.
 
     function sectionHtml(id, label, items, badgeBg, badgeColor, topPad){
       var yn = countYesNo(items);
       var yesNoHtml = items.length
-        ? statChip('var(--cream2)', 'var(--muted)', items.length)
-          + (yn.yes ? statChip('var(--green-bg)', 'var(--green)', yn.yes) : '')
-          + (yn.no  ? statChip('#fde3e3', '#b91c1c', yn.no) : '')
-          + (yn.seats ? statChip('var(--amber-bg)', 'var(--amber)', yn.seats, 'S') : '')
+        ? entriesCluster(items.length, yn.yes, yn.no) + seatsBadge(yn.seats)
         : '';
       var entriesHtml = items.length
         ? items.map(entryHtml).join('')
@@ -4071,8 +4127,8 @@ function showChatNotif(who, text){
         + '<div class="rsvp-sec-hdr" data-sec="' + id + '" style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:' + (topPad||'4px') + ' 2px 8px;display:flex;align-items:center;gap:5px;cursor:pointer;user-select:none">'
         + '<span style="flex-shrink:0">' + label + '</span>'
         + '<span style="flex:1;height:1px;background:var(--parchment);display:inline-block;min-width:8px"></span>'
-        + '<span style="display:flex;align-items:center;gap:3px;flex-shrink:0">' + yesNoHtml + '</span>'
-        + '<span class="rsvp-chev" style="font-size:8px;color:var(--soft);transition:transform .2s;display:inline-block;line-height:1;flex-shrink:0;margin-left:2px">&#9650;</span>'
+        + '<span style="display:flex;align-items:center;flex-shrink:0">' + yesNoHtml + '</span>'
+        + '<span class="rsvp-chev" style="font-size:8px;color:var(--soft);transition:transform .2s;display:inline-block;line-height:1;flex-shrink:0;margin-left:5px">&#9650;</span>'
         + '</div>'
         + '<div class="rsvp-sec-body" id="rsvp-sec-' + id + '">' + entriesHtml + '</div>'
         + '</div>';
@@ -4085,11 +4141,9 @@ function showChatNotif(who, text){
       + '<svg style="position:absolute;left:9px;top:50%;transform:translateY(-50%);pointer-events:none" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--soft)" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>'
       + '<input id="rsvpSearchInput" type="text" placeholder="Search…" style="width:100%;font-family:var(--sans);font-size:12px;padding:7px 10px 7px 28px;background:var(--cream2);border:1.5px solid var(--parchment);border-radius:100px;color:var(--ink);outline:none;box-sizing:border-box">'
       + '</div>'
-      + '<div style="display:flex;align-items:center;justify-content:flex-end;gap:5px">'
-      + statChip('var(--cream2)', 'var(--muted)', rows.length)
-      + statChip('var(--green-bg)', 'var(--green)', yn0.yes)
-      + statChip('#fde3e3', '#b91c1c', yn0.no)
-      + statChip('var(--amber-bg)', 'var(--amber)', seatsTotal, 'S')
+      + '<div style="display:flex;align-items:center;justify-content:flex-end">'
+      + entriesCluster(rows.length, yn0.yes, yn0.no)
+      + seatsBadge(seatsTotal)
       + '</div>'
       + '</div>';
 
