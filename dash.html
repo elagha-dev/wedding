@@ -2113,18 +2113,17 @@ function getGuestRsvpPill(name, isCouple, knownPartnerName){
   return '<span style="background:var(--cream2);color:var(--muted);border-radius:100px;padding:2px 8px;font-size:8px;font-weight:700;letter-spacing:.06em;flex-shrink:0">RSVP ?</span>';
 }
 
-// Segmented capsule: total / yes / no fused into ONE pill with thin dividers,
-// so it visually reads as "this many response entries" as a single unit.
+// Segmented capsule: total / yes / no fused into ONE pill, each as its own
+// solid-color block (not just tinted text) so they're readable at a glance.
 // Shared by the RSVP Responses drawer and the guest list's Sent header.
 function entriesCluster(total, yes, no){
-  function seg(val, color){
-    return '<span style="padding:0 7px;color:' + color + ';font-weight:800">' + val + '</span>';
+  function seg(val, bg, color){
+    return '<span style="padding:0 8px;height:100%;display:flex;align-items:center;background:' + bg + ';color:' + color + ';font-weight:800">' + val + '</span>';
   }
-  var divider='<span style="width:1px;align-self:stretch;background:rgba(0,0,0,.08);flex-shrink:0"></span>';
-  var inner = seg(total, 'var(--muted)');
-  if(yes){ inner += divider + seg(yes, 'var(--green)'); }
-  if(no){  inner += divider + seg(no, '#b91c1c'); }
-  return '<span style="display:inline-flex;align-items:center;height:20px;background:var(--cream2);border:1px solid var(--parchment);border-radius:100px;font-size:10px;flex-shrink:0;overflow:hidden">'
+  var inner = seg(total, 'var(--cream2)', 'var(--muted)');
+  if(yes){ inner += seg(yes, '#d4f5e2', '#1a7a4a'); }
+  if(no){  inner += seg(no, '#fde3e3', '#b91c1c'); }
+  return '<span style="display:inline-flex;align-items:stretch;height:20px;border:1px solid var(--parchment);border-radius:100px;font-size:10px;flex-shrink:0;overflow:hidden">'
     + inner + '</span>';
 }
 
@@ -4115,11 +4114,11 @@ function showChatNotif(who, text){
     // entriesCluster() and seatsBadge() are defined globally (shared with the
     // guest list's Sent header) — see above.
 
-    function sectionHtml(id, label, items, badgeBg, badgeColor, topPad){
+    function sectionHtml(id, label, items, badgeBg, badgeColor, topPad, showStats){
       var yn = countYesNo(items);
-      var yesNoHtml = items.length
+      var yesNoHtml = (items.length && showStats)
         ? entriesCluster(items.length, yn.yes, yn.no) + seatsBadge(yn.seats)
-        : '';
+        : (items.length ? '<span style="font-size:9px;font-weight:700;color:var(--muted)">' + items.length + '</span>' : '');
       var entriesHtml = items.length
         ? items.map(entryHtml).join('')
         : '<div class="rsvp-empty" style="padding:12px 8px;font-size:12px">None yet</div>';
@@ -4147,11 +4146,14 @@ function showChatNotif(who, text){
       + '</div>'
       + '</div>';
 
+    var populatedCount = [withVenue, churchOnly, uncategorised].filter(function(arr){ return arr.length > 0; }).length;
+    var showSectionStats = populatedCount > 1;
+
     var html = totalHtml;
-    if(withVenue.length)      html += sectionHtml('venue',  'Church &amp; Party', withVenue,      'var(--green-bg)', 'var(--green)', '4px');
-    if(churchOnly.length)     html += sectionHtml('church', 'Church Only',        churchOnly,     'var(--amber-bg)', 'var(--amber)', '12px');
+    if(withVenue.length)      html += sectionHtml('venue',  'Church &amp; Party', withVenue,      'var(--green-bg)', 'var(--green)', '4px', showSectionStats);
+    if(churchOnly.length)     html += sectionHtml('church', 'Church Only',        churchOnly,     'var(--amber-bg)', 'var(--amber)', '12px', showSectionStats);
     if(uncategorised.length){
-      html += sectionHtml('other', 'Other', uncategorised, 'var(--cream2)', 'var(--muted)', '12px');
+      html += sectionHtml('other', 'Other', uncategorised, 'var(--cream2)', 'var(--muted)', '12px', showSectionStats);
     }
 
     body.innerHTML = html;
