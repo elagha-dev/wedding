@@ -2063,6 +2063,30 @@ function getGuestRsvpInfo(name, isCouple, knownPartnerName){
       return ga.length>0&&myFNs.some(function(fn){return ga.indexOf(fn)!==-1;});
     });
 
+    /* S5 — surname-confirmed household row. Many joint RSVP submissions come
+       back as first-names-only, e.g. "Philipp & Ines" with no surname on the
+       row at all, so S3's shared-last-name check has nothing in the row text
+       to match against and never fires. But the guest list itself already
+       knows Philipp and Ines share the surname "Ziegler" — so if every OTHER
+       first name in a household row belongs to a guest sharing THIS guest's
+       own surname, that's strong enough confirmation to treat it as a match. */
+    if(!match&&myLN){
+      match=rows.find(function(r){
+        var rn=normN(r['Full Name']||r['name']||'');
+        if(rn.indexOf('&')===-1) return false;
+        var rowTokens=toks(rn).filter(function(t){return t!=='&';});
+        if(myFNs.length===0||rowTokens.indexOf(myFNs[0])===-1) return false;
+        return rowTokens.every(function(t){
+          if(t===myFNs[0]) return true;
+          return importQueue.some(function(o){
+            return o.name!==name && !o.isChild
+              && lastName(o.name).toLowerCase()===myLN
+              && firstNms(o.name).indexOf(t)!==-1;
+          });
+        });
+      })||null;
+    }
+
     if(!match) return null;
 
     /* Guard against a false-positive match: a loose strategy above may have
@@ -2160,9 +2184,21 @@ function seatsBadge(seats){
 // bulkWith is empty, so it can only add matches, never change existing ones.
 function inferPartnerName(g){
   if(g.bulkWith) return g.bulkWith;
-  if(!g.group) return '';
-  var mates=importQueue.filter(function(o){ return o!==g && !o.isChild && (o.group||'')===g.group; });
-  return mates.length===1 ? mates[0].name : '';
+  if(g.group){
+    var mates=importQueue.filter(function(o){ return o!==g && !o.isChild && (o.group||'')===g.group; });
+    if(mates.length===1) return mates[0].name;
+  }
+  // Group fallback fails for large shared groups (e.g. "Adults church" has 50+
+  // people), so as a further fallback, check the guest list itself for exactly
+  // one other (non-child) guest sharing this guest's surname — that's a much
+  // more specific signal than group membership and works even when bulkWith
+  // was never recorded (e.g. guests sent individually rather than in bulk).
+  var gLN=lastName(g.name);
+  if(gLN){
+    var sameLN=importQueue.filter(function(o){ return o!==g && !o.isChild && lastName(o.name)&&lastName(o.name).toLowerCase()===gLN.toLowerCase(); });
+    if(sameLN.length===1) return sameLN[0].name;
+  }
+  return '';
 }
 
 // TEMPORARY DIAGNOSTIC — explains why a guest has no RSVP match, purely for
