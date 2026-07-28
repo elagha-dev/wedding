@@ -4037,10 +4037,17 @@ function showChatNotif(who, text){
     var categorised = withVenue.concat(churchOnly);
     var uncategorised = reversed.filter(function(r){ return categorised.indexOf(r) === -1; });
 
+    function getSeats(r){
+      var v = r['Total Seats'] !== undefined ? r['Total Seats'] : r['seats'];
+      var n = parseInt(v, 10);
+      return isNaN(n) ? 0 : n;
+    }
+
     function countYesNo(arr){
       var yes = arr.filter(function(r){ return isAttending(r) === true; }).length;
       var no  = arr.filter(function(r){ return isAttending(r) === false; }).length;
-      return {yes: yes, no: no};
+      var seats = arr.reduce(function(sum, r){ return sum + (isAttending(r) === true ? getSeats(r) : 0); }, 0);
+      return {yes: yes, no: no, seats: seats};
     }
 
     function sectionHtml(id, label, items, badgeBg, badgeColor, topPad){
@@ -4048,6 +4055,7 @@ function showChatNotif(who, text){
       var yesNoHtml = items.length
         ? (yn.yes ? '<span style="background:var(--green-bg);color:var(--green);border-radius:100px;padding:1px 7px;font-size:9px;font-weight:700">' + yn.yes + ' yes</span>' : '')
           + (yn.no  ? '<span style="background:#b91c1c;color:#fff;border-radius:100px;padding:1px 7px;font-size:9px;font-weight:700">' + yn.no + ' no</span>' : '')
+          + (yn.seats ? '<span style="background:var(--amber-bg);color:var(--amber);border-radius:100px;padding:1px 7px;font-size:9px;font-weight:700">' + yn.seats + ' seats</span>' : '')
         : '';
       var entriesHtml = items.length
         ? items.map(entryHtml).join('')
@@ -4069,7 +4077,9 @@ function showChatNotif(who, text){
       + '<svg style="position:absolute;left:9px;top:50%;transform:translateY(-50%);pointer-events:none" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--soft)" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>'
       + '<input id="rsvpSearchInput" type="text" placeholder="Search…" style="width:100%;font-family:var(--sans);font-size:12px;padding:7px 10px 7px 28px;background:var(--cream2);border:1.5px solid var(--parchment);border-radius:100px;color:var(--ink);outline:none">'
       + '</div>'
-      + '<span style="font-size:10px;font-weight:700;color:var(--muted);white-space:nowrap;flex-shrink:0">' + rows.length + ' total</span>'
+      + '<span style="font-size:10px;font-weight:700;color:var(--muted);white-space:nowrap;flex-shrink:0">' + rows.length + ' submissions</span>'
+      + '<span style="font-size:10px;font-weight:800;color:var(--amber);white-space:nowrap;flex-shrink:0;background:var(--amber-bg);padding:2px 8px;border-radius:100px">'
+      +   rows.reduce(function(sum, r){ return sum + (isAttending(r) === true ? getSeats(r) : 0); }, 0) + ' seats</span>'
       + '</div>';
 
     var html = totalHtml;
