@@ -1913,7 +1913,7 @@ function renderGuestList(){
       var sentNo=sentGuests.filter(function(g){return getGuestRsvpYesNo(g)===false;}).length;
       html+='<div class="g-group-hdr sent sent-with-stats"><span style="flex-shrink:0">Sent ('+sentGuests.length+')</span>'
         + '<span style="flex:1;height:1px;background:var(--parchment);display:inline-block;min-width:8px"></span>'
-        + entriesCluster(sentGuests.length, sentYes, sentNo) + '</div>';
+        + entriesCluster(sentGuests.length, sentYes, sentNo, false) + '</div>';
       sentOrdered.forEach(function(item){
         if(item.type==='pair'){
           html+=buildPairSentCard(item.guests[0],item.guests[1]);
@@ -2155,11 +2155,12 @@ function getGuestRsvpPill(name, isCouple, knownPartnerName){
 // Segmented capsule: total / yes / no fused into ONE pill, each as its own
 // solid-color block (not just tinted text) so they're readable at a glance.
 // Shared by the RSVP Responses drawer and the guest list's Sent header.
-function entriesCluster(total, yes, no){
+function entriesCluster(total, yes, no, showTotal){
+  if(showTotal===undefined)showTotal=true;
   function seg(val, bg, color){
     return '<span style="padding:0 8px;height:100%;display:flex;align-items:center;background:' + bg + ';color:' + color + ';font-weight:800">' + val + '</span>';
   }
-  var inner = seg(total, 'var(--cream2)', 'var(--muted)');
+  var inner = showTotal ? seg(total, 'var(--cream2)', 'var(--muted)') : '';
   if(yes){ inner += seg(yes, '#d4f5e2', '#1a7a4a'); }
   if(no){  inner += seg(no, '#fde3e3', '#b91c1c'); }
   return '<span style="display:inline-flex;align-items:stretch;height:20px;border:1px solid var(--parchment);border-radius:100px;font-size:10px;flex-shrink:0;overflow:hidden">'
@@ -2204,6 +2205,17 @@ function inferPartnerName(g){
 // TEMPORARY DIAGNOSTIC — explains why a guest has no RSVP match, purely for
 // on-screen debugging. Doesn't affect matching at all, only what's displayed
 // under an unmatched guest's name so it can be screenshotted and checked.
+// Developer-only debug overlay. Off by default so guests/Arina never see raw
+// debug text; toggle from the browser console with toggleDevMode().
+var DEV_MODE=localStorage.getItem('dashDevMode')==='1';
+window.toggleDevMode=function(){
+  DEV_MODE=!DEV_MODE;
+  localStorage.setItem('dashDevMode',DEV_MODE?'1':'0');
+  console.log('Dev mode:',DEV_MODE?'ON':'OFF');
+  if(typeof renderGuestList==='function')renderGuestList();
+  return DEV_MODE;
+};
+
 function debugNoMatch(g, partnerName){
   try{
     var cached=JSON.parse(localStorage.getItem('rsvpLastData'));
@@ -2267,7 +2279,7 @@ function buildGuestCard(g){
         rsvpClass=rsvpInfo.isYes?' rsvp-yes':rsvpInfo.isNo?' rsvp-no':' rsvp-pending';
       }
     }
-    var debugTag=rsvpInfo?'':'<div style="font-size:9px;color:#b91c1c;opacity:.75;margin-top:2px;word-break:break-word">DEBUG: '+debugNoMatch(g, partnerName)+'</div>';
+    var debugTag=(DEV_MODE&&!rsvpInfo)?'<div style="font-size:9px;color:#b91c1c;opacity:.75;margin-top:2px;word-break:break-word">DEBUG: '+debugNoMatch(g, partnerName)+'</div>':'';
     /* Pills need flex-wrap so couple pills don't overflow */
     var pillWrap=rsvpPillSent?'<span style="display:flex;gap:3px;flex-wrap:wrap;align-items:center;margin-left:4px">'+rsvpPillSent+'</span>':''
     return '<div class="g-swipe-wrap'+rsvpClass+'" data-qi="'+ri+'">'
