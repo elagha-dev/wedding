@@ -2015,19 +2015,21 @@ function getGuestRsvpInfo(name, isCouple, knownPartnerName){
     var myLN=lastNm(name);
     var match=null;
 
-    /* Loose "shared first name" matching strategies (S2-S4) stay available to every
-       guest, solo or coupled — including solo-type guests who are really invited as
-       part of a couple via bulkWith (e.g. two separate "single" entries like
-       "Jacqueline Kirillov" + "Phillip Kirillov" sent together), since those need to
-       match a joint household row like "Jacqueline & Phillip Kirillov" too. The
-       downstream partner-name check (below) already guards against a false match in
-       that case, by requiring the known partner's first name to actually appear in
-       the matched row.
-       The only guests who must NOT loosely match a household ("&") row are truly solo
-       guests with no known partner at all (isCouple false, name has no "&", and no
-       knownPartnerName) — otherwise a solo guest with a common first name (e.g. "Jan
-       Eisleben") could wrongly match an unrelated couple's submission (e.g. "Jan &
-       Elli") just because they share "Jan", with nothing downstream to catch it. */
+    /* Loose matching strategies (S2-S4) stay available to every guest, solo or
+       coupled. S2 and S4 only check for a shared FIRST name, which is weak evidence
+       on its own — a solo guest with a common first name (e.g. "Jan Eisleben") could
+       wrongly match an unrelated couple's submission (e.g. "Jan & Elli") just because
+       they share "Jan". So S2/S4 are only allowed to match a household ("&") row when
+       we have real reason to believe this guest belongs to one: they're a couple-type
+       guest, their own name is itself "A & B", or we know their partner's name
+       (bulkWith) — in which case the downstream partner-name check (below) validates
+       the match for real.
+       S3 (shared LAST name) is much stronger evidence and was never the source of
+       that false-match problem, so it's allowed to match a household row for anyone —
+       this is exactly what lets a solo-invited half of a real couple (e.g. "Philipp
+       Ziegler", sent individually with no bulkWith link recorded) still match a joint
+       submission like "Ines & Philipp Ziegler" purely because they share the surname
+       "Ziegler". */
     var isTrulySolo = !isCouple && name.indexOf('&')===-1 && !knownPartnerName;
     function rowOk(r){
       if(!isTrulySolo) return true;
@@ -2046,7 +2048,7 @@ function getGuestRsvpInfo(name, isCouple, knownPartnerName){
 
     /* S3 — shared last name + at least one shared first name (dedup "Jan") */
     if(!match&&myLN){
-      var cands=rows.filter(function(r){ return rowOk(r) && normN(r['Full Name']||r['name']||'').indexOf(myLN)!==-1; });
+      var cands=rows.filter(function(r){ return normN(r['Full Name']||r['name']||'').indexOf(myLN)!==-1; });
       if(cands.length===1) match=cands[0];
       else if(cands.length>1) match=cands.find(function(r){
         var rt=toks(normN(r['Full Name']||r['name']||''));
