@@ -2015,26 +2015,32 @@ function getGuestRsvpInfo(name, isCouple, knownPartnerName){
     var myLN=lastNm(name);
     var match=null;
 
-    /* Only allow the loose "shared first name" matching strategies (S2-S4) when this
-       guest is actually part of a couple/household invite, or the name we're looking
-       up is itself a combined "A & B" name. Otherwise a solo guest with a common first
-       name (e.g. "Jan Eisleben") can wrongly match an unrelated couple's submission
-       (e.g. "Jan & Elli") just because they share "Jan" — even though that guest never
-       responded at all. */
-    var allowLooseMatch = !!isCouple || name.indexOf('&')!==-1;
+    /* Loose "shared first name" matching strategies (S2-S4) stay available to every
+       guest, solo or coupled. But a solo guest (not part of a couple/household invite,
+       and whose own name isn't a combined "A & B") is only allowed to loosely match a
+       row that is ALSO a solo submission (no "&" in that row's Full Name). Otherwise a
+       solo guest with a common first name (e.g. "Jan Eisleben") could wrongly match an
+       unrelated couple's submission (e.g. "Jan & Elli") just because they share "Jan"
+       — even though that guest never responded at all. */
+    var isSoloGuest = !isCouple && name.indexOf('&')===-1;
+    function rowOk(r){
+      if(!isSoloGuest) return true;
+      return normN(r['Full Name']||r['name']||'').indexOf('&')===-1;
+    }
 
     /* S1 — exact Full Name */
     match=rows.find(function(r){ return normN(r['Full Name']||r['name']||'')===n; });
 
     /* S2 — RSVP Full Name tokens contain all my first names */
-    if(!match && allowLooseMatch) match=rows.find(function(r){
+    if(!match) match=rows.find(function(r){
+      if(!rowOk(r)) return false;
       var rt=toks(normN(r['Full Name']||r['name']||''));
       return myFNs.length>0&&myFNs.every(function(fn){return rt.indexOf(fn)!==-1;});
     });
 
     /* S3 — shared last name + at least one shared first name (dedup "Jan") */
-    if(!match&&myLN&&allowLooseMatch){
-      var cands=rows.filter(function(r){ return normN(r['Full Name']||r['name']||'').indexOf(myLN)!==-1; });
+    if(!match&&myLN){
+      var cands=rows.filter(function(r){ return rowOk(r) && normN(r['Full Name']||r['name']||'').indexOf(myLN)!==-1; });
       if(cands.length===1) match=cands[0];
       else if(cands.length>1) match=cands.find(function(r){
         var rt=toks(normN(r['Full Name']||r['name']||''));
@@ -2043,7 +2049,8 @@ function getGuestRsvpInfo(name, isCouple, knownPartnerName){
     }
 
     /* S4 — my first name appears in Guests Attending of any row */
-    if(!match && allowLooseMatch) match=rows.find(function(r){
+    if(!match) match=rows.find(function(r){
+      if(!rowOk(r)) return false;
       var ga=toks(normN(r['Guests Attending']||r['guests_attending']||''));
       return ga.length>0&&myFNs.some(function(fn){return ga.indexOf(fn)!==-1;});
     });
