@@ -2151,11 +2151,25 @@ function seatsBadge(seats){
     + '<span style="font-size:10px;line-height:1">&#129681;</span>' + seats + '</span>';
 }
 
+// Best-known "partner name" for RSVP matching purposes. Prefers the explicit
+// bulkWith link (set when two guests are sent together), but that link can be
+// missing — e.g. if guests were added to the same group but the send action
+// didn't set it, or the value got lost some other way. As a fallback, if this
+// guest belongs to a named group/family with exactly one other (non-child)
+// member, treat that person as the known partner too. Only kicks in when
+// bulkWith is empty, so it can only add matches, never change existing ones.
+function inferPartnerName(g){
+  if(g.bulkWith) return g.bulkWith;
+  if(!g.group) return '';
+  var mates=importQueue.filter(function(o){ return o!==g && !o.isChild && (o.group||'')===g.group; });
+  return mates.length===1 ? mates[0].name : '';
+}
+
 // Individual guest's own yes/no (already narrowed to that specific person by
 // getGuestRsvpInfo's household logic), for tallying up e.g. the Sent section.
 function getGuestRsvpYesNo(g){
   var isCoupleGuest=g.type==='couple-ceremony'||g.type==='couple-party';
-  var info=getGuestRsvpInfo(g.name, isCoupleGuest, g.bulkWith);
+  var info=getGuestRsvpInfo(g.name, isCoupleGuest, inferPartnerName(g));
   if(!info) return null;
   return info.isYes ? true : (info.isNo ? false : null);
 }
@@ -2182,8 +2196,9 @@ function buildGuestCard(g){
   if(g.sent){
     var senderChipSent=g.sender?('<span class="g-sender-br '+(g.sender==='Arina'?'a':'e')+'">'+(g.sender==='Arina'?'a':'e')+'</span>'):''
     var isCoupleGuest=g.type==='couple-ceremony'||g.type==='couple-party';
-    var rsvpInfo=getGuestRsvpInfo(g.name, isCoupleGuest, g.bulkWith);
-    var rsvpPillSent=getGuestRsvpPill(g.name, isCoupleGuest, g.bulkWith);
+    var partnerName=inferPartnerName(g);
+    var rsvpInfo=getGuestRsvpInfo(g.name, isCoupleGuest, partnerName);
+    var rsvpPillSent=getGuestRsvpPill(g.name, isCoupleGuest, partnerName);
     /* Determine card background class.
        For couples: if some coming and some not → rsvp-partial (amber).
        For single: yes→green, no→red */
