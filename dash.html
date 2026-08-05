@@ -4099,6 +4099,26 @@ function showChatNotif(who, text){
     if(el) el.textContent = (n !== null && n !== undefined) ? n : '—';
   }
 
+  // Orange circle shows CONFIRMED SEATS (attending, not declined) — not raw
+  // submission count. Mirrors the isAttending/getSeats logic used in the drawer.
+  function isAttendingRow(r){
+    var ch = (r['Church'] || '').toString().trim().toLowerCase();
+    if(ch === 'yes' || ch === 'true' || ch === '1') return true;
+    if(ch === 'no' || ch === 'false' || ch === '0') return false;
+    var att = (r['Ceremony Attendance'] || r['Party Attending'] || r.attendance || '').toString().toLowerCase();
+    if(att.indexOf('no') !== -1 || att.indexOf('decline') !== -1) return false;
+    if(att === '') return null;
+    return true;
+  }
+  function getSeatsRow(r){
+    var v = r['Total Seats'] !== undefined ? r['Total Seats'] : r['seats'];
+    var n = parseInt(v, 10);
+    return isNaN(n) ? 0 : n;
+  }
+  function confirmedSeatsTotal(rows){
+    return (rows || []).reduce(function(sum, r){ return sum + (isAttendingRow(r) === true ? getSeatsRow(r) : 0); }, 0);
+  }
+
   // Show notification banner
   function showNotification(newCount, diff){
     var txt = document.getElementById('rsvpBannerText');
@@ -4117,7 +4137,7 @@ function showChatNotif(who, text){
     var rows = (data && Array.isArray(data.rsvpRows)) ? data.rsvpRows : [];
     var count = (data && data.rsvpCount != null) ? data.rsvpCount : rows.length;
     if(countEl) countEl.textContent = count;
-    updateCountBtn(count);
+    updateCountBtn(confirmedSeatsTotal(rows));
     if(!rows.length){
       body.innerHTML = '<div class="rsvp-empty">No responses yet.<br>Share your RSVP link to get started.</div>';
       return;
@@ -4300,9 +4320,10 @@ function showChatNotif(who, text){
     fetchStats().then(function(data){
       if(!data) return;
       var count = (data.rsvpCount !== undefined) ? parseInt(data.rsvpCount, 10) : null;
+      var seats = confirmedSeatsTotal(data.rsvpRows);
 
-      // Always update button
-      updateCountBtn(count);
+      // Always update button — shows confirmed seats, not raw submission count
+      updateCountBtn(seats);
 
       // Cache data for drawer
       try{ localStorage.setItem(DATA_KEY, JSON.stringify(data)); } catch(e){}
