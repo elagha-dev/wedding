@@ -373,19 +373,17 @@ function applyI18n() {
     var val = t(key);
     if (typeof val === 'string') el.placeholder = val;
   });
-  /* Ceremony attend label: default key is churchOnlyQuestion ("Will you be joining us?")
-     For party invites, swap to the full "💒 Church Ceremony · 16 Oct, 14:00" label. */
+  /* Ceremony attend label — now the same for every invite type (church-only
+     and venue/party invites both show the full "💒 Ceremony" wording). */
   var attendLabel = document.querySelector('.attend-field .attend-label [data-i18n]');
   if (attendLabel) {
-    attendLabel.textContent = __inviteParty ? t('ceremonyAttendLabel') : t('churchOnlyQuestion');
+    attendLabel.textContent = t('ceremonyAttendLabel');
   }
-  /* Attend Yes/No buttons — church row
-     HTML uses churchOnlyYesBtn/churchOnlyNoBtn keys by default.
-     For party invites, swap to the combined phrasing. */
+  /* Attend Yes/No buttons — church row. Same wording for all invite types. */
   var attendYesBtnSpan = document.querySelector('#attendYes [data-i18n]');
   var attendNoBtnSpan  = document.querySelector('#attendNo [data-i18n]');
-  if (attendYesBtnSpan) attendYesBtnSpan.textContent = __inviteParty ? t('attendingBtn') : t('churchOnlyYesBtn');
-  if (attendNoBtnSpan)  attendNoBtnSpan.textContent  = __inviteParty ? t('notAttendingBtn') : t('churchOnlyNoBtn');
+  if (attendYesBtnSpan) attendYesBtnSpan.textContent = t('attendingBtn');
+  if (attendNoBtnSpan)  attendNoBtnSpan.textContent  = t('notAttendingBtn');
   /* Party row: use separate party button labels for combined invites */
   var partyYesBtnSpan = document.querySelector('#partyYesBtn [data-i18n="attendingBtn"]');
   var partyNoBtnSpan  = document.querySelector('#partyNoBtn [data-i18n="notAttendingBtn"]');
@@ -748,6 +746,12 @@ function updateSelectionSummary() {
     ? activeNames.join(', ')
     : (!hasGuests && isAttending() && __guests.length > 0 ? __guests.join(', ') : '—');
   if (ppGuests) ppGuests.textContent = guestDisplay;
+
+  /* ── Evening reception row — only relevant for party invites ── */
+  var ppEveningRow = document.getElementById('ppEveningRow');
+  var ppEvening    = document.getElementById('ppEvening');
+  if (ppEveningRow) ppEveningRow.style.display = __inviteParty ? '' : 'none';
+  if (ppEvening)    ppEvening.textContent = isPartyAttending() ? 'Yes' : 'No';
 
   /* ── Submit button morphs like the prototype ── */
   if (wSubmit && hasGuests) {
