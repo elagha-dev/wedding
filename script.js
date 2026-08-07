@@ -2091,7 +2091,7 @@ function weScrollRsvpIntoView(target, topBufferPx) {
       '<div class="we-salut">' + salutation + '</div>' +
       '<div class="we-guestname">' + displayName + '</div>' +
       '<div class="we-seat-badge">♡ ' + seatsText + '</div>' +
-      '<div class="we-body">' + t('gateBody') + '</div>' +
+      '<div class="we-body">' + (hasParty ? t('gateBodyParty') : t('gateBody')) + '</div>' +
       '<div class="we-gate-note">' + t('gateNote') + '</div>' +
       '<button id="weGateCta">' + t('gateCtaBtn') + '</button>' +
       '<button id="weGateSkip">' + t('gateSkipBtn') + '</button>' +
