@@ -373,17 +373,18 @@ function applyI18n() {
     var val = t(key);
     if (typeof val === 'string') el.placeholder = val;
   });
-  /* Ceremony attend label — now the same for every invite type (church-only
-     and venue/party invites both show the full "💒 Ceremony" wording). */
+  /* Ceremony attend label — for party/venue invites (party=1), match the
+     reception field exactly (same label style + Attending/Not Attending
+     wording). Church-only invites keep their own simpler wording. */
   var attendLabel = document.querySelector('.attend-field .attend-label [data-i18n]');
   if (attendLabel) {
-    attendLabel.textContent = t('ceremonyAttendLabel');
+    attendLabel.textContent = __inviteParty ? t('ceremonyAttendLabel') : t('churchOnlyQuestion');
   }
-  /* Attend Yes/No buttons — church row. Same wording for all invite types. */
+  /* Attend Yes/No buttons — church row */
   var attendYesBtnSpan = document.querySelector('#attendYes [data-i18n]');
   var attendNoBtnSpan  = document.querySelector('#attendNo [data-i18n]');
-  if (attendYesBtnSpan) attendYesBtnSpan.textContent = t('attendingBtn');
-  if (attendNoBtnSpan)  attendNoBtnSpan.textContent  = t('notAttendingBtn');
+  if (attendYesBtnSpan) attendYesBtnSpan.textContent = __inviteParty ? t('attendingBtnParty') : t('churchOnlyYesBtn');
+  if (attendNoBtnSpan)  attendNoBtnSpan.textContent  = __inviteParty ? t('notAttendingBtnParty') : t('churchOnlyNoBtn');
   /* Party row: use separate party button labels for combined invites */
   var partyYesBtnSpan = document.querySelector('#partyYesBtn [data-i18n="attendingBtn"]');
   var partyNoBtnSpan  = document.querySelector('#partyNoBtn [data-i18n="notAttendingBtn"]');
@@ -542,6 +543,23 @@ function applyInviteTypeUI() {
   if (eveningAttendField) eveningAttendField.style.display = __inviteParty ? "" : "none";
 }
 
+/* ── Hide ceremony + reception toggles entirely once every guest in a
+   multi-guest invite has been marked "No" — nobody's left to attend
+   either event, so keep just the single decline state visible. ── */
+function syncFieldsForGuestDecline() {
+  var hasGuestToggles = guestChecksEl && guestChecksEl.querySelectorAll('.guest-toggle-btn').length > 0;
+  if (!hasGuestToggles) return; /* single-guest invites are unaffected */
+  var anyActive = guestChecksEl.querySelectorAll('.guest-toggle-btn.is-active').length > 0;
+  var churchAttendField = document.querySelector('.attend-field');
+  if (churchAttendField) churchAttendField.style.display = 'none'; /* already hidden for multi-guest — guest toggles are the mechanism */
+  if (eveningAttendField) {
+    eveningAttendField.style.display = (__inviteParty && anyActive) ? '' : 'none';
+  }
+  if (!anyActive && __inviteParty && isPartyAttending()) {
+    setPartyAttendance('No');
+  }
+}
+
 /* ── Attendance helpers ──────────────────────────────────── */
 function isAttending()      { return (attendanceSelect  ? attendanceSelect.value  : "")    === "Yes"; }
 function isPartyAttending() { return (partyAttendSelect ? partyAttendSelect.value : "No")  === "Yes"; }
@@ -682,6 +700,7 @@ function buildGuestChecks(guests) {
         var anyActive = guestChecksEl.querySelectorAll('.guest-toggle-btn.is-active').length > 0;
         setAttendance(anyActive ? 'Yes' : 'No');
       }
+      syncFieldsForGuestDecline();
       recalcSeats(); fillNameFromGuests(); updateSelectionSummary();
     }
 
@@ -709,8 +728,18 @@ function updateAttendanceLabel() {}
 /* ── Seat calculation ─────────────────────────────────────── */
 function recalcSeats() {
   if (__manualSeatOverride) return __seatCount;
-  var adults   = isAttending() ? checkedGuestCount() : (isPartyAttending() ? checkedGuestCount() : 0);
   var children = getChildrenCount();
+  var adults;
+  if (isPartyAttending()) {
+    /* Evening reception headcount is what matters most for planning.
+       Assume the whole invited group still comes to the evening even if
+       some (or all) of them skipped the ceremony checkbox. */
+    adults = __guests.length > 0 ? __guests.length : checkedGuestCount();
+  } else if (isAttending()) {
+    adults = checkedGuestCount();
+  } else {
+    adults = 0;
+  }
   var total    = Math.max(isAttending() || isPartyAttending() ? 1 : 0, adults + children);
   __seatCount = total;
   if (totalSeatsInput) totalSeatsInput.value = String(total);
@@ -913,10 +942,16 @@ if (wSubmit) wSubmit.addEventListener("click", async function() {
       }).join(", ")
     : (fn + " " + ln).trim();
 
-  /* If everyone was deselected (declining), still record who the
-     decline belongs to — fall back to the full guest list instead
-     of sending an empty string, so the sheet shows who can't make it. */
-  var guestNames = checkedGuestNames || __guests.join(", ") || (fn + " " + ln).trim();
+  /* Guests Attending should always match Total Seats:
+     - If the evening reception is a Yes, report the full invited group —
+       we assume everyone still shows up for the evening even if some
+       skipped the ceremony checkbox.
+     - Otherwise, fall back to whoever's checked for the ceremony, or (if
+       everyone declined) the full guest list, so the sheet still shows
+       who the decline belongs to instead of an empty string. */
+  var guestNames = partyAttending
+    ? (__guests.join(", ") || checkedGuestNames || (fn + " " + ln).trim())
+    : (checkedGuestNames || __guests.join(", ") || (fn + " " + ln).trim());
 
   var scriptUrl = window.__GOOGLE_SCRIPT_URL;
   if (!scriptUrl) {
@@ -1259,6 +1294,7 @@ if (bsSubmit) bsSubmit.addEventListener("click", async function() {
     if (churchAttendField) churchAttendField.style.display = 'none';
     /* Auto-set attendance to Yes since all guests are pre-selected */
     setAttendance('Yes');
+    syncFieldsForGuestDecline();
     /* Sync submit button and payload bar to initial state */
     updateSelectionSummary();
   }
