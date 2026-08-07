@@ -180,9 +180,9 @@ window.I18N = {
 
     /* ── Gift banner ── */
     giftBannerTitle  : "No wish list",
-    giftBannerBody   : "Honestly, having you there is already the best gift we could ask for. If you still feel like spoiling us a little, a contribution toward our new home or our honeymoon would mean so much.",
-    giftNoteCeremony : "There'll be a gift box waiting for you at the church. ♡",
-    giftNoteParty    : "There'll be a gift box waiting for you at the church, and another one at the venue in the evening. ♡",
+    giftBannerBody   : "You being there is honestly the gift. If you'd still like to give something, a contribution toward our new home or honeymoon would mean a lot to us.",
+    giftNoteCeremony : "🎁 Gift box at the church",
+    giftNoteParty    : "🎁 Gift box at the church & the venue",
     bringShareNudge  : "Bring & Share 🧁",
 
     /* ── Sticky banner ── */
@@ -191,8 +191,10 @@ window.I18N = {
     /* ── Soft Gate / Floating Card / Scroll Lock ── */
     gateSalutation   : "You are invited",
     gateSeatsText    : "Location: Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a>",
+    gateLocChurch    : "⛪ Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a>",
+    gateLocParty     : "🥂 Rheinliebe am Deich &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Niederkasseler+Deich+301,+40547+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a>",
     gateBody         : "<div class='gate-timeline'><span class='gate-tl-item'><strong>13:30</strong> Arrival</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>14:00</strong> Ceremony</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>15:00</strong> Get Together (Bring &amp; Share)</span></div><br>After the ceremony, we'll gather outside the church building for snacks and drinks — and some time together. You're very welcome to bring something to share. ♡",
-    gateBodyParty    : "<div class='gate-timeline'><span class='gate-tl-item'><strong>13:30</strong> Arrival</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>14:00</strong> Ceremony</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>15:00</strong> Get Together (Bring &amp; Share)</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>17:00</strong> Evening Reception</span></div><div class='loc-chip'>🥂 Rheinliebe am Deich &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Niederkasseler+Deich+301,+40547+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div><br>After the ceremony, we'll gather outside the church building for snacks and drinks — and some time together. You're very welcome to bring something to share. In the evening, we'll continue the celebration with an evening reception starting at 17:00. ♡",
+    gateBodyParty    : "<div class='gate-timeline'><span class='gate-tl-item'><strong>13:30</strong> Arrival</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>14:00</strong> Ceremony</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>15:00</strong> Get Together (Bring &amp; Share)</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>17:00</strong> Evening Reception</span></div><br>After the ceremony, we'll gather outside the church building for snacks and drinks — and some time together. You're very welcome to bring something to share. In the evening, we'll continue the celebration with an evening reception starting at 17:00. ♡",
     gateNote         : "Want to bring something? You can sign up when you RSVP. ♡",
     gateCtaBtn       : "Send us your RSVP →",
     gateSkipBtn      : "I'll explore first",
@@ -487,9 +489,9 @@ window.I18N = {
     successCardDecline     : "Schade, dass ihr nicht kommen könnt. Danke für eure Rückmeldung.",
 
     giftBannerTitle  : "Keine Wunschliste",
-    giftBannerBody   : "Ganz ehrlich, dass ihr dabei seid, ist für uns schon das größte Geschenk. Wenn ihr uns trotzdem eine Freude machen möchtet, würden wir uns riesig über einen Beitrag zu unserem neuen Zuhause oder unseren Flitterwochen freuen.",
-    giftNoteCeremony : "In der Kirche wartet eine Geschenkbox auf euch. ♡",
-    giftNoteParty    : "In der Kirche wartet eine Geschenkbox auf euch, und abends an der Location steht noch eine. ♡",
+    giftBannerBody   : "Dass ihr da seid, ist für uns schon das Geschenk. Wenn ihr uns trotzdem etwas schenken möchtet, freuen wir uns über einen Beitrag zu unserem neuen Zuhause oder unseren Flitterwochen.",
+    giftNoteCeremony : "🎁 Geschenkbox in der Kirche",
+    giftNoteParty    : "🎁 Geschenkbox in der Kirche & an der Location",
     bringShareNudge  : "Bring & Share 🧁",
 
     bannerText: "📋 Bitte meldet euch an",
@@ -497,8 +499,10 @@ window.I18N = {
     /* ── Soft Gate / Floating Card / Scroll Lock ── */
     gateSalutation   : "Ihr seid herzlich eingeladen,",
     gateSeatsText    : "Standort: Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a>",
+    gateLocChurch    : "⛪ Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a>",
+    gateLocParty     : "🥂 Rheinliebe am Deich &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Niederkasseler+Deich+301,+40547+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a>",
     gateBody         : "<div class='gate-timeline'><span class='gate-tl-item'><strong>13:30</strong> Arrival</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>14:00</strong> Ceremony</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>15:00</strong> Get Together (Bring &amp; Share)</span></div><br>Nach der Zeremonie treffen wir uns draußen vor dem Kirchengebäude bei Snacks und Getränken — und verbringen Zeit miteinander. Wer möchte, bringt gerne etwas zum Teilen mit. ♡",
-    gateBodyParty    : "<div class='gate-timeline'><span class='gate-tl-item'><strong>13:30</strong> Arrival</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>14:00</strong> Ceremony</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>15:00</strong> Get Together (Bring &amp; Share)</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>17:00</strong> Evening Reception</span></div><div class='loc-chip'>🥂 Rheinliebe am Deich &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Niederkasseler+Deich+301,+40547+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div><br>Nach der Zeremonie treffen wir uns draußen vor dem Kirchengebäude bei Snacks und Getränken — und verbringen Zeit miteinander. Wer möchte, bringt gerne etwas zum Teilen mit. Am Abend geht die Feier mit einem Abendempfang ab 17:00 Uhr weiter. ♡",
+    gateBodyParty    : "<div class='gate-timeline'><span class='gate-tl-item'><strong>13:30</strong> Arrival</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>14:00</strong> Ceremony</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>15:00</strong> Get Together (Bring &amp; Share)</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>17:00</strong> Evening Reception</span></div><br>Nach der Zeremonie treffen wir uns draußen vor dem Kirchengebäude bei Snacks und Getränken — und verbringen Zeit miteinander. Wer möchte, bringt gerne etwas zum Teilen mit. Am Abend geht die Feier mit einem Abendempfang ab 17:00 Uhr weiter. ♡",
     gateNote         : "Möchtet ihr etwas mitbringen? Ihr könnt euch bei eurer Rückmeldung eintragen. ♡",
     gateCtaBtn       : "Zur Anmeldung →",
     gateSkipBtn      : "Ich schaue mich erst um",
@@ -785,9 +789,9 @@ window.I18N = {
     successCardDecline     : "Жаль, что вы не сможете прийти. Спасибо, что сообщили нам.",
 
     giftBannerTitle  : "Списка подарков нет",
-    giftBannerBody   : "Если честно, для нас самое ценное — что вы будете рядом. Но если всё же захотите нас порадовать, мы будем очень благодарны за вклад в наш новый дом или медовый месяц.",
-    giftNoteCeremony : "В церкви вас будет ждать подарочная коробка. ♡",
-    giftNoteParty    : "В церкви вас будет ждать подарочная коробка, а вечером на площадке — ещё одна. ♡",
+    giftBannerBody   : "Для нас важнее всего, что вы будете рядом. Если всё же захотите нас порадовать, будем благодарны за вклад в наш новый дом или медовый месяц.",
+    giftNoteCeremony : "🎁 Подарочная коробка в церкви",
+    giftNoteParty    : "🎁 Подарочная коробка в церкви и на площадке",
     bringShareNudge  : "Bring & Share 🧁",
 
     bannerText: "📋 Пожалуйста, заполните анкету",
@@ -795,8 +799,10 @@ window.I18N = {
     /* ── Soft Gate / Floating Card / Scroll Lock ── */
     gateSalutation   : "Вы приглашены,",
     gateSeatsText    : "Местоположение: Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a>",
+    gateLocChurch    : "⛪ Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a>",
+    gateLocParty     : "🥂 Rheinliebe am Deich &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Niederkasseler+Deich+301,+40547+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a>",
     gateBody         : "<div class='gate-timeline'><span class='gate-tl-item'><strong>13:30</strong> Arrival</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>14:00</strong> Ceremony</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>15:00</strong> Get Together (Bring &amp; Share)</span></div><br>После церемонии мы будем рады, если все останутся на улице у церкви — каждый ставит что-нибудь на стол, и мы вместе перекусим и выпьем бокал шампанского. Торты, пироги, выпечка, закуски — всё приветствуется.",
-    gateBodyParty    : "<div class='gate-timeline'><span class='gate-tl-item'><strong>13:30</strong> Arrival</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>14:00</strong> Ceremony</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>15:00</strong> Get Together (Bring &amp; Share)</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>17:00</strong> Evening Reception</span></div><div class='loc-chip'>🥂 Rheinliebe am Deich &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Niederkasseler+Deich+301,+40547+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div><br>После церемонии мы будем рады, если все останутся на улице у церкви — каждый ставит что-нибудь на стол, и мы вместе перекусим и выпьем бокал шампанского. Торты, пироги, выпечка, закуски — всё приветствуется. Вечером мы продолжим праздник — вечерний приём начнётся в 17:00.",
+    gateBodyParty    : "<div class='gate-timeline'><span class='gate-tl-item'><strong>13:30</strong> Arrival</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>14:00</strong> Ceremony</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>15:00</strong> Get Together (Bring &amp; Share)</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>17:00</strong> Evening Reception</span></div><br>После церемонии мы будем рады, если все останутся на улице у церкви — каждый ставит что-нибудь на стол, и мы вместе перекусим и выпьем бокал шампанского. Торты, пироги, выпечка, закуски — всё приветствуется. Вечером мы продолжим праздник — вечерний приём начнётся в 17:00.",
     gateNote         : "Хотите что-то принести? Можно записаться при ответе на приглашение. ♡",
     gateCtaBtn       : "Заполнить анкету →",
     gateSkipBtn      : "Сначала посмотрю сайт",

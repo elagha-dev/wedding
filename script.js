@@ -1890,6 +1890,19 @@ function weScrollRsvpIntoView(target, topBufferPx) {
       font-size: 11px; color: #7a5133; letter-spacing: .06em;
       margin-bottom: 20px;
     }
+    #weGateCard .we-locations {
+      display: inline-flex; flex-direction: column; align-items: stretch;
+      background: rgba(122,82,54,.08); border: 1px solid rgba(122,82,54,.2);
+      padding: 4px 0; margin: 0 0 20px; min-width: 78%;
+    }
+    #weGateCard .we-loc-row {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 7px 14px; font-family: WeddingSerif,Georgia,serif;
+      font-size: 11px; color: #7a5133; letter-spacing: .06em;
+    }
+    #weGateCard .we-loc-divider {
+      height: 1px; margin: 0 14px; background: rgba(122,82,54,.18);
+    }
     #weGateCard .we-body {
       font-family: WeddingSerif, Georgia, serif;
       font-size: 12.5px; font-weight: 400; color: #8a7464;
@@ -2080,6 +2093,14 @@ function weScrollRsvpIntoView(target, topBufferPx) {
   var salutation = t('gateSalutation');
   var seatsText  = t('gateSeatsText');
 
+  var locationsHtml = hasParty
+    ? '<div class="we-locations">' +
+        '<div class="we-loc-row">' + t('gateLocChurch') + '</div>' +
+        '<div class="we-loc-divider"></div>' +
+        '<div class="we-loc-row">' + t('gateLocParty') + '</div>' +
+      '</div>'
+    : '<div class="we-seat-badge">♡ ' + seatsText + '</div>';
+
   /* ── SOFT GATE HTML ── */
   var gate = document.createElement('div');
   gate.id = 'weGate';
@@ -2090,7 +2111,7 @@ function weScrollRsvpIntoView(target, topBufferPx) {
       '<div class="we-rule"></div>' +
       '<div class="we-salut">' + salutation + '</div>' +
       '<div class="we-guestname">' + displayName + '</div>' +
-      '<div class="we-seat-badge">♡ ' + seatsText + '</div>' +
+      locationsHtml +
       '<div class="we-body">' + (hasParty ? t('gateBodyParty') : t('gateBody')) + '</div>' +
       '<div class="we-gate-note">' + t('gateNote') + '</div>' +
       '<button id="weGateCta">' + t('gateCtaBtn') + '</button>' +
