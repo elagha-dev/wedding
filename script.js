@@ -373,18 +373,18 @@ function applyI18n() {
     var val = t(key);
     if (typeof val === 'string') el.placeholder = val;
   });
-  /* Ceremony attend label — for party/venue invites (party=1), match the
-     reception field exactly (same label style + Attending/Not Attending
-     wording). Church-only invites keep their own simpler wording. */
+  /* Ceremony attend label — always matches the reception field exactly
+     (same label style + Attending/Not Attending wording), for every
+     invite type. */
   var attendLabel = document.querySelector('.attend-field .attend-label [data-i18n]');
   if (attendLabel) {
-    attendLabel.textContent = __inviteParty ? t('ceremonyAttendLabel') : t('churchOnlyQuestion');
+    attendLabel.textContent = t('ceremonyAttendLabel');
   }
-  /* Attend Yes/No buttons — church row */
+  /* Attend Yes/No buttons — church row. Same wording as the reception row. */
   var attendYesBtnSpan = document.querySelector('#attendYes [data-i18n]');
   var attendNoBtnSpan  = document.querySelector('#attendNo [data-i18n]');
-  if (attendYesBtnSpan) attendYesBtnSpan.textContent = __inviteParty ? t('attendingBtnParty') : t('churchOnlyYesBtn');
-  if (attendNoBtnSpan)  attendNoBtnSpan.textContent  = __inviteParty ? t('notAttendingBtnParty') : t('churchOnlyNoBtn');
+  if (attendYesBtnSpan) attendYesBtnSpan.textContent = t('attendingBtnParty');
+  if (attendNoBtnSpan)  attendNoBtnSpan.textContent  = t('notAttendingBtnParty');
   /* Party row: use separate party button labels for combined invites */
   var partyYesBtnSpan = document.querySelector('#partyYesBtn [data-i18n="attendingBtn"]');
   var partyNoBtnSpan  = document.querySelector('#partyNoBtn [data-i18n="notAttendingBtn"]');
@@ -701,6 +701,7 @@ function buildGuestChecks(guests) {
         setAttendance(anyActive ? 'Yes' : 'No');
       }
       syncFieldsForGuestDecline();
+      syncGuestSplitHint();
       recalcSeats(); fillNameFromGuests(); updateSelectionSummary();
     }
 
@@ -714,6 +715,27 @@ function buildGuestChecks(guests) {
     wrap.appendChild(row);
   });
   guestChecksEl.appendChild(wrap);
+
+  /* Hint shown when the guests' plans diverge (e.g. one of them is coming,
+     the other isn't) — nudges them toward submitting a second RSVP so each
+     guest's own answers get recorded separately, instead of forcing one
+     combined answer for people whose plans don't actually match. */
+  var splitHint = document.createElement('p');
+  splitHint.id = 'guestSplitHint';
+  splitHint.style.cssText = 'font-family:WeddingSerif,Georgia,serif;font-size:10px;line-height:1.5;color:#7a5133;letter-spacing:.02em;margin:10px 0 0;padding-top:8px;border-top:1px dashed rgba(49,39,28,.15);display:none;';
+  guestChecksEl.appendChild(splitHint);
+  syncGuestSplitHint();
+}
+
+function syncGuestSplitHint() {
+  var hint = document.getElementById('guestSplitHint');
+  if (!hint || !guestChecksEl) return;
+  var total  = guestChecksEl.querySelectorAll('.guest-toggle-btn.guest-yes-btn').length;
+  var active = guestChecksEl.querySelectorAll('.guest-toggle-btn.is-active').length;
+  var isPartial = total > 1 && active > 0 && active < total;
+  if (!isPartial) { hint.style.display = 'none'; return; }
+  hint.textContent = t('guestSplitHint') || "Looks like you two aren't doing the exact same thing — go ahead and submit this RSVP, then use \"Submit another RSVP\" on the confirmation screen to log the other guest's own answers separately.";
+  hint.style.display = '';
 }
 
 function checkedGuestCount() {
@@ -924,6 +946,23 @@ if (wSubmit) wSubmit.addEventListener("click", async function() {
   }
   var existingErr = document.getElementById("attendErr");
   if (existingErr) existingErr.remove();
+
+  /* Validate: evening reception choice must be chosen too, whenever the
+     reception field is actually visible (it's hidden entirely once a
+     multi-guest invite has fully declined, so nothing to validate there). */
+  var eveningFieldVisible = eveningAttendField && eveningAttendField.style.display !== "none";
+  if (eveningFieldVisible && (!partyAttendSelect || partyAttendSelect.value === "")) {
+    var partyErrMsg = document.createElement("p");
+    partyErrMsg.style.cssText = "color:#7a5133;font-size:10px;letter-spacing:.05em;margin:6px 0 0;font-family:WeddingSerif,Georgia,serif;";
+    partyErrMsg.id = "partyAttendErr";
+    partyErrMsg.textContent = t('selectPartyAttendErr') || t('selectAttendanceErr');
+    var existingPartyErr = document.getElementById("partyAttendErr");
+    if (existingPartyErr) existingPartyErr.remove();
+    if (eveningAttendField) eveningAttendField.appendChild(partyErrMsg);
+    return;
+  }
+  var existingPartyErrClear = document.getElementById("partyAttendErr");
+  if (existingPartyErrClear) existingPartyErrClear.remove();
 
   /* Build seat total from current state */
   __manualSeatOverride = false;
