@@ -756,7 +756,11 @@ function updateSelectionSummary() {
   /* ── Submit button morphs like the prototype ── */
   if (wSubmit && hasGuests) {
     var btnSpan = wSubmit.querySelector('span') || wSubmit;
-    if (activeNames.length === 0) {
+    /* Decline only when NOTHING is selected — no ceremony guests AND, for
+       party invites, not attending the evening reception either. A guest
+       skipping the ceremony but joining the reception still counts as attending. */
+    var nothingSelected = activeNames.length === 0 && (!__inviteParty || !isPartyAttending());
+    if (nothingSelected) {
       /* Decline state — same orange treatment as attending */
       btnSpan.textContent = t('sendRsvpBtnDecline') || "We sadly can't make it";
       wSubmit.style.background   = '#E07020';
