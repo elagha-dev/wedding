@@ -126,7 +126,7 @@ window.I18N = {
     payloadAttendance  : "attendance:",
     payloadGuests      : "guests:",
     payloadCeremony    : "ceremony:",
-    payloadEvening     : "party:",
+    payloadEvening     : "reception:",
     tlGetTogether      : "Arrival",
     tlCeremony         : "Ceremony",
     tlReception        : "Bring & Share",
