@@ -211,7 +211,6 @@ function renderContent(c) {
   if (c.rsvp && c.rsvp.googleScriptUrl) window.__GOOGLE_SCRIPT_URL = c.rsvp.googleScriptUrl;
   if (c.rsvp && c.rsvp.giftListUrl)     window.__GIFT_LIST_URL     = c.rsvp.giftListUrl;
   if (c.rsvp && c.rsvp.bringAndShareFormUrl) window.__BRING_SHARE_URL = c.rsvp.bringAndShareFormUrl;
-  if (c.rsvp && c.rsvp.paypalUrl) { window.__PAYPAL_URL = c.rsvp.paypalUrl; var _pl = document.getElementById("giftPaypalLink"); if (_pl) _pl.href = c.rsvp.paypalUrl; }
   if (c.rsvp && c.rsvp.bringAndShareSpoc) {
     window.__BRING_SHARE_SPOC = c.rsvp.bringAndShareSpoc;
     var spocEl = document.getElementById("bsSpocName");
@@ -300,8 +299,8 @@ function loadContent() {
         "title": "Evening Reception",
         "partyOnly": true,
         "location": "Rheinliebe am Deich",
-        "address": "Heerstraße 45, 40549 Düsseldorf",
-        "mapUrl": "https://maps.google.com/?q=Rheinliebe+am+Deich+Düsseldorf",
+        "address": "Niederkasseler Deich 301, 40547 Düsseldorf",
+        "mapUrl": "https://maps.google.com/?q=Niederkasseler+Deich+301,+40547+Düsseldorf",
         "description": "Join us as we continue the celebration — an evening reception starting at 17:00 with good food, great company, and all the joy."
       }
     ]
@@ -329,7 +328,7 @@ function loadContent() {
     },
     {
       "question": "Is there a wish list?",
-      "answer": "No wish list — but if you'd like to gift us something, we would be so grateful for a financial contribution toward starting our new home together and celebrating our honeymoon. <a href='https://paypal.me/ElnurAghayev' target='_blank' rel='noreferrer' style='display:inline-block;margin-top:8px;padding:6px 14px;background:#003087;color:#fff;border-radius:4px;text-decoration:none;font-size:0.9em;'>Contribute via PayPal ↗</a>"
+      "answer": "No wish list — honestly, having you there is the best gift of all. There'll be a gift box at the church (and at the venue too, for the evening), so there's no need to send anything in advance."
     },
     {
       "question": "Is there any place for kids?",
@@ -809,8 +808,6 @@ function showSuccessScreen(attending) {
   /* Gift banner: show when attending anything; note text depends on party */
   if (giftBanner) {
     giftBanner.style.display = attending ? "" : "none";
-    var paypalLink = document.getElementById("giftPaypalLink");
-    if (paypalLink) paypalLink.href = window.__PAYPAL_URL || "https://paypal.me/ElnurAghayev";
     var giftNote = document.getElementById("giftBannerNote");
     if (giftNote) {
       var partyAttending = isPartyAttending();
@@ -2344,7 +2341,7 @@ function weScrollRsvpIntoView(target, topBufferPx) {
         'Arina & Elnur — Evening Reception',
         icsDate(2026, 10, 16, 17, 0),
         icsDate(2026, 10, 16, 23, 59),
-        'Rheinliebe am Deich\\, Heerstraße 45\\, 40549 Düsseldorf',
+        'Rheinliebe am Deich\\, Niederkasseler Deich 301\\, 40547 Düsseldorf',
         'Evening reception. https://maps.google.com/?q=Rheinliebe+am+Deich'
       ));
     }

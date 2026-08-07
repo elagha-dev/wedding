@@ -68,13 +68,13 @@ window.I18N = {
 
     greetingLetterParty:
       "<p>Please arrive by <strong>13:30</strong> — the ceremony begins at <strong>14:00</strong> sharp</p><div class=\"loc-chip\">⛪ Schlosskirche &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
-      "<p>🥂 Evening reception from <strong>17:00</strong></p><div class=\"loc-chip\">🥂 Rheinliebe am Deich &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Heerstra%C3%9Fe+45,+40549+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
+      "<p>🥂 Evening reception from <strong>17:00</strong></p><div class=\"loc-chip\">🥂 Rheinliebe am Deich &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Niederkasseler+Deich+301,+40547+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
       "<p>It only takes a minute to let us know you'll be there. If you can make it to both — wonderful. If you can only join us for the evening — we'll take it, gladly. Just let us know below.</p>" +
       "<p class=\"deadline\">Please confirm your attendance by <strong>18 September</strong>.</p>",
 
     greetingLetterPartySingle:
       "<p>Please arrive by <strong>13:30</strong> — the ceremony begins at <strong>14:00</strong> sharp</p><div class=\"loc-chip\">⛪ Schlosskirche &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
-      "<p>🥂 Evening reception from <strong>17:00</strong></p><div class=\"loc-chip\">🥂 Rheinliebe am Deich &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Heerstra%C3%9Fe+45,+40549+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
+      "<p>🥂 Evening reception from <strong>17:00</strong></p><div class=\"loc-chip\">🥂 Rheinliebe am Deich &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Niederkasseler+Deich+301,+40547+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
       "<p>It only takes a minute to let us know you'll be there. If you can make it to both — wonderful. If you can only join us for the evening — we'll take it, gladly. Just let us know below.</p>" +
       "<p class=\"deadline\">Please confirm your attendance by <strong>18 September</strong>.</p>",
 
@@ -180,10 +180,9 @@ window.I18N = {
 
     /* ── Gift banner ── */
     giftBannerTitle  : "No wish list",
-    giftBannerBody   : "But if you'd like to gift us something, we would be so grateful for a financial contribution toward starting our new home together and celebrating our honeymoon.",
-    giftPaypalBtn    : "Contribute via PayPal ↗",
-    giftNoteCeremony : "There'll also be a gift box at the church. ♡",
-    giftNoteParty    : "There'll also be a gift box at the church and at the venue. ♡",
+    giftBannerBody   : "Honestly, having you there is already the best gift we could ask for. If you still feel like spoiling us a little, a contribution toward our new home or our honeymoon would mean so much.",
+    giftNoteCeremony : "There'll be a gift box waiting for you at the church. ♡",
+    giftNoteParty    : "There'll be a gift box waiting for you at the church, and another one at the venue in the evening. ♡",
     bringShareNudge  : "Bring & Share 🧁",
 
     /* ── Sticky banner ── */
@@ -192,7 +191,7 @@ window.I18N = {
     /* ── Soft Gate / Floating Card / Scroll Lock ── */
     gateSalutation   : "You are invited",
     gateSeatsText    : "Location: Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a>",
-    gateBody         : "<div class='gate-timeline'><span class='gate-tl-item'><strong>13:30</strong> Arrival</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>14:00</strong> Ceremony</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>15:00</strong> Get Together (Bring &amp; Share)</span></div><br>After the ceremony, we'll gather outside the church building for snacks and drinks — and some time together. You're very welcome to bring something to share. ♡",
+    gateBody         : "<div class='gate-timeline'><span class='gate-tl-item'><strong>13:30</strong> Arrival</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>14:00</strong> Ceremony</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>15:00</strong> Get Together (Bring &amp; Share)</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>17:00</strong> Evening Reception</span></div><br>After the ceremony, we'll gather outside the church building for snacks and drinks — and some time together. You're very welcome to bring something to share. In the evening, we'll continue the celebration with an evening reception starting at 17:00. ♡",
     gateNote         : "Want to bring something? You can sign up when you RSVP. ♡",
     gateCtaBtn       : "Send us your RSVP →",
     gateSkipBtn      : "I'll explore first",
@@ -293,8 +292,8 @@ window.I18N = {
       {
         time: "17:00", label: "EVENING PARTY", title: "Evening Reception",
         partyOnly: true,
-        location: "Rheinliebe am Deich", address: "Heerstraße 45, 40549 Düsseldorf",
-        mapUrl: "https://maps.google.com/?q=Rheinliebe+am+Deich+D%C3%BCsseldorf",
+        location: "Rheinliebe am Deich", address: "Niederkasseler Deich 301, 40547 Düsseldorf",
+        mapUrl: "https://maps.google.com/?q=Niederkasseler+Deich+301,+40547+D%C3%BCsseldorf",
         description: ""
       }
     ],
@@ -315,7 +314,7 @@ window.I18N = {
     faq: [
       { q: "Can I bring a plus one?",        a: "Please follow your invite. We would love to have our dear ones but have a limited number of seats in the church." },
       { q: "Are there any parking spots?",   a: "Yes! There are some directly at the church, as well as near the houses around it, and a bigger parking area within walking distance." },
-      { q: "Is there a wish list?",          a: "No wish list — but if you'd like to gift us something, we would be so grateful for a financial contribution toward starting our new home together and celebrating our honeymoon. <a href=\"https://paypal.me/ElnurAghayev\" target=\"_blank\" rel=\"noreferrer\" style=\"display:inline-block;margin-top:8px;padding:6px 14px;background:#003087;color:#fff;border-radius:4px;text-decoration:none;font-size:0.9em;\">Contribute via PayPal ↗</a>" },
+      { q: "Is there a wish list?",          a: "No wish list — honestly, having you there is the best gift of all. There'll be a gift box at the church (and at the venue too, for the evening), so there's no need to send anything in advance." },
       { q: "Is there any place for kids?",   a: "Kids are more than welcome! We would kindly ask that they sit or play in the kids' space at the back of the church during the ceremony. Thank you ❤️" },
       { q: "When should I arrive?",          a: "We'd love to see you at 13:30. If you're bringing something to share, that gives you time to get it sorted before the ceremony starts at 14:00 sharp." },
       { q: "Who can I contact?",             a: "The best man or maid of honor are your go-to contacts — find them in the Crew section." }
@@ -378,14 +377,14 @@ window.I18N = {
     greetingLetterParty:
       "<p>Wir freuen uns so sehr, euch an unserem Hochzeitstag bei uns zu haben — einem der wichtigsten Tage unseres Lebens. Wir möchten ihn nicht ohne euch erleben.</p>" +
       "<p>Bitte kommt bis <strong>13:30</strong> — die Trauung beginnt pünktlich um <strong>14:00 Uhr</strong></p><div class=\"loc-chip\">⛪ Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
-      "<p>🥂 Abendempfang ab <strong>17:00 Uhr</strong></p><div class=\"loc-chip\">🥂 Rheinliebe am Deich &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Heerstra%C3%9Fe+45,+40549+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
+      "<p>🥂 Abendempfang ab <strong>17:00 Uhr</strong></p><div class=\"loc-chip\">🥂 Rheinliebe am Deich &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Niederkasseler+Deich+301,+40547+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
       "<p>Nach der Zeremonie treffen wir uns draußen vor dem Kirchengebäude zum Get Together (Bring & Share) — bei Snacks und Getränken und Zeit miteinander.</p>" +
       "<p class=\"deadline\">Bitte bestätigt eure Teilnahme bis zum <strong>18. September</strong>.</p>",
 
     greetingLetterPartySingle:
       "<p>Wir freuen uns so sehr, dich an unserem Hochzeitstag bei uns zu haben — einem der wichtigsten Tage unseres Lebens. Wir möchten ihn nicht ohne dich erleben.</p>" +
       "<p>Bitte komm bis <strong>13:30</strong> — die Trauung beginnt pünktlich um <strong>14:00 Uhr</strong></p><div class=\"loc-chip\">⛪ Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
-      "<p>🥂 Abendempfang ab <strong>17:00 Uhr</strong></p><div class=\"loc-chip\">🥂 Rheinliebe am Deich &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Heerstra%C3%9Fe+45,+40549+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
+      "<p>🥂 Abendempfang ab <strong>17:00 Uhr</strong></p><div class=\"loc-chip\">🥂 Rheinliebe am Deich &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Niederkasseler+Deich+301,+40547+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
       "<p>Nach der Zeremonie treffen wir uns draußen vor dem Kirchengebäude zum Get Together (Bring & Share) — bei Snacks und Getränken und Zeit miteinander.</p>" +
       "<p class=\"deadline\">Bitte bestätige deine Teilnahme bis zum <strong>18. September</strong>.</p>",
 
@@ -487,10 +486,9 @@ window.I18N = {
     successCardDecline     : "Schade, dass ihr nicht kommen könnt. Danke für eure Rückmeldung.",
 
     giftBannerTitle  : "Keine Wunschliste",
-    giftBannerBody   : "Aber wenn ihr uns etwas schenken möchtet, würden wir uns von Herzen über einen finanziellen Beitrag für unser neues Zuhause und unsere Flitterwochen freuen.",
-    giftPaypalBtn    : "Per PayPal überweisen ↗",
-    giftNoteCeremony : "In der Kirche steht auch eine Geschenkbox. ♡",
-    giftNoteParty    : "In der Kirche und am Abendlocation steht auch eine Geschenkbox. ♡",
+    giftBannerBody   : "Ganz ehrlich, dass ihr dabei seid, ist für uns schon das größte Geschenk. Wenn ihr uns trotzdem eine Freude machen möchtet, würden wir uns riesig über einen Beitrag zu unserem neuen Zuhause oder unseren Flitterwochen freuen.",
+    giftNoteCeremony : "In der Kirche wartet eine Geschenkbox auf euch. ♡",
+    giftNoteParty    : "In der Kirche wartet eine Geschenkbox auf euch, und abends an der Location steht noch eine. ♡",
     bringShareNudge  : "Bring & Share 🧁",
 
     bannerText: "📋 Bitte meldet euch an",
@@ -498,7 +496,7 @@ window.I18N = {
     /* ── Soft Gate / Floating Card / Scroll Lock ── */
     gateSalutation   : "Ihr seid herzlich eingeladen,",
     gateSeatsText    : "Standort: Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a>",
-    gateBody         : "<div class='gate-timeline'><span class='gate-tl-item'><strong>13:30</strong> Arrival</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>14:00</strong> Ceremony</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>15:00</strong> Get Together (Bring &amp; Share)</span></div><br>Nach der Zeremonie treffen wir uns draußen vor dem Kirchengebäude bei Snacks und Getränken — und verbringen Zeit miteinander. Wer möchte, bringt gerne etwas zum Teilen mit. ♡",
+    gateBody         : "<div class='gate-timeline'><span class='gate-tl-item'><strong>13:30</strong> Arrival</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>14:00</strong> Ceremony</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>15:00</strong> Get Together (Bring &amp; Share)</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>17:00</strong> Evening Reception</span></div><br>Nach der Zeremonie treffen wir uns draußen vor dem Kirchengebäude bei Snacks und Getränken — und verbringen Zeit miteinander. Wer möchte, bringt gerne etwas zum Teilen mit. Am Abend geht die Feier mit einem Abendempfang ab 17:00 Uhr weiter. ♡",
     gateNote         : "Möchtet ihr etwas mitbringen? Ihr könnt euch bei eurer Rückmeldung eintragen. ♡",
     gateCtaBtn       : "Zur Anmeldung →",
     gateSkipBtn      : "Ich schaue mich erst um",
@@ -593,8 +591,8 @@ window.I18N = {
       {
         time: "17:00", label: "ABENDPARTY", title: "Abendempfang",
         partyOnly: true,
-        location: "Rheinliebe am Deich", address: "Heerstraße 45, 40549 Düsseldorf",
-        mapUrl: "https://maps.google.com/?q=Rheinliebe+am+Deich+D%C3%BCsseldorf",
+        location: "Rheinliebe am Deich", address: "Niederkasseler Deich 301, 40547 Düsseldorf",
+        mapUrl: "https://maps.google.com/?q=Niederkasseler+Deich+301,+40547+D%C3%BCsseldorf",
         description: ""
       }
     ],
@@ -613,7 +611,7 @@ window.I18N = {
     faq: [
       { q: "Kann ich jemanden mitbringen?",     a: "Bitte haltet euch an eure Einladung. Wir hätten alle gerne dabei, haben aber begrenzte Plätze in der Kirche." },
       { q: "Gibt es Parkplätze?",               a: "Ja! Direkt bei der Kirche, in der Umgebung und in Gehweite gibt es einen größeren Parkplatz." },
-      { q: "Gibt es eine Wunschliste?",         a: "Keine Wunschliste — aber wenn ihr uns etwas schenken möchtet, würden wir uns sehr über einen finanziellen Beitrag für unser neues Zuhause und unsere Flitterwochen freuen. <a href=\"https://paypal.me/ElnurAghayev\" target=\"_blank\" rel=\"noreferrer\" style=\"display:inline-block;margin-top:8px;padding:6px 14px;background:#003087;color:#fff;border-radius:4px;text-decoration:none;font-size:0.9em;\">Per PayPal überweisen ↗</a>" },
+      { q: "Gibt es eine Wunschliste?",         a: "Keine Wunschliste — dass ihr da seid, ist uns wirklich das Wichtigste. In der Kirche steht eine Geschenkbox (und abends auch an der Location), also braucht ihr vorher nichts zu überweisen." },
       { q: "Gibt es einen Platz für Kinder?",   a: "Kinder sind herzlich willkommen! Wir bitten nur darum, dass sie während der Zeremonie im Kinderbereich am hinteren Teil der Kirche spielen oder sitzen. Danke ❤️" },
       { q: "Wann sollte ich ankommen?",         a: "Wir freuen uns, wenn ihr um 13:30 Uhr da seid. Wer etwas zum Teilen mitbringt, hat so genug Zeit, alles zu organisieren, bevor die Zeremonie um 14:00 Uhr pünktlich beginnt." },
       { q: "Wen kann ich kontaktieren?",        a: "Der Trauzeuge oder die Trauzeugin sind eure Ansprechpartner — ihr findet sie im Bereich 'Das Team'." }
@@ -676,14 +674,14 @@ window.I18N = {
     greetingLetterParty:
       "<p>Мы так рады пригласить вас разделить с нами наш свадебный день — один из самых важных дней в нашей жизни. Мы не хотим отмечать его без вас.</p>" +
       "<p>Пожалуйста, приходите к <strong>13:30</strong> — венчание начнётся ровно в <strong>14:00</strong></p><div class=\"loc-chip\">⛪ Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
-      "<p>🥂 Вечерний банкет с <strong>17:00</strong></p><div class=\"loc-chip\">🥂 Rheinliebe am Deich &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Heerstra%C3%9Fe+45,+40549+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
+      "<p>🥂 Вечерний банкет с <strong>17:00</strong></p><div class=\"loc-chip\">🥂 Rheinliebe am Deich &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Niederkasseler+Deich+301,+40547+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
       "<p>Это займёт всего минуту — просто дайте нам знать, что придёте, а мы позаботимся об остальном.</p>" +
       "<p class=\"deadline\">Пожалуйста, подтвердите участие до <strong>18 сентября</strong>.</p>",
 
     greetingLetterPartySingle:
       "<p>Мы так рады пригласить тебя разделить с нами наш свадебный день — один из самых важных дней в нашей жизни. Мы не хотим отмечать его без тебя.</p>" +
       "<p>Пожалуйста, приходи к <strong>13:30</strong> — венчание начнётся ровно в <strong>14:00</strong></p><div class=\"loc-chip\">⛪ Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
-      "<p>🥂 Вечерний банкет с <strong>17:00</strong></p><div class=\"loc-chip\">🥂 Rheinliebe am Deich &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Heerstra%C3%9Fe+45,+40549+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
+      "<p>🥂 Вечерний банкет с <strong>17:00</strong></p><div class=\"loc-chip\">🥂 Rheinliebe am Deich &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Niederkasseler+Deich+301,+40547+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
       "<p>Это займёт всего минуту — просто дай нам знать, что придёшь, а мы позаботимся об остальном.</p>" +
       "<p class=\"deadline\">Пожалуйста, подтверди участие до <strong>18 сентября</strong>.</p>",
 
@@ -785,10 +783,9 @@ window.I18N = {
     successCardDecline     : "Жаль, что вы не сможете прийти. Спасибо, что сообщили нам.",
 
     giftBannerTitle  : "Списка подарков нет",
-    giftBannerBody   : "Но если вы хотите нас порадовать, мы будем очень благодарны за финансовый вклад в наш новый дом и медовый месяц.",
-    giftPaypalBtn    : "Перевести через PayPal ↗",
-    giftNoteCeremony : "В церкви также будет подарочная коробка. ♡",
-    giftNoteParty    : "В церкви и на вечернем мероприятии также будет подарочная коробка. ♡",
+    giftBannerBody   : "Если честно, для нас самое ценное — что вы будете рядом. Но если всё же захотите нас порадовать, мы будем очень благодарны за вклад в наш новый дом или медовый месяц.",
+    giftNoteCeremony : "В церкви вас будет ждать подарочная коробка. ♡",
+    giftNoteParty    : "В церкви вас будет ждать подарочная коробка, а вечером на площадке — ещё одна. ♡",
     bringShareNudge  : "Bring & Share 🧁",
 
     bannerText: "📋 Пожалуйста, заполните анкету",
@@ -796,7 +793,7 @@ window.I18N = {
     /* ── Soft Gate / Floating Card / Scroll Lock ── */
     gateSalutation   : "Вы приглашены,",
     gateSeatsText    : "Местоположение: Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a>",
-    gateBody         : "<div class='gate-timeline'><span class='gate-tl-item'><strong>13:30</strong> Arrival</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>14:00</strong> Ceremony</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>15:00</strong> Get Together (Bring &amp; Share)</span></div><br>После церемонии мы будем рады, если все останутся на улице у церкви — каждый ставит что-нибудь на стол, и мы вместе перекусим и выпьем бокал шампанского. Торты, пироги, выпечка, закуски — всё приветствуется.",
+    gateBody         : "<div class='gate-timeline'><span class='gate-tl-item'><strong>13:30</strong> Arrival</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>14:00</strong> Ceremony</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>15:00</strong> Get Together (Bring &amp; Share)</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>17:00</strong> Evening Reception</span></div><br>После церемонии мы будем рады, если все останутся на улице у церкви — каждый ставит что-нибудь на стол, и мы вместе перекусим и выпьем бокал шампанского. Торты, пироги, выпечка, закуски — всё приветствуется. Вечером мы продолжим праздник — вечерний приём начнётся в 17:00.",
     gateNote         : "Хотите что-то принести? Можно записаться при ответе на приглашение. ♡",
     gateCtaBtn       : "Заполнить анкету →",
     gateSkipBtn      : "Сначала посмотрю сайт",
@@ -891,8 +888,8 @@ window.I18N = {
       {
         time: "17:00", label: "ВЕЧЕРИНКА", title: "Вечерний приём",
         partyOnly: true,
-        location: "Rheinliebe am Deich", address: "Heerstraße 45, 40549 Düsseldorf",
-        mapUrl: "https://maps.google.com/?q=Rheinliebe+am+Deich+D%C3%BCsseldorf",
+        location: "Rheinliebe am Deich", address: "Niederkasseler Deich 301, 40547 Düsseldorf",
+        mapUrl: "https://maps.google.com/?q=Niederkasseler+Deich+301,+40547+D%C3%BCsseldorf",
         description: ""
       }
     ],
@@ -911,7 +908,7 @@ window.I18N = {
     faq: [
       { q: "Можно ли привести гостя?",       a: "Пожалуйста, следуйте своему приглашению. Мы рады всем, но количество мест в церкви ограничено." },
       { q: "Есть ли парковка?",              a: "Да! Прямо у церкви, рядом с домами и в пешей доступности есть большая парковка." },
-      { q: "Есть ли список подарков?",       a: "Списка нет — но если вы хотите нас порадовать, мы будем очень благодарны за денежный подарок для нашего нового дома и медового месяца. <a href=\"https://paypal.me/ElnurAghayev\" target=\"_blank\" rel=\"noreferrer\" style=\"display:inline-block;margin-top:8px;padding:6px 14px;background:#003087;color:#fff;border-radius:4px;text-decoration:none;font-size:0.9em;\">Перевести через PayPal ↗</a>" },
+      { q: "Есть ли список подарков?",       a: "Списка нет — для нас важнее всего, что вы будете рядом. В церкви будет подарочная коробка (и вечером на площадке тоже), так что переводить деньги заранее не нужно." },
       { q: "Есть ли место для детей?",       a: "Дети очень приветствуются! Просим лишь, чтобы во время церемонии они сидели или играли в детском уголке в конце церкви. Спасибо ❤️" },
       { q: "Когда прийти?",                  a: "Мы будем рады видеть вас в 13:30. Если вы что-то приносите, у вас будет время всё разложить до начала венчания в 14:00." },
       { q: "К кому обратиться?",             a: "Лучший друг или подружка невесты — ваши контактные лица, их вы найдёте в разделе «Команда»." }

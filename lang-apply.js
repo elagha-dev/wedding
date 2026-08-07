@@ -151,8 +151,6 @@
     if (gbTitle) { var sp = gbTitle.querySelector('[data-i18n]') || gbTitle; sp.textContent = t('giftBannerTitle'); }
     var gbBody = document.querySelector('.gift-banner-body');
     if (gbBody) { var sp = gbBody.querySelector('[data-i18n]') || gbBody; sp.textContent = t('giftBannerBody'); }
-    var gbPaypal = document.getElementById('giftPaypalLink');
-    if (gbPaypal) { var sp = gbPaypal.querySelector('[data-i18n]') || gbPaypal; sp.textContent = t('giftPaypalBtn'); }
     var gbNote = document.getElementById('giftBannerNote');
     if (gbNote) gbNote.textContent = t(window.__inviteParty && attending ? 'giftNoteParty' : 'giftNoteCeremony');
     var nrb = document.getElementById('newRsvpBtn');
