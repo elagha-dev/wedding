@@ -752,19 +752,13 @@ function updateAttendanceLabel() {}
 /* ── Seat calculation ─────────────────────────────────────── */
 function recalcSeats() {
   if (__manualSeatOverride) return __seatCount;
-  var children = getChildrenCount();
-  var adults;
-  if (isPartyAttending()) {
-    /* Evening reception headcount is what matters most for planning.
-       Assume the whole invited group still comes to the evening even if
-       some (or all) of them skipped the ceremony checkbox. */
-    adults = __guests.length > 0 ? __guests.length : checkedGuestCount();
-  } else if (isAttending()) {
-    adults = checkedGuestCount();
-  } else {
-    adults = 0;
-  }
-  var total    = Math.max(isAttending() || isPartyAttending() ? 1 : 0, adults + children);
+  var children     = getChildrenCount();
+  var anyAttending = isAttending() || isPartyAttending();
+  /* Guest toggles are now the single source of truth for headcount,
+     independent of which event(s) are attended — no more assuming the
+     full invited group shows up just because reception is Yes. */
+  var adults = anyAttending ? checkedGuestCount() : 0;
+  var total  = Math.max(anyAttending ? 1 : 0, adults + children);
   __seatCount = total;
   if (totalSeatsInput) totalSeatsInput.value = String(total);
   updateSeatDisplay();
@@ -983,16 +977,12 @@ if (wSubmit) wSubmit.addEventListener("click", async function() {
       }).join(", ")
     : (fn + " " + ln).trim();
 
-  /* Guests Attending should always match Total Seats:
-     - If the evening reception is a Yes, report the full invited group —
-       we assume everyone still shows up for the evening even if some
-       skipped the ceremony checkbox.
-     - Otherwise, fall back to whoever's checked for the ceremony, or (if
-       everyone declined) the full guest list, so the sheet still shows
-       who the decline belongs to instead of an empty string. */
-  var guestNames = partyAttending
-    ? (__guests.join(", ") || checkedGuestNames || (fn + " " + ln).trim())
-    : (checkedGuestNames || __guests.join(", ") || (fn + " " + ln).trim());
+  /* Guest toggles are the single source of truth for headcount now
+     (independent of ceremony/reception), so Guests Attending always
+     matches Total Seats: report whoever's checked, or — if everyone
+     declined — the full guest list, so the sheet still shows who the
+     decline belongs to instead of an empty string. */
+  var guestNames = checkedGuestNames || __guests.join(", ") || (fn + " " + ln).trim();
 
   var scriptUrl = window.__GOOGLE_SCRIPT_URL;
   if (!scriptUrl) {
