@@ -784,14 +784,16 @@ function updateSelectionSummary() {
   }
 
   var hasGuests = guestChecksEl && guestChecksEl.querySelectorAll('.guest-toggle-btn').length > 0;
-  var attendingEffectively = isAttending() && (!hasGuests || activeNames.length > 0);
+  var anyAttendingNow = isAttending() || (__inviteParty && isPartyAttending());
 
   /* ── Payload bar ── */
-  if (ppAttendance) ppAttendance.textContent = attendingEffectively ? 'Yes' : 'No';
-  /* For single invites there are no guest-toggle-btns — fall back to the URL-parsed name */
-  var guestDisplay = activeNames.length > 0
-    ? activeNames.join(', ')
-    : (!hasGuests && isAttending() && __guests.length > 0 ? __guests.join(', ') : '—');
+  if (ppAttendance) ppAttendance.textContent = isAttending() ? 'Yes' : 'No';
+  /* Guests are only "attending" if the invite is actually attending
+     something — declining both ceremony and reception should read the
+     same as declining outright, regardless of the headcount toggles. */
+  var guestDisplay = anyAttendingNow
+    ? (activeNames.length > 0 ? activeNames.join(', ') : (!hasGuests && __guests.length > 0 ? __guests.join(', ') : '—'))
+    : '—';
   if (ppGuests) ppGuests.textContent = guestDisplay;
 
   /* ── Evening reception row — only relevant for party invites ── */
@@ -803,10 +805,9 @@ function updateSelectionSummary() {
   /* ── Submit button morphs like the prototype ── */
   if (wSubmit && hasGuests) {
     var btnSpan = wSubmit.querySelector('span') || wSubmit;
-    /* Decline only when NOTHING is selected — no ceremony guests AND, for
-       party invites, not attending the evening reception either. A guest
-       skipping the ceremony but joining the reception still counts as attending. */
-    var nothingSelected = activeNames.length === 0 && (!__inviteParty || !isPartyAttending());
+    /* Decline only when neither ceremony nor reception is a Yes — this is
+       the actual attendance state now, not the guest headcount toggles. */
+    var nothingSelected = !anyAttendingNow;
     if (nothingSelected) {
       /* Decline state — same orange treatment as attending */
       btnSpan.textContent = t('sendRsvpBtnDecline') || "We sadly can't make it";
@@ -977,12 +978,14 @@ if (wSubmit) wSubmit.addEventListener("click", async function() {
       }).join(", ")
     : (fn + " " + ln).trim();
 
-  /* Guest toggles are the single source of truth for headcount now
-     (independent of ceremony/reception), so Guests Attending always
-     matches Total Seats: report whoever's checked, or — if everyone
-     declined — the full guest list, so the sheet still shows who the
-     decline belongs to instead of an empty string. */
-  var guestNames = checkedGuestNames || __guests.join(", ") || (fn + " " + ln).trim();
+  /* Guest headcount only counts if the invite is actually attending
+     *something* — otherwise a household marked "Yes" in the guest list
+     but "No" to both ceremony and reception would misleadingly show up
+     as attending guests in the sheet. In that case, treat it exactly
+     like a full decline and report the full invited list instead. */
+  var guestNames = anyAttending
+    ? (checkedGuestNames || __guests.join(", ") || (fn + " " + ln).trim())
+    : (__guests.join(", ") || checkedGuestNames || (fn + " " + ln).trim());
 
   var scriptUrl = window.__GOOGLE_SCRIPT_URL;
   if (!scriptUrl) {
