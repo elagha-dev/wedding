@@ -543,22 +543,34 @@ function applyInviteTypeUI() {
   if (eveningAttendField) eveningAttendField.style.display = __inviteParty ? "" : "none";
 }
 
-/* ── Hide ceremony + reception toggles entirely once every guest in a
-   multi-guest invite has been marked "No" — nobody's left to attend
-   either event, so keep just the single decline state visible. Otherwise
-   both toggles stay visible and independent, same as single-guest invites. */
+/* ── Sync ceremony/reception state with the guest list. ──────────────
+   Church-only invites have exactly one event: guest headcount IS the
+   ceremony answer, same as a single combined toggle would be — so the
+   separate Ceremony field stays hidden and gets derived automatically.
+   Party invites have two events, so ceremony + reception stay as their
+   own independent, explicit toggles (guest checks are pure headcount
+   there), and both get hidden/forced-No only on a full decline. */
 function syncFieldsForGuestDecline() {
   var hasGuestToggles = guestChecksEl && guestChecksEl.querySelectorAll('.guest-toggle-btn').length > 0;
   if (!hasGuestToggles) return; /* single-guest invites are unaffected */
   var anyActive = guestChecksEl.querySelectorAll('.guest-toggle-btn.is-active').length > 0;
   var churchAttendField = document.querySelector('.attend-field');
+
+  if (!__inviteParty) {
+    /* Church-only: guest checks ARE the ceremony mechanism — no separate toggle. */
+    if (churchAttendField) churchAttendField.style.display = 'none';
+    setAttendance(anyActive ? 'Yes' : 'No');
+    return;
+  }
+
+  /* Party invites: ceremony + reception stay independent and explicit. */
   if (churchAttendField) churchAttendField.style.display = anyActive ? '' : 'none';
   if (eveningAttendField) {
-    eveningAttendField.style.display = (__inviteParty && anyActive) ? '' : 'none';
+    eveningAttendField.style.display = anyActive ? '' : 'none';
   }
   if (!anyActive) {
     if (isAttending()) setAttendance('No');
-    if (__inviteParty && isPartyAttending()) setPartyAttendance('No');
+    if (isPartyAttending()) setPartyAttendance('No');
   }
 }
 
@@ -732,6 +744,11 @@ function buildGuestChecks(guests) {
 function syncGuestSplitHint() {
   var hint = document.getElementById('guestSplitHint');
   if (!hint || !guestChecksEl) return;
+  /* Church-only invites: a guest split is already fully captured — the
+     unchecked guest just isn't attending the (only) event. Nothing to
+     suggest a second RSVP for. Only party invites have a second event
+     that per-guest headcount can't represent on its own. */
+  if (!__inviteParty) { hint.style.display = 'none'; return; }
   var total  = guestChecksEl.querySelectorAll('.guest-toggle-btn.guest-yes-btn').length;
   var active = guestChecksEl.querySelectorAll('.guest-toggle-btn.is-active').length;
   var isPartial = total > 1 && active > 0 && active < total;
