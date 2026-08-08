@@ -545,18 +545,20 @@ function applyInviteTypeUI() {
 
 /* ── Hide ceremony + reception toggles entirely once every guest in a
    multi-guest invite has been marked "No" — nobody's left to attend
-   either event, so keep just the single decline state visible. ── */
+   either event, so keep just the single decline state visible. Otherwise
+   both toggles stay visible and independent, same as single-guest invites. */
 function syncFieldsForGuestDecline() {
   var hasGuestToggles = guestChecksEl && guestChecksEl.querySelectorAll('.guest-toggle-btn').length > 0;
   if (!hasGuestToggles) return; /* single-guest invites are unaffected */
   var anyActive = guestChecksEl.querySelectorAll('.guest-toggle-btn.is-active').length > 0;
   var churchAttendField = document.querySelector('.attend-field');
-  if (churchAttendField) churchAttendField.style.display = 'none'; /* already hidden for multi-guest — guest toggles are the mechanism */
+  if (churchAttendField) churchAttendField.style.display = anyActive ? '' : 'none';
   if (eveningAttendField) {
     eveningAttendField.style.display = (__inviteParty && anyActive) ? '' : 'none';
   }
-  if (!anyActive && __inviteParty && isPartyAttending()) {
-    setPartyAttendance('No');
+  if (!anyActive) {
+    if (isAttending()) setAttendance('No');
+    if (__inviteParty && isPartyAttending()) setPartyAttendance('No');
   }
 }
 
@@ -695,11 +697,11 @@ function buildGuestChecks(guests) {
       cb.checked = attending;
       yesBtn.classList.toggle('is-active', attending);
       noBtn.classList.toggle('is-active', !attending);
-      /* For couple invites, derive attendance from guest selections */
-      if (guestChecksEl && guestChecksEl.querySelectorAll('.guest-toggle-btn').length > 0) {
-        var anyActive = guestChecksEl.querySelectorAll('.guest-toggle-btn.is-active').length > 0;
-        setAttendance(anyActive ? 'Yes' : 'No');
-      }
+      /* Guest toggles only track headcount now — ceremony attendance is its
+         own explicit, mandatory toggle (same as reception), not derived
+         from who's checked here. syncFieldsForGuestDecline() still hides
+         both event toggles and force-declines if literally everyone above
+         is set to "No". */
       syncFieldsForGuestDecline();
       syncGuestSplitHint();
       recalcSeats(); fillNameFromGuests(); updateSelectionSummary();
@@ -1328,11 +1330,10 @@ if (bsSubmit) bsSubmit.addEventListener("click", async function() {
     recalcSeats();
     updateAttendanceLabel();
     fillNameFromGuests();
-    /* Hide the Yes/No attend buttons — guest toggles ARE the attendance mechanism */
-    var churchAttendField = document.querySelector('.attend-field');
-    if (churchAttendField) churchAttendField.style.display = 'none';
-    /* Auto-set attendance to Yes since all guests are pre-selected */
-    setAttendance('Yes');
+    /* Ceremony + reception now stay visible as their own explicit,
+       mandatory toggles — same as single-guest invites. Guest checks
+       above just track headcount. syncFieldsForGuestDecline() only hides
+       them if literally everyone is marked "No". */
     syncFieldsForGuestDecline();
     /* Sync submit button and payload bar to initial state */
     updateSelectionSummary();
