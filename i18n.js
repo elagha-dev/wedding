@@ -67,21 +67,27 @@ window.I18N = {
     crewNote       : "Any questions? Reach out to anyone in the crew — they're wonderful and happy to help.",
 
     greetingLetterParty:
-      "<p>Please arrive by <strong>13:30</strong> — the ceremony begins at <strong>14:00</strong> sharp</p><div class=\"loc-chip\">⛪ Schlosskirche &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
-      "<p>🥂 Evening reception from <strong>17:00</strong></p><div class=\"loc-chip\">🥂 Rheinliebe am Deich &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Niederkasseler+Deich+301,+40547+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
-      "<p>It only takes a minute to let us know you'll be there. If you can make it to both — wonderful. If you can only join us for the evening — we'll take it, gladly. Just let us know below.</p>" +
+      "<ul class=\"letter-timeline\">" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">13:30</span><span class=\"letter-timeline-label\">Arrival</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">14:00</span><span class=\"letter-timeline-label\">Ceremony</span><div class=\"letter-timeline-loc\">⛪ Schlosskirche &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">15:00–16:00</span><span class=\"letter-timeline-label\">Get Together (Bring &amp; Share)</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">17:00</span><span class=\"letter-timeline-label\">Evening Reception</span><div class=\"letter-timeline-loc\">🥂 Rheinliebe am Deich &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Niederkasseler+Deich+301,+40547+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div></div></li>" +
+      "</ul>" +
       "<p class=\"deadline\">Please confirm your attendance by <strong>18 September</strong>.</p>",
 
     greetingLetterPartySingle:
-      "<p>Please arrive by <strong>13:30</strong> — the ceremony begins at <strong>14:00</strong> sharp</p><div class=\"loc-chip\">⛪ Schlosskirche &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
-      "<p>🥂 Evening reception from <strong>17:00</strong></p><div class=\"loc-chip\">🥂 Rheinliebe am Deich &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Niederkasseler+Deich+301,+40547+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
-      "<p>It only takes a minute to let us know you'll be there. If you can make it to both — wonderful. If you can only join us for the evening — we'll take it, gladly. Just let us know below.</p>" +
+      "<ul class=\"letter-timeline\">" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">13:30</span><span class=\"letter-timeline-label\">Arrival</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">14:00</span><span class=\"letter-timeline-label\">Ceremony</span><div class=\"letter-timeline-loc\">⛪ Schlosskirche &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">15:00–16:00</span><span class=\"letter-timeline-label\">Get Together (Bring &amp; Share)</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">17:00</span><span class=\"letter-timeline-label\">Evening Reception</span><div class=\"letter-timeline-loc\">🥂 Rheinliebe am Deich &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Niederkasseler+Deich+301,+40547+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div></div></li>" +
+      "</ul>" +
       "<p class=\"deadline\">Please confirm your attendance by <strong>18 September</strong>.</p>",
 
     greetingLetterCeremony:
       "<ul class=\"letter-timeline\">" +
       "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">13:30</span><span class=\"letter-timeline-label\">Arrival</span></div></li>" +
-      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">14:00</span><span class=\"letter-timeline-label\">Ceremony</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">14:00</span><span class=\"letter-timeline-label\">Ceremony</span><div class=\"letter-timeline-loc\">⛪ Schlosskirche &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div></div></li>" +
       "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">15:00–16:00</span><span class=\"letter-timeline-label\">Get Together (Bring &amp; Share)</span></div></li>" +
       "</ul>" +
       "<p class=\"deadline\">Please confirm your attendance by <strong>18 September</strong>.</p>",
@@ -89,7 +95,7 @@ window.I18N = {
     greetingLetterCeremonySingle:
       "<ul class=\"letter-timeline\">" +
       "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">13:30</span><span class=\"letter-timeline-label\">Arrival</span></div></li>" +
-      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">14:00</span><span class=\"letter-timeline-label\">Ceremony</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">14:00</span><span class=\"letter-timeline-label\">Ceremony</span><div class=\"letter-timeline-loc\">⛪ Schlosskirche &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div></div></li>" +
       "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">15:00–16:00</span><span class=\"letter-timeline-label\">Get Together (Bring &amp; Share)</span></div></li>" +
       "</ul>" +
       "<p class=\"deadline\">Please confirm your attendance by <strong>18 September</strong>.</p>",
@@ -382,31 +388,35 @@ window.I18N = {
     crewNote       : "Fragen? Wendet euch an jemanden aus dem Team — sie helfen euch gerne weiter.",
 
     greetingLetterParty:
-      "<p>Wir freuen uns so sehr, euch an unserem Hochzeitstag bei uns zu haben — einem der wichtigsten Tage unseres Lebens. Wir möchten ihn nicht ohne euch erleben.</p>" +
-      "<p>Bitte kommt bis <strong>13:30</strong> — die Trauung beginnt pünktlich um <strong>14:00 Uhr</strong></p><div class=\"loc-chip\">⛪ Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
-      "<p>🥂 Abendempfang ab <strong>17:00 Uhr</strong></p><div class=\"loc-chip\">🥂 Rheinliebe am Deich &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Niederkasseler+Deich+301,+40547+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
-      "<p>Nach der Zeremonie treffen wir uns draußen vor dem Kirchengebäude zum Get Together (Bring & Share) — bei Snacks und Getränken und Zeit miteinander.</p>" +
+      "<ul class=\"letter-timeline\">" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">13:30</span><span class=\"letter-timeline-label\">Ankunft</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">14:00</span><span class=\"letter-timeline-label\">Zeremonie</span><div class=\"letter-timeline-loc\">⛪ Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">15:00–16:00</span><span class=\"letter-timeline-label\">Get Together (Bring &amp; Share)</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">17:00</span><span class=\"letter-timeline-label\">Abendempfang</span><div class=\"letter-timeline-loc\">🥂 Rheinliebe am Deich &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Niederkasseler+Deich+301,+40547+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div></div></li>" +
+      "</ul>" +
       "<p class=\"deadline\">Bitte bestätigt eure Teilnahme bis zum <strong>18. September</strong>.</p>",
 
     greetingLetterPartySingle:
-      "<p>Wir freuen uns so sehr, dich an unserem Hochzeitstag bei uns zu haben — einem der wichtigsten Tage unseres Lebens. Wir möchten ihn nicht ohne dich erleben.</p>" +
-      "<p>Bitte komm bis <strong>13:30</strong> — die Trauung beginnt pünktlich um <strong>14:00 Uhr</strong></p><div class=\"loc-chip\">⛪ Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
-      "<p>🥂 Abendempfang ab <strong>17:00 Uhr</strong></p><div class=\"loc-chip\">🥂 Rheinliebe am Deich &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Niederkasseler+Deich+301,+40547+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
-      "<p>Nach der Zeremonie treffen wir uns draußen vor dem Kirchengebäude zum Get Together (Bring & Share) — bei Snacks und Getränken und Zeit miteinander.</p>" +
+      "<ul class=\"letter-timeline\">" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">13:30</span><span class=\"letter-timeline-label\">Ankunft</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">14:00</span><span class=\"letter-timeline-label\">Zeremonie</span><div class=\"letter-timeline-loc\">⛪ Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">15:00–16:00</span><span class=\"letter-timeline-label\">Get Together (Bring &amp; Share)</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">17:00</span><span class=\"letter-timeline-label\">Abendempfang</span><div class=\"letter-timeline-loc\">🥂 Rheinliebe am Deich &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Niederkasseler+Deich+301,+40547+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div></div></li>" +
+      "</ul>" +
       "<p class=\"deadline\">Bitte bestätige deine Teilnahme bis zum <strong>18. September</strong>.</p>",
 
     greetingLetterCeremony:
       "<ul class=\"letter-timeline\">" +
-      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">13:30</span><span class=\"letter-timeline-label\">Arrival</span></div></li>" +
-      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">14:00</span><span class=\"letter-timeline-label\">Zeremonie</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">13:30</span><span class=\"letter-timeline-label\">Ankunft</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">14:00</span><span class=\"letter-timeline-label\">Zeremonie</span><div class=\"letter-timeline-loc\">⛪ Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div></div></li>" +
       "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">15:00–16:00</span><span class=\"letter-timeline-label\">Get Together (Bring &amp; Share)</span></div></li>" +
       "</ul>" +
       "<p class=\"deadline\">Bitte bestätigt eure Teilnahme bis zum <strong>18. September</strong>.</p>",
 
     greetingLetterCeremonySingle:
       "<ul class=\"letter-timeline\">" +
-      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">13:30</span><span class=\"letter-timeline-label\">Arrival</span></div></li>" +
-      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">14:00</span><span class=\"letter-timeline-label\">Zeremonie</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">13:30</span><span class=\"letter-timeline-label\">Ankunft</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">14:00</span><span class=\"letter-timeline-label\">Zeremonie</span><div class=\"letter-timeline-loc\">⛪ Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div></div></li>" +
       "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">15:00–16:00</span><span class=\"letter-timeline-label\">Get Together (Bring &amp; Share)</span></div></li>" +
       "</ul>" +
       "<p class=\"deadline\">Bitte bestätige deine Teilnahme bis zum <strong>18. September</strong>.</p>",
@@ -686,31 +696,35 @@ window.I18N = {
     crewNote       : "Есть вопросы? Обратитесь к кому-нибудь из команды — они будут рады помочь.",
 
     greetingLetterParty:
-      "<p>Мы так рады пригласить вас разделить с нами наш свадебный день — один из самых важных дней в нашей жизни. Мы не хотим отмечать его без вас.</p>" +
-      "<p>Пожалуйста, приходите к <strong>13:30</strong> — венчание начнётся ровно в <strong>14:00</strong></p><div class=\"loc-chip\">⛪ Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
-      "<p>🥂 Вечерний банкет с <strong>17:00</strong></p><div class=\"loc-chip\">🥂 Rheinliebe am Deich &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Niederkasseler+Deich+301,+40547+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
-      "<p>Это займёт всего минуту — просто дайте нам знать, что придёте, а мы позаботимся об остальном.</p>" +
+      "<ul class=\"letter-timeline\">" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">13:30</span><span class=\"letter-timeline-label\">Прибытие</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">14:00</span><span class=\"letter-timeline-label\">Церемония</span><div class=\"letter-timeline-loc\">⛪ Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">15:00–16:00</span><span class=\"letter-timeline-label\">Get Together (Bring &amp; Share)</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">17:00</span><span class=\"letter-timeline-label\">Вечерний банкет</span><div class=\"letter-timeline-loc\">🥂 Rheinliebe am Deich &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Niederkasseler+Deich+301,+40547+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div></div></li>" +
+      "</ul>" +
       "<p class=\"deadline\">Пожалуйста, подтвердите участие до <strong>18 сентября</strong>.</p>",
 
     greetingLetterPartySingle:
-      "<p>Мы так рады пригласить тебя разделить с нами наш свадебный день — один из самых важных дней в нашей жизни. Мы не хотим отмечать его без тебя.</p>" +
-      "<p>Пожалуйста, приходи к <strong>13:30</strong> — венчание начнётся ровно в <strong>14:00</strong></p><div class=\"loc-chip\">⛪ Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
-      "<p>🥂 Вечерний банкет с <strong>17:00</strong></p><div class=\"loc-chip\">🥂 Rheinliebe am Deich &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Niederkasseler+Deich+301,+40547+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div>" +
-      "<p>Это займёт всего минуту — просто дай нам знать, что придёшь, а мы позаботимся об остальном.</p>" +
+      "<ul class=\"letter-timeline\">" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">13:30</span><span class=\"letter-timeline-label\">Прибытие</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">14:00</span><span class=\"letter-timeline-label\">Церемония</span><div class=\"letter-timeline-loc\">⛪ Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">15:00–16:00</span><span class=\"letter-timeline-label\">Get Together (Bring &amp; Share)</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">17:00</span><span class=\"letter-timeline-label\">Вечерний банкет</span><div class=\"letter-timeline-loc\">🥂 Rheinliebe am Deich &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Niederkasseler+Deich+301,+40547+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div></div></li>" +
+      "</ul>" +
       "<p class=\"deadline\">Пожалуйста, подтверди участие до <strong>18 сентября</strong>.</p>",
 
     greetingLetterCeremony:
       "<ul class=\"letter-timeline\">" +
-      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">13:30</span><span class=\"letter-timeline-label\">Arrival</span></div></li>" +
-      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">14:00</span><span class=\"letter-timeline-label\">Церемония</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">13:30</span><span class=\"letter-timeline-label\">Прибытие</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">14:00</span><span class=\"letter-timeline-label\">Церемония</span><div class=\"letter-timeline-loc\">⛪ Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div></div></li>" +
       "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">15:00–16:00</span><span class=\"letter-timeline-label\">Get Together (Bring &amp; Share)</span></div></li>" +
       "</ul>" +
       "<p class=\"deadline\">Пожалуйста, подтвердите участие до <strong>18 сентября</strong>.</p>",
 
     greetingLetterCeremonySingle:
       "<ul class=\"letter-timeline\">" +
-      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">13:30</span><span class=\"letter-timeline-label\">Arrival</span></div></li>" +
-      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">14:00</span><span class=\"letter-timeline-label\">Церемония</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">13:30</span><span class=\"letter-timeline-label\">Прибытие</span></div></li>" +
+      "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">14:00</span><span class=\"letter-timeline-label\">Церемония</span><div class=\"letter-timeline-loc\">⛪ Schlosskirche Eller &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Schlossallee+6,+40229+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div></div></li>" +
       "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">15:00–16:00</span><span class=\"letter-timeline-label\">Get Together (Bring &amp; Share)</span></div></li>" +
       "</ul>" +
       "<p class=\"deadline\">Пожалуйста, подтверди участие до <strong>18 сентября</strong>.</p>",
