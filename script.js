@@ -2225,7 +2225,7 @@ function weScrollRsvpIntoView(target, topBufferPx) {
   if (days > 0) {
     var ribbon = document.createElement('div');
     ribbon.id = 'weRsvpDeadline';
-    ribbon.innerHTML = '<span class="we-dot"></span> Confirm attendance by 18.09';
+    ribbon.innerHTML = '<span class="we-dot"></span> Confirm attendance by 14.09';
     document.body.appendChild(ribbon);
   }
 
