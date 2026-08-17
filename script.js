@@ -1330,6 +1330,13 @@ if (bsSubmit) bsSubmit.addEventListener("click", async function() {
   __guests   = guests;
   __isCouple = isCouple;
 
+  /* ── card01 title — "Are you in?" singular vs plural ────── */
+  var card01TitleEl = document.getElementById('card01Title');
+  if (card01TitleEl) {
+    var span01t = card01TitleEl.querySelector('[data-i18n]') || card01TitleEl;
+    span01t.textContent = t(__isCouple ? 'card01TitlePlural' : 'card01TitleSingle');
+  }
+
   /* ── Pre-fill name fields ──────────────────────────────── */
   var firstField = document.querySelector('[name="first_name"]');
     if (firstField && prefillFirst) firstField.value = prefillFirst;

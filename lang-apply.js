@@ -37,6 +37,13 @@
     el.placeholder = t(key);
   });
 
+  /* ── 3a. card01 title — depends on single vs couple invite ── */
+  var c01title = document.getElementById('card01Title');
+  if (c01title) {
+    var span01t = c01title.querySelector('[data-i18n]') || c01title;
+    span01t.textContent = t(window.__isCouple ? 'card01TitlePlural' : 'card01TitleSingle');
+  }
+
   /* ── 3. card04 label/title — depends on party invite flag ── */
   var c04label = document.getElementById('card04Label');
   var c04title = document.getElementById('card04Title');

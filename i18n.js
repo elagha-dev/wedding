@@ -19,7 +19,9 @@ window.I18N = {
 
     /* ── Card topline labels ── */
     card01Label : "Kindly Reply",
-    card01Title : "Participation",
+    card01Title : "Are You In?",
+    card01TitleSingle : "Are You In?",
+    card01TitlePlural : "Are You Both In?",
     card02Label : "Our Story",
     card02Title : "Our Story",
     card03Label : "Planning Crew",
@@ -313,7 +315,7 @@ window.I18N = {
 
     /* ── Content: Dress Code ── */
     dressIntro : "Elegant classic attire in soft neutrals and deep classic tones.",
-    dressNote  : "Please avoid neon tones and very bright patterns.",
+    dressNote  : "Please avoid neon tones and very bright patterns. Please, no white dresses for women.",
     dressColors: [
       { name: "White",  cls: "champagne" },
       { name: "Ivory",  cls: "ivory"     },
@@ -346,7 +348,9 @@ window.I18N = {
     countdownSec   : "Sek",
 
     card01Label : "Bitte antworten",
-    card01Title : "Teilnahme",
+    card01Title : "Bist du dabei?",
+    card01TitleSingle : "Bist du dabei?",
+    card01TitlePlural : "Seid ihr dabei?",
     card02Label : "Unsere Geschichte",
     card02Title : "Unsere Geschichte",
     card03Label : "Unser Team",
@@ -522,11 +526,11 @@ window.I18N = {
     gateBody         : "<div class='gate-timeline'><span class='gate-tl-item'><strong>13:30</strong> Arrival</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>14:00</strong> Ceremony</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>15:00</strong> Get Together (Bring &amp; Share)</span></div><br>Nach der Zeremonie treffen wir uns draußen vor dem Kirchengebäude bei Snacks und Getränken — und verbringen Zeit miteinander. Wer möchte, bringt gerne etwas zum Teilen mit. ♡",
     gateBodyParty    : "<div class='gate-timeline'><span class='gate-tl-item'><strong>13:30</strong> Arrival</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>14:00</strong> Ceremony</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>15:00</strong> Get Together (Bring &amp; Share)</span><span class='gate-tl-sep'>→</span><span class='gate-tl-item'><strong>17:00</strong> Evening Reception</span></div><br>Nach der Zeremonie treffen wir uns draußen vor dem Kirchengebäude bei Snacks und Getränken — und verbringen Zeit miteinander. Wer möchte, bringt gerne etwas zum Teilen mit. Am Abend geht die Feier mit einem Abendempfang ab 17:00 Uhr weiter. ♡",
     gateNote         : "Möchtet ihr etwas mitbringen? Ihr könnt euch bei eurer Rückmeldung eintragen. ♡",
-    gateCtaBtn       : "Zur Anmeldung →",
+    gateCtaBtn       : "Anwesenheit eintragen →",
     gateSkipBtn      : "Ich schaue mich erst um",
     scrollLockTitle  : "Kurz innehalten, {name}",
     scrollLockBody   : "Du hast die Teilnahme überscrollt.<br>Es dauert weniger als eine Minute — und es bedeutet<br>uns alles, zu wissen, dass du dabei bist.",
-    scrollLockCta    : "Zur Anmeldung →",
+    scrollLockCta    : "Anwesenheit eintragen →",
     scrollLockSkip   : "Weiter stöbern",
     bannerBtn : "Hier anmelden ↓",
     viewOnMap : "Auf der Karte anzeigen ↗",
@@ -622,7 +626,7 @@ window.I18N = {
     ],
 
     dressIntro : "Elegante klassische Garderobe in sanften Neutraltönen und tiefen klassischen Farben.",
-    dressNote  : "Bitte vermeidet Neonfarben und sehr bunte Muster.",
+    dressNote  : "Bitte vermeidet Neonfarben und sehr bunte Muster. Bitte keine weißen Kleider für Frauen.",
     dressColors: [
       { name: "Weiß",         cls: "champagne" },
       { name: "Elfenbein",    cls: "ivory"     },
@@ -654,7 +658,9 @@ window.I18N = {
     countdownSec   : "сек",
 
     card01Label : "Ждём ответа",
-    card01Title : "Участие",
+    card01Title : "Ты с нами?",
+    card01TitleSingle : "Ты с нами?",
+    card01TitlePlural : "Вы с нами?",
     card02Label : "Наша история",
     card02Title : "Наша история",
     card03Label : "Наша команда",
@@ -930,7 +936,7 @@ window.I18N = {
     ],
 
     dressIntro : "Элегантный классический наряд в мягких нейтральных и глубоких классических тонах.",
-    dressNote  : "Пожалуйста, избегайте ярких неоновых тонов и броских рисунков.",
+    dressNote  : "Пожалуйста, избегайте ярких неоновых тонов и броских рисунков. Просьба не надевать белые платья.",
     dressColors: [
       { name: "Белый",       cls: "champagne" },
       { name: "Слоновая кость", cls: "ivory"  },
