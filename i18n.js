@@ -75,7 +75,7 @@ window.I18N = {
       "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">15:00–16:00</span><span class=\"letter-timeline-label\">Get Together (Bring &amp; Share)</span></div></li>" +
       "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">17:00</span><span class=\"letter-timeline-label\">Evening Reception</span><div class=\"letter-timeline-loc\">🥂 Rheinliebe am Deich &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Niederkasseler+Deich+301,+40547+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div></div></li>" +
       "</ul>" +
-      "<p class=\"deadline\">Please confirm your attendance by <strong>18 September</strong>.</p>",
+      "<p class=\"deadline\">Please confirm your attendance by <strong>14 September</strong>.</p>",
 
     greetingLetterPartySingle:
       "<ul class=\"letter-timeline\">" +
@@ -84,7 +84,7 @@ window.I18N = {
       "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">15:00–16:00</span><span class=\"letter-timeline-label\">Get Together (Bring &amp; Share)</span></div></li>" +
       "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">17:00</span><span class=\"letter-timeline-label\">Evening Reception</span><div class=\"letter-timeline-loc\">🥂 Rheinliebe am Deich &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Niederkasseler+Deich+301,+40547+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div></div></li>" +
       "</ul>" +
-      "<p class=\"deadline\">Please confirm your attendance by <strong>18 September</strong>.</p>",
+      "<p class=\"deadline\">Please confirm your attendance by <strong>14 September</strong>.</p>",
 
     greetingLetterCeremony:
       "<ul class=\"letter-timeline\">" +
@@ -92,7 +92,7 @@ window.I18N = {
       "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">14:00</span><span class=\"letter-timeline-label\">Ceremony</span></div></li>" +
       "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">15:00–16:00</span><span class=\"letter-timeline-label\">Get Together (Bring &amp; Share)</span></div></li>" +
       "</ul>" +
-      "<p class=\"deadline\">Please confirm your attendance by <strong>18 September</strong>.</p>",
+      "<p class=\"deadline\">Please confirm your attendance by <strong>14 September</strong>.</p>",
 
     greetingLetterCeremonySingle:
       "<ul class=\"letter-timeline\">" +
@@ -100,7 +100,7 @@ window.I18N = {
       "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">14:00</span><span class=\"letter-timeline-label\">Ceremony</span></div></li>" +
       "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">15:00–16:00</span><span class=\"letter-timeline-label\">Get Together (Bring &amp; Share)</span></div></li>" +
       "</ul>" +
-      "<p class=\"deadline\">Please confirm your attendance by <strong>18 September</strong>.</p>",
+      "<p class=\"deadline\">Please confirm your attendance by <strong>14 September</strong>.</p>",
 
     /* ── RSVP Wizard ── */
     step1Label       : "Step 1 of 2 — Your Details & Attendance",
