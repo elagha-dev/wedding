@@ -398,7 +398,7 @@ window.I18N = {
       "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">15:00–16:00</span><span class=\"letter-timeline-label\">Get Together (Bring &amp; Share)</span></div></li>" +
       "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">17:00</span><span class=\"letter-timeline-label\">Abendempfang</span><div class=\"letter-timeline-loc\">🥂 Rheinliebe am Deich &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Niederkasseler+Deich+301,+40547+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div></div></li>" +
       "</ul>" +
-      "<p class=\"deadline\">Bitte bestätigt eure Teilnahme bis zum <strong>18. September</strong>.</p>",
+      "<p class=\"deadline\">Bitte bestätigt eure Teilnahme bis zum <strong>14. September</strong>.</p>",
 
     greetingLetterPartySingle:
       "<ul class=\"letter-timeline\">" +
@@ -407,7 +407,7 @@ window.I18N = {
       "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">15:00–16:00</span><span class=\"letter-timeline-label\">Get Together (Bring &amp; Share)</span></div></li>" +
       "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">17:00</span><span class=\"letter-timeline-label\">Abendempfang</span><div class=\"letter-timeline-loc\">🥂 Rheinliebe am Deich &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Niederkasseler+Deich+301,+40547+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div></div></li>" +
       "</ul>" +
-      "<p class=\"deadline\">Bitte bestätige deine Teilnahme bis zum <strong>18. September</strong>.</p>",
+      "<p class=\"deadline\">Bitte bestätige deine Teilnahme bis zum <strong>14. September</strong>.</p>",
 
     greetingLetterCeremony:
       "<ul class=\"letter-timeline\">" +
@@ -415,7 +415,7 @@ window.I18N = {
       "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">14:00</span><span class=\"letter-timeline-label\">Zeremonie</span></div></li>" +
       "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">15:00–16:00</span><span class=\"letter-timeline-label\">Get Together (Bring &amp; Share)</span></div></li>" +
       "</ul>" +
-      "<p class=\"deadline\">Bitte bestätigt eure Teilnahme bis zum <strong>18. September</strong>.</p>",
+      "<p class=\"deadline\">Bitte bestätigt eure Teilnahme bis zum <strong>14. September</strong>.</p>",
 
     greetingLetterCeremonySingle:
       "<ul class=\"letter-timeline\">" +
@@ -423,7 +423,7 @@ window.I18N = {
       "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">14:00</span><span class=\"letter-timeline-label\">Zeremonie</span></div></li>" +
       "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">15:00–16:00</span><span class=\"letter-timeline-label\">Get Together (Bring &amp; Share)</span></div></li>" +
       "</ul>" +
-      "<p class=\"deadline\">Bitte bestätige deine Teilnahme bis zum <strong>18. September</strong>.</p>",
+      "<p class=\"deadline\">Bitte bestätige deine Teilnahme bis zum <strong>14. September</strong>.</p>",
 
     step1Label       : "Schritt 1 von 2 — Eure Daten & Teilnahme",
     step1LabelChurch : "Schritt 1 von 2 — Eure Daten & Teilnahme an der Trauung",
@@ -708,7 +708,7 @@ window.I18N = {
       "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">15:00–16:00</span><span class=\"letter-timeline-label\">Get Together (Bring &amp; Share)</span></div></li>" +
       "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">17:00</span><span class=\"letter-timeline-label\">Вечерний банкет</span><div class=\"letter-timeline-loc\">🥂 Rheinliebe am Deich &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Niederkasseler+Deich+301,+40547+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div></div></li>" +
       "</ul>" +
-      "<p class=\"deadline\">Пожалуйста, подтвердите участие до <strong>18 сентября</strong>.</p>",
+      "<p class=\"deadline\">Пожалуйста, подтвердите участие до <strong>14 сентября</strong>.</p>",
 
     greetingLetterPartySingle:
       "<ul class=\"letter-timeline\">" +
@@ -717,7 +717,7 @@ window.I18N = {
       "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">15:00–16:00</span><span class=\"letter-timeline-label\">Get Together (Bring &amp; Share)</span></div></li>" +
       "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">17:00</span><span class=\"letter-timeline-label\">Вечерний банкет</span><div class=\"letter-timeline-loc\">🥂 Rheinliebe am Deich &nbsp;·&nbsp; <a href=\"https://maps.google.com/?q=Rheinliebe+am+Deich,+Niederkasseler+Deich+301,+40547+D%C3%BCsseldorf\" target=\"_blank\" rel=\"noopener\">Google Maps ↗</a></div></div></li>" +
       "</ul>" +
-      "<p class=\"deadline\">Пожалуйста, подтверди участие до <strong>18 сентября</strong>.</p>",
+      "<p class=\"deadline\">Пожалуйста, подтверди участие до <strong>14 сентября</strong>.</p>",
 
     greetingLetterCeremony:
       "<ul class=\"letter-timeline\">" +
@@ -725,7 +725,7 @@ window.I18N = {
       "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">14:00</span><span class=\"letter-timeline-label\">Церемония</span></div></li>" +
       "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">15:00–16:00</span><span class=\"letter-timeline-label\">Get Together (Bring &amp; Share)</span></div></li>" +
       "</ul>" +
-      "<p class=\"deadline\">Пожалуйста, подтвердите участие до <strong>18 сентября</strong>.</p>",
+      "<p class=\"deadline\">Пожалуйста, подтвердите участие до <strong>14 сентября</strong>.</p>",
 
     greetingLetterCeremonySingle:
       "<ul class=\"letter-timeline\">" +
@@ -733,7 +733,7 @@ window.I18N = {
       "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">14:00</span><span class=\"letter-timeline-label\">Церемония</span></div></li>" +
       "<li class=\"letter-timeline-item\"><span class=\"letter-timeline-dot\"></span><div class=\"letter-timeline-body\"><span class=\"letter-timeline-time\">15:00–16:00</span><span class=\"letter-timeline-label\">Get Together (Bring &amp; Share)</span></div></li>" +
       "</ul>" +
-      "<p class=\"deadline\">Пожалуйста, подтверди участие до <strong>18 сентября</strong>.</p>",
+      "<p class=\"deadline\">Пожалуйста, подтверди участие до <strong>14 сентября</strong>.</p>",
 
     step1Label       : "Шаг 1 из 2 — Ваши данные и посещение",
     step1LabelChurch : "Шаг 1 из 2 — Ваши данные и посещение венчания",
