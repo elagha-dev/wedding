@@ -647,19 +647,23 @@
       padding: 2px 6px;
     }
     .gift-banner-note {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
       font-family: WeddingSerif, Georgia, serif;
-      font-size: 10.5px;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      color: #fff;
-      background: #C9702A;
+      font-size: 11px;
+      letter-spacing: .01em;
+      text-transform: none;
+      text-align: left;
+      color: rgba(49,39,28,.65);
+      background: rgba(122,81,51,.06);
+      border: 1px solid rgba(122,81,51,.15);
       border-radius: 6px;
-      padding: 9px 20px;
-      margin: 6px 0 0;
+      padding: 10px 14px;
+      margin: 16px 0 0;
+      line-height: 1.5;
     }
+    .gift-banner-note:empty { display: none; }
 
     /* ── Seat confirm (step 3) ───────────────────────────── */
     .seat-confirm {
@@ -1229,8 +1233,8 @@
 
       <div class="gift-banner" id="giftBanner">
         <div class="gift-banner-icon">♡</div>
-        <p class="gift-banner-title"><span data-i18n="giftBannerTitle">Your presence is already our greatest gift</span></p>
-        <p class="gift-banner-body"><span data-i18n="giftBannerBody">If you want to bless us with something — a contribution towards our new home or honeymoon would mean the world to us.</span></p>
+        <p class="gift-banner-title"><span data-i18n="giftBannerTitle">No wish list</span></p>
+        <p class="gift-banner-body"><span data-i18n="giftBannerBody">The greatest gift for us is simply sharing this special day with you. If you'd still like to give us something, we'd be grateful for a contribution towards our new life together.</span></p>
         <p class="gift-banner-note" id="giftBannerNote"></p>
       </div>
 

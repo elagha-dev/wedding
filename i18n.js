@@ -190,9 +190,9 @@ window.I18N = {
 
     /* ── Gift banner ── */
     giftBannerTitle  : "No wish list",
-    giftBannerBody   : "You being there is honestly the gift. If you'd still like to give something, a contribution toward our new home or honeymoon would mean a lot to us.",
-    giftNoteCeremony : "🎁 Gift box at the church",
-    giftNoteParty    : "🎁 Gift box at the church & the venue",
+    giftBannerBody   : "The greatest gift for us is simply sharing this special day with you. If you'd still like to give us something, we'd be grateful for a contribution towards our new life together.",
+    giftNoteCeremony : "🎁 A gift box will be ready at the church on the wedding day for your cards and envelopes.",
+    giftNoteParty    : "🎁 A gift box will be ready at the church on the wedding day for your cards and envelopes.",
     bringShareNudge  : "Bring & Share 🧁",
 
     /* ── Sticky banner ── */
@@ -507,9 +507,9 @@ window.I18N = {
     successCardDecline     : "Schade, dass ihr nicht kommen könnt. Danke für eure Rückmeldung.",
 
     giftBannerTitle  : "Keine Wunschliste",
-    giftBannerBody   : "Dass ihr da seid, ist für uns schon das Geschenk. Wenn ihr uns trotzdem etwas schenken möchtet, freuen wir uns über einen Beitrag zu unserem neuen Zuhause oder unseren Flitterwochen.",
-    giftNoteCeremony : "🎁 Geschenkbox in der Kirche",
-    giftNoteParty    : "🎁 Geschenkbox in der Kirche & an der Location",
+    giftBannerBody   : "Das schönste Geschenk ist für uns, diesen besonderen Tag mit euch zu teilen. Falls ihr uns dennoch etwas schenken möchtet, freuen wir uns über einen Beitrag für unseren gemeinsamen Start ins Eheleben.",
+    giftNoteCeremony : "🎁 Für eure Karten und Umschläge steht am Hochzeitstag eine Geschenkbox in der Kirche bereit.",
+    giftNoteParty    : "🎁 Für eure Karten und Umschläge steht am Hochzeitstag eine Geschenkbox in der Kirche bereit.",
     bringShareNudge  : "Bring & Share 🧁",
 
     bannerText: "📋 Bitte meldet euch an",
@@ -815,9 +815,9 @@ window.I18N = {
     successCardDecline     : "Жаль, что вы не сможете прийти. Спасибо, что сообщили нам.",
 
     giftBannerTitle  : "Списка подарков нет",
-    giftBannerBody   : "Для нас важнее всего, что вы будете рядом. Если всё же захотите нас порадовать, будем благодарны за вклад в наш новый дом или медовый месяц.",
-    giftNoteCeremony : "🎁 Подарочная коробка в церкви",
-    giftNoteParty    : "🎁 Подарочная коробка в церкви и на площадке",
+    giftBannerBody   : "Самый лучший подарок для нас — это разделить этот особенный день с вами. Но если вы всё же захотите нас порадовать, мы будем благодарны за вклад в начало нашей совместной семейной жизни.",
+    giftNoteCeremony : "🎁 В день свадьбы в церкви будет стоять коробка для ваших открыток и конвертов.",
+    giftNoteParty    : "🎁 В день свадьбы в церкви будет стоять коробка для ваших открыток и конвертов.",
     bringShareNudge  : "Bring & Share 🧁",
 
     bannerText: "📋 Пожалуйста, заполните анкету",
