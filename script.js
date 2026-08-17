@@ -2185,7 +2185,7 @@ function weScrollRsvpIntoView(target, topBufferPx) {
   /* ── Build deadline text ── */
   function daysUntilDeadline() {
     var now = new Date();
-    var d   = new Date('2026-09-18T23:59:59');
+    var d   = new Date('2026-09-14T23:59:59');
     var diff = Math.ceil((d - now) / 86400000);
     return diff > 0 ? diff : 0;
   }
