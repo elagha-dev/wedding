@@ -552,13 +552,6 @@
       color: #31271C;
       margin: 0 0 10px;
     }
-    .gift-banner-box {
-      background: #fff;
-      border: 1px solid rgba(122,81,51,.18);
-      box-shadow: 0 2px 10px rgba(49,39,28,.06);
-      padding: 22px 24px 18px;
-      margin-top: 4px;
-    }
     .gift-banner-body {
       font-family: WeddingSerif, Georgia, serif;
       font-size: clamp(12px,1vw,14px);
@@ -566,6 +559,17 @@
       line-height: 1.7;
       margin: 0 0 16px;
     }
+    .gift-banner-box {
+      background: #fff;
+      border: 1px solid rgba(224,112,32,.35);
+      border-left: 4px solid #E07020;
+      box-shadow: 0 4px 16px rgba(49,39,28,.08);
+      border-radius: 2px;
+      padding: 16px 20px;
+      margin: 0;
+      text-align: left;
+    }
+    .gift-banner-box:empty { display: none; }
     .spotify-btn {
       display: inline-block;
       margin-top: 16px;
@@ -656,15 +660,14 @@
     .gift-banner-note {
       display: block;
       font-family: WeddingSerif, Georgia, serif;
-      font-size: 10.5px;
-      letter-spacing: .03em;
+      font-size: 12.5px;
+      font-weight: 600;
+      letter-spacing: .01em;
       text-transform: none;
-      text-align: center;
-      color: rgba(49,39,28,.55);
-      padding-top: 14px;
-      margin: 18px 0 0;
-      border-top: 1px solid rgba(122,81,51,.15);
-      line-height: 1.6;
+      text-align: left;
+      color: #31271C;
+      margin: 0;
+      line-height: 1.65;
     }
     .gift-banner-note:empty { display: none; }
 
@@ -1235,10 +1238,10 @@
       </div>
 
       <div class="gift-banner" id="giftBanner">
-        <div class="gift-banner-icon">♡</div>
+        <div class="gift-banner-icon">🎁</div>
         <p class="gift-banner-title"><span data-i18n="giftBannerTitle">Wedding Gift</span></p>
+        <p class="gift-banner-body"><span data-i18n="giftBannerBody">The greatest gift for us is simply sharing this special day with you. If you'd still like to give us something, we'd be grateful for a contribution towards our new life together.</span></p>
         <div class="gift-banner-box">
-          <p class="gift-banner-body"><span data-i18n="giftBannerBody">The greatest gift for us is simply sharing this special day with you. If you'd still like to give us something, we'd be grateful for a contribution towards our new life together.</span></p>
           <p class="gift-banner-note" id="giftBannerNote"></p>
         </div>
       </div>

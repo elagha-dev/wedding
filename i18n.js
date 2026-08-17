@@ -191,8 +191,8 @@ window.I18N = {
     /* ── Gift banner ── */
     giftBannerTitle  : "Wedding Gift",
     giftBannerBody   : "The greatest gift for us is simply sharing this special day with you. If you'd still like to give us something, we'd be grateful for a contribution towards our new life together.",
-    giftNoteCeremony : "🎁 A gift box will be ready at the church on the wedding day for your cards and envelopes.",
-    giftNoteParty    : "🎁 A gift box will be ready at the church, and at the venue in the evening, for your cards and envelopes.",
+    giftNoteCeremony : "A gift box will be ready at the church on the wedding day for your cards and envelopes.",
+    giftNoteParty    : "A gift box will be ready at the church, and at the venue in the evening, for your cards and envelopes.",
     bringShareNudge  : "Bring & Share 🧁",
 
     /* ── Sticky banner ── */
@@ -508,8 +508,8 @@ window.I18N = {
 
     giftBannerTitle  : "Hochzeitsgeschenk",
     giftBannerBody   : "Das schönste Geschenk ist für uns, diesen besonderen Tag mit euch zu teilen. Falls ihr uns dennoch etwas schenken möchtet, freuen wir uns über einen Beitrag für unseren gemeinsamen Start ins Eheleben.",
-    giftNoteCeremony : "🎁 Für eure Karten und Umschläge steht am Hochzeitstag eine Geschenkbox in der Kirche bereit.",
-    giftNoteParty    : "🎁 Für eure Karten und Umschläge steht am Hochzeitstag eine Geschenkbox in der Kirche und abends auch an der Location bereit.",
+    giftNoteCeremony : "Für eure Karten und Umschläge steht am Hochzeitstag eine Geschenkbox in der Kirche bereit.",
+    giftNoteParty    : "Für eure Karten und Umschläge steht am Hochzeitstag eine Geschenkbox in der Kirche und abends auch an der Location bereit.",
     bringShareNudge  : "Bring & Share 🧁",
 
     bannerText: "📋 Bitte meldet euch an",
@@ -816,8 +816,8 @@ window.I18N = {
 
     giftBannerTitle  : "Свадебный подарок",
     giftBannerBody   : "Самый лучший подарок для нас — это разделить этот особенный день с вами. Но если вы всё же захотите нас порадовать, мы будем благодарны за вклад в начало нашей совместной семейной жизни.",
-    giftNoteCeremony : "🎁 В день свадьбы в церкви будет стоять коробка для ваших открыток и конвертов.",
-    giftNoteParty    : "🎁 В день свадьбы коробка для ваших открыток и конвертов будет стоять в церкви, а вечером — также на площадке.",
+    giftNoteCeremony : "В день свадьбы в церкви будет стоять коробка для ваших открыток и конвертов.",
+    giftNoteParty    : "В день свадьбы коробка для ваших открыток и конвертов будет стоять в церкви, а вечером — также на площадке.",
     bringShareNudge  : "Bring & Share 🧁",
 
     bannerText: "📋 Пожалуйста, заполните анкету",
