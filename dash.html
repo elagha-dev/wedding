@@ -2496,15 +2496,23 @@ function attachSwipe(card){
 
   function openCard(dir){
     // dir: 1 = slide right (reveals left action), -1 = slide left (reveals right action)
+    // Guard: some card types (e.g. pair cards) only define a panel on one side.
+    // Opening toward a side with no panel would just expose blank background,
+    // so treat that as "nothing to reveal" and snap shut instead.
+    var revealSel = dir === 1 ? '.g-swipe-action-left' : '.g-swipe-action-right';
+    if(!wrap.querySelector(revealSel)){ closeCard(); return; }
+
     var x = dir * OPEN_X;
     snapTo(x);
     isOpen = true; openDir = dir;
     wrap.classList.toggle('sw-open-right', dir === 1);
     wrap.classList.toggle('sw-open-left', dir === -1);
-    // Reset inline styles so CSS takes over at full 80px
-    var btnSel = dir === 1 ? '.g-swipe-action-left' : '.g-swipe-action-right';
-    var btn = wrap.querySelector(btnSel);
-    if(btn){ btn.style.opacity=''; var ic = btn.querySelector('.g-swipe-action-icon'); if(ic) ic.style.transform=''; }
+    // Reset inline styles on BOTH panels so no stale partial-opacity from an
+    // interrupted drag carries over and renders as a washed-out/blank panel.
+    wrap.querySelectorAll('.g-swipe-action-left,.g-swipe-action-right').forEach(function(b){
+      b.style.opacity='';
+      var ic = b.querySelector('.g-swipe-action-icon'); if(ic) ic.style.transform='';
+    });
     if(navigator.vibrate) navigator.vibrate(18);
   }
 
@@ -2555,8 +2563,12 @@ function attachSwipe(card){
     // If card is open, offset from open position
     var base = isOpen ? openDir * OPEN_X : 0;
     var raw = base + dx;
-    // Hard cap at OPEN_X — card never slides further than the button width
-    var clamped = Math.max(-OPEN_X, Math.min(OPEN_X, raw));
+    // Hard cap at OPEN_X — card never slides further than the button width.
+    // Also cap at 0 toward any side with no defined panel, so a drag can't
+    // expose blank background where a reveal panel doesn't exist.
+    var maxRight = wrap.querySelector('.g-swipe-action-left') ? OPEN_X : 0;
+    var maxLeft = wrap.querySelector('.g-swipe-action-right') ? OPEN_X : 0;
+    var clamped = Math.max(-maxLeft, Math.min(maxRight, raw));
     card.style.transform = 'translateX('+clamped+'px)';
     // Show the relevant action button during drag, growing with drag distance
     wrap.classList.remove('sw-open-left','sw-open-right');
