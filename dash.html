@@ -314,7 +314,11 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .chip-type{background:var(--gold-pale);color:var(--rose-deep)}
 .chip-lang{background:var(--parchment);color:var(--muted)}
 .chip-rsvp{background:var(--green-bg);color:var(--green)}
-.chip-child{background:#EAF0FA;color:#4A6EA8}.is-child .g-inner-right .ga-btn,.is-child .g-inner-right .ga-btn-wa,.is-child .g-inner-right .g-del{display:none!important}
+.chip-child{background:#EAF0FA;color:#4A6EA8}.is-child .g-inner-right .ga-btn-wa,.is-child .g-inner-right .g-del{display:none!important}
+.ga-btn-rsvp-yes:hover{color:var(--green);background:rgba(58,140,92,.12)}.ga-btn-rsvp-yes.active{color:#fff;background:var(--green)}
+.ga-btn-rsvp-no:hover{color:var(--red);background:rgba(192,64,46,.12)}.ga-btn-rsvp-no.active{color:#fff;background:var(--red)}
+/* Manual RSVP buttons stay visible for children even though other action buttons are hidden for them */
+.g-card.is-child .g-inner-right .ga-btn-rsvp-yes,.g-card.is-child .g-inner-right .ga-btn-rsvp-no{display:flex!important}
 .g-tags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:7px}
 .g-note{font-size:10.5px;color:var(--amber);margin-bottom:6px;font-style:italic}
 .g-actions{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
@@ -1470,7 +1474,7 @@ function saveGuestMeta(){
   try{
     var m={};
     importQueue.forEach(function(g){
-      m[g.name]={note:g.note||'',followup:!!g.followup,skipped:!!g.skipped,pendingSent:!!g.pendingSent,sent:!!g.sent,sentAt:g.sentAt||'',sentBy:g.sentBy||'',msgLang:g.msgLang||'',bulkWith:g.bulkWith||'',sentGroupId:g.sentGroupId||'',sender:g.sender||'',phone:g.phone||'',type:g.type||'',lang:g.lang||'',group:g.group||''};
+      m[g.name]={note:g.note||'',followup:!!g.followup,skipped:!!g.skipped,pendingSent:!!g.pendingSent,sent:!!g.sent,sentAt:g.sentAt||'',sentBy:g.sentBy||'',msgLang:g.msgLang||'',bulkWith:g.bulkWith||'',sentGroupId:g.sentGroupId||'',sender:g.sender||'',phone:g.phone||'',type:g.type||'',lang:g.lang||'',group:g.group||'',manualRsvp:g.manualRsvp||''};
     });
     localStorage.setItem('ww_gm',JSON.stringify(m));
     if(importQueue.length)localStorage.setItem('ww_pending',JSON.stringify(importQueue));
@@ -1550,6 +1554,7 @@ function applyGuestMeta(){
       g.msgLang=d.msgLang||'';
       g.bulkWith=d.bulkWith||'';
       g.sentGroupId=d.sentGroupId||'';
+      g.manualRsvp=d.manualRsvp||'';
       // locally-edited fields — only override if local has a value
       if(d.sender)g.sender=d.sender;
       if(d.phone)g.phone=d.phone;
@@ -1958,6 +1963,8 @@ function renderGuestList(){
         showUndo('Marked '+g.name+' as sent',function(){g.sent=prevSent;g.sentAt='';g.sentBy=prevSentBy;g.followup=prevFollowup;if(!prevSent){todayCount=Math.max(0,todayCount-1);updateTodayBadge();}pushUnsentToWorker(g.name);saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();});
       }
       else if(a==='confirm-no'){g.pendingSent=false;saveGuestMeta();renderGuestList();}
+      else if(a==='rsvp-yes'){g.manualRsvp=(g.manualRsvp==='yes')?'':'yes';saveGuestMeta();renderGuestList();renderDashboard();}
+      else if(a==='rsvp-no'){g.manualRsvp=(g.manualRsvp==='no')?'':'no';saveGuestMeta();renderGuestList();renderDashboard();}
     });
   });
 
@@ -1993,7 +2000,12 @@ function buildPairSentCard(g1,g2){
   +'</div>';
 }
 
-function getGuestRsvpInfo(name, isCouple, knownPartnerName){
+function getGuestRsvpInfo(name, isCouple, knownPartnerName, manualOverride){
+  /* Manual override — set by a human directly on a guest who can't RSVP
+     themselves (children, guests replying by phone, etc). Always wins over
+     automatic matching; skips it entirely. */
+  if(manualOverride==='yes') return {isYes:true,isNo:false,matched:true,persons:[],guestsAttending:'',row:null,manual:true};
+  if(manualOverride==='no')  return {isYes:false,isNo:true,matched:true,persons:[],guestsAttending:'',row:null,manual:true};
   try{
     var cached=JSON.parse(localStorage.getItem('rsvpLastData'));
     if(!cached||!Array.isArray(cached.rsvpRows)) return null;
@@ -2172,8 +2184,8 @@ function getGuestRsvpInfo(name, isCouple, knownPartnerName){
   }catch(e){ return null; }
 }
 
-function getGuestRsvpPill(name, isCouple, knownPartnerName){
-  var info=getGuestRsvpInfo(name, isCouple, knownPartnerName);
+function getGuestRsvpPill(name, isCouple, knownPartnerName, manualOverride){
+  var info=getGuestRsvpInfo(name, isCouple, knownPartnerName, manualOverride);
   if(!info) return '';
   /* For couples: show per-person mini tags — color (not a symbol) carries yes/no */
   if(info.persons&&info.persons.length>1){
@@ -2271,7 +2283,7 @@ function debugNoMatch(g, partnerName){
 // getGuestRsvpInfo's household logic), for tallying up e.g. the Sent section.
 function getGuestRsvpYesNo(g){
   var isCoupleGuest=g.type==='couple-ceremony'||g.type==='couple-party';
-  var info=getGuestRsvpInfo(g.name, isCoupleGuest, inferPartnerName(g));
+  var info=getGuestRsvpInfo(g.name, isCoupleGuest, inferPartnerName(g), g.manualRsvp);
   if(!info) return null;
   return info.isYes ? true : (info.isNo ? false : null);
 }
@@ -2286,12 +2298,14 @@ function buildGuestCard(g){
   var cls='g-card'+(isSel?' sel':'')+(g.followup&&!g.sent?' fup':'')+(g.sent?' sent':'')+(isPending?' pending-sent':'')+(claimedByOther?' claimed-other':'')+(g.isChild?' is-child':'');
 
   /* RSVP color class — computed regardless of sent status, so guests who RSVP'd
-     before being marked "Sent" still show green/red/amber on the left list. */
+     before being marked "Sent" still show green/red/amber on the left list.
+     Includes children: they can't submit their own RSVP link, but a manual
+     override (set via the Y/N buttons) still colors them correctly. */
   var wrapRsvpClass='';
-  if(!g.isChild){
+  {
     var isCoupleGuestPre=g.type==='couple-ceremony'||g.type==='couple-party';
     var partnerNamePre=inferPartnerName(g);
-    var rsvpInfoPre=getGuestRsvpInfo(g.name, isCoupleGuestPre, partnerNamePre);
+    var rsvpInfoPre=getGuestRsvpInfo(g.name, isCoupleGuestPre, partnerNamePre, g.manualRsvp);
     if(rsvpInfoPre){
       if(rsvpInfoPre.persons&&rsvpInfoPre.persons.length>1){
         var comingCountPre=rsvpInfoPre.persons.filter(function(p){return p.coming;}).length;
@@ -2313,13 +2327,19 @@ function buildGuestCard(g){
   var claimC=claimedBy?('<span class="claim-badge claim-badge-'+(claimedBy==='Arina'?'a':'e')+'"><span class="claim-dot claim-dot-'+(claimedBy==='Arina'?'a':'e')+'"></span>'+(claimedByMe?'You':''+claimedBy)+'</span>'):'';
   var sentBy=g.sentBy?g.sentBy:'';var sentLetter=sentBy==='Arina'?'a':sentBy==='Elnur'?'e':'';var sentTime=g.sent&&g.sentAt?'<span class="g-sent-time">'+fmtSentAt(g.sentAt)+(sentLetter?' · '+sentLetter:'')+'</span>':'';
 
+  /* Manual RSVP override — for guests who can't/won't RSVP themselves
+     (children, phone replies, etc). Tapping the active state again clears it. */
+  var rsvpManualBtns=
+    '<button class="ga-btn ga-btn-rsvp-yes'+(g.manualRsvp==='yes'?' active':'')+'" data-qi="'+ri+'" data-action="rsvp-yes" title="'+(g.manualRsvp==='yes'?'Manual RSVP: Yes (tap to clear)':'Mark RSVP: Yes')+'"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button>'
+    +'<button class="ga-btn ga-btn-rsvp-no'+(g.manualRsvp==='no'?' active':'')+'" data-qi="'+ri+'" data-action="rsvp-no" title="'+(g.manualRsvp==='no'?'Manual RSVP: No (tap to clear)':'Mark RSVP: No')+'"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>';
+
   // Sent cards: slim — name, time, RSVP pill, undo button
   if(g.sent){
     var senderChipSent=g.sender?('<span class="g-sender-br '+(g.sender==='Arina'?'a':'e')+'">'+(g.sender==='Arina'?'a':'e')+'</span>'):''
     var isCoupleGuest=g.type==='couple-ceremony'||g.type==='couple-party';
     var partnerName=inferPartnerName(g);
-    var rsvpInfo=getGuestRsvpInfo(g.name, isCoupleGuest, partnerName);
-    var rsvpPillSent=getGuestRsvpPill(g.name, isCoupleGuest, partnerName);
+    var rsvpInfo=getGuestRsvpInfo(g.name, isCoupleGuest, partnerName, g.manualRsvp);
+    var rsvpPillSent=getGuestRsvpPill(g.name, isCoupleGuest, partnerName, g.manualRsvp);
     /* Reuse the class computed at the top of buildGuestCard so sent and
        unsent cards use identical matching/coloring logic. */
     var rsvpClass=wrapRsvpClass;
@@ -2336,6 +2356,7 @@ function buildGuestCard(g){
             +'</div>'
           +'</div>'
           +'<div class="g-inner-right">'
+            +rsvpManualBtns
             +'<button class="g-undo-btn" data-qi="'+ri+'" data-action="undo" title="Mark as unsent"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8s2-4.5 9.5-4.5a9 9 0 1 1-9 9"/><polyline points="2.5 3 2.5 8 7.5 8"/></svg></button>'
             +'<button class="g-del" data-qi="'+ri+'" data-action="del" style="position:static;width:18px;height:18px;color:var(--soft);border:none;background:transparent;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>'
           +'</div>'
@@ -2362,8 +2383,9 @@ function buildGuestCard(g){
           +'</div>'
         +'</div>'
         +'<div class="g-inner-right">'
-          +(g.isChild?'':(
-            '<button class="ga-btn ga-btn-wa'+(g.sent?' done':'')+(!((g.phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,''))?' no-phone':'')+'" data-qi="'+ri+'" data-action="wa" title="Send WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.556 4.121 1.528 5.855L.057 23.882a.5.5 0 0 0 .614.612l6.094-1.597A11.937 11.937 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.808 9.808 0 0 1-5.032-1.384l-.36-.214-3.733.979.995-3.63-.234-.374A9.808 9.808 0 0 1 2.182 12C2.182 6.57 6.57 2.182 12 2.182c5.43 0 9.818 4.388 9.818 9.818 0 5.43-4.388 9.818-9.818 9.818z"/></svg></button>'
+          +(g.isChild?rsvpManualBtns:(
+            rsvpManualBtns
+            +'<button class="ga-btn ga-btn-wa'+(g.sent?' done':'')+(!((g.phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,''))?' no-phone':'')+'" data-qi="'+ri+'" data-action="wa" title="Send WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.556 4.121 1.528 5.855L.057 23.882a.5.5 0 0 0 .614.612l6.094-1.597A11.937 11.937 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.808 9.808 0 0 1-5.032-1.384l-.36-.214-3.733.979.995-3.63-.234-.374A9.808 9.808 0 0 1 2.182 12C2.182 6.57 6.57 2.182 12 2.182c5.43 0 9.818 4.388 9.818 9.818 0 5.43-4.388 9.818-9.818 9.818z"/></svg></button>'
            +'<button class="ga-btn'+(claimedByMe?' ga-btn-flag flagged':claimedByOther?' ga-btn-flag':' ga-btn-flag')+(claimedBy&&!claimedByOther?' flagged':'')+'" data-qi="'+ri+'" data-action="claim" title="'+(claimedByMe?'Mine':claimedByOther?claimedBy:'Claim')+'">'+(claimedByMe?'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><line x1="12" y1="16" x2="12" y2="16" stroke-width="3" stroke-linecap="round"/></svg>':claimedByOther?'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>':'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M17 11V7a5 5 0 0 0-9.9-1" stroke-dasharray="4 2"/></svg>')+'</button>'
            +'<button class="ga-btn ga-btn-flag'+(g.followup?' flagged':'')+'" data-qi="'+ri+'" data-action="flag" title="'+(g.followup?'Flagged':'Follow Up')+'">'+(g.followup?'<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M4 3h16l-3 6 3 6H4V3z"/><rect x="3" y="3" width="2" height="18" rx="1"/></svg>':'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3h16l-3 6 3 6H4V3z"/><line x1="4" y1="21" x2="4" y2="3"/></svg>')+'</button>'
            +'<button class="g-del" data-qi="'+ri+'" data-action="del" style="position:static;width:18px;height:18px;color:var(--soft);border:none;background:transparent;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;transition:all var(--ease)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>'
@@ -2996,6 +3018,7 @@ function doSync(){
           msgLang:inMem.msgLang||localMeta.msgLang||'',
           bulkWith:inMem.bulkWith||localMeta.bulkWith||'',
           sentGroupId:inMem.sentGroupId||localMeta.sentGroupId||'',
+          manualRsvp:inMem.manualRsvp||localMeta.manualRsvp||'',
           // resolved: worker wins, but local sent state preserved if push is in-flight
           sent:isSent,
           sentAt:resolvedSentAt||'',
@@ -3793,7 +3816,7 @@ function doSyncSilent(){
         // Worker sentAt is ALWAYS authoritative
         var workerSentAt = g.sentAt||null;
         var isSent = !!workerSentAt;
-        return{name:titleName,phone:inMem.phone||meta.phone||g.phone||g.Phone||g['WhatsApp']||'',type:inMem.type||meta.type||g.type||g.Type||g['Invite Type']||'ceremony-single',lang:inMem.lang||meta.lang||g.lang||g.Lang||g['Language']||'en',sender:inMem.sender||meta.sender||g.sender||g.Sender||'',group:inMem.group||meta.group||g.group||g.Group||g['Family Group']||'',isChild:g.isChild||g['Is Child']||false,confirmed:g.confirmed||g.Confirmed||false,note:g.note||'',followup:!!g.followup,skipped:inMem.skipped||meta.skipped||false,pendingSent:inMem.pendingSent||meta.pendingSent||false,bulkWith:inMem.bulkWith||meta.bulkWith||'',sentGroupId:inMem.sentGroupId||meta.sentGroupId||'',sent:isSent,sentAt:workerSentAt||'',sentBy:g.sentBy||'',msgLang:inMem.msgLang||meta.msgLang||''};
+        return{name:titleName,phone:inMem.phone||meta.phone||g.phone||g.Phone||g['WhatsApp']||'',type:inMem.type||meta.type||g.type||g.Type||g['Invite Type']||'ceremony-single',lang:inMem.lang||meta.lang||g.lang||g.Lang||g['Language']||'en',sender:inMem.sender||meta.sender||g.sender||g.Sender||'',group:inMem.group||meta.group||g.group||g.Group||g['Family Group']||'',isChild:g.isChild||g['Is Child']||false,confirmed:g.confirmed||g.Confirmed||false,note:g.note||'',followup:!!g.followup,skipped:inMem.skipped||meta.skipped||false,pendingSent:inMem.pendingSent||meta.pendingSent||false,bulkWith:inMem.bulkWith||meta.bulkWith||'',sentGroupId:inMem.sentGroupId||meta.sentGroupId||'',manualRsvp:inMem.manualRsvp||meta.manualRsvp||'',sent:isSent,sentAt:workerSentAt||'',sentBy:g.sentBy||'',msgLang:inMem.msgLang||meta.msgLang||''};
       });
       var now=ts();
       try{localStorage.setItem('ww_pending',JSON.stringify(importQueue));localStorage.setItem('ww_ls',now);}catch(e){}
