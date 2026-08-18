@@ -259,6 +259,16 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-swipe-wrap.sw-open-left .g-swipe-action-right{display:flex;pointer-events:all}
 .g-swipe-wrap.sw-open-right .g-swipe-action-left{display:flex;pointer-events:all}
 
+/* Sent-card swipe reveals: right-swipe = sender/time info, left-swipe = quick RSVP override */
+.g-swipe-action-left.sw-info{background:linear-gradient(135deg,#9AA5B1,#7C8794);flex-direction:column;gap:3px}
+.g-swipe-action-left.sw-info .g-sender-br{opacity:1;background:rgba(255,255,255,.28)!important;color:#fff!important}
+.g-swipe-action-left.sw-info .g-sent-time{color:rgba(255,255,255,.92)!important;font-size:9px;font-weight:600}
+.g-swipe-action-right.sw-rsvp{background:linear-gradient(135deg,#EFEAE4,#E4DCD3);flex-direction:row;gap:8px}
+.g-swipe-action-right.sw-rsvp .swipe-rsvp-btn{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.75);color:var(--muted);pointer-events:all}
+.g-swipe-action-right.sw-rsvp .swipe-rsvp-btn svg{width:15px;height:15px}
+.g-swipe-action-right.sw-rsvp .swipe-rsvp-btn.ga-btn-rsvp-yes.active{background:var(--green);color:#fff}
+.g-swipe-action-right.sw-rsvp .swipe-rsvp-btn.ga-btn-rsvp-no.active{background:var(--red);color:#fff}
+
 /* Card sits above panels, slides to reveal them */
 .g-card{background:#fff;border-radius:var(--r-sm);border:none;box-shadow:none;overflow:visible;cursor:pointer;transition:border-color var(--ease),box-shadow var(--ease);position:relative;z-index:1;touch-action:pan-y;will-change:transform}
 .g-swipe-wrap.sw-open-left .g-card{border-radius:0}
@@ -1968,8 +1978,8 @@ function renderGuestList(){
     });
   });
 
-  // Swipe to mark sent / undo sent
-  list.querySelectorAll('.g-card').forEach(function(card){if(!card.closest('.g-swipe-wrap') || card.classList.contains('sent')) return; if(document.body.classList.contains('lite-mode')) return; attachSwipe(card);});
+  // Swipe to mark sent / undo sent (unsent cards) or reveal sender info / RSVP override (sent cards)
+  list.querySelectorAll('.g-card').forEach(function(card){if(!card.closest('.g-swipe-wrap')) return; if(document.body.classList.contains('lite-mode')) return; attachSwipe(card);});
 
   updateBulkBar();
   initSplitBar();
@@ -1983,12 +1993,14 @@ function buildPairSentCard(g1,g2){
   var sentLetter1=g1.sentBy==='Arina'?'A':g1.sentBy==='Elnur'?'E':'';
   var sentTime=g1.sentAt?'<span class="g-sent-time">'+fmtSentAt(g1.sentAt)+(sentLetter1?' · '+sentLetter1:'')+'</span>':'';
   var pairName=pairDisplayName(g1.name,g2.name);
-  return '<div class="g-swipe-wrap">'
+  // Sender/time letters hidden by default — right-swipe reveals them (matches single sent cards).
+  return '<div class="g-swipe-wrap" data-open-x="112">'
+    +'<div class="g-swipe-action-left sw-info"><div class="g-swipe-action-inner">'+senderChip+sentTime+'</div></div>'
     +'<div class="g-card sent">'
       +'<div class="g-inner">'
         +'<div class="g-inner-left">'
           +'<div class="g-main">'
-            +'<div class="g-name-row"><span class="g-name" style="font-size:15px">'+pairName+'</span>'+senderChip+sentTime+'</div>'
+            +'<div class="g-name-row"><span class="g-name" style="font-size:15px">'+pairName+'</span></div>'
           +'</div>'
         +'</div>'
         +'<div class="g-inner-right">'
@@ -2333,9 +2345,10 @@ function buildGuestCard(g){
     '<button class="ga-btn ga-btn-rsvp-yes'+(g.manualRsvp==='yes'?' active':'')+'" data-qi="'+ri+'" data-action="rsvp-yes" title="'+(g.manualRsvp==='yes'?'Manual RSVP: Yes (tap to clear)':'Mark RSVP: Yes')+'"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button>'
     +'<button class="ga-btn ga-btn-rsvp-no'+(g.manualRsvp==='no'?' active':'')+'" data-qi="'+ri+'" data-action="rsvp-no" title="'+(g.manualRsvp==='no'?'Manual RSVP: No (tap to clear)':'Mark RSVP: No')+'"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>';
 
-  // Sent cards: slim — name, time, RSVP pill, undo button
+  // Sent cards: slim — name + RSVP pill only. Sender/time letters live behind a
+  // right-swipe reveal; the RSVP Yes/No override lives behind a left-swipe reveal
+  // (pre-highlighted with whatever status was auto-detected from RSVP responses).
   if(g.sent){
-    var senderChipSent=g.sender?('<span class="g-sender-br '+(g.sender==='Arina'?'a':'e')+'">'+(g.sender==='Arina'?'a':'e')+'</span>'):''
     var isCoupleGuest=g.type==='couple-ceremony'||g.type==='couple-party';
     var partnerName=inferPartnerName(g);
     var rsvpInfo=getGuestRsvpInfo(g.name, isCoupleGuest, partnerName, g.manualRsvp);
@@ -2346,17 +2359,30 @@ function buildGuestCard(g){
     var debugTag=(DEV_MODE&&!rsvpInfo)?'<div style="font-size:9px;color:#b91c1c;opacity:.75;margin-top:2px;word-break:break-word">DEBUG: '+debugNoMatch(g, partnerName)+'</div>':'';
     /* Pills need flex-wrap so couple pills don't overflow */
     var pillWrap=rsvpPillSent?'<span style="display:flex;gap:3px;flex-wrap:wrap;align-items:center;margin-left:4px">'+rsvpPillSent+'</span>':''
-    return '<div class="g-swipe-wrap'+rsvpClass+'" data-qi="'+ri+'">'
+
+    // Effective RSVP state to pre-select in the swipe panel: a manual override wins,
+    // otherwise fall back to whatever was auto-detected from the guest's own RSVP.
+    var effState=g.manualRsvp==='yes'?'yes':g.manualRsvp==='no'?'no':(rsvpClass===' rsvp-yes'?'yes':rsvpClass===' rsvp-no'?'no':'');
+
+    var senderChipSent=g.sender?('<span class="g-sender-br '+(g.sender==='Arina'?'a':'e')+'">'+(g.sender==='Arina'?'a':'e')+'</span>'):''
+    var infoPanel='<div class="g-swipe-action-left sw-info"><div class="g-swipe-action-inner">'+senderChipSent+sentTime+'</div></div>';
+    var rsvpPanel='<div class="g-swipe-action-right sw-rsvp"><div class="g-swipe-action-inner">'
+      +'<button class="ga-btn ga-btn-rsvp-yes swipe-rsvp-btn'+(effState==='yes'?' active':'')+'" data-qi="'+ri+'" data-action="rsvp-yes" title="Mark RSVP: Yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button>'
+      +'<button class="ga-btn ga-btn-rsvp-no swipe-rsvp-btn'+(effState==='no'?' active':'')+'" data-qi="'+ri+'" data-action="rsvp-no" title="Mark RSVP: No"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>'
+      +'</div></div>';
+
+    return '<div class="g-swipe-wrap'+rsvpClass+'" data-qi="'+ri+'" data-open-x="112">'
+      +infoPanel
+      +rsvpPanel
       +'<div class="'+cls+'" data-qi="'+ri+'">'
         +'<div class="g-inner">'
           +'<div class="g-inner-left">'
             +'<div class="g-main">'
-              +'<div class="g-name-row" style="flex-wrap:wrap"><span class="g-name" style="font-size:15px;flex-shrink:0">'+g.name+'</span>'+senderChipSent+sentTime+pillWrap+'</div>'
+              +'<div class="g-name-row" style="flex-wrap:wrap"><span class="g-name" style="font-size:15px;flex-shrink:0">'+g.name+'</span>'+pillWrap+'</div>'
               +debugTag
             +'</div>'
           +'</div>'
           +'<div class="g-inner-right">'
-            +rsvpManualBtns
             +'<button class="g-undo-btn" data-qi="'+ri+'" data-action="undo" title="Mark as unsent"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8s2-4.5 9.5-4.5a9 9 0 1 1-9 9"/><polyline points="2.5 3 2.5 8 7.5 8"/></svg></button>'
             +'<button class="g-del" data-qi="'+ri+'" data-action="del" style="position:static;width:18px;height:18px;color:var(--soft);border:none;background:transparent;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>'
           +'</div>'
@@ -2452,8 +2478,9 @@ function attachSwipe(card){
 
   // How far to drag before snapping open (px)
   var SNAP_THRESHOLD = 40;
-  // How far the card slides to reveal the 80px action button
-  var OPEN_X = 88;
+  // How far the card slides to reveal the action panel. Sent cards opt into a
+  // wider reveal (data-open-x) so the two-button RSVP panel has room to breathe.
+  var OPEN_X = parseInt(wrap.dataset.openX) || 88;
 
   var startX, startY, isDragging = false, isOpen = false, openDir = 0; // openDir: 1=right, -1=left
 
