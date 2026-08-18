@@ -285,6 +285,10 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-swipe-wrap.rsvp-pending .g-card.sent .g-sent-time{color:rgba(255,255,255,.7)!important}
 .g-swipe-wrap.rsvp-pending .g-card.sent .g-undo-btn,.g-swipe-wrap.rsvp-pending .g-card.sent .g-del{color:rgba(255,255,255,.6)!important}
 .g-swipe-wrap:has(.g-card.pending-sent){box-shadow:inset 3px 0 0 var(--rose),var(--shadow-sm)}
+/* Unsent guests that already have a matched RSVP: light tint (full color reserved for sent cards) */
+.g-swipe-wrap.rsvp-yes .g-card:not(.sent){background:rgba(26,122,74,.10)}
+.g-swipe-wrap.rsvp-no .g-card:not(.sent){background:rgba(185,28,28,.10)}
+.g-swipe-wrap.rsvp-pending .g-card:not(.sent){background:rgba(245,158,11,.10)}
 /* ── SPLIT CARD LAYOUT ── */
 .g-inner{padding:0;display:flex;align-items:stretch}
 .g-inner-left{flex:1;min-width:0;padding:11px 12px 11px 16px;display:flex;align-items:center;gap:11px}
@@ -1999,14 +2003,24 @@ function getGuestRsvpInfo(name, isCouple, knownPartnerName){
     function normN(s){ return (s||'').trim().toLowerCase().replace(/\s+/g,' '); }
     function toks(s){ return normN(s).split(/[\s&,]+/).filter(Boolean); }
     function firstNms(s){
+      var segs=(s||'').split('&').map(function(seg){return seg.trim();}).filter(Boolean);
+      if(segs.length>1){
+        return segs.map(function(seg){
+          var w=normN(seg).split(/[\s,]+/).filter(Boolean);
+          return w[0]||'';
+        }).filter(Boolean);
+      }
       var t=toks(s);
-      if(s.indexOf('&')!==-1&&t.length>=3) return t.slice(0,t.length-1).filter(function(x){return x!=='&';});
       return t.length?[t[0]]:[];
     }
     function lastNm(s){
+      var segs=(s||'').split('&').map(function(seg){return seg.trim();}).filter(Boolean);
+      if(segs.length>1){
+        var lastSeg=normN(segs[segs.length-1]).split(/[\s,]+/).filter(Boolean);
+        return lastSeg.length>1?lastSeg[lastSeg.length-1]:'';
+      }
       var t=toks(s);
       if(t.length<2) return '';
-      if(s.indexOf('&')!==-1&&t.length>=3) return t[t.length-1];
       return t[t.length-1];
     }
 
@@ -2045,6 +2059,28 @@ function getGuestRsvpInfo(name, isCouple, knownPartnerName){
       var rt=toks(normN(r['Full Name']||r['name']||''));
       return myFNs.length>0&&myFNs.every(function(fn){return rt.indexOf(fn)!==-1;});
     });
+
+    /* S2b — household row where every first name uniquely identifies exactly
+       one guest in the whole list. Guests entered with first-name-only (no
+       surname) and no bulkWith/group link can't be confirmed as a couple by
+       any strategy above, so a row like "Blake & Elisabeth" never matches
+       either "Blake" or "Elisabeth" on their own — S2/S4 refuse to guess
+       (isTrulySolo guard) and S3/S5 need a surname to key off. But if
+       "Blake" and "Elisabeth" are each the ONLY guest with that first name
+       anywhere in the list, there's no real ambiguity to guard against, so
+       it's safe to match. */
+    if(!match) match=rows.find(function(r){
+      var rn=normN(r['Full Name']||r['name']||'');
+      if(rn.indexOf('&')===-1) return false;
+      var rowFirstNames=firstNms(r['Full Name']||r['name']||'');
+      if(rowFirstNames.length<2||rowFirstNames.indexOf(myFNs[0])===-1) return false;
+      return rowFirstNames.every(function(fn){
+        var candidates=importQueue.filter(function(o){
+          return !o.isChild && firstNms(o.name).indexOf(fn)!==-1;
+        });
+        return candidates.length===1;
+      });
+    })||null;
 
     /* S3 — shared last name + at least one shared first name (dedup "Jan") */
     if(!match&&myLN){
@@ -2248,6 +2284,25 @@ function buildGuestCard(g){
   var claimedByMe=claimedBy===sessionSender;
   var claimedByOther=claimedBy&&claimedBy!==sessionSender;
   var cls='g-card'+(isSel?' sel':'')+(g.followup&&!g.sent?' fup':'')+(g.sent?' sent':'')+(isPending?' pending-sent':'')+(claimedByOther?' claimed-other':'')+(g.isChild?' is-child':'');
+
+  /* RSVP color class — computed regardless of sent status, so guests who RSVP'd
+     before being marked "Sent" still show green/red/amber on the left list. */
+  var wrapRsvpClass='';
+  if(!g.isChild){
+    var isCoupleGuestPre=g.type==='couple-ceremony'||g.type==='couple-party';
+    var partnerNamePre=inferPartnerName(g);
+    var rsvpInfoPre=getGuestRsvpInfo(g.name, isCoupleGuestPre, partnerNamePre);
+    if(rsvpInfoPre){
+      if(rsvpInfoPre.persons&&rsvpInfoPre.persons.length>1){
+        var comingCountPre=rsvpInfoPre.persons.filter(function(p){return p.coming;}).length;
+        if(comingCountPre===rsvpInfoPre.persons.length) wrapRsvpClass=' rsvp-yes';
+        else if(comingCountPre===0) wrapRsvpClass=' rsvp-no';
+        else wrapRsvpClass=' rsvp-pending';
+      } else {
+        wrapRsvpClass=rsvpInfoPre.isYes?' rsvp-yes':rsvpInfoPre.isNo?' rsvp-no':' rsvp-pending';
+      }
+    }
+  }
   var senderCls=g.sender==='Arina'?'a':'e';
   var sC=g.sender==='Arina'?'<span class="chip chip-a chip-sender-corner">a</span>':'<span class="chip chip-e chip-sender-corner">e</span>';
   var sBR=g.sender?('<span class="g-sender-br '+senderCls+'">'+(g.sender==='Arina'?'a':'e')+'</span>'):'';
@@ -2265,20 +2320,9 @@ function buildGuestCard(g){
     var partnerName=inferPartnerName(g);
     var rsvpInfo=getGuestRsvpInfo(g.name, isCoupleGuest, partnerName);
     var rsvpPillSent=getGuestRsvpPill(g.name, isCoupleGuest, partnerName);
-    /* Determine card background class.
-       For couples: if some coming and some not → rsvp-partial (amber).
-       For single: yes→green, no→red */
-    var rsvpClass='';
-    if(rsvpInfo){
-      if(rsvpInfo.persons&&rsvpInfo.persons.length>1){
-        var comingCount=rsvpInfo.persons.filter(function(p){return p.coming;}).length;
-        if(comingCount===rsvpInfo.persons.length) rsvpClass=' rsvp-yes';
-        else if(comingCount===0) rsvpClass=' rsvp-no';
-        else rsvpClass=' rsvp-pending'; // partial — amber
-      } else {
-        rsvpClass=rsvpInfo.isYes?' rsvp-yes':rsvpInfo.isNo?' rsvp-no':' rsvp-pending';
-      }
-    }
+    /* Reuse the class computed at the top of buildGuestCard so sent and
+       unsent cards use identical matching/coloring logic. */
+    var rsvpClass=wrapRsvpClass;
     var debugTag=(DEV_MODE&&!rsvpInfo)?'<div style="font-size:9px;color:#b91c1c;opacity:.75;margin-top:2px;word-break:break-word">DEBUG: '+debugNoMatch(g, partnerName)+'</div>':'';
     /* Pills need flex-wrap so couple pills don't overflow */
     var pillWrap=rsvpPillSent?'<span style="display:flex;gap:3px;flex-wrap:wrap;align-items:center;margin-left:4px">'+rsvpPillSent+'</span>':''
@@ -2300,7 +2344,7 @@ function buildGuestCard(g){
     +'</div>';
   }
 
-  return '<div class="g-swipe-wrap" data-qi="'+ri+'">'
+  return '<div class="g-swipe-wrap'+wrapRsvpClass+'" data-qi="'+ri+'">'
     +'<div class="g-swipe-action-right" data-swipe-action="sent"><div class="g-swipe-action-inner"><span class="g-swipe-action-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span><span class="g-swipe-action-txt">Sent</span></div></div>'
     +'<div class="g-swipe-action-left" data-swipe-action="followup"><div class="g-swipe-action-inner"><span class="g-swipe-action-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg></span><span class="g-swipe-action-txt">Flag</span></div></div>'
     +'<div class="'+cls+'" data-qi="'+ri+'">'
