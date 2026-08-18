@@ -2489,6 +2489,13 @@ function attachSwipe(card){
     return 0;
   }
 
+  // Which panels this card actually has — fixed for the card's lifetime
+  // (set once at attach time), so onMove never has to touch the DOM to
+  // find out. Re-querying on every touchmove event was the smoothness
+  // regression: onMove fires dozens of times per drag.
+  var hasRightPanel = !!wrap.querySelector('.g-swipe-action-left');
+  var hasLeftPanel = !!wrap.querySelector('.g-swipe-action-right');
+
   function getG(){ return importQueue[parseInt(card.dataset.qi)]; }
 
   function snapTo(x, then){
@@ -2595,24 +2602,22 @@ function attachSwipe(card){
     // (which feels frozen/broken), let it move a little with rubber-band
     // resistance, then it'll always snap back to closed on release —
     // clearly "responded, but nothing lives here" instead of "unresponsive".
-    var hasRight = !!wrap.querySelector('.g-swipe-action-left');
-    var hasLeft = !!wrap.querySelector('.g-swipe-action-right');
     var RUBBER_MAX = 24; // px of give on a panel-less side
     var clamped;
     if(raw >= 0){
-      clamped = hasRight ? Math.min(OPEN_X, raw) : Math.min(RUBBER_MAX, raw*0.35);
+      clamped = hasRightPanel ? Math.min(OPEN_X, raw) : Math.min(RUBBER_MAX, raw*0.35);
     } else {
-      clamped = hasLeft ? Math.max(-OPEN_X, raw) : Math.max(-RUBBER_MAX, raw*0.35);
+      clamped = hasLeftPanel ? Math.max(-OPEN_X, raw) : Math.max(-RUBBER_MAX, raw*0.35);
     }
     card.style.transform = 'translateX('+clamped+'px)';
     // Show the relevant action button during drag, growing with drag distance
     wrap.classList.remove('sw-open-left','sw-open-right');
     var absDrag = Math.abs(clamped);
-    if(clamped > 8 && hasRight){
+    if(clamped > 8 && hasRightPanel){
       wrap.classList.add('sw-open-right');
       var btn = wrap.querySelector('.g-swipe-action-left');
       if(btn){ var sc = Math.min(absDrag/OPEN_X, 1); btn.style.opacity = sc; var ic = btn.querySelector('.g-swipe-action-icon'); if(ic) ic.style.transform = 'scale('+(.6+sc*.4)+')'; }
-    } else if(clamped < -8 && hasLeft){
+    } else if(clamped < -8 && hasLeftPanel){
       wrap.classList.add('sw-open-left');
       var btn = wrap.querySelector('.g-swipe-action-right');
       if(btn){ var sc = Math.min(absDrag/OPEN_X, 1); btn.style.opacity = sc; var ic = btn.querySelector('.g-swipe-action-icon'); if(ic) ic.style.transform = 'scale('+(.6+sc*.4)+')'; }
