@@ -2473,7 +2473,21 @@ function attachSwipe(card){
   // 88px panel width everywhere, so the reveal is always flush (no gap).
   var OPEN_X = parseInt(wrap.dataset.openX) || 88;
 
-  var startX, startY, isDragging = false, isOpen = false, openDir = 0; // openDir: 1=right, -1=left
+  var startX, startY, isDragging = false;
+
+  // isOpen / openDir are DERIVED from the DOM (wrap's classList) every time
+  // they're needed, rather than cached in closure variables. Cached copies
+  // are what caused the stale-state bug: when a different card was swiped
+  // open, this card's classes/position got reset from the outside (see
+  // onStart below), but a cached "isOpen=true" here would never find out —
+  // so the next drag on THIS card computed its offset from a phantom
+  // "already open" position that no longer matched what was on screen,
+  // producing jumps, refusals to slide, or panels rendering out of sync.
+  function getOpenState(){
+    if(wrap.classList.contains('sw-open-right')) return 1;
+    if(wrap.classList.contains('sw-open-left')) return -1;
+    return 0;
+  }
 
   function getG(){ return importQueue[parseInt(card.dataset.qi)]; }
 
@@ -2486,7 +2500,6 @@ function attachSwipe(card){
 
   function closeCard(){
     snapTo(0);
-    isOpen = false; openDir = 0;
     wrap.classList.remove('sw-open-right','sw-open-left');
     wrap.querySelectorAll('.g-swipe-action-left,.g-swipe-action-right').forEach(function(b){
       b.style.opacity='';
@@ -2504,7 +2517,6 @@ function attachSwipe(card){
 
     var x = dir * OPEN_X;
     snapTo(x);
-    isOpen = true; openDir = dir;
     wrap.classList.toggle('sw-open-right', dir === 1);
     wrap.classList.toggle('sw-open-left', dir === -1);
     // Reset inline styles on BOTH panels so no stale partial-opacity from an
@@ -2541,12 +2553,25 @@ function attachSwipe(card){
   });
 
   function onStart(e){
-    // If another card is open, close it first
+    // If another card is open, close it first — also reset its action-button
+    // opacity/icon-scale (not just transform), so it can't be left in a
+    // half-revealed/washed-out state when the user starts interacting elsewhere.
     document.querySelectorAll('.sw-open-right,.sw-open-left').forEach(function(w){
       if(w === wrap) return;
       w.classList.remove('sw-open-right','sw-open-left');
-      var c = w.querySelector('[data-qi]');
+      // IMPORTANT: target the actual sliding row (.g-card), not just any
+      // [data-qi] element — sent cards have data-qi on RSVP-override buttons
+      // *inside* the swipe panel too, which sit earlier in the DOM than the
+      // card itself. Querying '[data-qi]' matched those buttons instead of
+      // the card, so the card's position never actually got reset — it just
+      // silently stayed slid open with its panel hidden. That's the "turns
+      // white" bug: a stuck, blank strip where a hidden panel used to be.
+      var c = w.querySelector('.g-card');
       if(c){ c.style.transition='transform .2s cubic-bezier(.25,.8,.25,1)'; c.style.transform=''; setTimeout(function(){c.style.transition='';},220); }
+      w.querySelectorAll('.g-swipe-action-left,.g-swipe-action-right').forEach(function(b){
+        b.style.opacity='';
+        var ic = b.querySelector('.g-swipe-action-icon'); if(ic) ic.style.transform='';
+      });
     });
     var t = e.touches ? e.touches[0] : e;
     startX = t.clientX; startY = t.clientY; isDragging = false;
@@ -2560,24 +2585,34 @@ function attachSwipe(card){
     if(Math.abs(dx) < 4) return;
     isDragging = true;
     e.preventDefault();
-    // If card is open, offset from open position
-    var base = isOpen ? openDir * OPEN_X : 0;
+    // If card is open, offset from open position — read live from the DOM
+    // (not a cached variable) so a reset triggered by another card's swipe
+    // is always picked up correctly.
+    var base = getOpenState() * OPEN_X;
     var raw = base + dx;
-    // Hard cap at OPEN_X — card never slides further than the button width.
-    // Also cap at 0 toward any side with no defined panel, so a drag can't
-    // expose blank background where a reveal panel doesn't exist.
-    var maxRight = wrap.querySelector('.g-swipe-action-left') ? OPEN_X : 0;
-    var maxLeft = wrap.querySelector('.g-swipe-action-right') ? OPEN_X : 0;
-    var clamped = Math.max(-maxLeft, Math.min(maxRight, raw));
+    // Some card types (e.g. pair cards) only define a panel on one side.
+    // Rather than hard-stopping the drag at 0 toward the panel-less side
+    // (which feels frozen/broken), let it move a little with rubber-band
+    // resistance, then it'll always snap back to closed on release —
+    // clearly "responded, but nothing lives here" instead of "unresponsive".
+    var hasRight = !!wrap.querySelector('.g-swipe-action-left');
+    var hasLeft = !!wrap.querySelector('.g-swipe-action-right');
+    var RUBBER_MAX = 24; // px of give on a panel-less side
+    var clamped;
+    if(raw >= 0){
+      clamped = hasRight ? Math.min(OPEN_X, raw) : Math.min(RUBBER_MAX, raw*0.35);
+    } else {
+      clamped = hasLeft ? Math.max(-OPEN_X, raw) : Math.max(-RUBBER_MAX, raw*0.35);
+    }
     card.style.transform = 'translateX('+clamped+'px)';
     // Show the relevant action button during drag, growing with drag distance
     wrap.classList.remove('sw-open-left','sw-open-right');
     var absDrag = Math.abs(clamped);
-    if(clamped > 8){
+    if(clamped > 8 && hasRight){
       wrap.classList.add('sw-open-right');
       var btn = wrap.querySelector('.g-swipe-action-left');
       if(btn){ var sc = Math.min(absDrag/OPEN_X, 1); btn.style.opacity = sc; var ic = btn.querySelector('.g-swipe-action-icon'); if(ic) ic.style.transform = 'scale('+(.6+sc*.4)+')'; }
-    } else if(clamped < -8){
+    } else if(clamped < -8 && hasLeft){
       wrap.classList.add('sw-open-left');
       var btn = wrap.querySelector('.g-swipe-action-right');
       if(btn){ var sc = Math.min(absDrag/OPEN_X, 1); btn.style.opacity = sc; var ic = btn.querySelector('.g-swipe-action-icon'); if(ic) ic.style.transform = 'scale('+(.6+sc*.4)+')'; }
@@ -2590,13 +2625,13 @@ function attachSwipe(card){
   function onEnd(e){
     if(!isDragging){
       // Tap on open card body → close
-      if(isOpen){ closeCard(); }
+      if(getOpenState()){ closeCard(); }
       startX = null; return;
     }
     isDragging = false;
     var t = (e.changedTouches ? e.changedTouches[0] : null) || e;
     var dx = t.clientX - startX;
-    var base = isOpen ? openDir * OPEN_X : 0;
+    var base = getOpenState() * OPEN_X;
     var net = base + dx; // net position from closed
     startX = null;
 
