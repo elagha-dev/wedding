@@ -1633,6 +1633,7 @@ button.sa-btn {
   position: relative;
   flex: 0 0 100%;
   scroll-snap-align: start;
+  scroll-snap-stop: always;
   height: clamp(280px, 88vw, 460px);
   aspect-ratio: unset;
   background: rgba(49,39,28,.10);

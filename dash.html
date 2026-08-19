@@ -2650,9 +2650,27 @@ function attachSwipe(card){
   card.addEventListener('touchstart', onStart, {passive: true});
   card.addEventListener('touchmove', onMove, {passive: false});
   card.addEventListener('touchend', onEnd);
-  card.addEventListener('mousedown', onStart);
-  document.addEventListener('mousemove', onMove);
-  card.addEventListener('mouseup', onEnd);
+
+  // Mouse (desktop) drag support. mousemove/mouseup are attached to document
+  // only for the duration of an actual drag, and removed on release —
+  // NOT attached permanently at attachSwipe()-time. attachSwipe() runs again
+  // for every card on every renderGuestList() (~40 call sites: mark sent,
+  // undo, flag, filter, sort, search…), so a permanently-attached document
+  // listener here would pile up one dead listener per card per re-render,
+  // forever — a classic leak that gets slower and "stuck"-feeling the longer
+  // a session runs, without ever throwing an error. Scoping it to the drag
+  // avoids that entirely.
+  function onMouseMove(e){ onMove(e); }
+  function onMouseUp(e){
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+    onEnd(e);
+  }
+  card.addEventListener('mousedown', function(e){
+    onStart(e);
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  });
 }
 
 /* ══ LANG MODAL ══════════════════════════════ */

@@ -2190,8 +2190,9 @@ function weScrollRsvpIntoView(target, topBufferPx) {
     return diff > 0 ? diff : 0;
   }
 
-  /* ── Greeting text ── */
-  var salutation = t('gateSalutation');
+  /* ── Greeting text (singular "du" vs plural "ihr" depending on whether
+     this invite names one person or a couple/pair) ── */
+  var salutation = t(isCouple ? 'gateSalutation' : 'gateSalutationSingle');
   var seatsText  = t('gateSeatsText');
 
   var locationsHtml = hasParty
@@ -2213,8 +2214,10 @@ function weScrollRsvpIntoView(target, topBufferPx) {
       '<div class="we-salut">' + salutation + '</div>' +
       '<div class="we-guestname">' + displayName + '</div>' +
       locationsHtml +
-      '<div class="we-body">' + (hasParty ? t('gateBodyParty') : t('gateBody')) + '</div>' +
-      '<div class="we-gate-note">' + t('gateNote') + '</div>' +
+      '<div class="we-body">' + (hasParty
+        ? t(isCouple ? 'gateBodyParty' : 'gateBodyPartySingle')
+        : t(isCouple ? 'gateBody' : 'gateBodySingle')) + '</div>' +
+      '<div class="we-gate-note">' + t(isCouple ? 'gateNote' : 'gateNoteSingle') + '</div>' +
       '<button id="weGateCta">' + t('gateCtaBtn') + '</button>' +
       '<button id="weGateSkip">' + t('gateSkipBtn') + '</button>' +
     '</div>';
@@ -2546,6 +2549,16 @@ function weScrollRsvpIntoView(target, topBufferPx) {
     var total = boxes.length;
     if (counterEl) counterEl.textContent = '1 / ' + total;
 
+    /* targetIndex tracks where a button-triggered smooth-scroll is
+       headed. While that scroll is still animating, scrollLeft is
+       mid-flight and re-deriving the index from it (the old approach)
+       could disagree with where we're actually navigating to — so a
+       second quick tap landed on the wrong next index and the strip
+       would appear to stall or bounce back. Buttons now always step
+       from targetIndex, and it's kept in sync with genuine user swipes
+       via the scrollend listener below. */
+    var targetIndex = 0;
+
     function currentIndex() {
       var boxWidth = boxes[0].offsetWidth || 1;
       var idx = Math.round(strip.scrollLeft / boxWidth);
@@ -2562,12 +2575,14 @@ function weScrollRsvpIntoView(target, topBufferPx) {
 
     function goTo(idx) {
       idx = Math.max(0, Math.min(idx, total - 1));
+      targetIndex = idx;
       var boxWidth = boxes[0].offsetWidth || 1;
       strip.scrollTo({ left: idx * boxWidth, behavior: 'smooth' });
+      setActive(idx);
     }
 
-    if (prevBtn) prevBtn.addEventListener('click', function () { goTo(currentIndex() - 1); });
-    if (nextBtn) nextBtn.addEventListener('click', function () { goTo(currentIndex() + 1); });
+    if (prevBtn) prevBtn.addEventListener('click', function () { goTo(targetIndex - 1); });
+    if (nextBtn) nextBtn.addEventListener('click', function () { goTo(targetIndex + 1); });
 
     var ticking = false;
     strip.addEventListener('scroll', function () {
@@ -2579,7 +2594,17 @@ function weScrollRsvpIntoView(target, topBufferPx) {
       });
     }, { passive: true });
 
-    window.addEventListener('resize', function () { setActive(currentIndex()); });
+    /* Once any scroll (swipe or button) actually settles, resync
+       targetIndex to reality so the next button tap steps from the
+       true position rather than a stale one. */
+    strip.addEventListener('scrollend', function () {
+      targetIndex = currentIndex();
+    }, { passive: true });
+
+    window.addEventListener('resize', function () {
+      setActive(currentIndex());
+      targetIndex = currentIndex();
+    });
   }
 
   if (document.readyState === 'loading') {
