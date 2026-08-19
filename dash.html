@@ -258,14 +258,6 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-swipe-action-icon{width:18px;height:18px;display:flex;align-items:center;justify-content:center;color:#fff}
 .g-swipe-wrap.sw-open-left .g-swipe-action-right{display:flex;pointer-events:all}
 .g-swipe-wrap.sw-open-right .g-swipe-action-left{display:flex;pointer-events:all}
-/* Backdrop matching the active panel's color, filling the ENTIRE wrap
-   behind everything. Whatever the exact drag distance lands on, any gap
-   between the card's trailing edge and the 88px panel is now the same
-   color as the panel itself instead of bare white — so a gap is
-   invisible rather than a visible seam, regardless of the exact pixel
-   math of any one drag. */
-.g-swipe-wrap.sw-open-left::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,#2ECC71,#25D366);z-index:0}
-.g-swipe-wrap.sw-open-right::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,#F5B942,#E8A838);z-index:0}
 
 /* Sent-card swipe reveals: right-swipe = sender/time info, left-swipe = quick RSVP override */
 .g-swipe-action-left.sw-info{background:linear-gradient(135deg,#9AA5B1,#7C8794);flex-direction:column;gap:3px}
@@ -278,7 +270,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-swipe-action-right.sw-rsvp .swipe-rsvp-btn.ga-btn-rsvp-no.active{background:var(--red);color:#fff}
 
 /* Card sits above panels, slides to reveal them */
-.g-card{background:#fff;border-radius:var(--r-sm);border:none;box-shadow:none;overflow:visible;cursor:pointer;transition:border-color var(--ease),box-shadow var(--ease);position:relative;z-index:1;touch-action:pan-y}
+.g-card{background:#fff;border-radius:var(--r-sm);border:none;box-shadow:none;overflow:visible;cursor:pointer;transition:border-color var(--ease),box-shadow var(--ease);position:relative;z-index:1;touch-action:pan-y;will-change:transform}
 .g-swipe-wrap.sw-open-left .g-card{border-radius:0}
 .g-swipe-wrap.sw-open-right .g-card{border-radius:0}
 .g-card:not(.swiping):hover{box-shadow:none}
@@ -2478,40 +2470,10 @@ function attachSwipe(card){
 
   // How far to drag before snapping open (px)
   var SNAP_THRESHOLD = 40;
-  // How far the card slides to reveal the action panel — matches the fixed
-  // 88px panel width everywhere, so the reveal is always flush (no gap).
-  var OPEN_X = parseInt(wrap.dataset.openX) || 88;
+  // How far the card slides to reveal the 80px action button
+  var OPEN_X = 88;
 
-  var startX, startY, isDragging = false, axisLocked = null; // null | 'h' | 'v'
-
-  // isOpen / openDir are DERIVED from the DOM (wrap's classList) every time
-  // they're needed, rather than cached in closure variables. Cached copies
-  // are what caused the stale-state bug: when a different card was swiped
-  // open, this card's classes/position got reset from the outside (see
-  // onStart below), but a cached "isOpen=true" here would never find out —
-  // so the next drag on THIS card computed its offset from a phantom
-  // "already open" position that no longer matched what was on screen,
-  // producing jumps, refusals to slide, or panels rendering out of sync.
-  function getOpenState(){
-    if(wrap.classList.contains('sw-open-right')) return 1;
-    if(wrap.classList.contains('sw-open-left')) return -1;
-    return 0;
-  }
-
-  // Cache the actual panel elements once, not just whether they exist —
-  // wrap.querySelector() was still running on every single touchmove
-  // event to find them (dozens of times per drag), which is unnecessary
-  // DOM work on top of the flicker bug below.
-  var leftPanelEl  = wrap.querySelector('.g-swipe-action-left');
-  var rightPanelEl = wrap.querySelector('.g-swipe-action-right');
-  var leftPanelIcon  = leftPanelEl  && leftPanelEl.querySelector('.g-swipe-action-icon');
-  var rightPanelIcon = rightPanelEl && rightPanelEl.querySelector('.g-swipe-action-icon');
-  var hasRightPanel = !!leftPanelEl;
-  var hasLeftPanel  = !!rightPanelEl;
-
-  // Tracks which panel is currently visually revealed during THIS drag,
-  // so onMove only touches classList when that actually changes.
-  var revealState = 0; // 1 = right-panel revealed, -1 = left-panel revealed, 0 = neither
+  var startX, startY, isDragging = false, isOpen = false, openDir = 0; // openDir: 1=right, -1=left
 
   function getG(){ return importQueue[parseInt(card.dataset.qi)]; }
 
@@ -2519,11 +2481,12 @@ function attachSwipe(card){
     card.style.transition = 'transform .2s cubic-bezier(.25,.8,.25,1)';
     card.style.transform = x === 0 ? '' : 'translateX('+x+'px)';
     if(then) setTimeout(then, 200);
-    setTimeout(function(){ card.style.transition = ''; card.style.willChange = ''; }, 220);
+    setTimeout(function(){ card.style.transition = ''; }, 220);
   }
 
   function closeCard(){
     snapTo(0);
+    isOpen = false; openDir = 0;
     wrap.classList.remove('sw-open-right','sw-open-left');
     wrap.querySelectorAll('.g-swipe-action-left,.g-swipe-action-right').forEach(function(b){
       b.style.opacity='';
@@ -2533,22 +2496,15 @@ function attachSwipe(card){
 
   function openCard(dir){
     // dir: 1 = slide right (reveals left action), -1 = slide left (reveals right action)
-    // Guard: some card types (e.g. pair cards) only define a panel on one side.
-    // Opening toward a side with no panel would just expose blank background,
-    // so treat that as "nothing to reveal" and snap shut instead.
-    var revealSel = dir === 1 ? '.g-swipe-action-left' : '.g-swipe-action-right';
-    if(!wrap.querySelector(revealSel)){ closeCard(); return; }
-
     var x = dir * OPEN_X;
     snapTo(x);
+    isOpen = true; openDir = dir;
     wrap.classList.toggle('sw-open-right', dir === 1);
     wrap.classList.toggle('sw-open-left', dir === -1);
-    // Reset inline styles on BOTH panels so no stale partial-opacity from an
-    // interrupted drag carries over and renders as a washed-out/blank panel.
-    wrap.querySelectorAll('.g-swipe-action-left,.g-swipe-action-right').forEach(function(b){
-      b.style.opacity='';
-      var ic = b.querySelector('.g-swipe-action-icon'); if(ic) ic.style.transform='';
-    });
+    // Reset inline styles so CSS takes over at full 80px
+    var btnSel = dir === 1 ? '.g-swipe-action-left' : '.g-swipe-action-right';
+    var btn = wrap.querySelector(btnSel);
+    if(btn){ btn.style.opacity=''; var ic = btn.querySelector('.g-swipe-action-icon'); if(ic) ic.style.transform=''; }
     if(navigator.vibrate) navigator.vibrate(18);
   }
 
@@ -2577,133 +2533,58 @@ function attachSwipe(card){
   });
 
   function onStart(e){
-    // If another card is open, close it first — also reset its action-button
-    // opacity/icon-scale (not just transform), so it can't be left in a
-    // half-revealed/washed-out state when the user starts interacting elsewhere.
+    // If another card is open, close it first
     document.querySelectorAll('.sw-open-right,.sw-open-left').forEach(function(w){
       if(w === wrap) return;
       w.classList.remove('sw-open-right','sw-open-left');
-      // IMPORTANT: target the actual sliding row (.g-card), not just any
-      // [data-qi] element — sent cards have data-qi on RSVP-override buttons
-      // *inside* the swipe panel too, which sit earlier in the DOM than the
-      // card itself. Querying '[data-qi]' matched those buttons instead of
-      // the card, so the card's position never actually got reset — it just
-      // silently stayed slid open with its panel hidden. That's the "turns
-      // white" bug: a stuck, blank strip where a hidden panel used to be.
-      var c = w.querySelector('.g-card');
+      var c = w.querySelector('[data-qi]');
       if(c){ c.style.transition='transform .2s cubic-bezier(.25,.8,.25,1)'; c.style.transform=''; setTimeout(function(){c.style.transition='';},220); }
-      w.querySelectorAll('.g-swipe-action-left,.g-swipe-action-right').forEach(function(b){
-        b.style.opacity='';
-        var ic = b.querySelector('.g-swipe-action-icon'); if(ic) ic.style.transform='';
-      });
     });
     var t = e.touches ? e.touches[0] : e;
     startX = t.clientX; startY = t.clientY; isDragging = false;
-    axisLocked = null;
-    revealState = 0;
-    // Guard against a leftover transition from this same card's own prior
-    // release animation still being active if a new drag starts within
-    // ~220ms of the last one ending — without this, onMove's direct
-    // transform writes below would get animated/eased instead of applied
-    // instantly, making a quick follow-up swipe feel laggy or "chasing".
-    card.style.transition = '';
   }
 
   function onMove(e){
     if(startX == null) return;
     var t = e.touches ? e.touches[0] : e;
     var dx = t.clientX - startX, dy = t.clientY - startY;
-    // Decide horizontal-vs-vertical exactly ONCE per gesture, at the first
-    // sample with enough movement to mean anything — then never
-    // re-evaluate. Re-checking dy-vs-dx on every event (the old code) let
-    // a few early, naturally slightly-vertical samples pass through
-    // un-prevented while undecided; the browser sees those and starts its
-    // own native scroll for the touch sequence. By the time a later
-    // sample straightens out horizontal and we finally call
-    // preventDefault(), the browser has already begun panning — so its
-    // motion and our transform both apply for a moment, which is the
-    // "jump" right at the start of a slide. Locking the axis on the first
-    // ~4px of movement means we call preventDefault() before the browser
-    // ever gets a chance to commit to its own scroll.
-    if(axisLocked === null){
-      if(Math.abs(dx) < 4 && Math.abs(dy) < 4) return;
-      axisLocked = Math.abs(dx) > Math.abs(dy) ? 'h' : 'v';
-    }
-    if(axisLocked === 'v') return;
-    if(!isDragging) card.style.willChange = 'transform';
+    if(!isDragging && Math.abs(dy) > Math.abs(dx)) return;
+    if(Math.abs(dx) < 4) return;
     isDragging = true;
     e.preventDefault();
-    // If card is open, offset from open position — read live from the DOM
-    // (not a cached variable) so a reset triggered by another card's swipe
-    // is always picked up correctly.
-    var base = getOpenState() * OPEN_X;
+    // If card is open, offset from open position
+    var base = isOpen ? openDir * OPEN_X : 0;
     var raw = base + dx;
-    // Track the finger 1:1 up to the panel's actual width (88px) — never
-    // beyond, since the panel is a fixed 88px and there's nothing but bare
-    // wrap background past that edge. Overshooting past it (an earlier
-    // version of this fix did) exposes a blank gap between the card and
-    // the panel, which is worse than a stop. A hard stop exactly at the
-    // panel's own edge doesn't create that problem — it's not what caused
-    // the earlier "boom" jump feeling (the axis-detection and will-change
-    // fixes were what fixed that).
-    // On a panel-less side there's nothing to reveal at all, so a *small*
-    // elastic give (much smaller than the panel width) still communicates
-    // "responded, but nothing lives here" without exposing much of a gap.
-    function rubberBand(overshoot, dim){
-      var c = 0.55;
-      return (overshoot * dim * c) / (dim + c * overshoot);
-    }
-    var GIVE = 20; // max px of elastic give on a panel-less side
-    var clamped;
-    if(raw >= 0){
-      clamped = hasRightPanel ? Math.min(OPEN_X, raw) : rubberBand(raw, GIVE);
-    } else {
-      var rawAbs = -raw;
-      clamped = hasLeftPanel ? -Math.min(OPEN_X, rawAbs) : -rubberBand(rawAbs, GIVE);
-    }
+    // Hard cap at OPEN_X — card never slides further than the button width
+    var clamped = Math.max(-OPEN_X, Math.min(OPEN_X, raw));
     card.style.transform = 'translateX('+clamped+'px)';
-    // Show the relevant action button during drag, growing with drag distance.
-    // classList is only mutated when the revealed side actually changes —
-    // NOT unconditionally stripped and re-added on every move event. Those
-    // classes toggle display:none↔flex on the panel via CSS, so doing that
-    // on every touchmove (dozens of times a second, including natural
-    // finger jitter right at the 8px threshold) tore the panel in and out
-    // of layout constantly — that's the flicker.
+    // Show the relevant action button during drag, growing with drag distance
+    wrap.classList.remove('sw-open-left','sw-open-right');
     var absDrag = Math.abs(clamped);
-    var wantState = 0;
-    if(clamped > 8 && hasRightPanel) wantState = 1;
-    else if(clamped < -8 && hasLeftPanel) wantState = -1;
-
-    if(wantState !== revealState){
-      revealState = wantState;
-      wrap.classList.toggle('sw-open-right', wantState === 1);
-      wrap.classList.toggle('sw-open-left', wantState === -1);
-      if(wantState === 0){
-        if(leftPanelEl) leftPanelEl.style.opacity = '';
-        if(rightPanelEl) rightPanelEl.style.opacity = '';
-      }
-    }
-    if(wantState === 1 && leftPanelEl){
-      var sc = Math.min(absDrag/OPEN_X, 1);
-      leftPanelEl.style.opacity = sc;
-      if(leftPanelIcon) leftPanelIcon.style.transform = 'scale('+(.6+sc*.4)+')';
-    } else if(wantState === -1 && rightPanelEl){
-      var sc2 = Math.min(absDrag/OPEN_X, 1);
-      rightPanelEl.style.opacity = sc2;
-      if(rightPanelIcon) rightPanelIcon.style.transform = 'scale('+(.6+sc2*.4)+')';
+    if(clamped > 8){
+      wrap.classList.add('sw-open-right');
+      var btn = wrap.querySelector('.g-swipe-action-left');
+      if(btn){ var sc = Math.min(absDrag/OPEN_X, 1); btn.style.opacity = sc; var ic = btn.querySelector('.g-swipe-action-icon'); if(ic) ic.style.transform = 'scale('+(.6+sc*.4)+')'; }
+    } else if(clamped < -8){
+      wrap.classList.add('sw-open-left');
+      var btn = wrap.querySelector('.g-swipe-action-right');
+      if(btn){ var sc = Math.min(absDrag/OPEN_X, 1); btn.style.opacity = sc; var ic = btn.querySelector('.g-swipe-action-icon'); if(ic) ic.style.transform = 'scale('+(.6+sc*.4)+')'; }
+    } else {
+      // reset both
+      ['.g-swipe-action-left','.g-swipe-action-right'].forEach(function(sel){ var b=wrap.querySelector(sel); if(b){b.style.opacity='';} });
     }
   }
 
   function onEnd(e){
     if(!isDragging){
       // Tap on open card body → close
-      if(getOpenState()){ closeCard(); }
+      if(isOpen){ closeCard(); }
       startX = null; return;
     }
     isDragging = false;
     var t = (e.changedTouches ? e.changedTouches[0] : null) || e;
     var dx = t.clientX - startX;
-    var base = getOpenState() * OPEN_X;
+    var base = isOpen ? openDir * OPEN_X : 0;
     var net = base + dx; // net position from closed
     startX = null;
 
@@ -2717,16 +2598,11 @@ function attachSwipe(card){
   card.addEventListener('touchstart', onStart, {passive: true});
   card.addEventListener('touchmove', onMove, {passive: false});
   card.addEventListener('touchend', onEnd);
-
   // Mouse (desktop) drag support. mousemove/mouseup are attached to document
-  // only for the duration of an actual drag, and removed on release —
-  // NOT attached permanently at attachSwipe()-time. attachSwipe() runs again
-  // for every card on every renderGuestList() (~40 call sites: mark sent,
-  // undo, flag, filter, sort, search…), so a permanently-attached document
-  // listener here would pile up one dead listener per card per re-render,
-  // forever — a classic leak that gets slower and "stuck"-feeling the longer
-  // a session runs, without ever throwing an error. Scoping it to the drag
-  // avoids that entirely.
+  // only for the duration of an actual drag, not permanently — attachSwipe()
+  // runs again for every card on every list re-render (mark sent, undo,
+  // flag, filter, search...), so a permanently-attached document listener
+  // here piles up one dead listener per card per re-render, forever.
   function onMouseMove(e){ onMove(e); }
   function onMouseUp(e){
     document.removeEventListener('mousemove', onMouseMove);
