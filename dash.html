@@ -270,7 +270,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-swipe-action-right.sw-rsvp .swipe-rsvp-btn.ga-btn-rsvp-no.active{background:var(--red);color:#fff}
 
 /* Card sits above panels, slides to reveal them */
-.g-card{background:#fff;border-radius:var(--r-sm);border:none;box-shadow:none;overflow:visible;cursor:pointer;transition:border-color var(--ease),box-shadow var(--ease);position:relative;z-index:1;touch-action:pan-y;will-change:transform}
+.g-card{background:#fff;border-radius:var(--r-sm);border:none;box-shadow:none;overflow:visible;cursor:pointer;transition:border-color var(--ease),box-shadow var(--ease);position:relative;z-index:1;touch-action:pan-y}
 .g-swipe-wrap.sw-open-left .g-card{border-radius:0}
 .g-swipe-wrap.sw-open-right .g-card{border-radius:0}
 .g-card:not(.swiping):hover{box-shadow:none}
@@ -1526,13 +1526,14 @@ function _flushRetryQueue(){
   });
 }
 
-// Push followup/note changes for a single guest to worker KV
+// Push followup/note/manualRsvp changes for a single guest to worker KV
 function pushMetaToWorker(g){
   if(!workerUrl||!g||!g.name)return;
   _localWrites[g.name]=_localWrites[g.name]||{};
   _localWrites[g.name].followup=!!g.followup;
   _localWrites[g.name].note=g.note||'';
-  _pushWithRetry('/meta',{name:g.name,followup:!!g.followup,note:g.note||''},'meta:'+g.name);
+  _localWrites[g.name].manualRsvp=g.manualRsvp||'';
+  _pushWithRetry('/meta',{name:g.name,followup:!!g.followup,note:g.note||'',manualRsvp:g.manualRsvp||''},'meta:'+g.name);
 }
 function pushSentToWorker(name){
   if(!workerUrl||!name)return;
@@ -1973,8 +1974,8 @@ function renderGuestList(){
         showUndo('Marked '+g.name+' as sent',function(){g.sent=prevSent;g.sentAt='';g.sentBy=prevSentBy;g.followup=prevFollowup;if(!prevSent){todayCount=Math.max(0,todayCount-1);updateTodayBadge();}pushUnsentToWorker(g.name);saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();});
       }
       else if(a==='confirm-no'){g.pendingSent=false;saveGuestMeta();renderGuestList();}
-      else if(a==='rsvp-yes'){g.manualRsvp=(g.manualRsvp==='yes')?'':'yes';saveGuestMeta();renderGuestList();renderDashboard();}
-      else if(a==='rsvp-no'){g.manualRsvp=(g.manualRsvp==='no')?'':'no';saveGuestMeta();renderGuestList();renderDashboard();}
+      else if(a==='rsvp-yes'){g.manualRsvp=(g.manualRsvp==='yes')?'':'yes';saveGuestMeta();pushMetaToWorker(g);renderGuestList();renderDashboard();}
+      else if(a==='rsvp-no'){g.manualRsvp=(g.manualRsvp==='no')?'':'no';saveGuestMeta();pushMetaToWorker(g);renderGuestList();renderDashboard();}
     });
   });
 
@@ -2510,7 +2511,7 @@ function attachSwipe(card){
     card.style.transition = 'transform .2s cubic-bezier(.25,.8,.25,1)';
     card.style.transform = x === 0 ? '' : 'translateX('+x+'px)';
     if(then) setTimeout(then, 200);
-    setTimeout(function(){ card.style.transition = ''; }, 220);
+    setTimeout(function(){ card.style.transition = ''; card.style.willChange = ''; }, 220);
   }
 
   function closeCard(){
@@ -2599,6 +2600,7 @@ function attachSwipe(card){
     var dx = t.clientX - startX, dy = t.clientY - startY;
     if(!isDragging && Math.abs(dy) > Math.abs(dx)) return;
     if(Math.abs(dx) < 4) return;
+    if(!isDragging) card.style.willChange = 'transform';
     isDragging = true;
     e.preventDefault();
     // If card is open, offset from open position — read live from the DOM
@@ -3130,7 +3132,7 @@ function doSync(){
           msgLang:inMem.msgLang||localMeta.msgLang||'',
           bulkWith:inMem.bulkWith||localMeta.bulkWith||'',
           sentGroupId:inMem.sentGroupId||localMeta.sentGroupId||'',
-          manualRsvp:inMem.manualRsvp||localMeta.manualRsvp||'',
+          manualRsvp:g.manualRsvp||inMem.manualRsvp||localMeta.manualRsvp||'',
           // resolved: worker wins, but local sent state preserved if push is in-flight
           sent:isSent,
           sentAt:resolvedSentAt||'',
