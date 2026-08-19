@@ -380,6 +380,15 @@ function applyI18n() {
   if (attendLabel) {
     attendLabel.textContent = t('ceremonyAttendLabel');
   }
+  /* card01 title — "Are you in?" singular vs plural. The generic loop
+     above just reset this span to the singular default (it has
+     data-i18n="card01Title" like any other element), clobbering the
+     couple-aware value set earlier for two-guest invites. Re-apply it
+     here so it survives both initial load and every language switch. */
+  var card01TitleSpan = document.querySelector('#card01Title [data-i18n]');
+  if (card01TitleSpan) {
+    card01TitleSpan.textContent = t(__isCouple ? 'card01TitlePlural' : 'card01TitleSingle');
+  }
   /* Attend Yes/No buttons — church row. Same wording as the reception row. */
   var attendYesBtnSpan = document.querySelector('#attendYes [data-i18n]');
   var attendNoBtnSpan  = document.querySelector('#attendNo [data-i18n]');
@@ -1330,12 +1339,8 @@ if (bsSubmit) bsSubmit.addEventListener("click", async function() {
   __guests   = guests;
   __isCouple = isCouple;
 
-  /* ── card01 title — "Are you in?" singular vs plural ────── */
-  var card01TitleEl = document.getElementById('card01Title');
-  if (card01TitleEl) {
-    var span01t = card01TitleEl.querySelector('[data-i18n]') || card01TitleEl;
-    span01t.textContent = t(__isCouple ? 'card01TitlePlural' : 'card01TitleSingle');
-  }
+  /* ── card01 title — "Are you in?" singular vs plural — handled in
+     applyI18n() so it stays correct on every language switch too ── */
 
   /* ── Pre-fill name fields ──────────────────────────────── */
   var firstField = document.querySelector('[name="first_name"]');
