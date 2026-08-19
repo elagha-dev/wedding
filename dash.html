@@ -2624,17 +2624,28 @@ function attachSwipe(card){
     // is always picked up correctly.
     var base = getOpenState() * OPEN_X;
     var raw = base + dx;
-    // Some card types (e.g. pair cards) only define a panel on one side.
-    // Rather than hard-stopping the drag at 0 toward the panel-less side
-    // (which feels frozen/broken), let it move a little with rubber-band
-    // resistance, then it'll always snap back to closed on release —
-    // clearly "responded, but nothing lives here" instead of "unresponsive".
-    var RUBBER_MAX = 24; // px of give on a panel-less side
+    // True elastic rubber-banding (the UIScrollView bounce formula) instead
+    // of a linear drag that hard-stops at a wall. A hard Math.min/Math.max
+    // clamp tracks the finger 1:1 right up to a limit and then freezes dead
+    // — the card stops but the finger keeps moving, so the connection
+    // between them visibly snaps. That reads as forced/jumpy no matter how
+    // smooth the animation around it is. Real rubber (or a blanket) never
+    // stops giving — it just gives less and less the further you pull.
+    // This keeps the card moving with the finger at every point in the
+    // drag, with continuously diminishing — never zero — response past the
+    // reveal width.
+    function rubberBand(overshoot, dim){
+      var c = 0.55;
+      return (overshoot * dim * c) / (dim + c * overshoot);
+    }
     var clamped;
     if(raw >= 0){
-      clamped = hasRightPanel ? Math.min(OPEN_X, raw) : Math.min(RUBBER_MAX, raw*0.35);
+      var edge = hasRightPanel ? OPEN_X : 0;
+      clamped = raw <= edge ? raw : edge + rubberBand(raw - edge, OPEN_X);
     } else {
-      clamped = hasLeftPanel ? Math.max(-OPEN_X, raw) : Math.max(-RUBBER_MAX, raw*0.35);
+      var rawAbs = -raw;
+      var edgeN = hasLeftPanel ? OPEN_X : 0;
+      clamped = -(rawAbs <= edgeN ? rawAbs : edgeN + rubberBand(rawAbs - edgeN, OPEN_X));
     }
     card.style.transform = 'translateX('+clamped+'px)';
     // Show the relevant action button during drag, growing with drag distance.
