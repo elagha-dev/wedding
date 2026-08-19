@@ -258,6 +258,14 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-swipe-action-icon{width:18px;height:18px;display:flex;align-items:center;justify-content:center;color:#fff}
 .g-swipe-wrap.sw-open-left .g-swipe-action-right{display:flex;pointer-events:all}
 .g-swipe-wrap.sw-open-right .g-swipe-action-left{display:flex;pointer-events:all}
+/* Backdrop matching the active panel's color, filling the ENTIRE wrap
+   behind everything. Whatever the exact drag distance lands on, any gap
+   between the card's trailing edge and the 88px panel is now the same
+   color as the panel itself instead of bare white — so a gap is
+   invisible rather than a visible seam, regardless of the exact pixel
+   math of any one drag. */
+.g-swipe-wrap.sw-open-left::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,#2ECC71,#25D366);z-index:0}
+.g-swipe-wrap.sw-open-right::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,#F5B942,#E8A838);z-index:0}
 
 /* Sent-card swipe reveals: right-swipe = sender/time info, left-swipe = quick RSVP override */
 .g-swipe-action-left.sw-info{background:linear-gradient(135deg,#9AA5B1,#7C8794);flex-direction:column;gap:3px}
