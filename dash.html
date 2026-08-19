@@ -2489,12 +2489,20 @@ function attachSwipe(card){
     return 0;
   }
 
-  // Which panels this card actually has — fixed for the card's lifetime
-  // (set once at attach time), so onMove never has to touch the DOM to
-  // find out. Re-querying on every touchmove event was the smoothness
-  // regression: onMove fires dozens of times per drag.
-  var hasRightPanel = !!wrap.querySelector('.g-swipe-action-left');
-  var hasLeftPanel = !!wrap.querySelector('.g-swipe-action-right');
+  // Cache the actual panel elements once, not just whether they exist —
+  // wrap.querySelector() was still running on every single touchmove
+  // event to find them (dozens of times per drag), which is unnecessary
+  // DOM work on top of the flicker bug below.
+  var leftPanelEl  = wrap.querySelector('.g-swipe-action-left');
+  var rightPanelEl = wrap.querySelector('.g-swipe-action-right');
+  var leftPanelIcon  = leftPanelEl  && leftPanelEl.querySelector('.g-swipe-action-icon');
+  var rightPanelIcon = rightPanelEl && rightPanelEl.querySelector('.g-swipe-action-icon');
+  var hasRightPanel = !!leftPanelEl;
+  var hasLeftPanel  = !!rightPanelEl;
+
+  // Tracks which panel is currently visually revealed during THIS drag,
+  // so onMove only touches classList when that actually changes.
+  var revealState = 0; // 1 = right-panel revealed, -1 = left-panel revealed, 0 = neither
 
   function getG(){ return importQueue[parseInt(card.dataset.qi)]; }
 
@@ -2582,6 +2590,7 @@ function attachSwipe(card){
     });
     var t = e.touches ? e.touches[0] : e;
     startX = t.clientX; startY = t.clientY; isDragging = false;
+    revealState = 0;
   }
 
   function onMove(e){
@@ -2610,20 +2619,35 @@ function attachSwipe(card){
       clamped = hasLeftPanel ? Math.max(-OPEN_X, raw) : Math.max(-RUBBER_MAX, raw*0.35);
     }
     card.style.transform = 'translateX('+clamped+'px)';
-    // Show the relevant action button during drag, growing with drag distance
-    wrap.classList.remove('sw-open-left','sw-open-right');
+    // Show the relevant action button during drag, growing with drag distance.
+    // classList is only mutated when the revealed side actually changes —
+    // NOT unconditionally stripped and re-added on every move event. Those
+    // classes toggle display:none↔flex on the panel via CSS, so doing that
+    // on every touchmove (dozens of times a second, including natural
+    // finger jitter right at the 8px threshold) tore the panel in and out
+    // of layout constantly — that's the flicker.
     var absDrag = Math.abs(clamped);
-    if(clamped > 8 && hasRightPanel){
-      wrap.classList.add('sw-open-right');
-      var btn = wrap.querySelector('.g-swipe-action-left');
-      if(btn){ var sc = Math.min(absDrag/OPEN_X, 1); btn.style.opacity = sc; var ic = btn.querySelector('.g-swipe-action-icon'); if(ic) ic.style.transform = 'scale('+(.6+sc*.4)+')'; }
-    } else if(clamped < -8 && hasLeftPanel){
-      wrap.classList.add('sw-open-left');
-      var btn = wrap.querySelector('.g-swipe-action-right');
-      if(btn){ var sc = Math.min(absDrag/OPEN_X, 1); btn.style.opacity = sc; var ic = btn.querySelector('.g-swipe-action-icon'); if(ic) ic.style.transform = 'scale('+(.6+sc*.4)+')'; }
-    } else {
-      // reset both
-      ['.g-swipe-action-left','.g-swipe-action-right'].forEach(function(sel){ var b=wrap.querySelector(sel); if(b){b.style.opacity='';} });
+    var wantState = 0;
+    if(clamped > 8 && hasRightPanel) wantState = 1;
+    else if(clamped < -8 && hasLeftPanel) wantState = -1;
+
+    if(wantState !== revealState){
+      revealState = wantState;
+      wrap.classList.toggle('sw-open-right', wantState === 1);
+      wrap.classList.toggle('sw-open-left', wantState === -1);
+      if(wantState === 0){
+        if(leftPanelEl) leftPanelEl.style.opacity = '';
+        if(rightPanelEl) rightPanelEl.style.opacity = '';
+      }
+    }
+    if(wantState === 1 && leftPanelEl){
+      var sc = Math.min(absDrag/OPEN_X, 1);
+      leftPanelEl.style.opacity = sc;
+      if(leftPanelIcon) leftPanelIcon.style.transform = 'scale('+(.6+sc*.4)+')';
+    } else if(wantState === -1 && rightPanelEl){
+      var sc2 = Math.min(absDrag/OPEN_X, 1);
+      rightPanelEl.style.opacity = sc2;
+      if(rightPanelIcon) rightPanelIcon.style.transform = 'scale('+(.6+sc2*.4)+')';
     }
   }
 
