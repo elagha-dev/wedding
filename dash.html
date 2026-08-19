@@ -2474,7 +2474,7 @@ function attachSwipe(card){
   // 88px panel width everywhere, so the reveal is always flush (no gap).
   var OPEN_X = parseInt(wrap.dataset.openX) || 88;
 
-  var startX, startY, isDragging = false;
+  var startX, startY, isDragging = false, axisLocked = null; // null | 'h' | 'v'
 
   // isOpen / openDir are DERIVED from the DOM (wrap's classList) every time
   // they're needed, rather than cached in closure variables. Cached copies
@@ -2591,6 +2591,7 @@ function attachSwipe(card){
     });
     var t = e.touches ? e.touches[0] : e;
     startX = t.clientX; startY = t.clientY; isDragging = false;
+    axisLocked = null;
     revealState = 0;
   }
 
@@ -2598,8 +2599,23 @@ function attachSwipe(card){
     if(startX == null) return;
     var t = e.touches ? e.touches[0] : e;
     var dx = t.clientX - startX, dy = t.clientY - startY;
-    if(!isDragging && Math.abs(dy) > Math.abs(dx)) return;
-    if(Math.abs(dx) < 4) return;
+    // Decide horizontal-vs-vertical exactly ONCE per gesture, at the first
+    // sample with enough movement to mean anything — then never
+    // re-evaluate. Re-checking dy-vs-dx on every event (the old code) let
+    // a few early, naturally slightly-vertical samples pass through
+    // un-prevented while undecided; the browser sees those and starts its
+    // own native scroll for the touch sequence. By the time a later
+    // sample straightens out horizontal and we finally call
+    // preventDefault(), the browser has already begun panning — so its
+    // motion and our transform both apply for a moment, which is the
+    // "jump" right at the start of a slide. Locking the axis on the first
+    // ~4px of movement means we call preventDefault() before the browser
+    // ever gets a chance to commit to its own scroll.
+    if(axisLocked === null){
+      if(Math.abs(dx) < 4 && Math.abs(dy) < 4) return;
+      axisLocked = Math.abs(dx) > Math.abs(dy) ? 'h' : 'v';
+    }
+    if(axisLocked === 'v') return;
     if(!isDragging) card.style.willChange = 'transform';
     isDragging = true;
     e.preventDefault();
