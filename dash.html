@@ -2593,6 +2593,12 @@ function attachSwipe(card){
     startX = t.clientX; startY = t.clientY; isDragging = false;
     axisLocked = null;
     revealState = 0;
+    // Guard against a leftover transition from this same card's own prior
+    // release animation still being active if a new drag starts within
+    // ~220ms of the last one ending — without this, onMove's direct
+    // transform writes below would get animated/eased instead of applied
+    // instantly, making a quick follow-up swipe feel laggy or "chasing".
+    card.style.transition = '';
   }
 
   function onMove(e){
@@ -2624,28 +2630,28 @@ function attachSwipe(card){
     // is always picked up correctly.
     var base = getOpenState() * OPEN_X;
     var raw = base + dx;
-    // True elastic rubber-banding (the UIScrollView bounce formula) instead
-    // of a linear drag that hard-stops at a wall. A hard Math.min/Math.max
-    // clamp tracks the finger 1:1 right up to a limit and then freezes dead
-    // — the card stops but the finger keeps moving, so the connection
-    // between them visibly snaps. That reads as forced/jumpy no matter how
-    // smooth the animation around it is. Real rubber (or a blanket) never
-    // stops giving — it just gives less and less the further you pull.
-    // This keeps the card moving with the finger at every point in the
-    // drag, with continuously diminishing — never zero — response past the
-    // reveal width.
+    // Track the finger 1:1 up to the panel's actual width (88px) — never
+    // beyond, since the panel is a fixed 88px and there's nothing but bare
+    // wrap background past that edge. Overshooting past it (an earlier
+    // version of this fix did) exposes a blank gap between the card and
+    // the panel, which is worse than a stop. A hard stop exactly at the
+    // panel's own edge doesn't create that problem — it's not what caused
+    // the earlier "boom" jump feeling (the axis-detection and will-change
+    // fixes were what fixed that).
+    // On a panel-less side there's nothing to reveal at all, so a *small*
+    // elastic give (much smaller than the panel width) still communicates
+    // "responded, but nothing lives here" without exposing much of a gap.
     function rubberBand(overshoot, dim){
       var c = 0.55;
       return (overshoot * dim * c) / (dim + c * overshoot);
     }
+    var GIVE = 20; // max px of elastic give on a panel-less side
     var clamped;
     if(raw >= 0){
-      var edge = hasRightPanel ? OPEN_X : 0;
-      clamped = raw <= edge ? raw : edge + rubberBand(raw - edge, OPEN_X);
+      clamped = hasRightPanel ? Math.min(OPEN_X, raw) : rubberBand(raw, GIVE);
     } else {
       var rawAbs = -raw;
-      var edgeN = hasLeftPanel ? OPEN_X : 0;
-      clamped = -(rawAbs <= edgeN ? rawAbs : edgeN + rubberBand(rawAbs - edgeN, OPEN_X));
+      clamped = hasLeftPanel ? -Math.min(OPEN_X, rawAbs) : -rubberBand(rawAbs, GIVE);
     }
     card.style.transform = 'translateX('+clamped+'px)';
     // Show the relevant action button during drag, growing with drag distance.
