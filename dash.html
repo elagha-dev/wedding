@@ -3434,31 +3434,44 @@ async function deployToGitHub(silent){
 
 document.getElementById('deployBtn').addEventListener('click', function(){ deployToGitHub(false); });
 
-function checkForUpdate(){
+// Cheap 32-bit string hash (FNV-1a-ish) — good enough to detect "did the
+// deployed file's bytes change", without depending on anyone remembering
+// to bump APP_VERSION by hand.
+function _hashStr(s){var h=0;for(var i=0;i<s.length;i++){h=(h<<5)-h+s.charCodeAt(i);h|=0;}return h;}
+
+function checkForUpdate(isInitial){
+  // The nocache=Date.now() query string is unique on every call, so even a
+  // CDN/edge cache in front of the site sees it as a fresh URL and has to
+  // go back to origin — this fetch is reliably the true current file.
   fetch(APP_UPDATE_URL+'?nocache='+Date.now(), {cache:'no-store'})
     .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status); return r.text();})
     .then(function(html){
-      var m=html.match(/APP_VERSION='([^']+)'/);
-      if(!m)return;
-      var remote=m[1];
-      if(remote===APP_VERSION)return;
-      // Major version = everything up to the last segment (e.g. "2026.06.09" from "2026.06.09.9")
-      function majorVer(v){var parts=v.split('.');return parts.slice(0,3).join('.');}
-      var localMajor=majorVer(APP_VERSION),remoteMajor=majorVer(remote);
-      if(remoteMajor!==localMajor){
-        // Major change → force reload silently after a brief delay
-        showActivityToast('Major update detected — reloading…');
-        setTimeout(function(){
-          window.location.href=window.location.href.split('?')[0]+'?v='+remote;
-        }, 2500);
+      var remoteHash=_hashStr(html);
+      var lastKnown=null;
+      try{lastKnown=localStorage.getItem('ww_contentHash');}catch(e){}
+      if(lastKnown===null){
+        // First time this check has ever run on this device — nothing to
+        // compare against yet, just record the baseline.
+        try{localStorage.setItem('ww_contentHash', String(remoteHash));}catch(e){}
         return;
       }
-      // Minor change → show banner as before
+      if(String(remoteHash)===lastKnown)return; // matches last known-fresh content — nothing changed
+      try{localStorage.setItem('ww_contentHash', String(remoteHash));}catch(e){}
+      var reloadUrl=window.location.href.split('?')[0]+'?v='+Date.now();
+      if(isInitial){
+        // Detected right as the page opened — nothing to lose yet, just
+        // silently swap in the current version.
+        showActivityToast('Update detected — reloading…');
+        setTimeout(function(){ window.location.href=reloadUrl; }, 1200);
+        return;
+      }
+      // Detected mid-session → don't yank the page out from under an
+      // active edit; show a dismissible banner instead.
       var banner=document.getElementById('updateBanner');
       banner.style.display='flex';
       setTimeout(function(){banner.classList.add('show');},50);
       document.getElementById('updateReloadBtn').onclick=function(){
-        window.location.href=window.location.href.split('?')[0]+'?v='+remote;
+        window.location.href=reloadUrl;
       };
       document.getElementById('updateDismissBtn').onclick=function(){
         banner.classList.remove('show');
@@ -3474,7 +3487,7 @@ function restartUpdateChecker(){
   _updateCheckerTimer = setInterval(checkForUpdate, mins * 60 * 1000);
 }
 // Check on load after 3s, then start interval
-setTimeout(function(){ checkForUpdate(); restartUpdateChecker(); }, 3000);
+setTimeout(function(){ checkForUpdate(true); restartUpdateChecker(); }, 3000);
 
 // Hard reset logic — called from Settings drawer (sHardReset)
 function doHardReset(){
