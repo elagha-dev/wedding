@@ -4,6 +4,16 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Dashboard</title>
+
+<!-- PWA: installable on Android/Chrome + iOS home screen -->
+<link rel="manifest" href="/manifest.json"/>
+<meta name="theme-color" content="#C9876A"/>
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="A&amp;E Dash"/>
+
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <!-- Google tag (gtag.js) -->
@@ -3480,6 +3490,15 @@ function checkForUpdate(isInitial){
     })
     .catch(function(){});
 }
+// Register the (currently no-op) service worker — required by
+// Chrome/Android before it will offer "Add to Home Screen" / Install
+// for this page. Does not add any offline behavior.
+if('serviceWorker' in navigator){
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('/sw.js').catch(function(){});
+  });
+}
+
 var _updateCheckerTimer = null;
 function restartUpdateChecker(){
   if(_updateCheckerTimer) clearInterval(_updateCheckerTimer);
