@@ -498,6 +498,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .deploy-btn{display:none}
 .deploy-btn:hover{border-color:#25D366;color:#25D366}
 .deploy-btn.deploying{border-color:var(--amber);color:var(--amber);animation:spin .8s linear infinite}
+#syncInfoNowBtn.syncing svg{animation:spin .8s linear infinite}
 .deploy-btn.deployed{border-color:#25D366;color:#25D366}
 @keyframes spin{to{transform:rotate(360deg)}}
 .settings-btn{width:32px;height:32px;border-radius:50%;background:var(--cream2);border:none;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--ease)}
@@ -595,35 +596,10 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .worker-ref-row input:focus{border-color:var(--rose)}
 .worker-ref-save{padding:8px 14px;border-radius:var(--r-sm);background:var(--rose);color:#fff;border:none;font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.08em;cursor:pointer;white-space:nowrap;transition:background var(--ease)}.worker-ref-save:hover{background:var(--rose-deep)}.worker-ref-save.ok{background:var(--green)}
 
-/* ── AI ASSISTANT ── */
-.ai-btn{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#A855F7);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--ease);box-shadow:0 2px 8px rgba(124,58,237,.35)}
-.ai-btn:hover{transform:scale(1.08);box-shadow:0 3px 14px rgba(124,58,237,.5)}
-.ai-btn.active{background:linear-gradient(135deg,#6D28D9,#9333EA)}
-.ai-overlay{position:fixed;inset:0;background:rgba(35,26,20,.35);backdrop-filter:blur(4px);z-index:299;opacity:0;pointer-events:none;transition:opacity .3s}
-.ai-overlay.open{opacity:1;pointer-events:all}
-.ai-drawer{position:fixed;bottom:0;left:0;right:0;max-width:640px;margin:0 auto;background:var(--cream);border-radius:24px 24px 0 0;z-index:300;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);display:flex;flex-direction:column;box-shadow:0 -8px 40px rgba(100,60,30,.18);max-height:82vh}
-.ai-drawer.open{transform:translateY(0)}
-.ai-handle{width:36px;height:4px;background:var(--parchment);border-radius:2px;margin:10px auto 0;flex-shrink:0}
-.ai-head{display:flex;align-items:center;gap:10px;padding:12px 20px 10px;flex-shrink:0;border-bottom:1px solid var(--parchment)}
-.ai-head-icon{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#A855F7);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.ai-head-title{font-family:var(--sans);font-size:16px;font-weight:600;color:var(--ink);flex:1}
-.ai-head-sub{font-size:10px;color:var(--muted)}
-.ai-close{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:2px 6px;border-radius:50%;transition:all var(--ease);line-height:1}.ai-close:hover{color:var(--ink);background:var(--parchment)}
-.ai-messages{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:10px;-webkit-overflow-scrolling:touch}
-.ai-msg{max-width:88%;padding:10px 14px;border-radius:16px;font-size:13.5px;line-height:1.55}
-.ai-msg.user{align-self:flex-end;background:linear-gradient(135deg,#7C3AED,#A855F7);color:#fff;border-bottom-right-radius:4px}
-.ai-msg.assistant{align-self:flex-start;background:#fff;color:var(--ink);border:1px solid rgba(196,149,106,.12);box-shadow:var(--shadow-sm);border-bottom-left-radius:4px}
-.ai-msg.system{align-self:center;background:var(--green-bg);color:var(--green);font-size:11px;font-weight:600;letter-spacing:.04em;border-radius:var(--r-pill);padding:5px 14px}
-.ai-msg.error{align-self:center;background:var(--red-bg);color:var(--red);font-size:11px;font-weight:600;border-radius:var(--r-pill);padding:5px 14px}
-.ai-thinking{align-self:flex-start;padding:10px 14px;background:#fff;border:1px solid rgba(196,149,106,.12);border-radius:16px;border-bottom-left-radius:4px;box-shadow:var(--shadow-sm);display:flex;gap:5px;align-items:center}
-.ai-dot{width:6px;height:6px;border-radius:50%;background:var(--soft);animation:aiPulse 1.4s ease-in-out infinite}
-.ai-dot:nth-child(2){animation-delay:.2s}.ai-dot:nth-child(3){animation-delay:.4s}
-@keyframes aiPulse{0%,80%,100%{transform:scale(.8);opacity:.5}40%{transform:scale(1.1);opacity:1}}
-.ai-input-row{display:flex;gap:8px;padding:10px 14px 20px;flex-shrink:0;border-top:1px solid var(--parchment)}
-.ai-input{flex:1;font-family:var(--sans);font-size:14px;padding:10px 14px;background:var(--cream2);border:1.5px solid var(--parchment);border-radius:var(--r-sm);color:var(--ink);outline:none;resize:none;min-height:42px;max-height:100px;line-height:1.4;transition:border-color var(--ease)}.ai-input:focus{border-color:rgba(124,58,237,.4);box-shadow:0 0 0 3px rgba(124,58,237,.08)}
-.ai-send{width:42px;height:42px;border-radius:var(--r-sm);background:linear-gradient(135deg,#7C3AED,#A855F7);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--ease);box-shadow:0 2px 8px rgba(124,58,237,.3)}.ai-send:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(124,58,237,.45)}.ai-send:disabled{opacity:.4;cursor:default;transform:none}
-.ai-suggestions{display:flex;gap:6px;padding:0 14px 8px;flex-wrap:wrap;flex-shrink:0}
-.ai-sug{padding:5px 12px;border-radius:var(--r-pill);background:var(--cream2);border:1.5px solid var(--parchment);color:var(--muted);font-size:11px;font-weight:500;cursor:pointer;font-family:var(--sans);transition:all var(--ease);white-space:nowrap}.ai-sug:hover{border-color:rgba(124,58,237,.4);color:#7C3AED;background:rgba(124,58,237,.06)}
+/* ── QUICK ADD ── */
+.quickadd-btn{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--rose),var(--rose-deep));border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--ease);box-shadow:0 2px 8px rgba(160,97,74,.35)}
+.quickadd-btn:hover{transform:scale(1.08);box-shadow:0 3px 14px rgba(160,97,74,.5)}
+.quickadd-btn.active{transform:rotate(45deg)}
 
 /* ── PRESENCE AVATARS ── */
 .presence-wrap{display:flex;align-items:center;gap:6px;flex:0 0 auto}
@@ -659,7 +635,7 @@ body.guest-mode .send-btn,
 body.guest-mode .copy-btn,
 body.guest-mode .settings-btn,
 body.guest-mode .deploy-btn,
-body.guest-mode .ai-btn,
+body.guest-mode .quickadd-btn,
 body.guest-mode .card-actions,
 body.guest-mode .g-card-check,
 body.guest-mode .g-inner-right,
@@ -668,15 +644,13 @@ body.guest-mode .swipe-hint{display:none!important}
 body.guest-mode .g-card{pointer-events:none}
 body.guest-mode .g-card .rsvp-entry{pointer-events:auto}
 /* ── LITE MODE ── */
-body.lite-mode .ai-btn,
+body.lite-mode .quickadd-btn,
 body.lite-mode .rsvp-count-btn,
 body.lite-mode .presence-wrap,
 body.lite-mode #presenceOther,
 body.lite-mode #presenceMe,
 body.lite-mode .chat-drawer,
 body.lite-mode .chat-overlay,
-body.lite-mode .ai-drawer,
-body.lite-mode .ai-overlay,
 body.lite-mode #rsvpDrawer,
 body.lite-mode .rsvp-drawer-overlay,
 body.lite-mode #dashboard,
@@ -819,13 +793,13 @@ body.lite-mode #liteModeTopBtn {
   <div class="stat-pill new-guests" id="ovNew" title="New since last sync" style="display:none"></div>
   <!-- spacer -->
   <div style="flex:1"></div>
-  <!-- AI Assistant -->
-  <button class="ai-btn" id="aiBtn" title="AI Assistant">
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/><circle cx="9" cy="14" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="14" r="1" fill="currentColor" stroke="none"/></svg>
-  </button>
   <!-- RSVP -->
   <button class="rsvp-count-btn" id="rsvpCountBtn" title="RSVP Responses">
     <span class="rc-num" id="rsvpCountNum">—</span>
+  </button>
+  <!-- Quick add / new invite (moved off the old bottom + button) -->
+  <button class="quickadd-btn" id="quickAddBtn" title="New invite (N)">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
   </button>
   <!-- Deploy (keep hidden, still needed) -->
   <button class="deploy-btn" id="deployBtn" title="Deploy to GitHub" style="display:none"></button>
@@ -852,8 +826,8 @@ body.lite-mode #liteModeTopBtn {
 
 <!-- SYNC INFO BANNER -->
 <div id="syncInfoBanner" style="display:flex;background:linear-gradient(135deg,#F2D8CC,#EDD5C5);color:var(--ink2);padding:9px 14px 9px 16px;font-family:var(--sans);font-size:11.5px;font-weight:500;line-height:1.4;align-items:center;gap:10px;border-bottom:1px solid rgba(201,135,106,.2)">
-  <span style="flex-shrink:0"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></span>
-  <span style="flex:1">Changes sync across all devices in <strong style="color:var(--rose-deep)">~30 seconds</strong> — both ways. What you change here will appear on other devices shortly.</span>
+  <button id="syncInfoNowBtn" title="Tap to sync now" style="flex-shrink:0;background:none;border:none;padding:0;cursor:pointer;color:inherit;display:flex;align-items:center"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></button>
+  <span style="flex:1">Changes sync across all devices in <strong style="color:var(--rose-deep)">~30 seconds</strong> — both ways. What you change here will appear on other devices shortly. <span style="text-decoration:underline;cursor:pointer" onclick="document.getElementById('syncInfoNowBtn').click()">Tap to sync now.</span></span>
   <button onclick="(function(){var b=document.getElementById('syncInfoBanner');b.style.opacity='0';b.style.transition='opacity .3s';setTimeout(function(){b.style.display='none';try{sessionStorage.setItem('syncBannerDismissed','1')}catch(e){}},300)})()" style="background:rgba(160,97,74,.15);border:1px solid rgba(160,97,74,.3);color:var(--rose-deep);border-radius:50%;width:22px;height:22px;font-size:14px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:var(--sans);transition:background .2s" onmouseover="this.style.background='rgba(160,97,74,.25)'" onmouseout="this.style.background='rgba(160,97,74,.15)'">×</button>
 </div>
 
@@ -863,6 +837,17 @@ body.lite-mode #liteModeTopBtn {
 </div>
 <script>
 (function(){
+  var infoBtn = document.getElementById('syncInfoNowBtn');
+  if(infoBtn){
+    infoBtn.addEventListener('click', function(){
+      if(infoBtn.classList.contains('syncing')) return;
+      infoBtn.classList.add('syncing');
+      // doSync is defined later in the script — call via timeout to ensure it's available
+      setTimeout(function(){ if(typeof doSync==='function') doSync(); }, 0);
+      setTimeout(function(){ infoBtn.classList.remove('syncing'); }, 1200);
+    });
+  }
+
   var btn = document.getElementById('guestSyncNowBtn');
   var banner = document.getElementById('guestSyncBanner');
   if(!btn) return;
@@ -1065,37 +1050,6 @@ body.lite-mode #liteModeTopBtn {
   <div class="chat-input-row">
     <textarea class="chat-input" id="chatInput" placeholder="Message…" rows="1"></textarea>
     <button class="chat-send" id="chatSend">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-    </button>
-  </div>
-</div>
-
-<!-- AI ASSISTANT DRAWER -->
-<div class="ai-overlay" id="aiOverlay"></div>
-<div class="ai-drawer" id="aiDrawer">
-  <div class="ai-handle"></div>
-  <div class="ai-head">
-    <div class="ai-head-icon">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/><circle cx="9" cy="14" r="1" fill="#fff" stroke="none"/><circle cx="15" cy="14" r="1" fill="#fff" stroke="none"/></svg>
-    </div>
-    <div>
-      <div class="ai-head-title">AI Assistant</div>
-      <div class="ai-head-sub">Ask to change anything in the app</div>
-    </div>
-    <button class="ai-close" id="aiClose">×</button>
-  </div>
-  <div class="ai-messages" id="aiMessages">
-    <div class="ai-msg assistant">Hi! I can change anything in this app — colors, layouts, text, features. What would you like to update?</div>
-  </div>
-  <div class="ai-suggestions" id="aiSuggestions">
-    <button class="ai-sug">Make cards smaller</button>
-    <button class="ai-sug">Change rose color to blue</button>
-    <button class="ai-sug">Remove the today badge</button>
-    <button class="ai-sug">Make text larger</button>
-  </div>
-  <div class="ai-input-row">
-    <textarea class="ai-input" id="aiInput" placeholder="Describe a change…" rows="1"></textarea>
-    <button class="ai-send" id="aiSend">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
     </button>
   </div>
@@ -1311,7 +1265,9 @@ body.lite-mode #liteModeTopBtn {
       <button class="fab-quick-btn e" id="fabE" title="Quick send as Elnur">E</button>
     </div>
   </div>
-  <button class="fab-main" id="fabMain" title="New invite (N)">+</button>
+  <button class="fab-main" id="fabMain" title="Scroll to top">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+  </button>
 </div>
 
 <!-- Quick form -->
@@ -2819,9 +2775,12 @@ function updateFabLabels(){
 updateFabLabels();
 
 document.getElementById('fabMain').addEventListener('click',function(){
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+document.getElementById('quickAddBtn').addEventListener('click',function(){
   fabOpen=!fabOpen;
   document.getElementById('fabDrawer').className='fab-drawer'+(fabOpen?' open':'');
-  this.textContent=fabOpen?'×':'+';
+  this.classList.toggle('active',fabOpen);
 });
 
 var qfMode='single',qfScope='ceremony';
@@ -2839,7 +2798,7 @@ function setQfScope(scope){
   document.getElementById('qfTitle').textContent=(qfMode==='couple'?'Couple':'Single')+' · '+(scope==='party'?'Party':'Church');
 }
 function openQuickForm(who){
-  fabOpen=false;document.getElementById('fabDrawer').className='fab-drawer';document.getElementById('fabMain').textContent='+';
+  fabOpen=false;document.getElementById('fabDrawer').className='fab-drawer';document.getElementById('quickAddBtn').classList.remove('active');
   document.getElementById('qfLast').innerHTML='<strong>'+who+'</strong>';
   document.getElementById('quickForm').classList.add('open');
   document.getElementById('qfBackdrop').classList.add('open');
@@ -3688,172 +3647,9 @@ document.getElementById('settingsOverlay').addEventListener('click',closeSetting
 // Compact card CSS
 (function(){var style=document.createElement('style');style.textContent='.compact-cards .g-inner{padding-top:8px!important;padding-bottom:10px!important}.compact-cards .g-name{font-size:14px!important}';document.head.appendChild(style);})();
 
-// Init — must run before AI assistant so workerUrl is set
 loadAppSettings();
 if(appSettings.workerUrl)workerUrl=appSettings.workerUrl;
 applyAppSettings();
-
-// ── AI ASSISTANT ──────────────────────────────────────────
-(function(){
-  var aiBtn=document.getElementById('aiBtn');
-  var aiOverlay=document.getElementById('aiOverlay');
-  var aiDrawer=document.getElementById('aiDrawer');
-  var aiClose=document.getElementById('aiClose');
-  var aiMessages=document.getElementById('aiMessages');
-  var aiInput=document.getElementById('aiInput');
-  var aiSend=document.getElementById('aiSend');
-  var aiSuggestions=document.getElementById('aiSuggestions');
-  var thinking=null;
-
-  function openAI(){aiOverlay.classList.add('open');aiDrawer.classList.add('open');aiBtn.classList.add('active');setTimeout(function(){aiInput.focus();},300);}
-  function closeAI(){aiOverlay.classList.remove('open');aiDrawer.classList.remove('open');aiBtn.classList.remove('active');}
-
-  aiBtn.addEventListener('click',openAI);
-  aiClose.addEventListener('click',closeAI);
-  aiOverlay.addEventListener('click',closeAI);
-
-  // suggestion chips
-  aiSuggestions.addEventListener('click',function(e){
-    var b=e.target.closest('.ai-sug');
-    if(b){aiInput.value=b.textContent;aiInput.focus();sendMessage();}
-  });
-
-  aiInput.addEventListener('keydown',function(e){
-    if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}
-  });
-  aiInput.addEventListener('input',function(){
-    this.style.height='auto';
-    this.style.height=Math.min(this.scrollHeight,100)+'px';
-  });
-  aiSend.addEventListener('click',sendMessage);
-
-  function addMsg(role,text){
-    var div=document.createElement('div');
-    div.className='ai-msg '+role;
-    div.textContent=text;
-    aiMessages.appendChild(div);
-    aiMessages.scrollTop=aiMessages.scrollHeight;
-    return div;
-  }
-
-  function showThinking(){
-    var div=document.createElement('div');
-    div.className='ai-thinking';
-    div.innerHTML='<div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div>';
-    aiMessages.appendChild(div);
-    aiMessages.scrollTop=aiMessages.scrollHeight;
-    thinking=div;
-  }
-  function hideThinking(){if(thinking){thinking.remove();thinking=null;}}
-
-  function getPageHTML(){
-    return document.documentElement.outerHTML;
-  }
-
-  function applyNewHTML(newHTML){
-    // Extract just <style> blocks and apply them + any direct DOM mutations
-    // Strategy: parse the returned code block and apply style/attribute changes
-    var styleMatch=newHTML.match(/<style[\s\S]*?>([\s\S]*?)<\/style>/g);
-    var scriptMatch=newHTML.match(/\/\* AI_PATCH_START \*\/([\s\S]*?)\/\* AI_PATCH_END \*\//);
-    if(scriptMatch){
-      try{eval(scriptMatch[1]);}catch(e){console.error('AI patch eval error',e);}
-    }
-    // Replace all <style> content if AI returned updated styles
-    if(styleMatch&&styleMatch.length){
-      // Find the first style block that differs from existing
-      var existingStyles=document.querySelectorAll('style');
-      // Inject a new style block that overrides
-      var combined=styleMatch.map(function(s){return s.replace(/<\/?style[^>]*>/g,'');}).join('\n');
-      var el=document.getElementById('ai-injected-style');
-      if(!el){el=document.createElement('style');el.id='ai-injected-style';document.head.appendChild(el);}
-      el.textContent=combined;
-      return true;
-    }
-    return false;
-  }
-
-
-  var AI_UNLOCKED = false;
-  var AI_PASSWORD = 'ae';
-
-  function showPasswordGate(){
-    hideThinking();
-    var old=document.getElementById('aiPwPrompt');if(old)old.remove();
-    var div=document.createElement('div');
-    div.id='aiPwPrompt';
-    div.style.cssText='background:#fff;border:1.5px solid rgba(124,58,237,.2);border-radius:14px;padding:14px;margin:0;box-shadow:0 2px 12px rgba(124,58,237,.1)';
-    div.innerHTML='<div style="font-size:12px;font-weight:600;color:#7C3AED;margin-bottom:8px">Enter password to use AI</div>'
-      +'<div style="display:flex;gap:8px"><input id="aiPwInput" type="password" placeholder="Password" style="flex:1;font-size:13px;padding:8px 10px;border:1.5px solid #EFE4D4;border-radius:10px;font-family:inherit;outline:none;background:#FDF8F3"/>'
-      +'<button id="aiPwSave" style="padding:8px 14px;background:linear-gradient(135deg,#7C3AED,#A855F7);color:#fff;border:none;border-radius:10px;font-size:11px;font-weight:700;cursor:pointer">OK</button></div>';
-    aiMessages.appendChild(div);
-    aiMessages.scrollTop=aiMessages.scrollHeight;
-    var inp=document.getElementById('aiPwInput');
-    inp.focus();
-    function tryPw(){
-      var v=inp.value.trim();
-      if(v===AI_PASSWORD){AI_UNLOCKED=true;div.remove();addMsg('assistant','Ready! Ask me to change anything.');}
-      else{inp.value='';inp.style.borderColor='#C0402E';inp.placeholder='Wrong password';}
-    }
-    document.getElementById('aiPwSave').onclick=tryPw;
-    inp.addEventListener('keydown',function(e){if(e.key==='Enter')tryPw();});
-  }
-
-  async function callClaude(text){
-    var systemPrompt='You are an AI assistant embedded inside a wedding invite generator web app called "A & E · Invites". Your job is to modify the app\'s CSS based on the user\'s request.\n\nRespond with ONLY a <style> tag containing CSS overrides. No explanation, no markdown, no code fences.\n\nRules:\n- Use !important or high-specificity selectors to override existing styles.\n- To change colors use: :root { --varname: newvalue; }\n- To remove/hide elements use: display:none !important\n- Keep changes minimal and targeted.\n- If truly impossible via CSS alone, respond with 2-3 sentences of plain text (no <style> tag) explaining why.\n\nCSS variables in use: --rose:#C9876A, --rose-deep:#A0614A, --cream:#FDF8F3, --cream2:#F9F1E7, --parchment:#EFE4D4, --ink:#231A14, --muted:#9C8070, --gold:#C4956A, --green:#3A8C5C, --red:#C0402E';
-
-    var base=(typeof workerUrl!=='undefined'?workerUrl:'')||'https://guestlist.elnur-agha.workers.dev';
-    var proxyUrl=base.replace(/\/$/,'')+'/ai';
-    var r=await fetch(proxyUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system:systemPrompt,message:text})});
-    if(!r.ok){
-      var errBody=await r.json().catch(function(){return {};});
-      throw new Error((errBody.error&&errBody.error.message)||'Worker error '+r.status);
-    }
-    return await r.json();
-  }
-
-  async function sendMessage(){
-    var text=aiInput.value.trim();
-    if(!text)return;
-    if(!AI_UNLOCKED){showPasswordGate();return;}
-    aiInput.value='';aiInput.style.height='auto';
-    aiSend.disabled=true;
-    aiSuggestions.style.display='none';
-
-    addMsg('user',text);
-    showThinking();
-
-    try{
-      var data=await callClaude(text);
-      hideThinking();
-      if(!data){aiSend.disabled=false;return;}
-      var reply=data.reply||(data.content&&data.content.map(function(c){return c.text||'';}).join(''));
-      if(!reply){addMsg('error','No response');aiSend.disabled=false;return;}
-
-      if(reply.trim().startsWith('<style')){
-        applyNewHTML(reply);
-        addMsg('system','✓ Change applied — saving...');
-        addMsg('assistant','Done! '+describeChange(text));
-        deployToGitHub(true);
-      } else {
-        addMsg('assistant',reply.trim());
-      }
-    }catch(e){
-      hideThinking();
-      addMsg('error','Error: '+e.message);
-      console.error(e);
-    }
-    aiSend.disabled=false;
-  }
-
-  function describeChange(req){
-    var r=req.toLowerCase();
-    if(r.includes('smaller'))return 'Elements are now smaller.';
-    if(r.includes('larger')||r.includes('bigger'))return 'Text/elements are now larger.';
-    if(r.includes('color')||r.includes('colour'))return 'Colors updated.';
-    if(r.includes('remove')||r.includes('hide'))return 'Element hidden.';
-    return 'Layout updated.';
-  }
-})();
 
 /* ── ACTIVITY POLLER ── */
 // Polls /events every 10s. Shows a toast only for events from OTHER devices.
@@ -4095,7 +3891,6 @@ function showChatNotif(who, text){
 .dev-mode .sess-btn,
 .dev-mode .sync-pill,
 .dev-mode .stat-pill,
-.dev-mode .ai-btn,
 .dev-mode .deploy-btn,
 .dev-mode .settings-btn,
 .dev-mode .dev-btn,
@@ -4119,7 +3914,6 @@ function showChatNotif(who, text){
 .dev-mode .sess-btn::before,
 .dev-mode .sync-pill::before,
 .dev-mode .stat-pill::before,
-.dev-mode .ai-btn::before,
 .dev-mode .deploy-btn::before,
 .dev-mode .settings-btn::before,
 .dev-mode .dev-btn::before,
@@ -4159,7 +3953,6 @@ function showChatNotif(who, text){
 .dev-mode .sess-btn:hover::before,
 .dev-mode .sync-pill:hover::before,
 .dev-mode .stat-pill:hover::before,
-.dev-mode .ai-btn:hover::before,
 .dev-mode .deploy-btn:hover::before,
 .dev-mode .settings-btn:hover::before,
 .dev-mode .dev-btn:hover::before,
