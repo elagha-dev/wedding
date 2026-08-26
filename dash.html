@@ -381,23 +381,10 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 
 /* ── FAB ── */
 .fab{position:fixed;bottom:24px;right:16px;z-index:90;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
-.fab-main{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--rose),var(--rose-deep));border:none;color:#fff;font-size:24px;cursor:pointer;box-shadow:0 4px 20px rgba(160,97,74,.4);transition:all var(--ease);display:flex;align-items:center;justify-content:center;line-height:1}
+.fab-main{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--rose),var(--rose-deep));border:none;color:#fff;font-size:24px;cursor:pointer;box-shadow:0 4px 20px rgba(160,97,74,.4);transition:all var(--ease),opacity .25s ease,transform .25s ease;display:flex;align-items:center;justify-content:center;line-height:1;opacity:0;pointer-events:none;transform:translateY(8px)}
 .fab-main:hover{transform:scale(1.08);box-shadow:0 6px 26px rgba(160,97,74,.5)}
 .fab-main:active{transform:scale(.96)}
-/* Quick-send drawer */
-.fab-drawer{display:none;flex-direction:column;gap:6px;align-items:flex-end;animation:fadeUp .18s ease}
-.fab-drawer.open{display:flex}
-@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.fab-quick{display:flex;align-items:center;gap:8px}
-.fab-quick-label{font-size:10px;font-weight:600;letter-spacing:.06em;background:rgba(35,26,20,.75);color:#fff;padding:4px 10px;border-radius:var(--r-pill);backdrop-filter:blur(8px);white-space:nowrap}
-.fab-quick-btn{width:44px;height:44px;border-radius:14px;border:none;cursor:pointer;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;font-family:var(--sans);letter-spacing:-.5px;transition:all var(--ease);position:relative;overflow:hidden}
-.fab-quick-btn::before{content:'';position:absolute;inset:0;opacity:.15;border-radius:inherit}
-.fab-quick-btn:hover{transform:scale(1.08);box-shadow:var(--shadow-lg)}
-.fab-quick-btn:active{transform:scale(.95)}
-.fab-quick-btn.a{background:linear-gradient(135deg,#F9CEDA,var(--arina-bg));color:var(--arina-txt);box-shadow:0 3px 14px rgba(155,26,68,.22)}
-.fab-quick-btn.a::before{background:radial-gradient(circle at 30% 30%,#fff,transparent)}
-.fab-quick-btn.e{background:linear-gradient(135deg,#FDDFA8,var(--elnur-bg));color:var(--elnur-txt);box-shadow:0 3px 14px rgba(138,74,0,.22)}
-.fab-quick-btn.e::before{background:radial-gradient(circle at 30% 30%,#fff,transparent)}
+.fab-main.show{opacity:1;pointer-events:all;transform:translateY(0)}
 
 /* Quick-send mini form */
 .quick-form-wrap{position:fixed;bottom:0;left:0;right:0;z-index:200;display:flex;justify-content:center;pointer-events:none}
@@ -659,7 +646,6 @@ body.lite-mode .update-banner,
 body.lite-mode .split-bar,
 body.lite-mode #syncInfoBanner,
 body.lite-mode #rsvpChangeBanner,
-body.lite-mode .fab-drawer,
 body.lite-mode #toolsDrawer,
 body.lite-mode #toolsToggleBtn,
 body.lite-mode .kb-hint,
@@ -1255,16 +1241,6 @@ body.lite-mode #liteModeTopBtn {
 
 <!-- FAB -->
 <div class="fab">
-  <div class="fab-drawer" id="fabDrawer">
-    <div class="fab-quick">
-      <span class="fab-quick-label" id="fabLastLabel"></span>
-      <button class="fab-quick-btn a" id="fabA" title="Quick send as Arina">A</button>
-    </div>
-    <div class="fab-quick">
-      <span class="fab-quick-label" id="fabELabel"></span>
-      <button class="fab-quick-btn e" id="fabE" title="Quick send as Elnur">E</button>
-    </div>
-  </div>
   <button class="fab-main" id="fabMain" title="Scroll to top">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
   </button>
@@ -1627,7 +1603,6 @@ function setSession(who){
   document.dispatchEvent(new CustomEvent('sessionChanged', {detail: who}));
   // sync sender buttons in generator
   document.querySelectorAll('.s-btn').forEach(function(b){b.classList.remove('on');if(b.dataset.s===who){b.classList.add('on');b.classList.add(who==='Arina'?'arina':'elnur');}});
-  updateFabLabels();
   saveLastSettings();
 }
 document.getElementById('sessA').addEventListener('click',function(){if(sessionSender!=='Arina'){setSession('Arina');showSessionToast('Arina');}});
@@ -2764,23 +2739,18 @@ function doGroupSend(guests,phone,msgLang){
 }
 
 /* ══ FAB + QUICK SEND ════════════════════════ */
-var fabOpen=false;
-function updateFabLabels(){
-  var ll={en:'EN',de:'DE',ru:'RU'};
-  var typeShort={'ceremony-single':'Single·Ch','couple-ceremony':'Couple·Ch','ceremony-party-single':'Single·Party','couple-party':'Couple·Party'};
-  var desc=(typeShort[selType]||selType)+' · '+ll[selLang];
-  document.getElementById('fabLastLabel').textContent='Arina: '+desc;
-  document.getElementById('fabELabel').textContent='Elnur: '+desc;
-}
-updateFabLabels();
-
 document.getElementById('fabMain').addEventListener('click',function(){
   window.scrollTo({top:0,behavior:'smooth'});
 });
+(function(){
+  var fab=document.getElementById('fabMain');
+  var threshold=400;
+  function toggleFab(){fab.classList.toggle('show',window.scrollY>threshold);}
+  window.addEventListener('scroll',toggleFab,{passive:true});
+  toggleFab();
+})();
 document.getElementById('quickAddBtn').addEventListener('click',function(){
-  fabOpen=!fabOpen;
-  document.getElementById('fabDrawer').className='fab-drawer'+(fabOpen?' open':'');
-  this.classList.toggle('active',fabOpen);
+  openQuickForm(sessionSender);
 });
 
 var qfMode='single',qfScope='ceremony';
@@ -2798,7 +2768,6 @@ function setQfScope(scope){
   document.getElementById('qfTitle').textContent=(qfMode==='couple'?'Couple':'Single')+' · '+(scope==='party'?'Party':'Church');
 }
 function openQuickForm(who){
-  fabOpen=false;document.getElementById('fabDrawer').className='fab-drawer';document.getElementById('quickAddBtn').classList.remove('active');
   document.getElementById('qfLast').innerHTML='<strong>'+who+'</strong>';
   document.getElementById('quickForm').classList.add('open');
   document.getElementById('qfBackdrop').classList.add('open');
@@ -2818,8 +2787,6 @@ function closeQuickForm(){
   document.getElementById('quickForm').classList.remove('open');
   document.getElementById('qfBackdrop').classList.remove('open');
 }
-document.getElementById('fabA').addEventListener('click',function(){openQuickForm('Arina');});
-document.getElementById('fabE').addEventListener('click',function(){openQuickForm('Elnur');});
 document.getElementById('qfCancel').addEventListener('click',closeQuickForm);
 document.getElementById('qfBackdrop').addEventListener('click',closeQuickForm);
 document.getElementById('qfSend').addEventListener('click',function(){
@@ -3274,15 +3241,14 @@ document.getElementById('clearGuestBtn').addEventListener('click',function(){if(
 
 /* ══ GENERATOR ═══════════════════════════════ */
 document.getElementById('genToggle').addEventListener('click',function(){var b=document.getElementById('genBody'),c=document.getElementById('genChevron');var open=b.style.display!=='none';b.style.display=open?'none':'';c.classList.toggle('open',!open);});
-document.querySelectorAll('.t-btn').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('.t-btn').forEach(function(x){x.classList.remove('on');});b.classList.add('on');selType=b.dataset.type;saveLastSettings();updateFabLabels();});});
-document.querySelectorAll('.l-btn').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('.l-btn').forEach(function(x){x.classList.remove('on');});b.classList.add('on');selLang=b.dataset.lang;saveLastSettings();updateFabLabels();});});
+document.querySelectorAll('.t-btn').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('.t-btn').forEach(function(x){x.classList.remove('on');});b.classList.add('on');selType=b.dataset.type;saveLastSettings();});});
+document.querySelectorAll('.l-btn').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('.l-btn').forEach(function(x){x.classList.remove('on');});b.classList.add('on');selLang=b.dataset.lang;saveLastSettings();});});
 document.querySelectorAll('.s-btn').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('.s-btn').forEach(function(x){x.classList.remove('on');});b.classList.add('on');selSender=b.dataset.s;saveLastSettings();});});
 
 // Apply restored settings to UI
 (function(){
   document.querySelectorAll('.t-btn').forEach(function(b){b.classList.toggle('on',b.dataset.type===selType);});
   document.querySelectorAll('.l-btn').forEach(function(b){b.classList.toggle('on',b.dataset.lang===selLang);});
-  updateFabLabels();
 })();
 
 document.getElementById('genBtn').addEventListener('click',function(){
