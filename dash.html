@@ -380,7 +380,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .list-btn:hover{border-color:var(--rose);color:var(--rose)}.list-btn.dng:hover{border-color:var(--red);color:var(--red)}.list-btn.grow{flex:1}
 
 /* ── FAB ── */
-.fab{position:fixed;bottom:32px;right:20px;z-index:90;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+.fab{position:fixed;bottom:32px;right:16px;z-index:90;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
 .fab-main{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--rose),var(--rose-deep));border:none;color:#fff;font-size:24px;cursor:pointer;box-shadow:0 4px 20px rgba(160,97,74,.4);transition:all var(--ease),opacity .25s ease,transform .25s ease;display:flex;align-items:center;justify-content:center;line-height:1;opacity:0;pointer-events:none;transform:translateY(8px)}
 .fab-main:hover{transform:scale(1.08);box-shadow:0 6px 26px rgba(160,97,74,.5)}
 .fab-main:active{transform:scale(.96)}
@@ -2739,13 +2739,31 @@ function doGroupSend(guests,phone,msgLang){
 }
 
 /* ══ FAB + QUICK SEND ════════════════════════ */
-document.getElementById('fabMain').addEventListener('click',function(){
-  window.scrollTo({top:0,behavior:'smooth'});
-});
 (function(){
   var fab=document.getElementById('fabMain');
-  var threshold=400;
-  function toggleFab(){fab.classList.toggle('show',window.scrollY>threshold);}
+  function scrollTop(){window.scrollTo({top:0,behavior:'smooth'});}
+  // iOS Safari sometimes swallows the first tap on a fixed-position button
+  // while the page is still decelerating from a scroll/swipe — it uses that
+  // tap just to stop the momentum scroll. touchend fires the moment the
+  // finger lifts, sidestepping that delay; click stays as a mouse/fallback.
+  var firedViaTouch=false;
+  fab.addEventListener('touchend',function(e){
+    firedViaTouch=true;
+    setTimeout(function(){firedViaTouch=false;},500);
+    scrollTop();
+  },{passive:true});
+  fab.addEventListener('click',function(){
+    if(firedViaTouch) return;
+    scrollTop();
+  });
+  // Show once scrolled down a bit; hysteresis avoids flicker from
+  // iOS bounce/overscroll right at the boundary.
+  var showAt=380,hideAt=220;
+  function toggleFab(){
+    var y=window.scrollY;
+    if(y>showAt) fab.classList.add('show');
+    else if(y<hideAt) fab.classList.remove('show');
+  }
   window.addEventListener('scroll',toggleFab,{passive:true});
   toggleFab();
 })();
