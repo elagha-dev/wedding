@@ -1497,14 +1497,21 @@ function _flushRetryQueue(){
   });
 }
 
-// Push followup/note/manualRsvp changes for a single guest to worker KV
+// Push followup/note/manualRsvp/bulkWith/sentGroupId changes for a single
+// guest to worker KV. bulkWith/sentGroupId were missing from this payload
+// before — meaning unlink/relink actions updated the screen locally but
+// never told the server, so a background poll a few seconds later would
+// see the server's still-old value and silently restore it. Now every
+// field this function touches gets pushed, including clearing to "".
 function pushMetaToWorker(g){
   if(!workerUrl||!g||!g.name)return;
   _localWrites[g.name]=_localWrites[g.name]||{};
   _localWrites[g.name].followup=!!g.followup;
   _localWrites[g.name].note=g.note||'';
   _localWrites[g.name].manualRsvp=g.manualRsvp||'';
-  _pushWithRetry('/meta',{name:g.name,followup:!!g.followup,note:g.note||'',manualRsvp:g.manualRsvp||''},'meta:'+g.name);
+  _localWrites[g.name].bulkWith=g.bulkWith||'';
+  _localWrites[g.name].sentGroupId=g.sentGroupId||'';
+  _pushWithRetry('/meta',{name:g.name,followup:!!g.followup,note:g.note||'',manualRsvp:g.manualRsvp||'',bulkWith:g.bulkWith||'',sentGroupId:g.sentGroupId||''},'meta:'+g.name);
 }
 function pushSentToWorker(name){
   if(!workerUrl||!name)return;
@@ -3316,8 +3323,12 @@ function doSync(){
           skipped:inMem.skipped||localMeta.skipped||false,
           pendingSent:inMem.pendingSent||localMeta.pendingSent||false,
           msgLang:inMem.msgLang||localMeta.msgLang||'',
-          bulkWith:inMem.bulkWith||localMeta.bulkWith||'',
-          sentGroupId:inMem.sentGroupId||localMeta.sentGroupId||'',
+          // bulkWith/sentGroupId: worker is now authoritative (pushMetaToWorker
+          // sends these on every change, including clears) UNLESS this device
+          // has an unconfirmed write in flight this session — same pattern as
+          // sent/followup/note below.
+          bulkWith:(inMemoryMap[titleName]&&_localWrites[titleName]&&_localWrites[titleName].bulkWith!==undefined)?inMem.bulkWith:(g.bulkWith!==undefined?(g.bulkWith||''):(inMem.bulkWith||localMeta.bulkWith||'')),
+          sentGroupId:(inMemoryMap[titleName]&&_localWrites[titleName]&&_localWrites[titleName].sentGroupId!==undefined)?inMem.sentGroupId:(g.sentGroupId!==undefined?(g.sentGroupId||''):(inMem.sentGroupId||localMeta.sentGroupId||'')),
           manualRsvp:g.manualRsvp||inMem.manualRsvp||localMeta.manualRsvp||'',
           // resolved: worker wins, but local sent state preserved if push is in-flight
           sent:isSent,
@@ -3436,8 +3447,8 @@ function startAutoPoll(){
           if(remote.claim!==undefined&&remote.claim!==g.claim){
             g.claim=remote.claim;dirty=true;
           }
-          if(remote.bulkWith!==undefined&&remote.bulkWith&&!g.bulkWith){g.bulkWith=remote.bulkWith;dirty=true;}
-          if(remote.sentGroupId!==undefined&&remote.sentGroupId&&!g.sentGroupId){g.sentGroupId=remote.sentGroupId;dirty=true;}
+          if(remote.bulkWith!==undefined&&local.bulkWith===undefined&&(remote.bulkWith||'')!==(g.bulkWith||'')){g.bulkWith=remote.bulkWith||'';dirty=true;}
+          if(remote.sentGroupId!==undefined&&local.sentGroupId===undefined&&(remote.sentGroupId||'')!==(g.sentGroupId||'')){g.sentGroupId=remote.sentGroupId||'';dirty=true;}
           if(remote.sentBy!==undefined&&remote.sentBy!==g.sentBy){
             g.sentBy=remote.sentBy;
           }
