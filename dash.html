@@ -2174,7 +2174,10 @@ function renderPairsReview(){
     btn.addEventListener('click',function(){
       var p=pairs[parseInt(this.dataset.pr)];
       p.g.bulkWith='';p.g.sentGroupId='';pushMetaToWorker(p.g);
-      if(p.partner){p.partner.bulkWith='';p.partner.sentGroupId='';pushMetaToWorker(p.partner);}
+      // Only clear the partner's side if it actually points back to g —
+      // a one-directional/stale link (flagged above) may have partner
+      // pointing to someone else entirely, and that link is still good.
+      if(p.partner&&p.partner.bulkWith===p.g.name){p.partner.bulkWith='';p.partner.sentGroupId='';pushMetaToWorker(p.partner);}
       saveGuestMeta();renderGuestList();renderPairsReview();
     });
   });
@@ -2216,11 +2219,14 @@ function renderPairsReview(){
           var newPartnerName=this.dataset.pickName;
           var newPartner=importQueue.find(function(o){return o.name===newPartnerName;});
           if(!newPartner)return;
-          // Clean up old links on all three sides first
-          if(p.partner){p.partner.bulkWith='';p.partner.sentGroupId='';pushMetaToWorker(p.partner);}
+          // Clean up old links on all three sides first — but only clear a
+          // side if its link actually points back to the guest being
+          // detached from. A one-directional/stale link may point to
+          // someone else entirely, and that real link must survive.
+          if(p.partner&&p.partner.bulkWith===p.g.name){p.partner.bulkWith='';p.partner.sentGroupId='';pushMetaToWorker(p.partner);}
           if(newPartner.bulkWith){
             var oldMate=importQueue.find(function(o){return o.name===newPartner.bulkWith;});
-            if(oldMate){oldMate.bulkWith='';oldMate.sentGroupId='';pushMetaToWorker(oldMate);}
+            if(oldMate&&oldMate.bulkWith===newPartner.name){oldMate.bulkWith='';oldMate.sentGroupId='';pushMetaToWorker(oldMate);}
           }
           var groupId=Date.now().toString(36);
           p.g.bulkWith=newPartner.name;p.g.sentGroupId=groupId;
