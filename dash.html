@@ -305,6 +305,21 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-swipe-wrap.rsvp-pending .g-card.sent .g-sent-time{color:rgba(255,255,255,.7)!important}
 .g-swipe-wrap.rsvp-pending .g-card.sent .g-undo-btn,.g-swipe-wrap.rsvp-pending .g-card.sent .g-del{color:rgba(255,255,255,.6)!important}
 .g-swipe-wrap:has(.g-card.pending-sent){box-shadow:inset 3px 0 0 var(--rose),var(--shadow-sm)}
+.g-partner-ref{font-size:9.5px;color:var(--muted);margin-top:2px;cursor:pointer;display:flex;align-items:center;gap:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.g-partner-ref:hover{text-decoration:underline}
+.g-swipe-wrap.rsvp-yes .g-card.sent .g-partner-ref{color:rgba(255,255,255,.7)!important}
+.g-swipe-wrap.rsvp-no .g-card.sent .g-partner-ref{color:rgba(255,255,255,.7)!important}
+.g-swipe-wrap.rsvp-pending .g-card.sent .g-partner-ref{color:rgba(255,255,255,.7)!important}
+.g-partner-ref .g-partner-status-yes{color:#1a7a4a;font-weight:800}
+.g-partner-ref .g-partner-status-no{color:#b91c1c;font-weight:800}
+.g-swipe-wrap.rsvp-yes .g-card.sent .g-partner-ref .g-partner-status-yes,
+.g-swipe-wrap.rsvp-yes .g-card.sent .g-partner-ref .g-partner-status-no,
+.g-swipe-wrap.rsvp-no .g-card.sent .g-partner-ref .g-partner-status-yes,
+.g-swipe-wrap.rsvp-no .g-card.sent .g-partner-ref .g-partner-status-no,
+.g-swipe-wrap.rsvp-pending .g-card.sent .g-partner-ref .g-partner-status-yes,
+.g-swipe-wrap.rsvp-pending .g-card.sent .g-partner-ref .g-partner-status-no{color:#fff!important;text-decoration:underline}
+@keyframes gPartnerFlash{0%,100%{box-shadow:none}30%{box-shadow:0 0 0 3px rgba(201,135,106,.55)}}
+.g-flash-ref{animation:gPartnerFlash 1.1s ease}
 /* Unsent guests that already have a matched RSVP: light tint (full color reserved for sent cards) */
 .g-swipe-wrap.rsvp-yes .g-card:not(.sent){background:rgba(26,122,74,.10)}
 .g-swipe-wrap.rsvp-no .g-card:not(.sent){background:rgba(185,28,28,.10)}
@@ -1848,40 +1863,16 @@ function renderGuestList(){
     childGuests.forEach(function(g){html+=buildGuestCard(g);});
   }
 
-  // Sent: group bulk-with partners together, then split couples vs singles
+  // Sent: always shown individually — one card per guest, no merging — so the
+  // yes/no count and each person's color can never be ambiguous.
   if(sentGuests.length){
     if(showSent){
-      // Pair up guests that sent together (by shared sentGroupId, falling back to bulkWith)
-      var renderedNames={};
-      var sentOrdered=[];
-      sentGuests.forEach(function(g){
-        if(renderedNames[g.name])return;
-        renderedNames[g.name]=true;
-        // Try sentGroupId first (most reliable), then bulkWith
-        var partnerName=g.bulkWith||'';
-        if(partnerName){
-          var partner=sentGuests.find(function(h){return h.name===partnerName&&!renderedNames[h.name];});
-          if(partner){
-            renderedNames[partner.name]=true;
-            sentOrdered.push({type:'pair',guests:[g,partner]});
-            return;
-          }
-        }
-        sentOrdered.push({type:'single',guest:g});
-      });
-
       var sentYes=sentGuests.filter(function(g){return getGuestRsvpYesNo(g)===true;}).length;
       var sentNo=sentGuests.filter(function(g){return getGuestRsvpYesNo(g)===false;}).length;
       html+='<div class="g-group-hdr sent sent-with-stats"><span style="flex-shrink:0">Sent ('+sentGuests.length+')</span>'
         + '<span style="flex:1;height:1px;background:var(--parchment);display:inline-block;min-width:8px"></span>'
         + entriesCluster(sentGuests.length, sentYes, sentNo, false) + '</div>';
-      sentOrdered.forEach(function(item){
-        if(item.type==='pair'){
-          html+=buildPairSentCard(item.guests[0],item.guests[1]);
-        } else {
-          html+=buildGuestCard(item.guest);
-        }
-      });
+      sentGuests.forEach(function(g){html+=buildGuestCard(g);});
       html+='<button class="show-sent-btn" id="showSentBtn">Hide sent</button>';
     } else {
       html+='<button class="show-sent-btn" id="showSentBtn">Show '+sentGuests.length+' sent</button>';
@@ -1895,7 +1886,19 @@ function renderGuestList(){
 
   // Row tap = select
   list.querySelectorAll('.g-card').forEach(function(card){
-    card.addEventListener('click',function(e){if(e.target.closest('[data-action]'))return;var ri=parseInt(this.dataset.qi);var g=importQueue[ri];if(!g||g.sent)return;toggleSelect(ri);renderGuestList();});
+    card.addEventListener('click',function(e){if(e.target.closest('[data-action]'))return;if(e.target.closest('.g-partner-ref'))return;var ri=parseInt(this.dataset.qi);var g=importQueue[ri];if(!g||g.sent)return;toggleSelect(ri);renderGuestList();});
+  });
+  // "Sent with X" reference — jump to and briefly flash the partner's card
+  list.querySelectorAll('.g-partner-ref').forEach(function(ref){
+    ref.addEventListener('click',function(e){
+      e.stopPropagation();
+      var targetQi=this.dataset.jumpQi;
+      var targetWrap=list.querySelector('.g-swipe-wrap[data-qi="'+targetQi+'"]');
+      if(!targetWrap)return;
+      targetWrap.scrollIntoView({behavior:'smooth',block:'center'});
+      targetWrap.classList.add('g-flash-ref');
+      setTimeout(function(){targetWrap.classList.remove('g-flash-ref');},1200);
+    });
   });
   // Actions
   list.querySelectorAll('[data-action]').forEach(function(btn){
@@ -1946,12 +1949,11 @@ function buildPairSentCard(g1,g2){
   var rsvpClassPair='';
   var pillWrapPair='';
   if(rsvpInfoPair){
-    /* If the household RSVP lists who's actually attending (Guests Attending),
-       check g1 and g2 individually against it — one person can decline while
-       their partner attends, and the pair shouldn't be shown as a uniform
-       yes/no in that case. Only applies to matched RSVP rows, not manual
-       overrides (a manual override is a deliberate yes/no for both). */
-    var gaStrPair=!rsvpInfoPair.manual?(rsvpInfoPair.guestsAttending||''):'';
+    /* Guests Attending lists the originally-invited names regardless of a
+       yes/no answer (a decline still shows "Laura, Björn" there) — so it can
+       only be used to split a pair when the household actually said YES.
+       On a decline, both are simply red; there's nothing to split. */
+    var gaStrPair=(!rsvpInfoPair.manual && rsvpInfoPair.isYes)?(rsvpInfoPair.guestsAttending||''):'';
     if(gaStrPair){
       var gaToksPair=gaStrPair.toLowerCase().split(/[\s,&]+/).filter(Boolean);
       var fn1Pair=firstName(g1.name).toLowerCase();
@@ -2346,6 +2348,26 @@ function buildGuestCard(g){
     /* Pills need flex-wrap so couple pills don't overflow */
     var pillWrap=rsvpPillSent?'<span style="display:flex;gap:3px;flex-wrap:wrap;align-items:center;margin-left:4px">'+rsvpPillSent+'</span>':''
 
+    /* Bulk-sent reference: if this guest was sent together with someone else,
+       show a small line naming that partner and their current RSVP status —
+       even though each guest is its own card now, the "sent together"
+       relationship and the other side's status are still worth surfacing.
+       Clicking it jumps to and briefly highlights the partner's card. */
+    var partnerRefHtml='';
+    if(g.bulkWith){
+      var partnerGuestObj=importQueue.find(function(o){return o.name===g.bulkWith;});
+      if(partnerGuestObj){
+        var partnerRi=importQueue.indexOf(partnerGuestObj);
+        var partnerYN=getGuestRsvpYesNo(partnerGuestObj);
+        var partnerStatusCls=partnerYN===true?'g-partner-status-yes':partnerYN===false?'g-partner-status-no':'';
+        var partnerStatusTxt=partnerYN===true?'YES':partnerYN===false?'NO':'pending';
+        partnerRefHtml='<div class="g-partner-ref" data-jump-qi="'+partnerRi+'" title="Sent together with '+partnerGuestObj.name+'">'
+          +'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:.7"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>'
+          +'Sent with '+partnerGuestObj.name+' · <span class="'+partnerStatusCls+'">'+partnerStatusTxt+'</span>'
+          +'</div>';
+      }
+    }
+
     // Effective RSVP state to pre-select in the swipe panel: a manual override wins,
     // otherwise fall back to whatever was auto-detected from the guest's own RSVP.
     var effState=g.manualRsvp==='yes'?'yes':g.manualRsvp==='no'?'no':(rsvpClass===' rsvp-yes'?'yes':rsvpClass===' rsvp-no'?'no':'');
@@ -2365,6 +2387,7 @@ function buildGuestCard(g){
           +'<div class="g-inner-left">'
             +'<div class="g-main">'
               +'<div class="g-name-row" style="flex-wrap:wrap"><span class="g-name" style="font-size:15px;flex-shrink:0">'+g.name+'</span>'+pillWrap+'</div>'
+              +partnerRefHtml
               +debugTag
             +'</div>'
           +'</div>'
