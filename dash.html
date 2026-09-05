@@ -1502,9 +1502,12 @@ function applyGuestMeta(){
       g.skipped=!!d.skipped;
       g.pendingSent=!!d.pendingSent;
       g.msgLang=d.msgLang||'';
-      g.bulkWith=d.bulkWith||'';
-      g.sentGroupId=d.sentGroupId||'';
-      g.manualRsvp=d.manualRsvp||'';
+      // bulkWith/sentGroupId/manualRsvp are meaningful links/overrides once set —
+      // an empty cached copy (e.g. read before they were saved, or from a stale
+      // session) must never silently erase a value already in memory.
+      if(d.bulkWith)g.bulkWith=d.bulkWith;
+      if(d.sentGroupId)g.sentGroupId=d.sentGroupId;
+      if(d.manualRsvp)g.manualRsvp=d.manualRsvp;
       // locally-edited fields — only override if local has a value
       if(d.sender)g.sender=d.sender;
       if(d.phone)g.phone=d.phone;
@@ -1941,18 +1944,37 @@ function buildPairSentCard(g1,g2){
   var manualOverridePair=g1.manualRsvp||g2.manualRsvp||'';
   var rsvpInfoPair=getGuestRsvpInfo(g1.name, true, g2.name, manualOverridePair);
   var rsvpClassPair='';
+  var pillWrapPair='';
   if(rsvpInfoPair){
-    if(rsvpInfoPair.persons&&rsvpInfoPair.persons.length>1){
-      var comingCountPair=rsvpInfoPair.persons.filter(function(p){return p.coming;}).length;
-      if(comingCountPair===rsvpInfoPair.persons.length) rsvpClassPair=' rsvp-yes';
-      else if(comingCountPair===0) rsvpClassPair=' rsvp-no';
+    /* If the household RSVP lists who's actually attending (Guests Attending),
+       check g1 and g2 individually against it — one person can decline while
+       their partner attends, and the pair shouldn't be shown as a uniform
+       yes/no in that case. Only applies to matched RSVP rows, not manual
+       overrides (a manual override is a deliberate yes/no for both). */
+    var gaStrPair=!rsvpInfoPair.manual?(rsvpInfoPair.guestsAttending||''):'';
+    if(gaStrPair){
+      var gaToksPair=gaStrPair.toLowerCase().split(/[\s,&]+/).filter(Boolean);
+      var fn1Pair=firstName(g1.name).toLowerCase();
+      var fn2Pair=firstName(g2.name).toLowerCase();
+      var coming1=gaToksPair.indexOf(fn1Pair)!==-1;
+      var coming2=gaToksPair.indexOf(fn2Pair)!==-1;
+      if(coming1&&coming2) rsvpClassPair=' rsvp-yes';
+      else if(!coming1&&!coming2) rsvpClassPair=' rsvp-no';
       else rsvpClassPair=' rsvp-pending';
+      var personsPair=[{name:firstName(g1.name),coming:coming1},{name:firstName(g2.name),coming:coming2}];
+      pillWrapPair='<span style="display:flex;gap:3px;flex-wrap:wrap;align-items:center;margin-left:4px">'+personsPair.map(function(p){
+        return p.coming
+          ?'<span style="background:#d4f5e2;color:#1a7a4a;border-radius:100px;padding:2px 8px;font-size:8px;font-weight:800;letter-spacing:.06em;flex-shrink:0">'+p.name+'</span>'
+          :'<span style="background:#fde8e8;color:#b91c1c;border-radius:100px;padding:2px 8px;font-size:8px;font-weight:800;letter-spacing:.06em;flex-shrink:0">'+p.name+'</span>';
+      }).join('')+'</span>';
     } else {
       rsvpClassPair=rsvpInfoPair.isYes?' rsvp-yes':rsvpInfoPair.isNo?' rsvp-no':' rsvp-pending';
     }
   }
-  var rsvpPillPair=getGuestRsvpPill(g1.name, true, g2.name, manualOverridePair);
-  var pillWrapPair=rsvpPillPair?'<span style="display:flex;gap:3px;flex-wrap:wrap;align-items:center;margin-left:4px">'+rsvpPillPair+'</span>':'';
+  if(!pillWrapPair){
+    var rsvpPillPair=getGuestRsvpPill(g1.name, true, g2.name, manualOverridePair);
+    pillWrapPair=rsvpPillPair?'<span style="display:flex;gap:3px;flex-wrap:wrap;align-items:center;margin-left:4px">'+rsvpPillPair+'</span>':'';
+  }
   var debugTagPair=(DEV_MODE&&!rsvpInfoPair)?'<div style="font-size:9px;color:#b91c1c;opacity:.75;margin-top:2px;word-break:break-word">DEBUG: '+debugNoMatch(g1, g2.name)+'</div>':'';
 
   var effStatePair=manualOverridePair==='yes'?'yes':manualOverridePair==='no'?'no':(rsvpClassPair===' rsvp-yes'?'yes':rsvpClassPair===' rsvp-no'?'no':'');
