@@ -1912,8 +1912,8 @@ function renderGuestList(){
         showUndo('Marked '+g.name+' as sent',function(){g.sent=prevSent;g.sentAt='';g.sentBy=prevSentBy;g.followup=prevFollowup;if(!prevSent){todayCount=Math.max(0,todayCount-1);updateTodayBadge();}pushUnsentToWorker(g.name);saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();});
       }
       else if(a==='confirm-no'){g.pendingSent=false;saveGuestMeta();renderGuestList();}
-      else if(a==='rsvp-yes'){g.manualRsvp=(g.manualRsvp==='yes')?'':'yes';saveGuestMeta();pushMetaToWorker(g);renderGuestList();renderDashboard();}
-      else if(a==='rsvp-no'){g.manualRsvp=(g.manualRsvp==='no')?'':'no';saveGuestMeta();pushMetaToWorker(g);renderGuestList();renderDashboard();}
+      else if(a==='rsvp-yes'){g.manualRsvp=(g.manualRsvp==='yes')?'':'yes';var qi2y=this.dataset.qi2;if(qi2y!==undefined&&qi2y!==''){var g2y=importQueue[parseInt(qi2y)];if(g2y){g2y.manualRsvp=g.manualRsvp;pushMetaToWorker(g2y);}}saveGuestMeta();pushMetaToWorker(g);renderGuestList();renderDashboard();}
+      else if(a==='rsvp-no'){g.manualRsvp=(g.manualRsvp==='no')?'':'no';var qi2n=this.dataset.qi2;if(qi2n!==undefined&&qi2n!==''){var g2n=importQueue[parseInt(qi2n)];if(g2n){g2n.manualRsvp=g.manualRsvp;pushMetaToWorker(g2n);}}saveGuestMeta();pushMetaToWorker(g);renderGuestList();renderDashboard();}
     });
   });
 
@@ -1932,14 +1932,45 @@ function buildPairSentCard(g1,g2){
   var sentLetter1=g1.sentBy==='Arina'?'A':g1.sentBy==='Elnur'?'E':'';
   var sentTime=g1.sentAt?'<span class="g-sent-time">'+fmtSentAt(g1.sentAt)+(sentLetter1?' · '+sentLetter1:'')+'</span>':'';
   var pairName=pairDisplayName(g1.name,g2.name);
+
+  /* RSVP lookup — pair cards were never wired up to this before, so they
+     could never show a color or pill no matter what the actual RSVP said.
+     bulkWith is already set between g1/g2 (that's how they got paired up
+     into this card), so knownPartnerName is reliable here. A manual
+     override on EITHER guest wins, and gets treated as applying to both. */
+  var manualOverridePair=g1.manualRsvp||g2.manualRsvp||'';
+  var rsvpInfoPair=getGuestRsvpInfo(g1.name, true, g2.name, manualOverridePair);
+  var rsvpClassPair='';
+  if(rsvpInfoPair){
+    if(rsvpInfoPair.persons&&rsvpInfoPair.persons.length>1){
+      var comingCountPair=rsvpInfoPair.persons.filter(function(p){return p.coming;}).length;
+      if(comingCountPair===rsvpInfoPair.persons.length) rsvpClassPair=' rsvp-yes';
+      else if(comingCountPair===0) rsvpClassPair=' rsvp-no';
+      else rsvpClassPair=' rsvp-pending';
+    } else {
+      rsvpClassPair=rsvpInfoPair.isYes?' rsvp-yes':rsvpInfoPair.isNo?' rsvp-no':' rsvp-pending';
+    }
+  }
+  var rsvpPillPair=getGuestRsvpPill(g1.name, true, g2.name, manualOverridePair);
+  var pillWrapPair=rsvpPillPair?'<span style="display:flex;gap:3px;flex-wrap:wrap;align-items:center;margin-left:4px">'+rsvpPillPair+'</span>':'';
+  var debugTagPair=(DEV_MODE&&!rsvpInfoPair)?'<div style="font-size:9px;color:#b91c1c;opacity:.75;margin-top:2px;word-break:break-word">DEBUG: '+debugNoMatch(g1, g2.name)+'</div>':'';
+
+  var effStatePair=manualOverridePair==='yes'?'yes':manualOverridePair==='no'?'no':(rsvpClassPair===' rsvp-yes'?'yes':rsvpClassPair===' rsvp-no'?'no':'');
+  var rsvpPanelPair='<div class="g-swipe-action-right sw-rsvp"><div class="g-swipe-action-inner">'
+    +'<button class="ga-btn ga-btn-rsvp-yes swipe-rsvp-btn'+(effStatePair==='yes'?' active':'')+'" data-qi="'+ri1+'" data-qi2="'+ri2+'" data-action="rsvp-yes" title="Mark RSVP: Yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button>'
+    +'<button class="ga-btn ga-btn-rsvp-no swipe-rsvp-btn'+(effStatePair==='no'?' active':'')+'" data-qi="'+ri1+'" data-qi2="'+ri2+'" data-action="rsvp-no" title="Mark RSVP: No"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>'
+    +'</div></div>';
+
   // Sender/time letters hidden by default — right-swipe reveals them (matches single sent cards).
-  return '<div class="g-swipe-wrap">'
+  return '<div class="g-swipe-wrap'+rsvpClassPair+'">'
     +'<div class="g-swipe-action-left sw-info"><div class="g-swipe-action-inner">'+senderChip+sentTime+'</div></div>'
+    +rsvpPanelPair
     +'<div class="g-card sent">'
       +'<div class="g-inner">'
         +'<div class="g-inner-left">'
           +'<div class="g-main">'
-            +'<div class="g-name-row"><span class="g-name" style="font-size:15px">'+pairName+'</span></div>'
+            +'<div class="g-name-row" style="flex-wrap:wrap"><span class="g-name" style="font-size:15px;flex-shrink:0">'+pairName+'</span>'+pillWrapPair+'</div>'
+            +debugTagPair
           +'</div>'
         +'</div>'
         +'<div class="g-inner-right">'
