@@ -1466,9 +1466,16 @@ var _retryQueue=[];
 (function(){try{var s=localStorage.getItem('ww_retry');if(s)_retryQueue=JSON.parse(s);}catch(e){}_retryQueue=_retryQueue||[];})();
 function _saveRetryQueue(){try{localStorage.setItem('ww_retry',JSON.stringify(_retryQueue.slice(0,40)));}catch(e){}}
 function _pushWithRetry(endpoint,payload,retryKey){
-  var url=workerUrl;if(!url)return;
+  var url=workerUrl;if(!url)return Promise.resolve();
   var body=JSON.stringify(Object.assign({},payload,{by:sessionSender,deviceId:deviceId}));
-  fetch(url.replace(/\/$/,'')+endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:body})
+  // Returns a promise that ALWAYS resolves (never rejects) — callers use
+  // this to sequence two related writes (e.g. both sides of a bulkWith
+  // pair) so the second request only fires after the first has actually
+  // landed on the server. Firing both at once let two saves race: if the
+  // worker does a read-current-state → patch → write-back per request,
+  // whichever write's read happened before the other's write commits will
+  // clobber it on save, silently reverting one guest's half of the pair.
+  return fetch(url.replace(/\/$/,'')+endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:body})
     .then(function(r){
       if(!r.ok)throw new Error('HTTP '+r.status);
       // success — remove from retry queue if present
@@ -1504,14 +1511,14 @@ function _flushRetryQueue(){
 // see the server's still-old value and silently restore it. Now every
 // field this function touches gets pushed, including clearing to "".
 function pushMetaToWorker(g){
-  if(!workerUrl||!g||!g.name)return;
+  if(!workerUrl||!g||!g.name)return Promise.resolve();
   _localWrites[g.name]=_localWrites[g.name]||{};
   _localWrites[g.name].followup=!!g.followup;
   _localWrites[g.name].note=g.note||'';
   _localWrites[g.name].manualRsvp=g.manualRsvp||'';
   _localWrites[g.name].bulkWith=g.bulkWith||'';
   _localWrites[g.name].sentGroupId=g.sentGroupId||'';
-  _pushWithRetry('/meta',{name:g.name,followup:!!g.followup,note:g.note||'',manualRsvp:g.manualRsvp||'',bulkWith:g.bulkWith||'',sentGroupId:g.sentGroupId||''},'meta:'+g.name);
+  return _pushWithRetry('/meta',{name:g.name,followup:!!g.followup,note:g.note||'',manualRsvp:g.manualRsvp||'',bulkWith:g.bulkWith||'',sentGroupId:g.sentGroupId||''},'meta:'+g.name);
 }
 function pushSentToWorker(name){
   if(!workerUrl||!name)return;
@@ -1942,14 +1949,19 @@ function renderGuestList(){
         showUndo('Marked '+g.name+' as sent',function(){g.sent=prevSent;g.sentAt='';g.sentBy=prevSentBy;g.followup=prevFollowup;if(!prevSent){todayCount=Math.max(0,todayCount-1);updateTodayBadge();}pushUnsentToWorker(g.name);saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();});
       }
       else if(a==='confirm-no'){g.pendingSent=false;saveGuestMeta();renderGuestList();}
-      else if(a==='rsvp-yes'){g.manualRsvp=(g.manualRsvp==='yes')?'':'yes';var qi2y=this.dataset.qi2;if(qi2y!==undefined&&qi2y!==''){var g2y=importQueue[parseInt(qi2y)];if(g2y){g2y.manualRsvp=g.manualRsvp;pushMetaToWorker(g2y);}}saveGuestMeta();pushMetaToWorker(g);renderGuestList();renderDashboard();}
-      else if(a==='rsvp-no'){g.manualRsvp=(g.manualRsvp==='no')?'':'no';var qi2n=this.dataset.qi2;if(qi2n!==undefined&&qi2n!==''){var g2n=importQueue[parseInt(qi2n)];if(g2n){g2n.manualRsvp=g.manualRsvp;pushMetaToWorker(g2n);}}saveGuestMeta();pushMetaToWorker(g);renderGuestList();renderDashboard();}
+      else if(a==='rsvp-yes'){g.manualRsvp=(g.manualRsvp==='yes')?'':'yes';var qi2y=this.dataset.qi2;var g2y=(qi2y!==undefined&&qi2y!=='')?importQueue[parseInt(qi2y)]:null;if(g2y)g2y.manualRsvp=g.manualRsvp;saveGuestMeta();renderGuestList();renderDashboard();pushMetaToWorker(g).then(function(){if(g2y)pushMetaToWorker(g2y);});}
+      else if(a==='rsvp-no'){g.manualRsvp=(g.manualRsvp==='no')?'':'no';var qi2n=this.dataset.qi2;var g2n=(qi2n!==undefined&&qi2n!=='')?importQueue[parseInt(qi2n)]:null;if(g2n)g2n.manualRsvp=g.manualRsvp;saveGuestMeta();renderGuestList();renderDashboard();pushMetaToWorker(g).then(function(){if(g2n)pushMetaToWorker(g2n);});}
       else if(a==='unlink-partner'){
         var oldPartner=importQueue.find(function(o){return o.name===g.bulkWith;});
         if(confirm('Unlink '+g.name+' from '+g.bulkWith+'?')){
           g.bulkWith='';g.sentGroupId='';
-          if(oldPartner&&oldPartner.bulkWith===g.name){oldPartner.bulkWith='';oldPartner.sentGroupId='';pushMetaToWorker(oldPartner);}
-          saveGuestMeta();pushMetaToWorker(g);renderGuestList();renderDashboard();
+          saveGuestMeta();renderGuestList();renderDashboard();
+          // Push sequentially, not in parallel — two saves fired at once can
+          // race on the server and clobber each other, silently leaving one
+          // side of the pair still linked (see pushMetaToWorker/_pushWithRetry notes).
+          pushMetaToWorker(g).then(function(){
+            if(oldPartner&&oldPartner.bulkWith===g.name){oldPartner.bulkWith='';oldPartner.sentGroupId='';pushMetaToWorker(oldPartner);}
+          });
         }
       }
     });
@@ -2171,8 +2183,10 @@ function renderPairsReview(){
       var groupId=Date.now().toString(36);
       m.g.bulkWith=m.partner.name;m.g.sentGroupId=groupId;
       m.partner.bulkWith=m.g.name;m.partner.sentGroupId=groupId;
-      pushMetaToWorker(m.g);pushMetaToWorker(m.partner);
       saveGuestMeta();renderGuestList();renderPairsReview();
+      // Sequential, not parallel — see _pushWithRetry notes on why firing
+      // both saves at once can let one silently overwrite the other.
+      pushMetaToWorker(m.g).then(function(){pushMetaToWorker(m.partner);});
     });
   });
   list.querySelectorAll('[data-pm-action="dismiss"]').forEach(function(btn){
@@ -2186,12 +2200,16 @@ function renderPairsReview(){
   list.querySelectorAll('[data-pr-action="unlink"]').forEach(function(btn){
     btn.addEventListener('click',function(){
       var p=pairs[parseInt(this.dataset.pr)];
-      p.g.bulkWith='';p.g.sentGroupId='';pushMetaToWorker(p.g);
+      var pGName=p.g.name;
+      p.g.bulkWith='';p.g.sentGroupId='';
       // Only clear the partner's side if it actually points back to g —
       // a one-directional/stale link (flagged above) may have partner
       // pointing to someone else entirely, and that link is still good.
-      if(p.partner&&p.partner.bulkWith===p.g.name){p.partner.bulkWith='';p.partner.sentGroupId='';pushMetaToWorker(p.partner);}
+      var shouldClearPartner=p.partner&&p.partner.bulkWith===pGName;
+      if(shouldClearPartner){p.partner.bulkWith='';p.partner.sentGroupId='';}
       saveGuestMeta();renderGuestList();renderPairsReview();
+      // Sequential, not parallel — see _pushWithRetry notes.
+      pushMetaToWorker(p.g).then(function(){if(shouldClearPartner)pushMetaToWorker(p.partner);});
     });
   });
   list.querySelectorAll('[data-pr-action="relink"]').forEach(function(btn){
@@ -2236,16 +2254,27 @@ function renderPairsReview(){
           // side if its link actually points back to the guest being
           // detached from. A one-directional/stale link may point to
           // someone else entirely, and that real link must survive.
-          if(p.partner&&p.partner.bulkWith===p.g.name){p.partner.bulkWith='';p.partner.sentGroupId='';pushMetaToWorker(p.partner);}
+          var oldPartnerToClear=(p.partner&&p.partner.bulkWith===p.g.name)?p.partner:null;
+          if(oldPartnerToClear){oldPartnerToClear.bulkWith='';oldPartnerToClear.sentGroupId='';}
+          var oldMateToClear=null;
           if(newPartner.bulkWith){
             var oldMate=importQueue.find(function(o){return o.name===newPartner.bulkWith;});
-            if(oldMate&&oldMate.bulkWith===newPartner.name){oldMate.bulkWith='';oldMate.sentGroupId='';pushMetaToWorker(oldMate);}
+            if(oldMate&&oldMate.bulkWith===newPartner.name)oldMateToClear=oldMate;
           }
+          if(oldMateToClear){oldMateToClear.bulkWith='';oldMateToClear.sentGroupId='';}
           var groupId=Date.now().toString(36);
           p.g.bulkWith=newPartner.name;p.g.sentGroupId=groupId;
           newPartner.bulkWith=p.g.name;newPartner.sentGroupId=groupId;
-          pushMetaToWorker(p.g);pushMetaToWorker(newPartner);
           saveGuestMeta();renderGuestList();renderPairsReview();
+          // Push every touched guest one at a time, never in parallel — up
+          // to 4 records can change here, and firing them together is
+          // exactly the race that leaves pairs pointing only one way.
+          var toPush=[oldPartnerToClear,oldMateToClear,p.g,newPartner].filter(Boolean);
+          (function pushNext(){
+            var g=toPush.shift();
+            if(!g)return;
+            pushMetaToWorker(g).then(pushNext);
+          })();
         });
       });
     });
@@ -3072,7 +3101,16 @@ function doGroupSend(guests,phone,msgLang){
   // silently erases it — turning a fresh pair into a one-directional link
   // (exactly the bug where a partner shows as sent-together on one side but
   // not the other). pushMetaToWorker registers the guard before pushing.
-  if(guests.length>1){guests.forEach(function(g){pushMetaToWorker(g);});}
+  if(guests.length>1){
+    // Sequential, not a parallel forEach — same race as everywhere else
+    // two guest records are saved together.
+    var toPush=guests.slice();
+    (function pushNext(){
+      var g=toPush.shift();
+      if(!g)return;
+      pushMetaToWorker(g).then(pushNext);
+    })();
+  }
 }
 
 /* ══ FAB + QUICK SEND ════════════════════════ */
