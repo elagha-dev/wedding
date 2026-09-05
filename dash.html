@@ -2084,16 +2084,28 @@ function auditPairs(){
    group with exactly one other sent, unlinked guest — i.e. they were almost
    certainly sent together (as a couple/family) but the link was simply
    never recorded. Surfaced as suggestions to confirm, never auto-applied. */
-var _dismissedMissingPairs={};
+// A guest whose group name itself says "kids" (e.g. "Kids church+venue,
+// 15-17yo") has already been categorized as a child via the group dropdown
+// — the isChild flag only ever comes from the original import file and
+// can't be set from the dashboard, so relying on it alone ignores anyone
+// sorted into a Kids group here. Checked in addition to isChild, not
+// instead of it.
+function isKidsGroup(g){ return !!(g&&g.group&&/\bkids?\b/i.test(g.group)); }
+function _loadDismissedMissingPairs(){try{return JSON.parse(localStorage.getItem('ww_dismissed_pairs')||'{}');}catch(e){return{};}}
+function _saveDismissedMissingPairs(){try{localStorage.setItem('ww_dismissed_pairs',JSON.stringify(_dismissedMissingPairs));}catch(e){}}
+// Previously only an in-memory object — every reload (or even just closing
+// and reopening the modal after a sync) wiped it, so "Not a pair" never
+// actually stuck and the same kid/family suggestions kept resurfacing.
+var _dismissedMissingPairs=_loadDismissedMissingPairs();
 function auditMissingPairs(){
   var suggestions=[];
   var seen={};
   importQueue.forEach(function(g){
-    if(!g.sent||g.bulkWith||g.isChild) return;
+    if(!g.sent||g.bulkWith||g.isChild||isKidsGroup(g)) return;
     var suggestedName=inferPartnerName(g);
     if(!suggestedName) return;
     var partner=importQueue.find(function(o){return o.name===suggestedName;});
-    if(!partner||partner.bulkWith||!partner.sent||partner.isChild) return;
+    if(!partner||partner.bulkWith||!partner.sent||partner.isChild||isKidsGroup(partner)) return;
     if(inferPartnerName(partner)!==g.name) return; // must agree both ways
     var key=[g.name,partner.name].sort().join('::');
     if(seen[key]||_dismissedMissingPairs[key]) return;
@@ -2167,6 +2179,7 @@ function renderPairsReview(){
     btn.addEventListener('click',function(){
       var m=missing[parseInt(this.dataset.pmIdx)];
       _dismissedMissingPairs[m.key]=true;
+      _saveDismissedMissingPairs();
       renderPairsReview();
     });
   });
@@ -3052,7 +3065,14 @@ function doGroupSend(guests,phone,msgLang){
     guests[0].sentGroupId=groupId;guests[1].sentGroupId=groupId;
   }
   guests.forEach(function(g){g.pendingSent=true;g.followup=true;});selectedIdxs=[];saveGuestMeta();renderGuestList();renderDashboard();
-  if(guests.length>1){guests.forEach(function(g){_pushWithRetry('/meta',{name:g.name,bulkWith:g.bulkWith,sentGroupId:g.sentGroupId},'meta:'+g.name);});}
+  // Use pushMetaToWorker (not a raw push) so _localWrites is set for both
+  // guests' bulkWith/sentGroupId. Without that guard, the two guests' server
+  // writes can land at slightly different times, and the background poller
+  // or next sync sees whichever one hasn't landed yet as "no partner" and
+  // silently erases it — turning a fresh pair into a one-directional link
+  // (exactly the bug where a partner shows as sent-together on one side but
+  // not the other). pushMetaToWorker registers the guard before pushing.
+  if(guests.length>1){guests.forEach(function(g){pushMetaToWorker(g);});}
 }
 
 /* ══ FAB + QUICK SEND ════════════════════════ */
