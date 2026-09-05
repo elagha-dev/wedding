@@ -909,6 +909,7 @@ body.lite-mode #liteModeTopBtn {
         </div>
         <select class="group-sel" id="groupSel" style="display:none"><option value="">All groups</option></select>
         <button class="sort-btn" id="sortBtn" title="Sort">A–Z</button>
+        <button class="sort-btn" id="reviewPairsBtn" title="Review sent-together pairs" style="border-color:#C9702A;color:#C9702A">Review Pairs</button>
       </div>
     </div>
     <div class="split-bar" id="splitBar" style="display:none">
@@ -1343,6 +1344,16 @@ body.lite-mode #liteModeTopBtn {
 </div>
 
 <!-- UNDO TOAST -->
+<div class="modal-bg" id="pairsReviewModal" style="display:none;z-index:9999">
+  <div class="modal-card" style="max-width:520px;width:94vw;max-height:82vh;display:flex;flex-direction:column;padding:0;overflow:hidden">
+    <div style="padding:16px 18px 10px;border-bottom:1px solid var(--parchment);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+      <div style="font-family:var(--sans);font-weight:800;font-size:14px">Sent-together pairs</div>
+      <button id="pairsReviewClose" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);line-height:1;padding:0 4px">×</button>
+    </div>
+    <div id="pairsReviewSub" style="padding:8px 18px;font-family:var(--sans);font-size:11px;color:var(--muted);flex-shrink:0"></div>
+    <div id="pairsReviewList" style="overflow-y:auto;padding:6px 12px 16px;flex:1"></div>
+  </div>
+</div>
 <div id="undoToast"><span id="undoToastMsg">Marked as sent</span><button id="undoToastBtn">Undo</button></div>
 <!-- VERSION STAMP -->
 
@@ -2019,6 +2030,137 @@ function buildPairSentCard(g1,g2){
     +'</div>'
   +'</div>';
 }
+
+/* ══ PAIRS REVIEW — audits every bulkWith link and flags ones that look
+   like they were corrupted by the stale-index sync bug (see doSync notes
+   above): mismatched surname, mismatched group, mismatched phone owner, or
+   a big gap between the two sentAt timestamps despite supposedly being sent
+   in the very same action. Lets a person fix bad pairs in two taps instead
+   of hunting through the whole list. ══ */
+function auditPairs(){
+  var seen={};
+  var pairs=[];
+  importQueue.forEach(function(g){
+    if(!g.bulkWith) return;
+    var key=[g.name,g.bulkWith].sort().join('::');
+    if(seen[key]) return;
+    seen[key]=true;
+    var partner=importQueue.find(function(o){return o.name===g.bulkWith;});
+    var reasons=[];
+    if(!partner){
+      reasons.push('partner no longer in list');
+    } else {
+      var ln1=lastName(g.name),ln2=lastName(partner.name);
+      if(ln1&&ln2&&ln1.toLowerCase()!==ln2.toLowerCase())reasons.push('different surnames');
+      if(g.group&&partner.group&&g.group!==partner.group)reasons.push('different groups ("'+g.group+'" vs "'+partner.group+'")');
+      if(g.phone&&partner.phone){
+        var p1=g.phone.replace(/[\s\-\(\)]/g,''),p2=partner.phone.replace(/[\s\-\(\)]/g,'');
+        if(p1!==p2)reasons.push('different phone numbers on file');
+      }
+      if(g.sentAt&&partner.sentAt){
+        var t1=new Date(g.sentAt).getTime(),t2=new Date(partner.sentAt).getTime();
+        if(!isNaN(t1)&&!isNaN(t2)&&Math.abs(t1-t2)>5*60*1000)reasons.push('sent '+Math.round(Math.abs(t1-t2)/60000)+' min apart');
+      }
+      if(partner.bulkWith!==g.name)reasons.push('link is one-directional (partner points elsewhere)');
+    }
+    pairs.push({g:g,partner:partner,reasons:reasons});
+  });
+  // Suspicious first, then alphabetical
+  pairs.sort(function(a,b){
+    if(!!a.reasons.length!==!!b.reasons.length)return a.reasons.length?-1:1;
+    return a.g.name.localeCompare(b.g.name);
+  });
+  return pairs;
+}
+
+function renderPairsReview(){
+  var pairs=auditPairs();
+  var sus=pairs.filter(function(p){return p.reasons.length;});
+  document.getElementById('pairsReviewSub').textContent=pairs.length
+    ? sus.length+' of '+pairs.length+' pairs look suspicious — review those first.'
+    : 'No sent-together pairs found yet.';
+  var html='';
+  pairs.forEach(function(p,idx){
+    var partnerName=p.partner?p.partner.name:p.g.bulkWith;
+    var flagHtml=p.reasons.length
+      ? '<div style="margin-top:4px;font-size:10px;color:#b91c1c;font-weight:700">⚠ '+p.reasons.join(' · ')+'</div>'
+      : '<div style="margin-top:4px;font-size:10px;color:var(--green);font-weight:600">looks consistent</div>';
+    html+='<div class="pr-row" data-pr="'+idx+'" style="padding:10px 6px;border-bottom:1px solid var(--parchment)">'
+      +'<div style="font-family:var(--sans);font-size:13px;font-weight:700">'+p.g.name+' &harr; '+partnerName+'</div>'
+      +flagHtml
+      +'<div style="display:flex;gap:8px;margin-top:8px">'
+        +'<button data-pr-action="unlink" data-pr="'+idx+'" style="flex:1;padding:7px;border-radius:8px;border:1px solid #b91c1c;background:#fde8e8;color:#b91c1c;font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer">Unlink</button>'
+        +'<button data-pr-action="relink" data-pr="'+idx+'" style="flex:1;padding:7px;border-radius:8px;border:1px solid var(--parchment);background:none;color:var(--ink2);font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer">Relink to…</button>'
+      +'</div>'
+      +'<div class="pr-relink-wrap" data-pr-relink="'+idx+'" style="display:none;margin-top:8px">'
+        +'<input type="text" class="pr-relink-input" data-pr-input="'+idx+'" placeholder="Type correct partner\'s name…" style="width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);font-family:var(--sans);font-size:12px;box-sizing:border-box">'
+        +'<div class="pr-relink-results" data-pr-results="'+idx+'" style="margin-top:4px"></div>'
+      +'</div>'
+    +'</div>';
+  });
+  document.getElementById('pairsReviewList').innerHTML=html||'<div style="padding:20px;text-align:center;color:var(--muted);font-family:var(--sans);font-size:12px">No pairs yet.</div>';
+
+  var list=document.getElementById('pairsReviewList');
+  list.querySelectorAll('[data-pr-action="unlink"]').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var p=pairs[parseInt(this.dataset.pr)];
+      p.g.bulkWith='';p.g.sentGroupId='';pushMetaToWorker(p.g);
+      if(p.partner){p.partner.bulkWith='';p.partner.sentGroupId='';pushMetaToWorker(p.partner);}
+      saveGuestMeta();renderGuestList();renderPairsReview();
+    });
+  });
+  list.querySelectorAll('[data-pr-action="relink"]').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var idx=this.dataset.pr;
+      var wrap=list.querySelector('[data-pr-relink="'+idx+'"]');
+      wrap.style.display=wrap.style.display==='none'?'block':'none';
+      var input=wrap.querySelector('[data-pr-input="'+idx+'"]');
+      if(input)input.focus();
+    });
+  });
+  list.querySelectorAll('.pr-relink-input').forEach(function(input){
+    input.addEventListener('input',function(){
+      var idx=parseInt(this.dataset.prInput);
+      var p=pairs[idx];
+      var q=this.value.trim().toLowerCase();
+      var resultsEl=list.querySelector('[data-pr-results="'+idx+'"]');
+      if(!q){resultsEl.innerHTML='';return;}
+      var matches=importQueue.filter(function(o){
+        return o.name!==p.g.name && (o.name||'').toLowerCase().indexOf(q)!==-1;
+      }).slice(0,6);
+      resultsEl.innerHTML=matches.map(function(m){
+        return '<button data-pr-pick="'+idx+'" data-pick-name="'+m.name.replace(/"/g,'&quot;')+'" style="display:block;width:100%;text-align:left;padding:6px 8px;margin-top:3px;border-radius:6px;border:1px solid var(--parchment);background:#fff;font-family:var(--sans);font-size:12px;cursor:pointer">'+m.name+(m.bulkWith?' <span style="color:var(--muted);font-size:10px">(currently &harr; '+m.bulkWith+')</span>':'')+'</button>';
+      }).join('');
+      resultsEl.querySelectorAll('[data-pr-pick]').forEach(function(pickBtn){
+        pickBtn.addEventListener('click',function(){
+          var newPartnerName=this.dataset.pickName;
+          var newPartner=importQueue.find(function(o){return o.name===newPartnerName;});
+          if(!newPartner)return;
+          // Clean up old links on all three sides first
+          if(p.partner){p.partner.bulkWith='';p.partner.sentGroupId='';pushMetaToWorker(p.partner);}
+          if(newPartner.bulkWith){
+            var oldMate=importQueue.find(function(o){return o.name===newPartner.bulkWith;});
+            if(oldMate){oldMate.bulkWith='';oldMate.sentGroupId='';pushMetaToWorker(oldMate);}
+          }
+          var groupId=Date.now().toString(36);
+          p.g.bulkWith=newPartner.name;p.g.sentGroupId=groupId;
+          newPartner.bulkWith=p.g.name;newPartner.sentGroupId=groupId;
+          pushMetaToWorker(p.g);pushMetaToWorker(newPartner);
+          saveGuestMeta();renderGuestList();renderPairsReview();
+        });
+      });
+    });
+  });
+}
+
+(function(){
+  var openBtn=document.getElementById('reviewPairsBtn');
+  var modal=document.getElementById('pairsReviewModal');
+  var closeBtn=document.getElementById('pairsReviewClose');
+  if(openBtn)openBtn.addEventListener('click',function(){renderPairsReview();modal.style.display='flex';});
+  if(closeBtn)closeBtn.addEventListener('click',function(){modal.style.display='none';});
+  if(modal)modal.addEventListener('click',function(e){if(e.target===modal)modal.style.display='none';});
+})();
 
 function getGuestRsvpInfo(name, isCouple, knownPartnerName, manualOverride){
   /* Manual override — set by a human directly on a guest who can't RSVP
@@ -3059,6 +3201,17 @@ function doSync(){
       // (e.g. pendingSent:true set moments ago) with stale localStorage values.
       var inMemoryMap={};
       importQueue.forEach(function(g){ inMemoryMap[g.name]=g; });
+
+      // CRITICAL: importQueue is about to be replaced with a brand-new array,
+      // possibly in a different order than before (order comes from the
+      // worker's response, not from local state). selectedIdxs holds raw
+      // array *positions*, not guest identities — if a bulk-send selection
+      // survives across this reassignment, those positions now point at
+      // totally different guests, and a subsequent "Send" would silently
+      // link/mark the wrong people together (e.g. pairing two unrelated
+      // guests as "sent together"). Clearing the selection here guarantees
+      // that never happens; worst case the user just re-taps their guests.
+      if(selectedIdxs.length){selectedIdxs=[];}
 
       importQueue=guests.map(function(g){
         var name=g.name||g.Name||'';
