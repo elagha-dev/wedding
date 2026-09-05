@@ -305,8 +305,8 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-swipe-wrap.rsvp-pending .g-card.sent .g-sent-time{color:rgba(255,255,255,.7)!important}
 .g-swipe-wrap.rsvp-pending .g-card.sent .g-undo-btn,.g-swipe-wrap.rsvp-pending .g-card.sent .g-del{color:rgba(255,255,255,.6)!important}
 .g-swipe-wrap:has(.g-card.pending-sent){box-shadow:inset 3px 0 0 var(--rose),var(--shadow-sm)}
-.g-partner-ref-wrap{display:flex;align-items:center;gap:6px;margin-top:2px}
-.g-partner-ref-wrap .g-partner-ref{margin-top:0;flex:1;min-width:0}
+.g-partner-ref-wrap{display:inline-flex;align-items:center;gap:6px;margin-top:2px;max-width:100%}
+.g-partner-ref-wrap .g-partner-ref{margin-top:0;flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .g-partner-unlink{flex-shrink:0;width:14px;height:14px;border-radius:50%;border:none;background:rgba(0,0,0,.08);color:var(--muted);font-size:8px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
 .g-swipe-wrap.rsvp-yes .g-card.sent .g-partner-unlink,
 .g-swipe-wrap.rsvp-no .g-card.sent .g-partner-unlink,
@@ -2073,13 +2073,57 @@ function auditPairs(){
   return pairs;
 }
 
+/* Sent guests with NO bulkWith at all, but who share a surname or family
+   group with exactly one other sent, unlinked guest — i.e. they were almost
+   certainly sent together (as a couple/family) but the link was simply
+   never recorded. Surfaced as suggestions to confirm, never auto-applied. */
+var _dismissedMissingPairs={};
+function auditMissingPairs(){
+  var suggestions=[];
+  var seen={};
+  importQueue.forEach(function(g){
+    if(!g.sent||g.bulkWith||g.isChild) return;
+    var suggestedName=inferPartnerName(g);
+    if(!suggestedName) return;
+    var partner=importQueue.find(function(o){return o.name===suggestedName;});
+    if(!partner||partner.bulkWith||!partner.sent||partner.isChild) return;
+    if(inferPartnerName(partner)!==g.name) return; // must agree both ways
+    var key=[g.name,partner.name].sort().join('::');
+    if(seen[key]||_dismissedMissingPairs[key]) return;
+    seen[key]=true;
+    var ln1=lastName(g.name),ln2=lastName(partner.name);
+    var via=(ln1&&ln2&&ln1.toLowerCase()===ln2.toLowerCase())?'same surname "'+ln1+'"':'same group "'+(g.group||partner.group)+'"';
+    suggestions.push({g:g,partner:partner,via:via,key:key});
+  });
+  return suggestions;
+}
+
 function renderPairsReview(){
   var pairs=auditPairs();
+  var missing=auditMissingPairs();
   var sus=pairs.filter(function(p){return p.reasons.length;});
   document.getElementById('pairsReviewSub').textContent=pairs.length
-    ? sus.length+' of '+pairs.length+' pairs look suspicious — review those first.'
-    : 'No sent-together pairs found yet.';
+    ? sus.length+' of '+pairs.length+' existing pairs look suspicious'+(missing.length?' · '+missing.length+' possible missing link'+(missing.length>1?'s':''):'')+'.'
+    : (missing.length?missing.length+' possible missing link'+(missing.length>1?'s':'')+' found.':'No sent-together pairs found yet.');
+
   var html='';
+
+  if(missing.length){
+    html+='<div style="font-family:var(--sans);font-weight:800;font-size:12px;color:#C9702A;margin:6px 4px 4px">Possible missing links</div>'
+        +'<div style="font-family:var(--sans);font-size:10px;color:var(--muted);margin:0 4px 8px">Sent, but no partner recorded — these share a surname or group, so they were likely sent together.</div>';
+    missing.forEach(function(m,idx){
+      html+='<div class="pr-missing-row" style="padding:10px 6px;border-bottom:1px solid var(--parchment);background:#fff">'
+        +'<div style="font-family:var(--sans);font-size:13px;font-weight:700;color:var(--ink)">'+m.g.name+' &harr; '+m.partner.name+'</div>'
+        +'<div style="margin-top:2px;font-size:10px;color:#C9702A;font-weight:600">'+m.via+'</div>'
+        +'<div style="display:flex;gap:8px;margin-top:8px">'
+          +'<button data-pm-action="link" data-pm-idx="'+idx+'" style="flex:1;padding:7px;border-radius:8px;border:1px solid var(--green);background:var(--green-bg);color:var(--green);font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer">Link them</button>'
+          +'<button data-pm-action="dismiss" data-pm-idx="'+idx+'" style="flex:1;padding:7px;border-radius:8px;border:1px solid var(--parchment);background:#fff;color:var(--muted);font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer">Not a pair</button>'
+        +'</div>'
+      +'</div>';
+    });
+    html+='<div style="font-family:var(--sans);font-weight:800;font-size:12px;color:var(--ink2);margin:14px 4px 4px">Existing links</div>';
+  }
+
   pairs.forEach(function(p,idx){
     var partnerName=p.partner?p.partner.name:p.g.bulkWith;
     var flagHtml=p.reasons.length
@@ -2102,6 +2146,23 @@ function renderPairsReview(){
   document.getElementById('pairsReviewList').innerHTML=html||'<div style="padding:20px;text-align:center;color:var(--muted);font-family:var(--sans);font-size:12px">No pairs yet.</div>';
 
   var list=document.getElementById('pairsReviewList');
+  list.querySelectorAll('[data-pm-action="link"]').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var m=missing[parseInt(this.dataset.pmIdx)];
+      var groupId=Date.now().toString(36);
+      m.g.bulkWith=m.partner.name;m.g.sentGroupId=groupId;
+      m.partner.bulkWith=m.g.name;m.partner.sentGroupId=groupId;
+      pushMetaToWorker(m.g);pushMetaToWorker(m.partner);
+      saveGuestMeta();renderGuestList();renderPairsReview();
+    });
+  });
+  list.querySelectorAll('[data-pm-action="dismiss"]').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var m=missing[parseInt(this.dataset.pmIdx)];
+      _dismissedMissingPairs[m.key]=true;
+      renderPairsReview();
+    });
+  });
   list.querySelectorAll('[data-pr-action="unlink"]').forEach(function(btn){
     btn.addEventListener('click',function(){
       var p=pairs[parseInt(this.dataset.pr)];
