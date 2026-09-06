@@ -234,6 +234,8 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 
 /* ── SORT BUTTON ── */
 .sort-btn{flex-shrink:0;padding:0 12px;height:auto;border:1.5px solid var(--parchment);border-radius:var(--r-sm);background:var(--cream);color:var(--muted);font-family:var(--sans);font-size:11px;font-weight:600;cursor:pointer;transition:all var(--ease);white-space:nowrap;display:flex;align-items:center;gap:5px}
+.f-pill-round{flex-shrink:0;width:26px;height:26px;padding:0;border-radius:50%;border:1.5px solid #C9702A;background:var(--cream);color:#C9702A;font-family:var(--sans);font-size:12px;font-weight:800;cursor:pointer;transition:all var(--ease);display:flex;align-items:center;justify-content:center}
+.f-pill-round:hover{background:#C9702A;color:#fff}
 .sort-btn:hover{border-color:var(--blush);color:var(--ink2)}
 .sort-btn.on{border-color:var(--rose);color:var(--rose-deep);background:var(--rose-soft)}
 /* ── BULK BAR ── */
@@ -909,7 +911,6 @@ body.lite-mode #liteModeTopBtn {
         </div>
         <select class="group-sel" id="groupSel" style="display:none"><option value="">All groups</option></select>
         <button class="sort-btn" id="sortBtn" title="Sort">A–Z</button>
-        <button class="sort-btn" id="reviewPairsBtn" title="Review sent-together pairs" style="border-color:#C9702A;color:#C9702A">Review Pairs</button>
       </div>
     </div>
     <div class="split-bar" id="splitBar" style="display:none">
@@ -1351,6 +1352,9 @@ body.lite-mode #liteModeTopBtn {
       <button id="pairsReviewClose" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);line-height:1;padding:0 4px">×</button>
     </div>
     <div id="pairsReviewSub" style="padding:8px 18px;font-family:var(--sans);font-size:11px;color:var(--muted);flex-shrink:0;background:#fff"></div>
+    <div style="padding:0 18px 10px;flex-shrink:0;background:#fff">
+      <input id="pairsReviewSearch" type="text" placeholder="Search a name…" style="width:100%;box-sizing:border-box;padding:8px 10px;border:1.5px solid var(--parchment);border-radius:var(--r-sm);font-family:var(--sans);font-size:12px;color:var(--ink);background:var(--cream)"/>
+    </div>
     <div id="pairsReviewList" style="overflow-y:auto;padding:6px 12px 16px;flex:1;background:#fff"></div>
   </div>
 </div>
@@ -1816,7 +1820,8 @@ function renderFilterRow(){
       +'</span>'
     +'</button>'
     +'<button class="f-pill '+fCls+'" data-f="followup">Flag</button>'
-    +'<button class="f-pill f-sent-pill '+sCls+'" data-f="sent">Sent</button>';
+    +'<button class="f-pill f-sent-pill '+sCls+'" data-f="sent">Sent</button>'
+    +'<button class="f-pill-round" id="reviewPairsBtn" title="Review sent-together pairs">?</button>';
 
   /* Open pill: click label area → all open */
   var pillOpen=document.getElementById('fPillOpen');
@@ -1848,6 +1853,10 @@ function renderFilterRow(){
       selectedIdxs=[];renderFilterRow();renderGuestList();
     });
   });
+  /* Review Pairs — rebuilt into the DOM on every render, so (re)bind here */
+  var reviewBtn=document.getElementById('reviewPairsBtn');
+  var reviewModal=document.getElementById('pairsReviewModal');
+  if(reviewBtn&&reviewModal)reviewBtn.addEventListener('click',function(){renderPairsReview();reviewModal.style.display='flex';});
 }
 
 /* ══ GUEST LIST ══════════════════════════════ */
@@ -2129,30 +2138,38 @@ function auditMissingPairs(){
   return suggestions;
 }
 
+var _pairsReviewQuery='';
 function renderPairsReview(){
-  var pairs=auditPairs();
-  var missing=auditMissingPairs();
-  var sus=pairs.filter(function(p){return p.reasons.length;});
-  document.getElementById('pairsReviewSub').textContent=pairs.length
-    ? sus.length+' of '+pairs.length+' existing pairs look suspicious'+(missing.length?' · '+missing.length+' possible missing link'+(missing.length>1?'s':''):'')+'.'
-    : (missing.length?missing.length+' possible missing link'+(missing.length>1?'s':'')+' found.':'No sent-together pairs found yet.');
+  var allPairs=auditPairs();
+  var allMissing=auditMissingPairs();
+  var pairs=allPairs,missing=allMissing;
+  if(_pairsReviewQuery){
+    var q=_pairsReviewQuery.toLowerCase();
+    var matchPair=function(p){return p.g.name.toLowerCase().indexOf(q)!==-1||(p.partner&&p.partner.name.toLowerCase().indexOf(q)!==-1);};
+    pairs=allPairs.filter(matchPair);
+    missing=allMissing.filter(function(m){return m.g.name.toLowerCase().indexOf(q)!==-1||m.partner.name.toLowerCase().indexOf(q)!==-1;});
+  }
+  var sus=allPairs.filter(function(p){return p.reasons.length;});
+  document.getElementById('pairsReviewSub').textContent=allPairs.length
+    ? sus.length+' of '+allPairs.length+' existing pairs look suspicious'+(allMissing.length?' · '+allMissing.length+' possible missing link'+(allMissing.length>1?'s':''):'')+(_pairsReviewQuery?' · showing matches for "'+_pairsReviewQuery+'"':'')+'.'
+    : (allMissing.length?allMissing.length+' possible missing link'+(allMissing.length>1?'s':'')+' found.':'No sent-together pairs found yet.');
 
   var html='';
 
   if(missing.length){
-    html+='<div style="font-family:var(--sans);font-weight:800;font-size:12px;color:#C9702A;margin:6px 4px 4px">Possible missing links</div>'
-        +'<div style="font-family:var(--sans);font-size:10px;color:var(--muted);margin:0 4px 8px">Sent, but no partner recorded — these share a surname or group, so they were likely sent together.</div>';
+    html+='<div style="font-family:var(--sans);font-weight:800;font-size:12px;color:#C9702A;margin:4px 4px 3px">Possible missing links</div>'
+        +'<div style="font-family:var(--sans);font-size:10px;color:var(--muted);margin:0 4px 5px">Sent, but no partner recorded — these share a surname or group, so they were likely sent together.</div>';
     missing.forEach(function(m,idx){
-      html+='<div class="pr-missing-row" style="padding:10px 6px;border-bottom:1px solid var(--parchment);background:#fff">'
+      html+='<div class="pr-missing-row" style="padding:6px 6px;border-bottom:1px solid var(--parchment);background:#fff">'
         +'<div style="font-family:var(--sans);font-size:13px;font-weight:700;color:var(--ink)">'+m.g.name+' &harr; '+m.partner.name+'</div>'
         +'<div style="margin-top:2px;font-size:10px;color:#C9702A;font-weight:600">'+m.via+'</div>'
-        +'<div style="display:flex;gap:8px;margin-top:8px">'
+        +'<div style="display:flex;gap:8px;margin-top:5px">'
           +'<button data-pm-action="link" data-pm-idx="'+idx+'" style="flex:1;padding:7px;border-radius:8px;border:1px solid var(--green);background:var(--green-bg);color:var(--green);font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer">Link them</button>'
           +'<button data-pm-action="dismiss" data-pm-idx="'+idx+'" style="flex:1;padding:7px;border-radius:8px;border:1px solid var(--parchment);background:#fff;color:var(--muted);font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer">Not a pair</button>'
         +'</div>'
       +'</div>';
     });
-    html+='<div style="font-family:var(--sans);font-weight:800;font-size:12px;color:var(--ink2);margin:14px 4px 4px">Existing links</div>';
+    html+='<div style="font-family:var(--sans);font-weight:800;font-size:12px;color:var(--ink2);margin:10px 4px 3px">Existing links</div>';
   }
 
   pairs.forEach(function(p,idx){
@@ -2160,21 +2177,21 @@ function renderPairsReview(){
     var flagHtml=p.reasons.length
       ? '<div style="margin-top:4px;font-size:10px;color:#b91c1c;font-weight:700">⚠ '+p.reasons.join(' · ')+'</div>'
       : '<div style="margin-top:4px;font-size:10px;color:var(--green);font-weight:600">looks consistent</div>';
-    html+='<div class="pr-row" data-pr="'+idx+'" style="padding:10px 6px;border-bottom:1px solid var(--parchment);background:#fff">'
+    html+='<div class="pr-row" data-pr="'+idx+'" style="padding:6px 6px;border-bottom:1px solid var(--parchment);background:#fff">'
       +'<div style="font-family:var(--sans);font-size:13px;font-weight:700;color:var(--ink)">'+p.g.name+' &harr; '+partnerName+'</div>'
       +flagHtml
-      +'<div style="display:flex;gap:8px;margin-top:8px">'
+      +'<div style="display:flex;gap:8px;margin-top:5px">'
         +'<button data-pr-action="unlink" data-pr="'+idx+'" style="flex:1;padding:7px;border-radius:8px;border:1px solid #b91c1c;background:#fde8e8;color:#b91c1c;font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer">Unlink</button>'
         +'<button data-pr-action="relink" data-pr="'+idx+'" style="flex:1;padding:7px;border-radius:8px;border:1px solid var(--parchment);background:#fff;color:var(--ink2);font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer">Relink to…</button>'
       +'</div>'
-      +'<div class="pr-relink-wrap" data-pr-relink="'+idx+'" style="display:none;margin-top:8px;background:#fbf7f3;border-radius:8px;padding:8px">'
+      +'<div class="pr-relink-wrap" data-pr-relink="'+idx+'" style="display:none;margin-top:6px;background:#fbf7f3;border-radius:8px;padding:8px">'
         +'<input type="text" class="pr-relink-input" data-pr-input="'+idx+'" placeholder="Type correct partner\'s name…" style="width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);font-family:var(--sans);font-size:12px;box-sizing:border-box;background:#fff;color:var(--ink)">'
         +'<div class="pr-relink-results" data-pr-results="'+idx+'" style="margin-top:4px"></div>'
         +'<button data-pr-action="cancel-relink" data-pr="'+idx+'" style="margin-top:6px;width:100%;padding:6px;border-radius:8px;border:1px solid var(--parchment);background:#fff;color:var(--muted);font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer">Cancel</button>'
       +'</div>'
     +'</div>';
   });
-  document.getElementById('pairsReviewList').innerHTML=html||'<div style="padding:20px;text-align:center;color:var(--muted);font-family:var(--sans);font-size:12px">No pairs yet.</div>';
+  document.getElementById('pairsReviewList').innerHTML=html||('<div style="padding:20px;text-align:center;color:var(--muted);font-family:var(--sans);font-size:12px">'+(_pairsReviewQuery?'No matches for "'+_pairsReviewQuery+'".':'No pairs yet.')+'</div>');
 
   var list=document.getElementById('pairsReviewList');
   list.querySelectorAll('[data-pm-action="link"]').forEach(function(btn){
@@ -2282,12 +2299,12 @@ function renderPairsReview(){
 }
 
 (function(){
-  var openBtn=document.getElementById('reviewPairsBtn');
   var modal=document.getElementById('pairsReviewModal');
   var closeBtn=document.getElementById('pairsReviewClose');
-  if(openBtn)openBtn.addEventListener('click',function(){renderPairsReview();modal.style.display='flex';});
-  if(closeBtn)closeBtn.addEventListener('click',function(){modal.style.display='none';});
+  var searchInput=document.getElementById('pairsReviewSearch');
+  if(closeBtn)closeBtn.addEventListener('click',function(){modal.style.display='none';searchInput.value='';_pairsReviewQuery='';});
   if(modal)modal.addEventListener('click',function(e){if(e.target===modal)modal.style.display='none';});
+  if(searchInput)searchInput.addEventListener('input',function(){_pairsReviewQuery=this.value.trim();renderPairsReview();});
 })();
 
 function getGuestRsvpInfo(name, isCouple, knownPartnerName, manualOverride){
