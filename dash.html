@@ -2151,6 +2151,25 @@ function auditMissingPairs(){
 var _pairsReviewQuery='';
 var _manualLinkOpen=false;
 var _manualLinkPick={1:null,2:null}; // selected guest names for the two manual-link slots
+// Browsable candidate list for the manual-link panel — defaults to every
+// guest with no partner recorded yet (the ones you'd actually want to pick
+// from), and narrows by typed text when there's a query. Excludes whoever
+// is already picked in the other slot.
+function renderManualPickList(query,slot){
+  var otherSlot=slot==='1'?'2':'1';
+  var q=(query||'').trim().toLowerCase();
+  var pool=importQueue.filter(function(o){
+    if(o.name===_manualLinkPick[otherSlot])return false;
+    if(q)return (o.name||'').toLowerCase().indexOf(q)!==-1;
+    return !o.bulkWith; // no query yet — show only unlinked guests to browse
+  }).sort(function(a,b){return (a.name||'').localeCompare(b.name||'');});
+  if(!pool.length){
+    return '<div style="padding:6px 8px;font-family:var(--sans);font-size:11px;color:var(--muted)">'+(q?'No matches.':'Everyone else is already linked.')+'</div>';
+  }
+  return pool.map(function(m){
+    return '<button data-manual-pick="'+slot+'" data-manual-pick-name="'+m.name.replace(/"/g,'&quot;')+'" style="display:block;width:100%;text-align:left;padding:6px 8px;margin-top:3px;border-radius:6px;border:1px solid var(--parchment);background:#fff;color:var(--ink);font-family:var(--sans);font-size:12px;cursor:pointer">'+m.name+(m.bulkWith?' <span style="color:var(--muted);font-size:10px">(currently &harr; '+m.bulkWith+')</span>':'')+'</button>';
+  }).join('');
+}
 function renderPairsReview(){
   var allPairs=auditPairs();
   var allMissing=auditMissingPairs();
@@ -2178,8 +2197,8 @@ function renderPairsReview(){
       html+='<div style="margin-top:6px;position:relative">'
         +(picked
           ? '<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);background:#fff;font-family:var(--sans);font-size:12px;color:var(--ink)"><span>'+picked+'</span><button data-manual-clear="'+slot+'" style="border:none;background:none;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;padding:0 2px">×</button></div>'
-          : '<input type="text" class="pairs-manual-input" data-manual-slot="'+slot+'" placeholder="Guest '+slot+'\'s name…" style="width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);font-family:var(--sans);font-size:12px;box-sizing:border-box;background:#fff;color:var(--ink)">'
-            +'<div class="pairs-manual-results" data-manual-results="'+slot+'" style="margin-top:4px"></div>')
+          : '<input type="text" class="pairs-manual-input" data-manual-slot="'+slot+'" placeholder="Search, or pick from the unlinked list below…" style="width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);font-family:var(--sans);font-size:12px;box-sizing:border-box;background:#fff;color:var(--ink)">'
+            +'<div class="pairs-manual-results" data-manual-results="'+slot+'" style="margin-top:4px;max-height:180px;overflow-y:auto">'+renderManualPickList('',slot)+'</div>')
       +'</div>';
     });
     html+='<button id="pairsManualLinkBtn" '+((_manualLinkPick[1]&&_manualLinkPick[2])?'':'disabled')+' style="margin-top:8px;width:100%;padding:8px;border-radius:8px;border:1px solid var(--green);background:'+((_manualLinkPick[1]&&_manualLinkPick[2])?'var(--green-bg)':'var(--parchment)')+';color:'+((_manualLinkPick[1]&&_manualLinkPick[2])?'var(--green)':'var(--muted)')+';font-family:var(--sans);font-size:12px;font-weight:700;cursor:'+((_manualLinkPick[1]&&_manualLinkPick[2])?'pointer':'not-allowed')+'">Link these two</button>';
@@ -2244,23 +2263,27 @@ function renderPairsReview(){
     });
   });
   list.querySelectorAll('.pairs-manual-input').forEach(function(input){
-    input.addEventListener('input',function(){
-      var slot=this.dataset.manualSlot;
-      var otherSlot=slot==='1'?'2':'1';
-      var q=this.value.trim().toLowerCase();
-      var resultsEl=list.querySelector('[data-manual-results="'+slot+'"]');
-      if(!q){resultsEl.innerHTML='';return;}
-      var matches=importQueue.filter(function(o){
-        return o.name!==_manualLinkPick[otherSlot] && (o.name||'').toLowerCase().indexOf(q)!==-1;
-      }).slice(0,6);
-      resultsEl.innerHTML=matches.map(function(m){
-        return '<button data-manual-pick="'+slot+'" data-manual-pick-name="'+m.name.replace(/"/g,'&quot;')+'" style="display:block;width:100%;text-align:left;padding:6px 8px;margin-top:3px;border-radius:6px;border:1px solid var(--parchment);background:#fff;color:var(--ink);font-family:var(--sans);font-size:12px;cursor:pointer">'+m.name+(m.bulkWith?' <span style="color:var(--muted);font-size:10px">(currently &harr; '+m.bulkWith+')</span>':'')+'</button>';
-      }).join('');
+    var bindPicks=function(resultsEl){
       resultsEl.querySelectorAll('[data-manual-pick]').forEach(function(pickBtn){
         pickBtn.addEventListener('click',function(){
           _manualLinkPick[this.dataset.manualPick]=this.dataset.manualPickName;
           renderPairsReview();
         });
+      });
+    };
+    input.addEventListener('input',function(){
+      var slot=this.dataset.manualSlot;
+      var resultsEl=list.querySelector('[data-manual-results="'+slot+'"]');
+      resultsEl.innerHTML=renderManualPickList(this.value,slot);
+      bindPicks(resultsEl);
+    });
+  });
+  // Bind the picks already rendered on page load (before any typing)
+  list.querySelectorAll('.pairs-manual-results').forEach(function(resultsEl){
+    resultsEl.querySelectorAll('[data-manual-pick]').forEach(function(pickBtn){
+      pickBtn.addEventListener('click',function(){
+        _manualLinkPick[this.dataset.manualPick]=this.dataset.manualPickName;
+        renderPairsReview();
       });
     });
   });
