@@ -1238,6 +1238,10 @@ body.lite-mode #liteModeTopBtn {
     <div class="s-section">
       <div class="s-section-label">Developer</div>
       <div class="s-row">
+        <div class="s-row-info"><div class="s-row-title">Dashboard version</div><div class="s-row-sub">If this doesn't match what Claude just gave you, the new file isn't live yet</div></div>
+        <span id="sAppVersion" style="font-family:var(--sans);font-size:11px;font-weight:700;color:var(--muted);background:var(--parchment);padding:5px 10px;border-radius:var(--r-pill)"></span>
+      </div>
+      <div class="s-row">
         <div class="s-row-info"><div class="s-row-title">Dev mode</div><div class="s-row-sub">Highlight layout regions and inspect elements</div></div>
         <button class="dev-btn" id="devBtnSettings" title="Dev mode"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
       </div>
@@ -1366,7 +1370,7 @@ body.lite-mode #liteModeTopBtn {
 <script>
 /* ══ CONFIG ══════════════════════════════════ */
 var BASE='https://www.arinaelnur.de/';
-var APP_VERSION='2026.06.09.9';
+var APP_VERSION='2026.09.06.2';
 var APP_UPDATE_URL='https://www.arinaelnur.de/dash.html';
 
 /* ══ STATE ═══════════════════════════════════ */
@@ -1825,7 +1829,8 @@ function renderFilterRow(){
     +'</button>'
     +'<button class="f-pill '+fCls+'" data-f="followup">Flag</button>'
     +'<button class="f-pill f-sent-pill '+sCls+'" data-f="sent">Sent</button>'
-    +'<button class="f-pill-round" id="reviewPairsBtn" title="Review sent-together pairs"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M10 14a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1.5 1.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 10a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1.5-1.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>';
+    +'<button class="f-pill-round" id="reviewPairsBtn" title="Review sent-together pairs"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M10 14a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1.5 1.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 10a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1.5-1.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'
+    +'<button class="f-pill-round" id="appVersionBtn" title="Dashboard version">v</button>';
 
   /* Open pill: click label area → all open */
   var pillOpen=document.getElementById('fPillOpen');
@@ -1861,6 +1866,10 @@ function renderFilterRow(){
   var reviewBtn=document.getElementById('reviewPairsBtn');
   var reviewModal=document.getElementById('pairsReviewModal');
   if(reviewBtn&&reviewModal)reviewBtn.addEventListener('click',function(){renderPairsReview();reviewModal.style.display='flex';});
+  /* Version button — same content shown in Settings → Developer, but one
+     tap right here instead of digging into a drawer. */
+  var versionBtn=document.getElementById('appVersionBtn');
+  if(versionBtn)versionBtn.addEventListener('click',function(){showActivityToast('Dashboard v'+APP_VERSION);});
 }
 
 /* ══ GUEST LIST ══════════════════════════════ */
@@ -2154,7 +2163,7 @@ var _pairsReviewQuery='';
 var _manualLinkOpen=false;
 var _manualLinkPick={1:null,2:null}; // selected guest names for the two manual-link slots
 var _parentLinkOpen=false;
-var _parentLinkKid=null; // name of the kid guest being linked
+var _parentLinkKids=[]; // names of the kid guests being linked (multi-select)
 var _parentLinkParents=[]; // up to 2 parent names picked
 // Browsable candidate list for the manual-link panel — defaults to every
 // guest with no partner recorded yet (the ones you'd actually want to pick
@@ -2197,7 +2206,7 @@ function renderManualPickList(query,slot){
 function renderKidPickList(query){
   var q=(query||'').trim().toLowerCase();
   var pool=importQueue.filter(function(o){
-    if(o.name===_parentLinkKid)return false;
+    if(_parentLinkKids.indexOf(o.name)!==-1)return false;
     if(_parentLinkParents.indexOf(o.name)!==-1)return false;
     if(q)return (o.name||'').toLowerCase().indexOf(q)!==-1;
     return !o.parentNames;
@@ -2212,14 +2221,14 @@ function renderKidPickList(query){
     return '<button data-kid-pick data-kid-pick-name="'+m.name.replace(/"/g,'&quot;')+'" style="display:block;width:100%;text-align:left;padding:6px 8px;margin-top:3px;border-radius:6px;border:1px solid var(--parchment);background:#fff;color:var(--ink);font-family:var(--sans);font-size:12px;cursor:pointer">'+m.name+(m.parentNames?' <span style="color:var(--muted);font-size:10px">(currently child of '+m.parentNames+')</span>':'')+'</button>';
   }).join('');
 }
-// Candidate list for picking a parent — any guest except the kid itself and
-// whoever's already picked as the other parent. Parents are ordinary
-// guests (often already bulkWith-linked to their own spouse), so no
-// unlinked-only filter here.
+// Candidate list for picking a parent — any guest except any kid already
+// picked and whoever's already picked as the other parent. Parents are
+// ordinary guests (often already bulkWith-linked to their own spouse), so
+// no unlinked-only filter here.
 function renderParentPickList(query){
   var q=(query||'').trim().toLowerCase();
   var pool=importQueue.filter(function(o){
-    if(o.name===_parentLinkKid)return false;
+    if(_parentLinkKids.indexOf(o.name)!==-1)return false;
     if(_parentLinkParents.indexOf(o.name)!==-1)return false;
     if(q)return (o.name||'').toLowerCase().indexOf(q)!==-1;
     return true;
@@ -2282,15 +2291,16 @@ function renderPairsReview(){
   html+='<div style="margin-bottom:10px">'
     +'<button id="parentLinkToggle" style="width:100%;text-align:left;padding:8px 10px;border-radius:8px;border:1px dashed var(--sky);background:var(--sky-bg);color:var(--sky);font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer">'+(_parentLinkOpen?'− Hide link kid to parent(s)':'+ Link a kid to their parent(s)')+'</button>';
   if(_parentLinkOpen){
-    html+='<div style="margin-top:6px;font-size:10px;color:var(--muted);font-family:var(--sans)">Kid</div>'
-      +'<div style="margin-top:3px">'
-      +(_parentLinkKid
-        ? '<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);background:#fff;font-family:var(--sans);font-size:12px;color:var(--ink)"><span>'+_parentLinkKid+'</span><button data-kid-clear style="border:none;background:none;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;padding:0 2px">×</button></div>'
-        : '<input type="text" id="kidPickInput" placeholder="Search, or pick from the list below…" style="width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);font-family:var(--sans);font-size:12px;box-sizing:border-box;background:#fff;color:var(--ink)">'
-          +'<div id="kidPickResults" style="margin-top:4px;max-height:140px;overflow-y:auto">'+renderKidPickList('')+'</div>')
-      +'</div>';
-    // Progressive: parent picker only appears once a kid is chosen.
-    if(_parentLinkKid){
+    html+='<div style="margin-top:6px;font-size:10px;color:var(--muted);font-family:var(--sans)">Kid'+(_parentLinkKids.length>1?'s':'')+(_parentLinkKids.length?' ('+_parentLinkKids.length+')':'')+'</div>';
+    _parentLinkKids.forEach(function(kn){
+      html+='<div style="margin-top:3px;display:flex;align-items:center;justify-content:space-between;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);background:#fff;font-family:var(--sans);font-size:12px;color:var(--ink)"><span>'+kn+'</span><button data-kid-remove="'+kn.replace(/"/g,'&quot;')+'" style="border:none;background:none;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;padding:0 2px">×</button></div>';
+    });
+    html+='<div style="margin-top:3px">'
+      +'<input type="text" id="kidPickInput" placeholder="'+(_parentLinkKids.length?'Add another kid…':'Search, or pick from the list below…')+'" style="width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);font-family:var(--sans);font-size:12px;box-sizing:border-box;background:#fff;color:var(--ink)">'
+      +'<div id="kidPickResults" style="margin-top:4px;max-height:140px;overflow-y:auto">'+renderKidPickList('')+'</div>'
+    +'</div>';
+    // Progressive: parent picker only appears once at least one kid is chosen.
+    if(_parentLinkKids.length){
     html+='<div style="margin-top:8px;font-size:10px;color:var(--muted);font-family:var(--sans)">Parent'+(_parentLinkParents.length?'s':'')+' ('+_parentLinkParents.length+'/2)</div>';
     _parentLinkParents.forEach(function(pn){
       html+='<div style="margin-top:3px;display:flex;align-items:center;justify-content:space-between;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);background:#fff;font-family:var(--sans);font-size:12px;color:var(--ink)"><span>'+pn+'</span><button data-parent-remove="'+pn.replace(/"/g,'&quot;')+'" style="border:none;background:none;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;padding:0 2px">×</button></div>';
@@ -2302,9 +2312,9 @@ function renderPairsReview(){
       +'</div>';
     }
     }
-    var parentLinkReady=_parentLinkKid&&_parentLinkParents.length>0;
+    var parentLinkReady=_parentLinkKids.length>0&&_parentLinkParents.length>0;
     if(parentLinkReady){
-      html+='<button id="parentLinkBtn" style="margin-top:8px;width:100%;padding:8px;border-radius:8px;border:1px solid var(--green);background:var(--green-bg);color:var(--green);font-family:var(--sans);font-size:12px;font-weight:700;cursor:pointer">Link kid to parent'+(_parentLinkParents.length>1?'s':'')+'</button>';
+      html+='<button id="parentLinkBtn" style="margin-top:8px;width:100%;padding:8px;border-radius:8px;border:1px solid var(--green);background:var(--green-bg);color:var(--green);font-family:var(--sans);font-size:12px;font-weight:700;cursor:pointer">Link '+_parentLinkKids.length+' kid'+(_parentLinkKids.length>1?'s':'')+' to parent'+(_parentLinkParents.length>1?'s':'')+'</button>';
     }
   }
   html+='</div>';
@@ -2435,29 +2445,39 @@ function renderPairsReview(){
   var parentToggle=document.getElementById('parentLinkToggle');
   if(parentToggle)parentToggle.addEventListener('click',function(){
     _parentLinkOpen=!_parentLinkOpen;
-    if(!_parentLinkOpen){_parentLinkKid=null;_parentLinkParents=[];}
+    if(!_parentLinkOpen){_parentLinkKids=[];_parentLinkParents=[];}
     renderPairsReview();
   });
-  var kidClearBtn=list.querySelector('[data-kid-clear]');
-  if(kidClearBtn)kidClearBtn.addEventListener('click',function(){_parentLinkKid=null;renderPairsReview();});
+  list.querySelectorAll('[data-kid-remove]').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var removeName=this.dataset.kidRemove;
+      _parentLinkKids=_parentLinkKids.filter(function(n){return n!==removeName;});
+      renderPairsReview();
+    });
+  });
   list.querySelectorAll('[data-parent-remove]').forEach(function(btn){
     btn.addEventListener('click',function(){
-      _parentLinkParents=_parentLinkParents.filter(function(n){return n!==this.dataset.parentRemove;},this);
+      var removeName=this.dataset.parentRemove;
+      _parentLinkParents=_parentLinkParents.filter(function(n){return n!==removeName;});
       renderPairsReview();
     });
   });
   var kidPickInput=document.getElementById('kidPickInput');
+  var bindKidPicks=function(resultsEl){
+    resultsEl.querySelectorAll('[data-kid-pick]').forEach(function(btn){
+      btn.addEventListener('click',function(){
+        _parentLinkKids.push(this.dataset.kidPickName);
+        renderPairsReview();
+      });
+    });
+  };
   if(kidPickInput)kidPickInput.addEventListener('input',function(){
     var resultsEl=document.getElementById('kidPickResults');
     resultsEl.innerHTML=renderKidPickList(this.value);
-    resultsEl.querySelectorAll('[data-kid-pick]').forEach(function(btn){
-      btn.addEventListener('click',function(){_parentLinkKid=this.dataset.kidPickName;renderPairsReview();});
-    });
+    bindKidPicks(resultsEl);
   });
   var kidPickResultsInit=document.getElementById('kidPickResults');
-  if(kidPickResultsInit)kidPickResultsInit.querySelectorAll('[data-kid-pick]').forEach(function(btn){
-    btn.addEventListener('click',function(){_parentLinkKid=this.dataset.kidPickName;renderPairsReview();});
-  });
+  if(kidPickResultsInit)bindKidPicks(kidPickResultsInit);
   var parentPickInput=document.getElementById('parentPickInput');
   if(parentPickInput)parentPickInput.addEventListener('input',function(){
     var resultsEl=document.getElementById('parentPickResults');
@@ -2471,14 +2491,20 @@ function renderPairsReview(){
   });
   var parentLinkBtn=document.getElementById('parentLinkBtn');
   if(parentLinkBtn)parentLinkBtn.addEventListener('click',function(){
-    if(!_parentLinkKid||!_parentLinkParents.length)return;
-    var kid=importQueue.find(function(o){return o.name===_parentLinkKid;});
-    if(!kid)return;
-    kid.parentNames=_parentLinkParents.join(', ');
-    var kidName=_parentLinkKid;
-    _parentLinkKid=null;_parentLinkParents=[];
+    if(!_parentLinkKids.length||!_parentLinkParents.length)return;
+    var parentLabel=_parentLinkParents.join(', ');
+    var kidsToPush=[];
+    _parentLinkKids.forEach(function(kidName){
+      var kid=importQueue.find(function(o){return o.name===kidName;});
+      if(kid){kid.parentNames=parentLabel;kidsToPush.push(kid);}
+    });
+    var linkedCount=kidsToPush.length;
+    _parentLinkKids=[];_parentLinkParents=[];
     saveGuestMeta();renderGuestList();renderPairsReview();
-    pushMetaToWorker(kid);
+    showActivityToast('Linked '+linkedCount+' kid'+(linkedCount>1?'s':'')+' to '+parentLabel);
+    // Sequential, not parallel — same reasoning as every other multi-guest
+    // save in this modal.
+    (function pushNext(){var g=kidsToPush.shift();if(!g)return;pushMetaToWorker(g).then(pushNext);})();
   });
 
   list.querySelectorAll('[data-pm-action="link"]').forEach(function(btn){
@@ -4263,6 +4289,7 @@ function closeSettings(){
 }
 
 function loadSettingsIntoUI(){
+  var vEl=document.getElementById('sAppVersion');if(vEl)vEl.textContent='v'+APP_VERSION;
   document.getElementById('sNameA').value=appSettings.nameA;
   document.getElementById('sNameE').value=appSettings.nameE;
   document.getElementById('sWeddingDate').value=appSettings.weddingDate;
