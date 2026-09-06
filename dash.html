@@ -2523,9 +2523,17 @@ function getGuestRsvpInfo(name, isCouple, knownPartnerName, manualOverride){
        submission like "Ines & Philipp Ziegler" purely because they share the surname
        "Ziegler". */
     var isTrulySolo = !isCouple && name.indexOf('&')===-1 && !knownPartnerName;
+    // For a guest known to be part of a pair, a bare first-name match (S2/S4)
+    // is only trustworthy against a joint "A & B" submission — where the
+    // partner-name guard further down can double-check it. Letting it also
+    // match an unrelated SOLO row (e.g. some other "Valerie" who submitted
+    // her own RSVP) was the actual bug: nothing downstream re-checks a
+    // solo-row match, so a same-first-name stranger's RSVP got attributed
+    // to this guest outright.
     function rowOk(r){
-      if(!isTrulySolo) return true;
-      return normN(r['Full Name']||r['name']||'').indexOf('&')===-1;
+      var isHousehold=normN(r['Full Name']||r['name']||'').indexOf('&')!==-1;
+      if(isTrulySolo) return !isHousehold;
+      return isHousehold;
     }
 
     /* S1 — exact Full Name */
