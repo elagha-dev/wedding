@@ -1368,6 +1368,10 @@ body.lite-mode #liteModeTopBtn {
       <button id="pairsReviewClose" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);line-height:1;padding:0 4px">×</button>
     </div>
     <div id="pairsReviewSub" style="padding:8px 18px;font-family:var(--sans);font-size:11px;color:var(--muted);flex-shrink:0;background:#fff"></div>
+    <div id="pairsReviewTabs" style="display:flex;gap:6px;padding:0 18px 10px;flex-shrink:0;background:#fff">
+      <button id="prTabCouples" class="pr-tab-btn" style="padding:6px 12px;border-radius:100px;border:1px solid var(--parchment);background:var(--ink);color:#fff;font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer">Couples</button>
+      <button id="prTabTree" class="pr-tab-btn" style="padding:6px 12px;border-radius:100px;border:1px solid var(--parchment);background:#fff;color:var(--muted);font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer">Family Tree</button>
+    </div>
     <div id="pairsReviewSearchWrap" style="padding:0 18px 10px;flex-shrink:0;background:#fff">
       <input id="pairsReviewSearch" type="text" placeholder="Search a name…" style="width:100%;box-sizing:border-box;padding:8px 10px;border:1.5px solid var(--parchment);border-radius:var(--r-sm);font-family:var(--sans);font-size:12px;color:var(--ink);background:var(--cream)"/>
     </div>
@@ -1801,7 +1805,7 @@ document.getElementById('ovTotal').addEventListener('click',function(){
 (function(){
   var reviewBtn=document.getElementById('reviewPairsBtn');
   var reviewModal=document.getElementById('pairsReviewModal');
-  if(reviewBtn&&reviewModal)reviewBtn.addEventListener('click',function(){renderPairsReview();reviewModal.style.display='flex';});
+  if(reviewBtn&&reviewModal)reviewBtn.addEventListener('click',function(){_pairsReviewTab='couples';renderPairsReview();reviewModal.style.display='flex';});
 })();
 (function(){
   var stampBtn=document.getElementById('deployStampBtn');
@@ -2205,6 +2209,12 @@ function auditMissingPairs(){
 }
 
 var _pairsReviewQuery='';
+var _pairsReviewTab='couples'; // 'couples' | 'tree'
+// Per-pair manual expand/collapse override, keyed by pairKey(). A confirmed,
+// non-suspicious pair collapses by default (nothing to review); this records
+// when the person has explicitly opened or closed one by hand. Absent =
+// "use the automatic default" (expanded only if it needs attention).
+var _expandedPairs={};
 var _manualLinkOpen=false;
 var _manualLinkPick={1:null,2:null}; // selected guest names for the two manual-link slots
 var _parentLinkOpen=false;
@@ -2283,7 +2293,89 @@ function renderParentPickList(query){
     return '<button data-parent-pick data-parent-pick-name="'+m.name.replace(/"/g,'&quot;')+'" style="display:block;width:100%;text-align:left;padding:6px 8px;margin-top:3px;border-radius:6px;border:1px solid var(--parchment);background:#fff;color:var(--ink);font-family:var(--sans);font-size:12px;cursor:pointer">'+m.name+'</button>';
   }).join('');
 }
+// Names a child's parentNames field lists, trimmed — a kid can be linked
+// to one or two parents, comma-separated in whatever order they were picked.
+function _parentNameList(s){return (s||'').split(',').map(function(n){return n.trim();}).filter(Boolean);}
+function buildFamilyTree(){
+  var allPairs=auditPairs();
+  var couples=allPairs.filter(function(p){
+    if(!p.partner)return false;
+    var partnerName=p.partner.name;
+    return !!_confirmedPairs[pairKey(p.g.name,partnerName)];
+  });
+  var claimedKids={};
+  var families=couples.map(function(c){
+    var names=[c.g.name,c.partner.name];
+    var kids=importQueue.filter(function(o){
+      if(!o.parentNames)return false;
+      var pn=_parentNameList(o.parentNames);
+      if(!pn.length)return false;
+      return pn.every(function(n){return names.indexOf(n)!==-1;});
+    }).sort(function(a,b){return (a.name||'').localeCompare(b.name||'');});
+    kids.forEach(function(k){claimedKids[k.name]=true;});
+    return {parents:names,kids:kids};
+  });
+  var strayKids=importQueue.filter(function(o){return o.parentNames&&!claimedKids[o.name];});
+  return {families:families,strayKids:strayKids};
+}
+function renderFamilyTree(){
+  var data=buildFamilyTree();
+  var q=_pairsReviewQuery.trim().toLowerCase();
+  var families=data.families;
+  if(q){
+    families=families.filter(function(f){
+      return f.parents.some(function(n){return n.toLowerCase().indexOf(q)!==-1;})
+        ||f.kids.some(function(k){return k.name.toLowerCase().indexOf(q)!==-1;});
+    });
+  }
+  document.getElementById('pairsReviewSub').textContent=data.families.length
+    ? data.families.length+' confirmed famil'+(data.families.length>1?'ies':'y')+(q?' · showing matches for "'+_pairsReviewQuery+'"':'')+'.'
+    : 'Confirm a couple in the Couples tab to see it here.';
+  var html='';
+  if(!families.length){
+    html='<div style="padding:20px;text-align:center;color:var(--muted);font-family:var(--sans);font-size:12px">'
+      +(q?'No matches for "'+_pairsReviewQuery+'".':'No confirmed couples yet — confirm a pair in the Couples tab first.')+'</div>';
+  } else {
+    families.forEach(function(f){
+      html+='<div style="margin-bottom:18px;text-align:center">'
+        +'<div style="display:inline-block;padding:8px 14px;border-radius:10px;background:var(--rose-soft);color:var(--ink);font-family:var(--sans);font-size:13px;font-weight:700">'+f.parents.join(' &amp; ')+'</div>';
+      if(f.kids.length){
+        html+='<div style="width:1.5px;height:14px;background:var(--parchment);margin:0 auto"></div>'
+          +'<div style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center;border-top:1.5px solid var(--parchment);padding-top:12px;max-width:100%">'
+          +f.kids.map(function(k){
+            return '<div style="position:relative;padding:6px 12px;border-radius:8px;background:var(--cream);color:var(--ink2);font-family:var(--sans);font-size:12px;font-weight:600">'
+              +'<div style="position:absolute;top:-13px;left:50%;width:1.5px;height:13px;background:var(--parchment)"></div>'
+              +'&#x1F476; '+k.name+'</div>';
+          }).join('')
+          +'</div>';
+      }
+      html+='</div>';
+    });
+  }
+  if(!q&&data.strayKids.length){
+    html+='<div style="font-family:var(--sans);font-weight:800;font-size:12px;color:var(--ink2);margin:10px 4px 6px">Linked children without a confirmed couple</div>'
+      +'<div style="font-family:var(--sans);font-size:10px;color:var(--muted);margin:0 4px 8px">Confirm their parents\' pair in the Couples tab to place them in the tree.</div>'
+      +data.strayKids.map(function(k){
+        return '<div style="padding:7px 10px;margin-bottom:5px;border-radius:8px;background:var(--cream);font-family:var(--sans);font-size:12px;color:var(--ink)">'+k.name+' <span style="color:var(--muted);font-size:10px">(child of '+k.parentNames+')</span></div>';
+      }).join('');
+  }
+  document.getElementById('pairsReviewList').innerHTML=html;
+}
 function renderPairsReview(){
+  var couplesTab=document.getElementById('prTabCouples');
+  var treeTab=document.getElementById('prTabTree');
+  if(couplesTab&&treeTab){
+    var activeStyle='background:var(--ink);color:#fff;border-color:var(--ink)';
+    var inactiveStyle='background:#fff;color:var(--muted);border-color:var(--parchment)';
+    couplesTab.style.cssText='padding:6px 12px;border-radius:100px;border:1px solid;font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer;'+(_pairsReviewTab==='couples'?activeStyle:inactiveStyle);
+    treeTab.style.cssText='padding:6px 12px;border-radius:100px;border:1px solid;font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer;'+(_pairsReviewTab==='tree'?activeStyle:inactiveStyle);
+  }
+  if(_pairsReviewTab==='tree'){
+    var searchWrap0=document.getElementById('pairsReviewSearchWrap');
+    if(searchWrap0)searchWrap0.style.display='';
+    renderFamilyTree();
+    return;
+  }
   var allPairs=auditPairs();
   var allMissing=auditMissingPairs();
   var pairs=allPairs,missing=allMissing;
@@ -2295,7 +2387,7 @@ function renderPairsReview(){
   }
   var sus=allPairs.filter(function(p){var partnerName=p.partner?p.partner.name:p.g.bulkWith;return p.reasons.length&&!_confirmedPairs[pairKey(p.g.name,partnerName)];});
   document.getElementById('pairsReviewSub').textContent=allPairs.length
-    ? sus.length+' of '+allPairs.length+' existing pairs look suspicious'+(allMissing.length?' · '+allMissing.length+' possible missing link'+(allMissing.length>1?'s':''):'')+(_pairsReviewQuery?' · showing matches for "'+_pairsReviewQuery+'"':'')+'.'
+    ? sus.length+' need'+(sus.length===1?'s':'')+' your attention'+(allMissing.length?' · '+allMissing.length+' possible missing link'+(allMissing.length>1?'s':''):'')+(_pairsReviewQuery?' · showing matches for "'+_pairsReviewQuery+'"':'')+'.'
     : (allMissing.length?allMissing.length+' possible missing link'+(allMissing.length>1?'s':'')+' found.':'No sent-together pairs found yet.');
   // Hide the pair-list search bar while either manual-link panel is open —
   // it filters pairs, not the people you're currently picking, so showing
@@ -2331,30 +2423,47 @@ function renderPairsReview(){
     // dangling link needs Relink/Unlink instead; confirming it would just
     // hide the warning while the underlying data stays wrong.
     var isBroken=p.reasons.some(function(r){return r.indexOf('one-directional')!==-1||r.indexOf('no longer in list')!==-1;});
+    // A confirmed, unbroken pair (or one with nothing flagged at all) has
+    // nothing left to review, so it stays collapsed until asked for.
+    // Anything actually suspicious opens automatically. Either state can
+    // be flipped by hand via the row header, tracked in _expandedPairs.
+    var needsAttention=p.reasons.length>0&&!isConfirmed;
+    var isExpanded=_expandedPairs.hasOwnProperty(pKey)?_expandedPairs[pKey]:needsAttention;
+    var badgeHtml=isConfirmed
+      ? '<span style="font-family:var(--sans);font-size:10px;font-weight:700;color:var(--green);white-space:nowrap">&#x2713; Confirmed</span>'
+      : (p.reasons.length
+        ? '<span style="font-family:var(--sans);font-size:10px;font-weight:700;color:#b91c1c;white-space:nowrap">&#x26A0; Review</span>'
+        : '<span style="font-family:var(--sans);font-size:10px;font-weight:600;color:var(--muted);white-space:nowrap">OK</span>');
+    var chevronHtml='<span style="flex-shrink:0;width:16px;height:16px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:9px;transition:transform var(--ease);transform:rotate('+(isExpanded?'90deg':'0deg')+')">&#x25B8;</span>';
     var flagHtml=isConfirmed
       ? '<div style="margin-top:4px;font-size:10px;color:var(--green);font-weight:600">✓ confirmed by you — won\'t be flagged again</div>'
       : (p.reasons.length
         ? '<div style="margin-top:4px;font-size:10px;color:#b91c1c;font-weight:700">⚠ '+p.reasons.join(' · ')+'</div>'
         : '<div style="margin-top:4px;font-size:10px;color:var(--green);font-weight:600">looks consistent</div>');
     var confirmBtnHtml=isBroken
-      ? '<button disabled title="This link is actually broken — use Relink to… to fix it, not Confirm" style="flex-shrink:0;padding:3px 8px;border-radius:100px;border:1px solid var(--parchment);background:var(--parchment);color:var(--muted);font-family:var(--sans);font-size:10px;font-weight:700;cursor:not-allowed;white-space:nowrap">Confirm</button>'
-      : '<button data-pr-action="'+(isConfirmed?'unconfirm':'confirm')+'" data-pr="'+idx+'" title="'+(isConfirmed?'Stop treating as confirmed':'Confirm this pair is correct — stop flagging it')+'" style="flex-shrink:0;padding:3px 8px;border-radius:100px;border:1px solid '+(isConfirmed?'var(--green)':'var(--parchment)')+';background:'+(isConfirmed?'var(--green-bg)':'#fff')+';color:'+(isConfirmed?'var(--green)':'var(--muted)')+';font-family:var(--sans);font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap">'+(isConfirmed?'✓ Confirmed':'Confirm')+'</button>';
+      ? '<button disabled title="This link is actually broken — use Relink to… to fix it, not Confirm" style="padding:3px 8px;border-radius:100px;border:1px solid var(--parchment);background:var(--parchment);color:var(--muted);font-family:var(--sans);font-size:10px;font-weight:700;cursor:not-allowed;white-space:nowrap">Confirm</button>'
+      : '<button data-pr-action="'+(isConfirmed?'unconfirm':'confirm')+'" data-pr="'+idx+'" title="'+(isConfirmed?'Stop treating as confirmed':'Confirm this pair is correct — stop flagging it')+'" style="padding:3px 8px;border-radius:100px;border:1px solid '+(isConfirmed?'var(--green)':'var(--parchment)')+';background:'+(isConfirmed?'var(--green-bg)':'#fff')+';color:'+(isConfirmed?'var(--green)':'var(--muted)')+';font-family:var(--sans);font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap">'+(isConfirmed?'✓ Confirmed':'Confirm')+'</button>';
+    var bodyHtml='';
+    if(isExpanded){
+      bodyHtml=flagHtml
+        +(isBroken?'<div style="margin-top:3px;font-size:10px;color:var(--sky);font-weight:600">Use Relink to… below to actually fix this</div>':'')
+        +'<div style="margin-top:6px">'+confirmBtnHtml+'</div>'
+        +'<div style="display:flex;gap:8px;margin-top:6px">'
+          +'<button data-pr-action="unlink" data-pr="'+idx+'" style="flex:1;padding:7px;border-radius:8px;border:1px solid #b91c1c;background:#fde8e8;color:#b91c1c;font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer">Unlink</button>'
+          +'<button data-pr-action="relink" data-pr="'+idx+'" style="flex:1;padding:7px;border-radius:8px;border:1px solid var(--parchment);background:#fff;color:var(--ink2);font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer">Relink to…</button>'
+        +'</div>'
+        +'<div class="pr-relink-wrap" data-pr-relink="'+idx+'" style="display:none;margin-top:6px;background:#fbf7f3;border-radius:8px;padding:8px">'
+          +'<input type="text" class="pr-relink-input" data-pr-input="'+idx+'" placeholder="Type correct partner\'s name…" style="width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);font-family:var(--sans);font-size:12px;box-sizing:border-box;background:#fff;color:var(--ink)">'
+          +'<div class="pr-relink-results" data-pr-results="'+idx+'" style="margin-top:4px"></div>'
+          +'<button data-pr-action="cancel-relink" data-pr="'+idx+'" style="margin-top:6px;width:100%;padding:6px;border-radius:8px;border:1px solid var(--parchment);background:#fff;color:var(--muted);font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer">Cancel</button>'
+        +'</div>';
+    }
     html+='<div class="pr-row" data-pr="'+idx+'" style="padding:8px;margin-bottom:6px;border-radius:10px;background:var(--cream)">'
-      +'<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">'
-        +'<div style="font-family:var(--sans);font-size:13px;font-weight:700;color:var(--ink)">'+p.g.name+' &harr; '+partnerName+'</div>'
-        +confirmBtnHtml
+      +'<div data-pr-header="'+idx+'" style="display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer">'
+        +'<div style="font-family:var(--sans);font-size:13px;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+p.g.name+' &harr; '+partnerName+'</div>'
+        +'<div style="display:flex;align-items:center;gap:6px;flex-shrink:0">'+badgeHtml+chevronHtml+'</div>'
       +'</div>'
-      +flagHtml
-      +(isBroken?'<div style="margin-top:3px;font-size:10px;color:var(--sky);font-weight:600">Use Relink to… below to actually fix this</div>':'')
-      +'<div style="display:flex;gap:8px;margin-top:5px">'
-        +'<button data-pr-action="unlink" data-pr="'+idx+'" style="flex:1;padding:7px;border-radius:8px;border:1px solid #b91c1c;background:#fde8e8;color:#b91c1c;font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer">Unlink</button>'
-        +'<button data-pr-action="relink" data-pr="'+idx+'" style="flex:1;padding:7px;border-radius:8px;border:1px solid var(--parchment);background:#fff;color:var(--ink2);font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer">Relink to…</button>'
-      +'</div>'
-      +'<div class="pr-relink-wrap" data-pr-relink="'+idx+'" style="display:none;margin-top:6px;background:#fbf7f3;border-radius:8px;padding:8px">'
-        +'<input type="text" class="pr-relink-input" data-pr-input="'+idx+'" placeholder="Type correct partner\'s name…" style="width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);font-family:var(--sans);font-size:12px;box-sizing:border-box;background:#fff;color:var(--ink)">'
-        +'<div class="pr-relink-results" data-pr-results="'+idx+'" style="margin-top:4px"></div>'
-        +'<button data-pr-action="cancel-relink" data-pr="'+idx+'" style="margin-top:6px;width:100%;padding:6px;border-radius:8px;border:1px solid var(--parchment);background:#fff;color:var(--muted);font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer">Cancel</button>'
-      +'</div>'
+      +bodyHtml
     +'</div>';
   });
 
@@ -2427,6 +2536,17 @@ function renderPairsReview(){
   document.getElementById('pairsReviewList').innerHTML=html||('<div style="padding:20px;text-align:center;color:var(--muted);font-family:var(--sans);font-size:12px">'+(_pairsReviewQuery?'No matches for "'+_pairsReviewQuery+'".':'No pairs yet.')+'</div>');
 
   var list=document.getElementById('pairsReviewList');
+  list.querySelectorAll('[data-pr-header]').forEach(function(el){
+    el.addEventListener('click',function(){
+      var p=pairs[parseInt(this.dataset.prHeader)];
+      var partnerName=p.partner?p.partner.name:p.g.bulkWith;
+      var key=pairKey(p.g.name,partnerName);
+      var needsAttn=p.reasons.length>0&&!_confirmedPairs[key];
+      var curExpanded=_expandedPairs.hasOwnProperty(key)?_expandedPairs[key]:needsAttn;
+      _expandedPairs[key]=!curExpanded;
+      renderPairsReview();
+    });
+  });
   var manualToggle=document.getElementById('pairsManualToggle');
   if(manualToggle)manualToggle.addEventListener('click',function(){
     _manualLinkOpen=!_manualLinkOpen;
@@ -2689,9 +2809,19 @@ function renderPairsReview(){
   var modal=document.getElementById('pairsReviewModal');
   var closeBtn=document.getElementById('pairsReviewClose');
   var searchInput=document.getElementById('pairsReviewSearch');
+  var tabCouples=document.getElementById('prTabCouples');
+  var tabTree=document.getElementById('prTabTree');
   if(closeBtn)closeBtn.addEventListener('click',function(){modal.style.display='none';searchInput.value='';_pairsReviewQuery='';});
   if(modal)modal.addEventListener('click',function(e){if(e.target===modal)modal.style.display='none';});
   if(searchInput)searchInput.addEventListener('input',function(){_pairsReviewQuery=this.value.trim();renderPairsReview();});
+  if(tabCouples)tabCouples.addEventListener('click',function(){
+    if(_pairsReviewTab==='couples')return;
+    _pairsReviewTab='couples';searchInput.value='';_pairsReviewQuery='';renderPairsReview();
+  });
+  if(tabTree)tabTree.addEventListener('click',function(){
+    if(_pairsReviewTab==='tree')return;
+    _pairsReviewTab='tree';searchInput.value='';_pairsReviewQuery='';searchInput.placeholder='Search a name…';renderPairsReview();
+  });
 })();
 
 function getGuestRsvpInfo(name, isCouple, knownPartnerName, manualOverride){
