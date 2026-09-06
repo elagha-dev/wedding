@@ -800,6 +800,7 @@ body.lite-mode #liteModeTopBtn {
   </button>
   <!-- Stats -->
   <div class="stat-pill total" id="ovTotal" title="Total guests" style="cursor:pointer">0</div>
+  <button id="reviewPairsBtn" title="Review sent-together pairs" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;border:none;background:var(--parchment);color:var(--ink2);cursor:pointer;padding:0"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></button>
   <div class="stat-pill sent" id="ovSent" title="Sent" style="cursor:pointer">0</div>
   <div class="stat-pill new-guests" id="ovNew" title="New since last sync" style="display:none"></div>
   <!-- spacer -->
@@ -1238,7 +1239,7 @@ body.lite-mode #liteModeTopBtn {
     <div class="s-section">
       <div class="s-section-label">Developer</div>
       <div class="s-row">
-        <div class="s-row-info"><div class="s-row-title">Dashboard version</div><div class="s-row-sub">If this doesn't match what Claude just gave you, the new file isn't live yet</div></div>
+        <div class="s-row-info"><div class="s-row-title">Last deployed</div><div class="s-row-sub">When this file was last pushed to GitHub</div></div>
         <span id="sAppVersion" style="font-family:var(--sans);font-size:11px;font-weight:700;color:var(--muted);background:var(--parchment);padding:5px 10px;border-radius:var(--r-pill)"></span>
       </div>
       <div class="s-row">
@@ -1365,6 +1366,8 @@ body.lite-mode #liteModeTopBtn {
   </div>
 </div>
 <div id="undoToast"><span id="undoToastMsg">Marked as sent</span><button id="undoToastBtn">Undo</button></div>
+<!-- Tiny, near-invisible deploy stamp — bottom-left, tap for last-deployed date/time -->
+<button id="deployStampBtn" title="Last deployed" style="position:fixed;left:8px;bottom:8px;width:9px;height:9px;border-radius:50%;border:none;background:var(--muted);opacity:.3;cursor:pointer;padding:0;z-index:400;transition:opacity .15s"></button>
 <!-- VERSION STAMP -->
 
 <script>
@@ -1372,6 +1375,18 @@ body.lite-mode #liteModeTopBtn {
 var BASE='https://www.arinaelnur.de/';
 var APP_VERSION='2026.09.06.2';
 var APP_UPDATE_URL='https://www.arinaelnur.de/dash.html';
+/* Stamped with the real push time by deployToGitHub() just before it sends
+   the file — so this always reflects exactly when THIS copy went live,
+   not when the code was last edited locally. Blank until the first deploy. */
+var APP_DEPLOYED_AT='';
+function formatDeployStamp(iso){
+  if(!iso)return 'v'+APP_VERSION+' (not yet deployed)';
+  var d=new Date(iso);
+  if(isNaN(d))return 'v'+APP_VERSION;
+  var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var hh=d.getHours(),mm=d.getMinutes();
+  return months[d.getMonth()]+' '+d.getDate()+', '+(hh<10?'0':'')+hh+':'+(mm<10?'0':'')+mm;
+}
 
 /* ══ STATE ═══════════════════════════════════ */
 var selType='ceremony-single',selLang='en',selSender='Arina',cur=null;
@@ -1776,6 +1791,21 @@ document.getElementById('ovTotal').addEventListener('click',function(){
   var ga=document.getElementById('guestArea');if(ga.style.display==='none')return;
   importFilter='unsent';showSent=false;renderFilterRow();renderGuestList();
 });
+(function(){
+  var reviewBtn=document.getElementById('reviewPairsBtn');
+  var reviewModal=document.getElementById('pairsReviewModal');
+  if(reviewBtn&&reviewModal)reviewBtn.addEventListener('click',function(){renderPairsReview();reviewModal.style.display='flex';});
+})();
+(function(){
+  var stampBtn=document.getElementById('deployStampBtn');
+  if(!stampBtn)return;
+  stampBtn.title='Last deployed: '+formatDeployStamp(APP_DEPLOYED_AT);
+  stampBtn.addEventListener('click',function(){
+    stampBtn.style.opacity='.8';
+    setTimeout(function(){stampBtn.style.opacity='.3';},1500);
+    showActivityToast('Last deployed: '+formatDeployStamp(APP_DEPLOYED_AT));
+  });
+})();
 document.getElementById('ovSent').addEventListener('click',function(){
   var ga=document.getElementById('guestArea');if(ga.style.display==='none')return;
   importFilter='sent';showSent=true;renderFilterRow();renderGuestList();
@@ -1828,9 +1858,7 @@ function renderFilterRow(){
       +'</span>'
     +'</button>'
     +'<button class="f-pill '+fCls+'" data-f="followup">Flag</button>'
-    +'<button class="f-pill f-sent-pill '+sCls+'" data-f="sent">Sent</button>'
-    +'<button class="f-pill-round" id="reviewPairsBtn" title="Review sent-together pairs"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M10 14a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1.5 1.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 10a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1.5-1.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'
-    +'<button class="f-pill-round" id="appVersionBtn" title="Dashboard version">v</button>';
+    +'<button class="f-pill f-sent-pill '+sCls+'" data-f="sent">Sent</button>';
 
   /* Open pill: click label area → all open */
   var pillOpen=document.getElementById('fPillOpen');
@@ -1862,14 +1890,6 @@ function renderFilterRow(){
       selectedIdxs=[];renderFilterRow();renderGuestList();
     });
   });
-  /* Review Pairs — rebuilt into the DOM on every render, so (re)bind here */
-  var reviewBtn=document.getElementById('reviewPairsBtn');
-  var reviewModal=document.getElementById('pairsReviewModal');
-  if(reviewBtn&&reviewModal)reviewBtn.addEventListener('click',function(){renderPairsReview();reviewModal.style.display='flex';});
-  /* Version button — same content shown in Settings → Developer, but one
-     tap right here instead of digging into a drawer. */
-  var versionBtn=document.getElementById('appVersionBtn');
-  if(versionBtn)versionBtn.addEventListener('click',function(){showActivityToast('Dashboard v'+APP_VERSION);});
 }
 
 /* ══ GUEST LIST ══════════════════════════════ */
@@ -2260,65 +2280,6 @@ function renderPairsReview(){
 
   var html='';
 
-  // Manual link panel — for pairing two people the surname/group heuristic
-  // wouldn't catch on its own (different surnames, no shared group, etc).
-  html+='<div style="margin-bottom:10px">'
-    +'<button id="pairsManualToggle" style="width:100%;text-align:left;padding:8px 10px;border-radius:8px;border:1px dashed var(--sky);background:var(--sky-bg);color:var(--sky);font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer">'+(_manualLinkOpen?'− Hide manual link':'+ Link two guests manually')+'</button>';
-  if(_manualLinkOpen){
-    // Progressive: only show the second guest's picker once the first is
-    // chosen — showing two full browse lists stacked at once was the
-    // "way too messy" problem.
-    [1,2].forEach(function(slot){
-      if(slot===2&&!_manualLinkPick[1])return;
-      var picked=_manualLinkPick[slot];
-      html+='<div style="margin-top:8px">'
-        +'<div style="font-size:10px;color:var(--muted);font-family:var(--sans);margin-bottom:3px">'+(slot===1?'First guest':'Second guest')+'</div>'
-        +(picked
-          ? '<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);background:#fff;font-family:var(--sans);font-size:12px;color:var(--ink)"><span>'+picked+'</span><button data-manual-clear="'+slot+'" style="border:none;background:none;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;padding:0 2px">×</button></div>'
-          : '<input type="text" class="pairs-manual-input" data-manual-slot="'+slot+'" placeholder="Search, or pick from the list below…" style="width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);font-family:var(--sans);font-size:12px;box-sizing:border-box;background:#fff;color:var(--ink)">'
-            +'<div class="pairs-manual-results" data-manual-results="'+slot+'" style="margin-top:4px;max-height:140px;overflow-y:auto">'+renderManualPickList('',slot)+'</div>')
-      +'</div>';
-    });
-    if(_manualLinkPick[1]&&_manualLinkPick[2]){
-      html+='<button id="pairsManualLinkBtn" style="margin-top:8px;width:100%;padding:8px;border-radius:8px;border:1px solid var(--green);background:var(--green-bg);color:var(--green);font-family:var(--sans);font-size:12px;font-weight:700;cursor:pointer">Link these two</button>';
-    }
-  }
-  html+='</div>';
-
-  // Kid ↔ parent(s) panel. A child can have up to two parents, which is
-  // why this can't just reuse bulkWith (strictly one-to-one) — it's a
-  // separate field (parentNames) stored on the kid's own guest record.
-  html+='<div style="margin-bottom:10px">'
-    +'<button id="parentLinkToggle" style="width:100%;text-align:left;padding:8px 10px;border-radius:8px;border:1px dashed var(--sky);background:var(--sky-bg);color:var(--sky);font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer">'+(_parentLinkOpen?'− Hide link kid to parent(s)':'+ Link a kid to their parent(s)')+'</button>';
-  if(_parentLinkOpen){
-    html+='<div style="margin-top:6px;font-size:10px;color:var(--muted);font-family:var(--sans)">Kid'+(_parentLinkKids.length>1?'s':'')+(_parentLinkKids.length?' ('+_parentLinkKids.length+')':'')+'</div>';
-    _parentLinkKids.forEach(function(kn){
-      html+='<div style="margin-top:3px;display:flex;align-items:center;justify-content:space-between;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);background:#fff;font-family:var(--sans);font-size:12px;color:var(--ink)"><span>'+kn+'</span><button data-kid-remove="'+kn.replace(/"/g,'&quot;')+'" style="border:none;background:none;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;padding:0 2px">×</button></div>';
-    });
-    html+='<div style="margin-top:3px">'
-      +'<input type="text" id="kidPickInput" placeholder="'+(_parentLinkKids.length?'Add another kid…':'Search, or pick from the list below…')+'" style="width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);font-family:var(--sans);font-size:12px;box-sizing:border-box;background:#fff;color:var(--ink)">'
-      +'<div id="kidPickResults" style="margin-top:4px;max-height:140px;overflow-y:auto">'+renderKidPickList('')+'</div>'
-    +'</div>';
-    // Progressive: parent picker only appears once at least one kid is chosen.
-    if(_parentLinkKids.length){
-    html+='<div style="margin-top:8px;font-size:10px;color:var(--muted);font-family:var(--sans)">Parent'+(_parentLinkParents.length?'s':'')+' ('+_parentLinkParents.length+'/2)</div>';
-    _parentLinkParents.forEach(function(pn){
-      html+='<div style="margin-top:3px;display:flex;align-items:center;justify-content:space-between;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);background:#fff;font-family:var(--sans);font-size:12px;color:var(--ink)"><span>'+pn+'</span><button data-parent-remove="'+pn.replace(/"/g,'&quot;')+'" style="border:none;background:none;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;padding:0 2px">×</button></div>';
-    });
-    if(_parentLinkParents.length<2){
-      html+='<div style="margin-top:3px">'
-        +'<input type="text" id="parentPickInput" placeholder="Search a parent\'s name…" style="width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);font-family:var(--sans);font-size:12px;box-sizing:border-box;background:#fff;color:var(--ink)">'
-        +'<div id="parentPickResults" style="margin-top:4px"></div>'
-      +'</div>';
-    }
-    }
-    var parentLinkReady=_parentLinkKids.length>0&&_parentLinkParents.length>0;
-    if(parentLinkReady){
-      html+='<button id="parentLinkBtn" style="margin-top:8px;width:100%;padding:8px;border-radius:8px;border:1px solid var(--green);background:var(--green-bg);color:var(--green);font-family:var(--sans);font-size:12px;font-weight:700;cursor:pointer">Link '+_parentLinkKids.length+' kid'+(_parentLinkKids.length>1?'s':'')+' to parent'+(_parentLinkParents.length>1?'s':'')+'</button>';
-    }
-  }
-  html+='</div>';
-
   if(missing.length){
     html+='<div style="font-family:var(--sans);font-weight:800;font-size:12px;color:#C9702A;margin:4px 4px 3px">Possible missing links</div>'
         +'<div style="font-family:var(--sans);font-size:10px;color:var(--muted);margin:0 4px 5px">Sent, but no partner recorded — these share a surname or group, so they were likely sent together.</div>';
@@ -2371,6 +2332,73 @@ function renderPairsReview(){
       +'</div>'
     +'</div>';
   });
+
+  // Manual fallback — for when the auto-detection above doesn't catch a
+  // pair (different surnames, no shared group, etc). Placed last since
+  // it's the fallback path, not the first thing most visits need.
+  {
+    html+='<div style="font-family:var(--sans);font-weight:800;font-size:12px;color:var(--ink2);margin:14px 4px 6px">Can\'t find a match? Link manually</div>';
+
+    // Manual link panel — for pairing two people the surname/group heuristic
+    // wouldn't catch on its own (different surnames, no shared group, etc).
+    html+='<div style="margin-bottom:10px">'
+      +'<button id="pairsManualToggle" style="width:100%;text-align:left;padding:8px 10px;border-radius:8px;border:1px dashed var(--sky);background:var(--sky-bg);color:var(--sky);font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer">'+(_manualLinkOpen?'− Hide manual link':'+ Link two guests manually')+'</button>';
+    if(_manualLinkOpen){
+      // Progressive: only show the second guest's picker once the first is
+      // chosen — showing two full browse lists stacked at once was the
+      // "way too messy" problem.
+      [1,2].forEach(function(slot){
+        if(slot===2&&!_manualLinkPick[1])return;
+        var picked=_manualLinkPick[slot];
+        html+='<div style="margin-top:8px">'
+          +'<div style="font-size:10px;color:var(--muted);font-family:var(--sans);margin-bottom:3px">'+(slot===1?'First guest':'Second guest')+'</div>'
+          +(picked
+            ? '<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);background:#fff;font-family:var(--sans);font-size:12px;color:var(--ink)"><span>'+picked+'</span><button data-manual-clear="'+slot+'" style="border:none;background:none;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;padding:0 2px">×</button></div>'
+            : '<input type="text" class="pairs-manual-input" data-manual-slot="'+slot+'" placeholder="Search, or pick from the list below…" style="width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);font-family:var(--sans);font-size:12px;box-sizing:border-box;background:#fff;color:var(--ink)">'
+              +'<div class="pairs-manual-results" data-manual-results="'+slot+'" style="margin-top:4px;max-height:140px;overflow-y:auto">'+renderManualPickList('',slot)+'</div>')
+        +'</div>';
+      });
+      if(_manualLinkPick[1]&&_manualLinkPick[2]){
+        html+='<button id="pairsManualLinkBtn" style="margin-top:8px;width:100%;padding:8px;border-radius:8px;border:1px solid var(--green);background:var(--green-bg);color:var(--green);font-family:var(--sans);font-size:12px;font-weight:700;cursor:pointer">Link these two</button>';
+      }
+    }
+    html+='</div>';
+
+    // Kid ↔ parent(s) panel. A child can have up to two parents, which is
+    // why this can't just reuse bulkWith (strictly one-to-one) — it's a
+    // separate field (parentNames) stored on the kid's own guest record.
+    html+='<div style="margin-bottom:10px">'
+      +'<button id="parentLinkToggle" style="width:100%;text-align:left;padding:8px 10px;border-radius:8px;border:1px dashed var(--sky);background:var(--sky-bg);color:var(--sky);font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer">'+(_parentLinkOpen?'− Hide link kid to parent(s)':'+ Link a kid to their parent(s)')+'</button>';
+    if(_parentLinkOpen){
+      html+='<div style="margin-top:6px;font-size:10px;color:var(--muted);font-family:var(--sans)">Kid'+(_parentLinkKids.length>1?'s':'')+(_parentLinkKids.length?' ('+_parentLinkKids.length+')':'')+'</div>';
+      _parentLinkKids.forEach(function(kn){
+        html+='<div style="margin-top:3px;display:flex;align-items:center;justify-content:space-between;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);background:#fff;font-family:var(--sans);font-size:12px;color:var(--ink)"><span>'+kn+'</span><button data-kid-remove="'+kn.replace(/"/g,'&quot;')+'" style="border:none;background:none;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;padding:0 2px">×</button></div>';
+      });
+      html+='<div style="margin-top:3px">'
+        +'<input type="text" id="kidPickInput" placeholder="'+(_parentLinkKids.length?'Add another kid…':'Search, or pick from the list below…')+'" style="width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);font-family:var(--sans);font-size:12px;box-sizing:border-box;background:#fff;color:var(--ink)">'
+        +'<div id="kidPickResults" style="margin-top:4px;max-height:140px;overflow-y:auto">'+renderKidPickList('')+'</div>'
+      +'</div>';
+      // Progressive: parent picker only appears once at least one kid is chosen.
+      if(_parentLinkKids.length){
+      html+='<div style="margin-top:8px;font-size:10px;color:var(--muted);font-family:var(--sans)">Parent'+(_parentLinkParents.length?'s':'')+' ('+_parentLinkParents.length+'/2)</div>';
+      _parentLinkParents.forEach(function(pn){
+        html+='<div style="margin-top:3px;display:flex;align-items:center;justify-content:space-between;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);background:#fff;font-family:var(--sans);font-size:12px;color:var(--ink)"><span>'+pn+'</span><button data-parent-remove="'+pn.replace(/"/g,'&quot;')+'" style="border:none;background:none;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;padding:0 2px">×</button></div>';
+      });
+      if(_parentLinkParents.length<2){
+        html+='<div style="margin-top:3px">'
+          +'<input type="text" id="parentPickInput" placeholder="Search a parent\'s name…" style="width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);font-family:var(--sans);font-size:12px;box-sizing:border-box;background:#fff;color:var(--ink)">'
+          +'<div id="parentPickResults" style="margin-top:4px"></div>'
+        +'</div>';
+      }
+      }
+      var parentLinkReady=_parentLinkKids.length>0&&_parentLinkParents.length>0;
+      if(parentLinkReady){
+        html+='<button id="parentLinkBtn" style="margin-top:8px;width:100%;padding:8px;border-radius:8px;border:1px solid var(--green);background:var(--green-bg);color:var(--green);font-family:var(--sans);font-size:12px;font-weight:700;cursor:pointer">Link '+_parentLinkKids.length+' kid'+(_parentLinkKids.length>1?'s':'')+' to parent'+(_parentLinkParents.length>1?'s':'')+'</button>';
+      }
+    }
+    html+='</div>';
+  }
+
   document.getElementById('pairsReviewList').innerHTML=html||('<div style="padding:20px;text-align:center;color:var(--muted);font-family:var(--sans);font-size:12px">'+(_pairsReviewQuery?'No matches for "'+_pairsReviewQuery+'".':'No pairs yet.')+'</div>');
 
   var list=document.getElementById('pairsReviewList');
@@ -4119,7 +4147,9 @@ async function deployToGitHub(silent){
   btn.title = 'Deploying...';
 
   try {
+    var deployTime = new Date().toISOString();
     var html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+    html = html.replace(/var APP_DEPLOYED_AT='[^']*';/, "var APP_DEPLOYED_AT='" + deployTime + "';");
     var res = await fetch(workerUrl.replace(/\/$/, '') + '/deploy', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -4131,6 +4161,10 @@ async function deployToGitHub(silent){
     var data = await res.json();
     btn.classList.remove('deploying');
     if(data.ok) {
+      APP_DEPLOYED_AT = deployTime;
+      var stampBtn=document.getElementById('deployStampBtn');
+      if(stampBtn)stampBtn.title='Last deployed: '+formatDeployStamp(APP_DEPLOYED_AT);
+      var vEl=document.getElementById('sAppVersion');if(vEl)vEl.textContent=formatDeployStamp(APP_DEPLOYED_AT);
       btn.classList.add('deployed');
       btn.title = 'Deployed ✓';
       if(!silent) showUndo('Deployed to GitHub ✓ — live in ~60s', function(){});
@@ -4289,7 +4323,7 @@ function closeSettings(){
 }
 
 function loadSettingsIntoUI(){
-  var vEl=document.getElementById('sAppVersion');if(vEl)vEl.textContent='v'+APP_VERSION;
+  var vEl=document.getElementById('sAppVersion');if(vEl)vEl.textContent=formatDeployStamp(APP_DEPLOYED_AT);
   document.getElementById('sNameA').value=appSettings.nameA;
   document.getElementById('sNameE').value=appSettings.nameE;
   document.getElementById('sWeddingDate').value=appSettings.weddingDate;
