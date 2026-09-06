@@ -1368,9 +1368,9 @@ body.lite-mode #liteModeTopBtn {
       <button id="pairsReviewClose" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);line-height:1;padding:0 4px">×</button>
     </div>
     <div id="pairsReviewSub" style="padding:8px 18px;font-family:var(--sans);font-size:11px;color:var(--muted);flex-shrink:0;background:#fff"></div>
-    <div id="pairsReviewTabs" style="display:flex;gap:6px;padding:0 18px 10px;flex-shrink:0;background:#fff">
-      <button id="prTabCouples" class="pr-tab-btn" style="padding:6px 12px;border-radius:100px;border:1px solid var(--parchment);background:var(--ink);color:#fff;font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer">Couples</button>
-      <button id="prTabTree" class="pr-tab-btn" style="padding:6px 12px;border-radius:100px;border:1px solid var(--parchment);background:#fff;color:var(--muted);font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer">Family Tree</button>
+    <div id="pairsReviewTabs" style="display:flex;align-items:center;justify-content:space-between;padding:0 18px 10px;flex-shrink:0;background:#fff">
+      <span style="font-family:var(--sans);font-size:12px;font-weight:700;color:var(--ink2)">Family tree view</span>
+      <label class="s-toggle"><input type="checkbox" id="prTreeToggle"/><span class="s-toggle-track"></span></label>
     </div>
     <div id="pairsReviewSearchWrap" style="padding:0 18px 10px;flex-shrink:0;background:#fff">
       <input id="pairsReviewSearch" type="text" placeholder="Search a name…" style="width:100%;box-sizing:border-box;padding:8px 10px;border:1.5px solid var(--parchment);border-radius:var(--r-sm);font-family:var(--sans);font-size:12px;color:var(--ink);background:var(--cream)"/>
@@ -1929,22 +1929,56 @@ function renderGuestList(){
   var childGuests=guests.filter(function(g){return g.isChild;});
   var sentGuests=guests.filter(function(g){return g.sent;});
 
+  // Nest guests linked via parentNames directly under whichever named
+  // parent is currently in view, instead of leaving them to surface
+  // wherever they happen to fall alphabetically/by group. A child nests
+  // under the first of its parents found among the currently-filtered
+  // guests; if neither parent is in view (e.g. filtered out by search),
+  // it falls back to rendering in its normal spot, untouched.
+  var nameToGuest={};
+  guests.forEach(function(g){nameToGuest[g.name]=g;});
+  var childHost={}; // child's guest name -> host parent's guest name
+  var childrenByHost={}; // host parent's guest name -> [child guests]
+  guests.forEach(function(g){
+    if(!g.parentNames)return;
+    var hostName=_parentNameList(g.parentNames).filter(function(pn){return nameToGuest[pn];})[0];
+    if(!hostName)return;
+    childHost[g.name]=hostName;
+    if(!childrenByHost[hostName])childrenByHost[hostName]=[];
+    childrenByHost[hostName].push(g);
+  });
+  function isNestedElsewhere(g){return!!childHost[g.name];}
+  function nestedChildrenHtml(names){
+    var out=[],seenHere={};
+    names.forEach(function(n){
+      (childrenByHost[n]||[]).forEach(function(kid){
+        if(seenHere[kid.name])return;
+        seenHere[kid.name]=true;out.push(kid);
+      });
+    });
+    if(!out.length)return '';
+    return '<div style="margin:2px 0 8px 20px;padding-left:10px;border-left:2px solid rgba(74,110,168,.22)">'
+      +out.map(function(kid){return buildGuestCard(kid);}).join('')+'</div>';
+  }
+
   var sections={};
   // preserve sorted order when bucketing into groups
-  unsent.forEach(function(g){var grp=g.group||'_';if(!sections[grp])sections[grp]=[];sections[grp].push(g);});
+  unsent.filter(function(g){return!isNestedElsewhere(g);}).forEach(function(g){var grp=g.group||'_';if(!sections[grp])sections[grp]=[];sections[grp].push(g);});
 
   var html='';
   // Sort group keys: '_' first, then alphabetically; within each group preserve sorted order from getFiltered
   var grpKeys=Object.keys(sections).sort(function(a,b){if(a==='_')return-1;if(b==='_')return 1;return a.localeCompare(b);});
   grpKeys.forEach(function(grp){
     if(grp!=='_')html+='<div class="g-group-hdr">'+grp+' <span style="opacity:.4">('+sections[grp].length+')</span></div>';
-    sections[grp].forEach(function(g){html+=buildGuestCard(g);});
+    sections[grp].forEach(function(g){html+=buildGuestCard(g)+nestedChildrenHtml([g.name]);});
   });
 
-  // Children section — no buttons, just names
-  if(childGuests.length){
-    html+='<div class="g-group-hdr children-hdr" style="color:#4A6EA8;border-color:rgba(74,110,168,.2)"><span style="margin-right:5px">&#x1F467;</span>Children <span style="opacity:.4">('+childGuests.length+')</span></div>';
-    childGuests.forEach(function(g){html+=buildGuestCard(g);});
+  // Children section — no buttons, just names. Anyone already nested under
+  // a visible parent above is left out of this flat list.
+  var flatChildGuests=childGuests.filter(function(g){return!isNestedElsewhere(g);});
+  if(flatChildGuests.length){
+    html+='<div class="g-group-hdr children-hdr" style="color:#4A6EA8;border-color:rgba(74,110,168,.2)"><span style="margin-right:5px">&#x1F467;</span>Children <span style="opacity:.4">('+flatChildGuests.length+')</span></div>';
+    flatChildGuests.forEach(function(g){html+=buildGuestCard(g);});
   }
 
   // Sent: always shown individually — one card per guest, no merging — so the
@@ -1963,6 +1997,7 @@ function renderGuestList(){
       sentGuests.forEach(function(g){
         var ri=importQueue.indexOf(g);
         if(mergedSeen[ri])return;
+        if(isNestedElsewhere(g))return; // renders nested under its host parent instead
         var partnerObj=g.bulkWith?importQueue.find(function(o){return o.name===g.bulkWith;}):null;
         var partnerInSentList=partnerObj&&sentGuests.indexOf(partnerObj)!==-1;
         var pKey=partnerObj?pairKey(g.name,partnerObj.name):null;
@@ -1970,9 +2005,9 @@ function renderGuestList(){
         if(isConfirmedPair){
           var partnerRi=importQueue.indexOf(partnerObj);
           mergedSeen[partnerRi]=true;
-          html+='<div class="g-pair-merged">'+buildGuestCard(g,'top')+buildGuestCard(partnerObj,'bottom')+'</div>';
+          html+='<div class="g-pair-merged">'+buildGuestCard(g,'top')+buildGuestCard(partnerObj,'bottom')+'</div>'+nestedChildrenHtml([g.name,partnerObj.name]);
         } else {
-          html+=buildGuestCard(g);
+          html+=buildGuestCard(g)+nestedChildrenHtml([g.name]);
         }
       });
       html+='<button class="show-sent-btn" id="showSentBtn">Hide sent</button>';
@@ -2362,14 +2397,8 @@ function renderFamilyTree(){
   document.getElementById('pairsReviewList').innerHTML=html;
 }
 function renderPairsReview(){
-  var couplesTab=document.getElementById('prTabCouples');
-  var treeTab=document.getElementById('prTabTree');
-  if(couplesTab&&treeTab){
-    var activeStyle='background:var(--ink);color:#fff;border-color:var(--ink)';
-    var inactiveStyle='background:#fff;color:var(--muted);border-color:var(--parchment)';
-    couplesTab.style.cssText='padding:6px 12px;border-radius:100px;border:1px solid;font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer;'+(_pairsReviewTab==='couples'?activeStyle:inactiveStyle);
-    treeTab.style.cssText='padding:6px 12px;border-radius:100px;border:1px solid;font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer;'+(_pairsReviewTab==='tree'?activeStyle:inactiveStyle);
-  }
+  var treeToggle=document.getElementById('prTreeToggle');
+  if(treeToggle)treeToggle.checked=(_pairsReviewTab==='tree');
   if(_pairsReviewTab==='tree'){
     var searchWrap0=document.getElementById('pairsReviewSearchWrap');
     if(searchWrap0)searchWrap0.style.display='';
@@ -2809,18 +2838,14 @@ function renderPairsReview(){
   var modal=document.getElementById('pairsReviewModal');
   var closeBtn=document.getElementById('pairsReviewClose');
   var searchInput=document.getElementById('pairsReviewSearch');
-  var tabCouples=document.getElementById('prTabCouples');
-  var tabTree=document.getElementById('prTabTree');
+  var tabCouples=document.getElementById('prTreeToggle');
   if(closeBtn)closeBtn.addEventListener('click',function(){modal.style.display='none';searchInput.value='';_pairsReviewQuery='';});
   if(modal)modal.addEventListener('click',function(e){if(e.target===modal)modal.style.display='none';});
   if(searchInput)searchInput.addEventListener('input',function(){_pairsReviewQuery=this.value.trim();renderPairsReview();});
-  if(tabCouples)tabCouples.addEventListener('click',function(){
-    if(_pairsReviewTab==='couples')return;
-    _pairsReviewTab='couples';searchInput.value='';_pairsReviewQuery='';renderPairsReview();
-  });
-  if(tabTree)tabTree.addEventListener('click',function(){
-    if(_pairsReviewTab==='tree')return;
-    _pairsReviewTab='tree';searchInput.value='';_pairsReviewQuery='';searchInput.placeholder='Search a name…';renderPairsReview();
+  if(tabCouples)tabCouples.addEventListener('change',function(){
+    _pairsReviewTab=this.checked?'tree':'couples';
+    searchInput.value='';_pairsReviewQuery='';
+    renderPairsReview();
   });
 })();
 
