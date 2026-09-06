@@ -2240,17 +2240,27 @@ function renderPairsReview(){
     var partnerName=p.partner?p.partner.name:p.g.bulkWith;
     var pKey=pairKey(p.g.name,partnerName);
     var isConfirmed=!!_confirmedPairs[pKey];
+    // "Confirm" only makes sense for a pair that's ALREADY linked correctly
+    // on both sides — it silences a benign warning (e.g. different phone
+    // numbers), it never creates or repairs a link. A broken/one-sided or
+    // dangling link needs Relink/Unlink instead; confirming it would just
+    // hide the warning while the underlying data stays wrong.
+    var isBroken=p.reasons.some(function(r){return r.indexOf('one-directional')!==-1||r.indexOf('no longer in list')!==-1;});
     var flagHtml=isConfirmed
       ? '<div style="margin-top:4px;font-size:10px;color:var(--green);font-weight:600">✓ confirmed by you — won\'t be flagged again</div>'
       : (p.reasons.length
         ? '<div style="margin-top:4px;font-size:10px;color:#b91c1c;font-weight:700">⚠ '+p.reasons.join(' · ')+'</div>'
         : '<div style="margin-top:4px;font-size:10px;color:var(--green);font-weight:600">looks consistent</div>');
+    var confirmBtnHtml=isBroken
+      ? '<button disabled title="This link is actually broken — use Relink to… to fix it, not Confirm" style="flex-shrink:0;padding:3px 8px;border-radius:100px;border:1px solid var(--parchment);background:var(--parchment);color:var(--muted);font-family:var(--sans);font-size:10px;font-weight:700;cursor:not-allowed;white-space:nowrap">Confirm</button>'
+      : '<button data-pr-action="'+(isConfirmed?'unconfirm':'confirm')+'" data-pr="'+idx+'" title="'+(isConfirmed?'Stop treating as confirmed':'Confirm this pair is correct — stop flagging it')+'" style="flex-shrink:0;padding:3px 8px;border-radius:100px;border:1px solid '+(isConfirmed?'var(--green)':'var(--parchment)')+';background:'+(isConfirmed?'var(--green-bg)':'#fff')+';color:'+(isConfirmed?'var(--green)':'var(--muted)')+';font-family:var(--sans);font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap">'+(isConfirmed?'✓ Confirmed':'Confirm')+'</button>';
     html+='<div class="pr-row" data-pr="'+idx+'" style="padding:8px;margin-bottom:6px;border-radius:10px;background:var(--cream)">'
       +'<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">'
         +'<div style="font-family:var(--sans);font-size:13px;font-weight:700;color:var(--ink)">'+p.g.name+' &harr; '+partnerName+'</div>'
-        +'<button data-pr-action="'+(isConfirmed?'unconfirm':'confirm')+'" data-pr="'+idx+'" title="'+(isConfirmed?'Stop treating as confirmed':'Confirm this pair is correct — stop flagging it')+'" style="flex-shrink:0;padding:3px 8px;border-radius:100px;border:1px solid '+(isConfirmed?'var(--green)':'var(--parchment)')+';background:'+(isConfirmed?'var(--green-bg)':'#fff')+';color:'+(isConfirmed?'var(--green)':'var(--muted)')+';font-family:var(--sans);font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap">'+(isConfirmed?'✓ Confirmed':'Confirm')+'</button>'
+        +confirmBtnHtml
       +'</div>'
       +flagHtml
+      +(isBroken?'<div style="margin-top:3px;font-size:10px;color:var(--sky);font-weight:600">Use Relink to… below to actually fix this</div>':'')
       +'<div style="display:flex;gap:8px;margin-top:5px">'
         +'<button data-pr-action="unlink" data-pr="'+idx+'" style="flex:1;padding:7px;border-radius:8px;border:1px solid #b91c1c;background:#fde8e8;color:#b91c1c;font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer">Unlink</button>'
         +'<button data-pr-action="relink" data-pr="'+idx+'" style="flex:1;padding:7px;border-radius:8px;border:1px solid var(--parchment);background:#fff;color:var(--ink2);font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer">Relink to…</button>'
