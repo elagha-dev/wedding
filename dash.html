@@ -251,6 +251,12 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 
 /* ── GUEST CARD ── */
 .guest-list{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+/* Confirmed-pair merge: two guest cards drawn as one unit, divided by a
+   hairline instead of the usual gap+shadow+rounded-corners-on-both. */
+.g-pair-merged{display:flex;flex-direction:column;border-radius:var(--r-sm);overflow:hidden;box-shadow:var(--shadow-sm)}
+.g-pair-merged .g-swipe-wrap{box-shadow:none;border-radius:0}
+.g-pair-merged .g-swipe-wrap .g-card{border-radius:0}
+.g-pair-merged .g-swipe-wrap:last-child{border-top:1px solid rgba(0,0,0,.06)}
 .g-group-hdr{font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);padding:6px 2px 5px;display:flex;align-items:center;gap:8px;scroll-margin-top:200px}
 .g-group-hdr::after{content:'';flex:1;height:1px;background:var(--parchment)}
 .guest-list{padding-top:2px;margin-top:0}
@@ -782,6 +788,9 @@ body.lite-mode #liteModeTopBtn {
 
 <div class="topbar">
  <div class="topbar-inner">
+  <!-- Tiny deploy stamp — lives in the sticky topbar so it's never hidden
+       behind the browser's own bottom toolbar. Tap for last-deployed date/time. -->
+  <button id="deployStampBtn" title="Last deployed" style="flex-shrink:0;width:7px;height:7px;border-radius:50%;border:none;background:var(--muted);opacity:.35;cursor:pointer;padding:0;margin-right:2px;transition:opacity .15s"></button>
   <!-- Lite mode toggle switch -->
   <button id="liteModeTopBtn" title="Toggle Lite Mode" style="flex-shrink:0;display:none;align-items:center;justify-content:center;width:20px;height:32px;border-radius:10px;border:none;background:var(--parchment);cursor:pointer;padding:0;position:relative;transition:background .25s">
     <span id="liteModeThumb" style="position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.18);transition:transform .25s;display:block"></span>
@@ -800,8 +809,8 @@ body.lite-mode #liteModeTopBtn {
   </button>
   <!-- Stats -->
   <div class="stat-pill total" id="ovTotal" title="Total guests" style="cursor:pointer">0</div>
-  <button id="reviewPairsBtn" title="Review sent-together pairs" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;border:none;background:var(--parchment);color:var(--ink2);cursor:pointer;padding:0"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></button>
   <div class="stat-pill sent" id="ovSent" title="Sent" style="cursor:pointer">0</div>
+  <button id="reviewPairsBtn" title="Review sent-together pairs" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;border:none;background:var(--amber-bg);color:var(--amber);cursor:pointer;padding:0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></button>
   <div class="stat-pill new-guests" id="ovNew" title="New since last sync" style="display:none"></div>
   <!-- spacer -->
   <div style="flex:1"></div>
@@ -1366,8 +1375,6 @@ body.lite-mode #liteModeTopBtn {
   </div>
 </div>
 <div id="undoToast"><span id="undoToastMsg">Marked as sent</span><button id="undoToastBtn">Undo</button></div>
-<!-- Tiny, near-invisible deploy stamp — bottom-left, tap for last-deployed date/time -->
-<button id="deployStampBtn" title="Last deployed" style="position:fixed;left:8px;bottom:8px;width:9px;height:9px;border-radius:50%;border:none;background:var(--muted);opacity:.3;cursor:pointer;padding:0;z-index:400;transition:opacity .15s"></button>
 <!-- VERSION STAMP -->
 
 <script>
@@ -1945,7 +1952,25 @@ function renderGuestList(){
       html+='<div class="g-group-hdr sent sent-with-stats"><span style="flex-shrink:0">Sent ('+sentGuests.length+')</span>'
         + '<span style="flex:1;height:1px;background:var(--parchment);display:inline-block;min-width:8px"></span>'
         + entriesCluster(sentGuests.length, sentYes, sentNo, false) + '</div>';
-      sentGuests.forEach(function(g){html+=buildGuestCard(g);});
+      // Pairs you've explicitly confirmed in Review Pairs collapse into one
+      // merged card — everyone else (pending / unreviewed / suspicious)
+      // stays as two separate cards so anything unresolved stays visible.
+      var mergedSeen={};
+      sentGuests.forEach(function(g){
+        var ri=importQueue.indexOf(g);
+        if(mergedSeen[ri])return;
+        var partnerObj=g.bulkWith?importQueue.find(function(o){return o.name===g.bulkWith;}):null;
+        var partnerInSentList=partnerObj&&sentGuests.indexOf(partnerObj)!==-1;
+        var pKey=partnerObj?pairKey(g.name,partnerObj.name):null;
+        var isConfirmedPair=partnerInSentList&&pKey&&_confirmedPairs[pKey];
+        if(isConfirmedPair){
+          var partnerRi=importQueue.indexOf(partnerObj);
+          mergedSeen[partnerRi]=true;
+          html+='<div class="g-pair-merged">'+buildGuestCard(g,'top')+buildGuestCard(partnerObj,'bottom')+'</div>';
+        } else {
+          html+=buildGuestCard(g);
+        }
+      });
       html+='<button class="show-sent-btn" id="showSentBtn">Hide sent</button>';
     } else {
       html+='<button class="show-sent-btn" id="showSentBtn">Show '+sentGuests.length+' sent</button>';
@@ -2079,7 +2104,7 @@ function buildPairSentCard(g1,g2){
       +'<div class="g-inner">'
         +'<div class="g-inner-left">'
           +'<div class="g-main">'
-            +'<div class="g-name-row" style="flex-wrap:wrap"><span class="g-name" style="font-size:15px;flex-shrink:0">'+pairName+'</span>'+pillWrapPair+'</div>'
+            +'<div class="g-name-row" style="flex-wrap:wrap"><span class="g-name" style="font-size:15px;flex:0 1 auto">'+pairName+'</span>'+pillWrapPair+'</div>'
             +debugTagPair
           +'</div>'
         +'</div>'
@@ -2965,7 +2990,7 @@ function getGuestRsvpYesNo(g){
   return info.isYes ? true : (info.isNo ? false : null);
 }
 
-function buildGuestCard(g){
+function buildGuestCard(g, mergedPairPos){
   var ri=importQueue.indexOf(g);
   var isSel=selectedIdxs.indexOf(ri)>-1;
   var isPending=g.pendingSent&&!g.sent;
@@ -3025,7 +3050,7 @@ function buildGuestCard(g){
        relationship and the other side's status are still worth surfacing.
        Clicking it jumps to and briefly highlights the partner's card. */
     var partnerRefHtml='';
-    if(g.bulkWith){
+    if(g.bulkWith&&!mergedPairPos){
       var partnerGuestObj=importQueue.find(function(o){return o.name===g.bulkWith;});
       if(partnerGuestObj){
         var partnerRi=importQueue.indexOf(partnerGuestObj);
@@ -3069,7 +3094,7 @@ function buildGuestCard(g){
         +'<div class="g-inner">'
           +'<div class="g-inner-left">'
             +'<div class="g-main">'
-              +'<div class="g-name-row" style="flex-wrap:wrap"><span class="g-name" style="font-size:15px;flex-shrink:0">'+g.name+'</span>'+pillWrap+'</div>'
+              +'<div class="g-name-row" style="flex-wrap:wrap"><span class="g-name" style="font-size:15px;flex:0 1 auto">'+g.name+'</span>'+pillWrap+'</div>'
               +partnerRefHtml
               +parentRefHtml
               +debugTag
