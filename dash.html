@@ -35,6 +35,7 @@
   --green:#3A8C5C;--green-bg:#E8F5EE;
   --amber:#B07830;--amber-bg:#FEF3E0;
   --red:#C0402E;--red-bg:#FDECEA;
+  --sky:#5E85A8;--sky-bg:#EAF1F7;
   --arina-bg:#FDE8EE;--arina-txt:#9B1A44;
   --arina-border:rgba(155,26,68,.3);
   --elnur-bg:#FEF0DA;--elnur-txt:#8A4A00;
@@ -234,8 +235,9 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 
 /* ── SORT BUTTON ── */
 .sort-btn{flex-shrink:0;padding:0 12px;height:auto;border:1.5px solid var(--parchment);border-radius:var(--r-sm);background:var(--cream);color:var(--muted);font-family:var(--sans);font-size:11px;font-weight:600;cursor:pointer;transition:all var(--ease);white-space:nowrap;display:flex;align-items:center;gap:5px}
-.f-pill-round{flex-shrink:0;width:26px;height:26px;padding:0;border-radius:50%;border:1.5px solid #C9702A;background:var(--cream);color:#C9702A;font-family:var(--sans);font-size:12px;font-weight:800;cursor:pointer;transition:all var(--ease);display:flex;align-items:center;justify-content:center}
-.f-pill-round:hover{background:#C9702A;color:#fff}
+.f-pill-round{flex-shrink:0;width:26px;height:26px;padding:0;border-radius:50%;border:1.5px solid var(--sky);background:var(--sky-bg);color:var(--sky);font-family:var(--sans);font-size:12px;font-weight:800;cursor:pointer;transition:all var(--ease);display:flex;align-items:center;justify-content:center}
+.f-pill-round:hover{background:var(--sky);color:#fff}
+.f-pill-round svg{display:block}
 .sort-btn:hover{border-color:var(--blush);color:var(--ink2)}
 .sort-btn.on{border-color:var(--rose);color:var(--rose-deep);background:var(--rose-soft)}
 /* ── BULK BAR ── */
@@ -1821,7 +1823,7 @@ function renderFilterRow(){
     +'</button>'
     +'<button class="f-pill '+fCls+'" data-f="followup">Flag</button>'
     +'<button class="f-pill f-sent-pill '+sCls+'" data-f="sent">Sent</button>'
-    +'<button class="f-pill-round" id="reviewPairsBtn" title="Review sent-together pairs">?</button>';
+    +'<button class="f-pill-round" id="reviewPairsBtn" title="Review sent-together pairs"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M10 14a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1.5 1.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 10a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1.5-1.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>';
 
   /* Open pill: click label area → all open */
   var pillOpen=document.getElementById('fPillOpen');
@@ -2160,7 +2162,7 @@ function renderPairsReview(){
     html+='<div style="font-family:var(--sans);font-weight:800;font-size:12px;color:#C9702A;margin:4px 4px 3px">Possible missing links</div>'
         +'<div style="font-family:var(--sans);font-size:10px;color:var(--muted);margin:0 4px 5px">Sent, but no partner recorded — these share a surname or group, so they were likely sent together.</div>';
     missing.forEach(function(m,idx){
-      html+='<div class="pr-missing-row" style="padding:6px 6px;border-bottom:1px solid var(--parchment);background:#fff">'
+      html+='<div class="pr-missing-row" style="padding:8px;margin-bottom:6px;border-radius:10px;background:var(--cream)">'
         +'<div style="font-family:var(--sans);font-size:13px;font-weight:700;color:var(--ink)">'+m.g.name+' &harr; '+m.partner.name+'</div>'
         +'<div style="margin-top:2px;font-size:10px;color:#C9702A;font-weight:600">'+m.via+'</div>'
         +'<div style="display:flex;gap:8px;margin-top:5px">'
@@ -2177,7 +2179,7 @@ function renderPairsReview(){
     var flagHtml=p.reasons.length
       ? '<div style="margin-top:4px;font-size:10px;color:#b91c1c;font-weight:700">⚠ '+p.reasons.join(' · ')+'</div>'
       : '<div style="margin-top:4px;font-size:10px;color:var(--green);font-weight:600">looks consistent</div>';
-    html+='<div class="pr-row" data-pr="'+idx+'" style="padding:6px 6px;border-bottom:1px solid var(--parchment);background:#fff">'
+    html+='<div class="pr-row" data-pr="'+idx+'" style="padding:8px;margin-bottom:6px;border-radius:10px;background:var(--cream)">'
       +'<div style="font-family:var(--sans);font-size:13px;font-weight:700;color:var(--ink)">'+p.g.name+' &harr; '+partnerName+'</div>'
       +flagHtml
       +'<div style="display:flex;gap:8px;margin-top:5px">'
