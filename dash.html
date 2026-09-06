@@ -2158,16 +2158,31 @@ var _manualLinkPick={1:null,2:null}; // selected guest names for the two manual-
 function renderManualPickList(query,slot){
   var otherSlot=slot==='1'?'2':'1';
   var q=(query||'').trim().toLowerCase();
+  var nameMatches=function(o){return (o.name||'').toLowerCase().indexOf(q)!==-1;};
+  // Always unlinked-only — this panel is for pairing people who don't have
+  // a partner recorded yet. Already-linked guests are excluded even while
+  // searching; if a search only turns up linked people, say who they're
+  // already linked to instead of just showing an empty list.
   var pool=importQueue.filter(function(o){
     if(o.name===_manualLinkPick[otherSlot])return false;
-    if(q)return (o.name||'').toLowerCase().indexOf(q)!==-1;
-    return !o.bulkWith; // no query yet — show only unlinked guests to browse
+    if(o.bulkWith)return false;
+    if(q)return nameMatches(o);
+    return true;
   }).sort(function(a,b){return (a.name||'').localeCompare(b.name||'');});
   if(!pool.length){
-    return '<div style="padding:6px 8px;font-family:var(--sans);font-size:11px;color:var(--muted)">'+(q?'No matches.':'Everyone else is already linked.')+'</div>';
+    if(q){
+      var linkedMatches=importQueue.filter(function(o){return o.bulkWith&&o.name!==_manualLinkPick[otherSlot]&&nameMatches(o);}).slice(0,4);
+      if(linkedMatches.length){
+        return '<div style="padding:6px 8px;font-family:var(--sans);font-size:11px;color:var(--muted)">Already linked: '
+          +linkedMatches.map(function(o){return o.name+' &harr; '+o.bulkWith;}).join(', ')
+          +'</div>';
+      }
+      return '<div style="padding:6px 8px;font-family:var(--sans);font-size:11px;color:var(--muted)">No matches.</div>';
+    }
+    return '<div style="padding:6px 8px;font-family:var(--sans);font-size:11px;color:var(--muted)">Everyone else is already linked.</div>';
   }
   return pool.map(function(m){
-    return '<button data-manual-pick="'+slot+'" data-manual-pick-name="'+m.name.replace(/"/g,'&quot;')+'" style="display:block;width:100%;text-align:left;padding:6px 8px;margin-top:3px;border-radius:6px;border:1px solid var(--parchment);background:#fff;color:var(--ink);font-family:var(--sans);font-size:12px;cursor:pointer">'+m.name+(m.bulkWith?' <span style="color:var(--muted);font-size:10px">(currently &harr; '+m.bulkWith+')</span>':'')+'</button>';
+    return '<button data-manual-pick="'+slot+'" data-manual-pick-name="'+m.name.replace(/"/g,'&quot;')+'" style="display:block;width:100%;text-align:left;padding:6px 8px;margin-top:3px;border-radius:6px;border:1px solid var(--parchment);background:#fff;color:var(--ink);font-family:var(--sans);font-size:12px;cursor:pointer">'+m.name+'</button>';
   }).join('');
 }
 function renderPairsReview(){
