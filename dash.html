@@ -2116,6 +2116,14 @@ function auditPairs(){
 function isKidsGroup(g){ return !!(g&&g.group&&/\bkids?\b/i.test(g.group)); }
 function _loadDismissedMissingPairs(){try{return JSON.parse(localStorage.getItem('ww_dismissed_pairs')||'{}');}catch(e){return{};}}
 function _saveDismissedMissingPairs(){try{localStorage.setItem('ww_dismissed_pairs',JSON.stringify(_dismissedMissingPairs));}catch(e){}}
+// Pairs the user has explicitly confirmed as correct — e.g. a real couple
+// who just happen to have different phone numbers on file. Confirming
+// stops that pair from being counted/flagged as "suspicious" on every
+// future visit to Review Pairs, without touching the underlying data.
+function _loadConfirmedPairs(){try{return JSON.parse(localStorage.getItem('ww_confirmed_pairs')||'{}');}catch(e){return{};}}
+function _saveConfirmedPairs(){try{localStorage.setItem('ww_confirmed_pairs',JSON.stringify(_confirmedPairs));}catch(e){}}
+var _confirmedPairs=_loadConfirmedPairs();
+function pairKey(n1,n2){return [n1,n2].sort().join('::');}
 // Previously only an in-memory object — every reload (or even just closing
 // and reopening the modal after a sync) wiped it, so "Not a pair" never
 // actually stuck and the same kid/family suggestions kept resurfacing.
@@ -2141,6 +2149,8 @@ function auditMissingPairs(){
 }
 
 var _pairsReviewQuery='';
+var _manualLinkOpen=false;
+var _manualLinkPick={1:null,2:null}; // selected guest names for the two manual-link slots
 function renderPairsReview(){
   var allPairs=auditPairs();
   var allMissing=auditMissingPairs();
@@ -2151,12 +2161,30 @@ function renderPairsReview(){
     pairs=allPairs.filter(matchPair);
     missing=allMissing.filter(function(m){return m.g.name.toLowerCase().indexOf(q)!==-1||m.partner.name.toLowerCase().indexOf(q)!==-1;});
   }
-  var sus=allPairs.filter(function(p){return p.reasons.length;});
+  var sus=allPairs.filter(function(p){var partnerName=p.partner?p.partner.name:p.g.bulkWith;return p.reasons.length&&!_confirmedPairs[pairKey(p.g.name,partnerName)];});
   document.getElementById('pairsReviewSub').textContent=allPairs.length
     ? sus.length+' of '+allPairs.length+' existing pairs look suspicious'+(allMissing.length?' · '+allMissing.length+' possible missing link'+(allMissing.length>1?'s':''):'')+(_pairsReviewQuery?' · showing matches for "'+_pairsReviewQuery+'"':'')+'.'
     : (allMissing.length?allMissing.length+' possible missing link'+(allMissing.length>1?'s':'')+' found.':'No sent-together pairs found yet.');
 
   var html='';
+
+  // Manual link panel — for pairing two people the surname/group heuristic
+  // wouldn't catch on its own (different surnames, no shared group, etc).
+  html+='<div style="margin-bottom:10px">'
+    +'<button id="pairsManualToggle" style="width:100%;text-align:left;padding:8px 10px;border-radius:8px;border:1px dashed var(--sky);background:var(--sky-bg);color:var(--sky);font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer">'+(_manualLinkOpen?'− Hide manual link':'+ Link two guests manually')+'</button>';
+  if(_manualLinkOpen){
+    [1,2].forEach(function(slot){
+      var picked=_manualLinkPick[slot];
+      html+='<div style="margin-top:6px;position:relative">'
+        +(picked
+          ? '<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);background:#fff;font-family:var(--sans);font-size:12px;color:var(--ink)"><span>'+picked+'</span><button data-manual-clear="'+slot+'" style="border:none;background:none;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;padding:0 2px">×</button></div>'
+          : '<input type="text" class="pairs-manual-input" data-manual-slot="'+slot+'" placeholder="Guest '+slot+'\'s name…" style="width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);font-family:var(--sans);font-size:12px;box-sizing:border-box;background:#fff;color:var(--ink)">'
+            +'<div class="pairs-manual-results" data-manual-results="'+slot+'" style="margin-top:4px"></div>')
+      +'</div>';
+    });
+    html+='<button id="pairsManualLinkBtn" '+((_manualLinkPick[1]&&_manualLinkPick[2])?'':'disabled')+' style="margin-top:8px;width:100%;padding:8px;border-radius:8px;border:1px solid var(--green);background:'+((_manualLinkPick[1]&&_manualLinkPick[2])?'var(--green-bg)':'var(--parchment)')+';color:'+((_manualLinkPick[1]&&_manualLinkPick[2])?'var(--green)':'var(--muted)')+';font-family:var(--sans);font-size:12px;font-weight:700;cursor:'+((_manualLinkPick[1]&&_manualLinkPick[2])?'pointer':'not-allowed')+'">Link these two</button>';
+  }
+  html+='</div>';
 
   if(missing.length){
     html+='<div style="font-family:var(--sans);font-weight:800;font-size:12px;color:#C9702A;margin:4px 4px 3px">Possible missing links</div>'
@@ -2176,11 +2204,18 @@ function renderPairsReview(){
 
   pairs.forEach(function(p,idx){
     var partnerName=p.partner?p.partner.name:p.g.bulkWith;
-    var flagHtml=p.reasons.length
-      ? '<div style="margin-top:4px;font-size:10px;color:#b91c1c;font-weight:700">⚠ '+p.reasons.join(' · ')+'</div>'
-      : '<div style="margin-top:4px;font-size:10px;color:var(--green);font-weight:600">looks consistent</div>';
+    var pKey=pairKey(p.g.name,partnerName);
+    var isConfirmed=!!_confirmedPairs[pKey];
+    var flagHtml=isConfirmed
+      ? '<div style="margin-top:4px;font-size:10px;color:var(--green);font-weight:600">✓ confirmed by you — won\'t be flagged again</div>'
+      : (p.reasons.length
+        ? '<div style="margin-top:4px;font-size:10px;color:#b91c1c;font-weight:700">⚠ '+p.reasons.join(' · ')+'</div>'
+        : '<div style="margin-top:4px;font-size:10px;color:var(--green);font-weight:600">looks consistent</div>');
     html+='<div class="pr-row" data-pr="'+idx+'" style="padding:8px;margin-bottom:6px;border-radius:10px;background:var(--cream)">'
-      +'<div style="font-family:var(--sans);font-size:13px;font-weight:700;color:var(--ink)">'+p.g.name+' &harr; '+partnerName+'</div>'
+      +'<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">'
+        +'<div style="font-family:var(--sans);font-size:13px;font-weight:700;color:var(--ink)">'+p.g.name+' &harr; '+partnerName+'</div>'
+        +'<button data-pr-action="'+(isConfirmed?'unconfirm':'confirm')+'" data-pr="'+idx+'" title="'+(isConfirmed?'Stop treating as confirmed':'Confirm this pair is correct — stop flagging it')+'" style="flex-shrink:0;padding:3px 8px;border-radius:100px;border:1px solid '+(isConfirmed?'var(--green)':'var(--parchment)')+';background:'+(isConfirmed?'var(--green-bg)':'#fff')+';color:'+(isConfirmed?'var(--green)':'var(--muted)')+';font-family:var(--sans);font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap">'+(isConfirmed?'✓ Confirmed':'Confirm')+'</button>'
+      +'</div>'
       +flagHtml
       +'<div style="display:flex;gap:8px;margin-top:5px">'
         +'<button data-pr-action="unlink" data-pr="'+idx+'" style="flex:1;padding:7px;border-radius:8px;border:1px solid #b91c1c;background:#fde8e8;color:#b91c1c;font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer">Unlink</button>'
@@ -2196,16 +2231,92 @@ function renderPairsReview(){
   document.getElementById('pairsReviewList').innerHTML=html||('<div style="padding:20px;text-align:center;color:var(--muted);font-family:var(--sans);font-size:12px">'+(_pairsReviewQuery?'No matches for "'+_pairsReviewQuery+'".':'No pairs yet.')+'</div>');
 
   var list=document.getElementById('pairsReviewList');
+  var manualToggle=document.getElementById('pairsManualToggle');
+  if(manualToggle)manualToggle.addEventListener('click',function(){
+    _manualLinkOpen=!_manualLinkOpen;
+    if(!_manualLinkOpen)_manualLinkPick={1:null,2:null};
+    renderPairsReview();
+  });
+  list.querySelectorAll('[data-manual-clear]').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      _manualLinkPick[this.dataset.manualClear]=null;
+      renderPairsReview();
+    });
+  });
+  list.querySelectorAll('.pairs-manual-input').forEach(function(input){
+    input.addEventListener('input',function(){
+      var slot=this.dataset.manualSlot;
+      var otherSlot=slot==='1'?'2':'1';
+      var q=this.value.trim().toLowerCase();
+      var resultsEl=list.querySelector('[data-manual-results="'+slot+'"]');
+      if(!q){resultsEl.innerHTML='';return;}
+      var matches=importQueue.filter(function(o){
+        return o.name!==_manualLinkPick[otherSlot] && (o.name||'').toLowerCase().indexOf(q)!==-1;
+      }).slice(0,6);
+      resultsEl.innerHTML=matches.map(function(m){
+        return '<button data-manual-pick="'+slot+'" data-manual-pick-name="'+m.name.replace(/"/g,'&quot;')+'" style="display:block;width:100%;text-align:left;padding:6px 8px;margin-top:3px;border-radius:6px;border:1px solid var(--parchment);background:#fff;color:var(--ink);font-family:var(--sans);font-size:12px;cursor:pointer">'+m.name+(m.bulkWith?' <span style="color:var(--muted);font-size:10px">(currently &harr; '+m.bulkWith+')</span>':'')+'</button>';
+      }).join('');
+      resultsEl.querySelectorAll('[data-manual-pick]').forEach(function(pickBtn){
+        pickBtn.addEventListener('click',function(){
+          _manualLinkPick[this.dataset.manualPick]=this.dataset.manualPickName;
+          renderPairsReview();
+        });
+      });
+    });
+  });
+  var manualLinkBtn=document.getElementById('pairsManualLinkBtn');
+  if(manualLinkBtn)manualLinkBtn.addEventListener('click',function(){
+    var n1=_manualLinkPick[1],n2=_manualLinkPick[2];
+    if(!n1||!n2||n1===n2)return;
+    var g1=importQueue.find(function(o){return o.name===n1;});
+    var g2=importQueue.find(function(o){return o.name===n2;});
+    if(!g1||!g2)return;
+    // If either was already linked to someone else, detach that old
+    // reciprocal link first (only if it actually points back — same
+    // stale-link guard used everywhere else in this modal).
+    var toPush=[];
+    [g1,g2].forEach(function(g){
+      if(g.bulkWith&&g.bulkWith!==g1.name&&g.bulkWith!==g2.name){
+        var oldMate=importQueue.find(function(o){return o.name===g.bulkWith;});
+        if(oldMate&&oldMate.bulkWith===g.name){
+          delete _confirmedPairs[pairKey(g.name,oldMate.name)];
+          oldMate.bulkWith='';oldMate.sentGroupId='';
+          toPush.push(oldMate);
+        }
+      }
+    });
+    var groupId=Date.now().toString(36);
+    g1.bulkWith=g2.name;g1.sentGroupId=groupId;
+    g2.bulkWith=g1.name;g2.sentGroupId=groupId;
+    _confirmedPairs[pairKey(g1.name,g2.name)]=true;_saveConfirmedPairs();
+    toPush.push(g1,g2);
+    _manualLinkPick={1:null,2:null};
+    saveGuestMeta();renderGuestList();renderPairsReview();
+    (function pushNext(){var g=toPush.shift();if(!g)return;pushMetaToWorker(g).then(pushNext);})();
+  });
   list.querySelectorAll('[data-pm-action="link"]').forEach(function(btn){
     btn.addEventListener('click',function(){
       var m=missing[parseInt(this.dataset.pmIdx)];
       var groupId=Date.now().toString(36);
       m.g.bulkWith=m.partner.name;m.g.sentGroupId=groupId;
       m.partner.bulkWith=m.g.name;m.partner.sentGroupId=groupId;
+      // You just verified this pairing by hand — treat it as confirmed so
+      // it doesn't turn around and show up as "suspicious" next time.
+      _confirmedPairs[pairKey(m.g.name,m.partner.name)]=true;_saveConfirmedPairs();
       saveGuestMeta();renderGuestList();renderPairsReview();
       // Sequential, not parallel — see _pushWithRetry notes on why firing
       // both saves at once can let one silently overwrite the other.
       pushMetaToWorker(m.g).then(function(){pushMetaToWorker(m.partner);});
+    });
+  });
+  list.querySelectorAll('[data-pr-action="confirm"],[data-pr-action="unconfirm"]').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var p=pairs[parseInt(this.dataset.pr)];
+      var partnerName=p.partner?p.partner.name:p.g.bulkWith;
+      var key=pairKey(p.g.name,partnerName);
+      if(this.dataset.prAction==='confirm')_confirmedPairs[key]=true;else delete _confirmedPairs[key];
+      _saveConfirmedPairs();
+      renderPairsReview();
     });
   });
   list.querySelectorAll('[data-pm-action="dismiss"]').forEach(function(btn){
@@ -2220,6 +2331,8 @@ function renderPairsReview(){
     btn.addEventListener('click',function(){
       var p=pairs[parseInt(this.dataset.pr)];
       var pGName=p.g.name;
+      var oldPartnerName=p.partner?p.partner.name:p.g.bulkWith;
+      delete _confirmedPairs[pairKey(pGName,oldPartnerName)];_saveConfirmedPairs();
       p.g.bulkWith='';p.g.sentGroupId='';
       // Only clear the partner's side if it actually points back to g —
       // a one-directional/stale link (flagged above) may have partner
@@ -2282,6 +2395,12 @@ function renderPairsReview(){
           }
           if(oldMateToClear){oldMateToClear.bulkWith='';oldMateToClear.sentGroupId='';}
           var groupId=Date.now().toString(36);
+          // Clean up any stale confirmation on the old pairing, and mark
+          // the freshly-picked one confirmed — you just verified it by hand.
+          var oldPairKey=pairKey(p.g.name,(p.partner?p.partner.name:p.g.bulkWith));
+          delete _confirmedPairs[oldPairKey];
+          _confirmedPairs[pairKey(p.g.name,newPartner.name)]=true;
+          _saveConfirmedPairs();
           p.g.bulkWith=newPartner.name;p.g.sentGroupId=groupId;
           newPartner.bulkWith=p.g.name;newPartner.sentGroupId=groupId;
           saveGuestMeta();renderGuestList();renderPairsReview();
