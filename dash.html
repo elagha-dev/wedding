@@ -254,7 +254,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 /* Confirmed-pair merge: two guest cards drawn as one unit, divided by a
    hairline instead of the usual gap+shadow+rounded-corners-on-both. */
 .g-pair-merged{display:flex;flex-direction:column;border-radius:var(--r-sm);overflow:hidden;box-shadow:var(--shadow-sm)}
-.g-pair-merged-wrap{position:relative;margin-bottom:6px}
+.g-pair-merged-wrap{position:relative;margin-bottom:0}
 .g-pair-merged-wrap .g-pair-merged{margin-bottom:0}
 .g-pair-merged .g-swipe-wrap{box-shadow:none;border-radius:0}
 .g-pair-merged .g-swipe-wrap .g-card{border-radius:0}
@@ -380,7 +380,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
    Kids otherwise use the exact same solid green/red/amber fill as any other
    sent card — so status is unmistakable and text contrast is guaranteed
    regardless of which parent they're grouped under. ── */
-.g-family-pod{--pod-accent:rgba(74,110,168,.5);margin:3px 0 10px 21px;padding-left:20px;position:relative;display:flex;flex-direction:column;gap:8px}
+.g-family-pod{--pod-accent:rgba(74,110,168,.5);margin:0 0 10px 21px;padding-left:20px;position:relative;display:flex;flex-direction:column;gap:8px}
 .g-family-pod::before{content:'';position:absolute;left:0;top:-9px;bottom:24px;width:1.5px;background:linear-gradient(to bottom,var(--pod-accent),var(--pod-accent) 75%,transparent)}
 /* Each kid is wrapped in a plain (non-overflow-hidden) item so its curve
    isn't clipped by .g-swipe-wrap's own overflow:hidden (needed there to
@@ -2076,7 +2076,7 @@ function renderGuestList(){
     // For a couple, the badge sits pinned to the seam between the two names
     // instead of floating in its own row below — same boxes, badge just
     // overlaps the border between them.
-    var seamStyle=seam?'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:3;margin:0':'';
+    var seamStyle=seam?'position:absolute;top:50%;right:14px;transform:translateY(-50%);z-index:3;margin:0':'';
     var toggleHtml='<div class="g-family-pod-toggle'+(expanded?' is-open':'')+'" data-pod-key="'+podKey.replace(/"/g,'&quot;')+'" style="--pod-accent:'+accent+';'+seamStyle+'">'
       +'<svg class="g-family-pod-toggle-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'
       +'<span>'+out.length+'</span>'
