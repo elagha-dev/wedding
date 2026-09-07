@@ -366,6 +366,37 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .chip-lang{background:var(--parchment);color:var(--muted)}
 .chip-rsvp{background:var(--green-bg);color:var(--green)}
 .chip-child{background:#EAF0FA;color:#4A6EA8}.is-child .g-inner-right .ga-btn-wa,.is-child .g-inner-right .g-del{display:none!important}
+/* ── FAMILY POD: kids nest under their parent as one visual unit — a soft
+   branch line + dot connector, and a calm consistent lavender card instead
+   of the full-bleed green/red used for adults, so the family reads as a
+   group rather than a run of disconnected rows. Actual RSVP status is kept
+   as a slim left accent instead of a solid fill. ── */
+.g-family-pod{margin:3px 0 10px 21px;padding-left:16px;position:relative;display:flex;flex-direction:column;gap:6px}
+.g-family-pod::before{content:'';position:absolute;left:0;top:-9px;bottom:15px;width:1.5px;background:linear-gradient(to bottom,rgba(74,110,168,.4),rgba(74,110,168,.08))}
+.g-family-pod .g-swipe-wrap{position:relative}
+.g-family-pod .g-swipe-wrap::before{content:'';position:absolute;left:-16px;top:19px;width:13px;height:1.5px;background:rgba(74,110,168,.35)}
+.g-family-pod .g-swipe-wrap::after{content:'';position:absolute;left:-18.5px;top:14px;width:6px;height:6px;border-radius:50%;background:var(--cream);border:1.5px solid rgba(74,110,168,.5)}
+.g-family-pod .g-card.sent{background:#F2F6FC!important;box-shadow:inset 3px 0 0 rgba(74,110,168,.4)}
+.g-family-pod .g-swipe-wrap.rsvp-yes .g-card.sent{background:#F2F6FC!important;box-shadow:inset 3px 0 0 var(--green)!important}
+.g-family-pod .g-swipe-wrap.rsvp-no .g-card.sent{background:#F2F6FC!important;box-shadow:inset 3px 0 0 var(--red)!important}
+.g-family-pod .g-swipe-wrap.rsvp-pending .g-card.sent{background:#F2F6FC!important;box-shadow:inset 3px 0 0 #f59e0b!important}
+.g-family-pod .g-card.sent .g-name{color:#3D4F7A!important;font-weight:600!important}
+.g-family-pod .g-card.sent .g-sent-time,.g-family-pod .g-card.sent .g-partner-ref{color:var(--muted)!important}
+.g-family-pod .g-card.sent .g-undo-btn,.g-family-pod .g-card.sent .g-del{color:var(--soft)!important}
+.g-family-pod .g-card.sent .g-inner-right{background:rgba(74,110,168,.06)!important}
+.g-child-tag{font-size:9.5px;color:#7A8FB8;margin-top:1px;font-style:italic}
+/* ── THE COUPLE: Arina & Elnur get their own card treatment, not a generic
+   RSVP-colored guest row — a soft brand-color wash plus a role badge. ── */
+.chip-couple-role{gap:4px;padding:2px 9px}
+.chip-couple-role.bride{background:linear-gradient(120deg,var(--arina-bg),#fff);color:var(--arina-txt);box-shadow:inset 0 0 0 1px rgba(155,26,68,.18)}
+.chip-couple-role.groom{background:linear-gradient(120deg,var(--elnur-bg),#fff);color:var(--elnur-txt);box-shadow:inset 0 0 0 1px rgba(138,74,0,.18)}
+.g-swipe-wrap.is-couple-wrap .g-card.sent{box-shadow:none}
+.g-swipe-wrap.is-couple-wrap.bride .g-card.sent{background:linear-gradient(120deg,var(--arina-bg) 0%,#fff 65%)!important}
+.g-swipe-wrap.is-couple-wrap.groom .g-card.sent{background:linear-gradient(120deg,var(--elnur-bg) 0%,#fff 65%)!important}
+.g-swipe-wrap.is-couple-wrap .g-card.sent .g-name{color:var(--ink)!important;font-weight:700!important}
+.g-swipe-wrap.is-couple-wrap.bride .g-card.sent .g-name::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--arina-txt);margin-right:7px;vertical-align:middle}
+.g-swipe-wrap.is-couple-wrap.groom .g-card.sent .g-name::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--elnur-txt);margin-right:7px;vertical-align:middle}
+.g-swipe-wrap.is-couple-wrap .g-card.sent .g-inner-right{background:rgba(0,0,0,.04)}
 .ga-btn-rsvp-yes:hover{color:var(--green);background:rgba(58,140,92,.12)}.ga-btn-rsvp-yes.active{color:#fff;background:var(--green)}
 .ga-btn-rsvp-no:hover{color:var(--red);background:rgba(192,64,46,.12)}.ga-btn-rsvp-no.active{color:#fff;background:var(--red)}
 /* Manual RSVP buttons stay visible for children even though other action buttons are hidden for them */
@@ -2008,7 +2039,7 @@ function renderGuestList(){
       });
     });
     if(!out.length)return '';
-    return '<div style="margin:2px 0 8px 20px;padding-left:10px;border-left:2px solid rgba(74,110,168,.22)">'
+    return '<div class="g-family-pod">'
       +out.map(function(kid){return buildGuestCard(kid);}).join('')+'</div>';
   }
 
@@ -3203,7 +3234,8 @@ function buildGuestCard(g, mergedPairPos){
   var claimedBy=claims[g.name]||null;
   var claimedByMe=claimedBy===sessionSender;
   var claimedByOther=claimedBy&&claimedBy!==sessionSender;
-  var cls='g-card'+(isSel?' sel':'')+(g.followup&&!g.sent?' fup':'')+(g.sent?' sent':'')+(isPending?' pending-sent':'')+(claimedByOther?' claimed-other':'')+(g.isChild?' is-child':'');
+  var coupleRole=g.name==='Arina'?'bride':g.name==='Elnur'?'groom':'';
+  var cls='g-card'+(isSel?' sel':'')+(g.followup&&!g.sent?' fup':'')+(g.sent?' sent':'')+(isPending?' pending-sent':'')+(claimedByOther?' claimed-other':'')+(g.isChild?' is-child':'')+(coupleRole?' is-couple '+coupleRole:'');
 
   /* RSVP color class — computed regardless of sent status, so guests who RSVP'd
      before being marked "Sent" still show green/red/amber on the left list.
@@ -3245,10 +3277,13 @@ function buildGuestCard(g, mergedPairPos){
     var rsvpPillSent=getGuestRsvpPill(g.name, isCoupleGuest, partnerName, g.manualRsvp);
     /* Reuse the class computed at the top of buildGuestCard so sent and
        unsent cards use identical matching/coloring logic. */
-    var rsvpClass=wrapRsvpClass;
+    var rsvpClass=coupleRole?'':wrapRsvpClass;
     var debugTag=(DEV_MODE&&!rsvpInfo)?'<div style="font-size:9px;color:#b91c1c;opacity:.75;margin-top:2px;word-break:break-word">DEBUG: '+debugNoMatch(g, partnerName)+'</div>':'';
     /* Pills need flex-wrap so couple pills don't overflow */
     var pillWrap=rsvpPillSent?'<span style="display:flex;gap:3px;flex-wrap:wrap;align-items:center;margin-left:4px">'+rsvpPillSent+'</span>':''
+    // The couple aren't "guests" RSVPing to their own wedding — swap the RSVP
+    // pill for a small role badge instead, in their existing brand color.
+    if(coupleRole)pillWrap='<span class="chip chip-couple-role '+coupleRole+'"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>'+(coupleRole==='bride'?'Bride':'Groom')+'</span>';
 
     /* Bulk-sent reference: if this guest was sent together with someone else,
        show a small line naming that partner and their current RSVP status —
@@ -3274,12 +3309,13 @@ function buildGuestCard(g, mergedPairPos){
 
     // "Child of X" reference, if this guest has been linked to their
     // parent(s) via the Review Pairs "Link a kid to their parent(s)" panel.
+    // A short "with {parents}" caption — kept brief since when nested under a
+    // visible parent the branch connector already shows the relationship;
+    // this only needs to carry the info when the guest is shown on its own.
     var parentRefHtml='';
     if(g.parentNames){
-      parentRefHtml='<div class="g-partner-ref-wrap"><div class="g-partner-ref" title="Child of '+g.parentNames+'" style="cursor:default">'
-        +'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:.7"><path d="M12 2a4 4 0 0 1 4 4v1a4 4 0 0 1-8 0V6a4 4 0 0 1 4-4z"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>'
-        +'Child of '+g.parentNames
-        +'</div></div>';
+      var parentFirstNames=_parentNameList(g.parentNames).map(function(n){return n.split(' ')[0];}).join(' & ');
+      parentRefHtml='<div class="g-child-tag" title="Child of '+g.parentNames+'">with '+parentFirstNames+'</div>';
     }
 
     // Effective RSVP state to pre-select in the swipe panel: a manual override wins,
@@ -3293,7 +3329,7 @@ function buildGuestCard(g, mergedPairPos){
       +'<button class="ga-btn ga-btn-rsvp-no swipe-rsvp-btn'+(effState==='no'?' active':'')+'" data-qi="'+ri+'" data-action="rsvp-no" title="Mark RSVP: No"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>'
       +'</div></div>';
 
-    return '<div class="g-swipe-wrap'+rsvpClass+'" data-qi="'+ri+'">'
+    return '<div class="g-swipe-wrap'+rsvpClass+(coupleRole?' is-couple-wrap '+coupleRole:'')+'" data-qi="'+ri+'">'
       +infoPanel
       +rsvpPanel
       +'<div class="'+cls+'" data-qi="'+ri+'">'
