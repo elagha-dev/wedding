@@ -384,6 +384,9 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-family-pod-item{position:relative}
 .g-family-pod-item::before{content:'';position:absolute;left:-20px;top:-8px;width:20px;height:30px;border-left:1.5px solid var(--pod-accent);border-bottom:1.5px solid var(--pod-accent);border-bottom-left-radius:20px;pointer-events:none}
 .g-child-tag{font-size:9.5px;color:#7A8FB8;margin-top:1px;font-style:italic}
+.g-swipe-wrap.rsvp-yes .g-card.sent .g-child-tag,
+.g-swipe-wrap.rsvp-no .g-card.sent .g-child-tag,
+.g-swipe-wrap.rsvp-pending .g-card.sent .g-child-tag{color:rgba(255,255,255,.75)!important}
 /* Couple frame — two partners share one bordered card instead of floating
    as separate rows, in either the unsent or sent list. */
 .g-pair-merged{border:1.5px solid var(--parchment)}
