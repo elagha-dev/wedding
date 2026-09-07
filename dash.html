@@ -376,6 +376,12 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .chip-lang{background:var(--parchment);color:var(--muted)}
 .chip-rsvp{background:var(--green-bg);color:var(--green)}
 .chip-child{background:#EAF0FA;color:#4A6EA8}.is-child .g-inner-right .ga-btn-wa,.is-child .g-inner-right .g-del{display:none!important}
+.chip-role{background:#F0E6F7;color:#6B3FA0;cursor:pointer}
+.chip-role-empty{background:transparent;color:var(--soft);border:1.5px dashed var(--soft)}
+.ga-btn-role{color:#8B5FBF}.ga-btn-role.has-role{color:#6B3FA0;background:#F0E6F7}
+.role-preset-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.role-preset-chip{padding:5px 11px;border-radius:var(--r-pill);font-size:10.5px;font-weight:600;border:1.5px solid var(--parchment);background:var(--cream);color:var(--muted);cursor:pointer;font-family:var(--sans)}
+.role-preset-chip:hover{border-color:#8B5FBF;color:#6B3FA0}
 /* ── FAMILY POD: kids nest under their parent as one visual unit, joined by
    a real curved branch line (not a straight tick, not an elbow-plus-dot).
    Kids otherwise use the exact same solid green/red/amber fill as any other
@@ -1434,6 +1440,20 @@ body.lite-mode #liteModeTopBtn {
   </div>
 </div>
 
+<!-- Role modal -->
+<div class="note-modal-bg" id="roleModalBg" style="display:none">
+  <div class="note-modal">
+    <h3 id="roleModalTitle">Role</h3>
+    <div class="role-preset-row" id="rolePresetRow"></div>
+    <textarea id="roleModalTA" placeholder="e.g. Usher, Best Man, Photographer…" style="min-height:44px"></textarea>
+    <div class="note-acts">
+      <button class="note-cancel" id="roleModalClear">Clear</button>
+      <button class="note-cancel" id="roleModalCancel">Cancel</button>
+      <button class="note-save" id="roleModalSave">Save Role</button>
+    </div>
+  </div>
+</div>
+
 <!-- UNDO TOAST -->
 <div class="modal-bg" id="pairsReviewModal" style="display:none;z-index:9999">
   <div class="modal" style="max-width:520px;width:94vw;max-height:82vh;display:flex;flex-direction:column;padding:0;overflow:hidden;background:#fff">
@@ -1566,7 +1586,7 @@ function saveGuestMeta(){
   try{
     var m={};
     importQueue.forEach(function(g){
-      m[g.name]={note:g.note||'',followup:!!g.followup,skipped:!!g.skipped,pendingSent:!!g.pendingSent,sent:!!g.sent,sentAt:g.sentAt||'',sentBy:g.sentBy||'',msgLang:g.msgLang||'',bulkWith:g.bulkWith||'',sentGroupId:g.sentGroupId||'',sender:g.sender||'',phone:g.phone||'',type:g.type||'',lang:g.lang||'',group:g.group||'',manualRsvp:g.manualRsvp||'',parentNames:g.parentNames||''};
+      m[g.name]={note:g.note||'',role:g.role||'',followup:!!g.followup,skipped:!!g.skipped,pendingSent:!!g.pendingSent,sent:!!g.sent,sentAt:g.sentAt||'',sentBy:g.sentBy||'',msgLang:g.msgLang||'',bulkWith:g.bulkWith||'',sentGroupId:g.sentGroupId||'',sender:g.sender||'',phone:g.phone||'',type:g.type||'',lang:g.lang||'',group:g.group||'',manualRsvp:g.manualRsvp||'',parentNames:g.parentNames||''};
     });
     localStorage.setItem('ww_gm',JSON.stringify(m));
     if(importQueue.length)localStorage.setItem('ww_pending',JSON.stringify(importQueue));
@@ -1626,11 +1646,12 @@ function pushMetaToWorker(g){
   _localWrites[g.name]=_localWrites[g.name]||{};
   _localWrites[g.name].followup=!!g.followup;
   _localWrites[g.name].note=g.note||'';
+  _localWrites[g.name].role=g.role||'';
   _localWrites[g.name].manualRsvp=g.manualRsvp||'';
   _localWrites[g.name].bulkWith=g.bulkWith||'';
   _localWrites[g.name].sentGroupId=g.sentGroupId||'';
   _localWrites[g.name].parentNames=g.parentNames||'';
-  return _pushWithRetry('/meta',{name:g.name,followup:!!g.followup,note:g.note||'',manualRsvp:g.manualRsvp||'',bulkWith:g.bulkWith||'',sentGroupId:g.sentGroupId||'',parentNames:g.parentNames||''},'meta:'+g.name);
+  return _pushWithRetry('/meta',{name:g.name,followup:!!g.followup,note:g.note||'',role:g.role||'',manualRsvp:g.manualRsvp||'',bulkWith:g.bulkWith||'',sentGroupId:g.sentGroupId||'',parentNames:g.parentNames||''},'meta:'+g.name);
 }
 function pushSentToWorker(name){
   if(!workerUrl||!name)return;
@@ -1655,6 +1676,7 @@ function applyGuestMeta(){
       // sent/sentAt/sentBy: use whichever has a value (cache may be the only thing we have on first load)
       if(!g.sent&&d.sent){g.sent=!!d.sent;g.sentAt=d.sentAt||'';g.sentBy=d.sentBy||'';}
       if(!g.note&&d.note)g.note=d.note;
+      if(!g.role&&d.role)g.role=d.role;
       if(!g.followup&&d.followup)g.followup=!!d.followup;
       // local-only fields always from local:
       g.skipped=!!d.skipped;
@@ -2146,7 +2168,8 @@ function renderGuestList(){
     if(showSent){
       var sentYes=sentGuests.filter(function(g){return getGuestRsvpYesNo(g)===true;}).length;
       var sentNo=sentGuests.filter(function(g){return getGuestRsvpYesNo(g)===false;}).length;
-      html+='<div class="g-group-hdr sent sent-with-stats"><span style="flex-shrink:0">Sent ('+sentGuests.length+')</span>'
+      var sentHdrLabel=importFilter==='confirmed'?'Confirmed':'Sent';
+      html+='<div class="g-group-hdr sent sent-with-stats"><span style="flex-shrink:0">'+sentHdrLabel+' ('+sentGuests.length+')</span>'
         + '<span style="flex:1;height:1px;background:var(--parchment);display:inline-block;min-width:8px"></span>'
         + entriesCluster(sentGuests.length, sentYes, sentNo, false) + '</div>';
       // Pairs you've explicitly confirmed in Review Pairs collapse into one
@@ -2169,9 +2192,9 @@ function renderGuestList(){
           html+=buildGuestCard(g)+nestedChildrenHtml([g.name]);
         }
       });
-      html+='<button class="show-sent-btn" id="showSentBtn">Hide sent</button>';
+      html+='<button class="show-sent-btn" id="showSentBtn">Hide '+sentHdrLabel.toLowerCase()+'</button>';
     } else {
-      html+='<button class="show-sent-btn" id="showSentBtn">Show '+sentGuests.length+' sent</button>';
+      html+='<button class="show-sent-btn" id="showSentBtn">Show '+sentGuests.length+' '+(importFilter==='confirmed'?'confirmed':'sent')+'</button>';
     }
   }
 
@@ -2209,6 +2232,7 @@ function renderGuestList(){
       else if(a==='flag'){g.followup=!g.followup;saveGuestMeta();pushMetaToWorker(g);renderGuestList();renderDashboard();}
       else if(a==='claim'){claimGuest(g.name);}
       else if(a==='note')openNoteModal(ri);
+      else if(a==='role')openRoleModal(ri);
       else if(a==='del'){importQueue.splice(ri,1);selectedIdxs=selectedIdxs.filter(function(i){return i!==ri;});saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();}
       else if(a==='confirm-yes'){
         var prevSent=g.sent;var prevSentBy=g.sentBy||'';var prevFollowup=g.followup;g.pendingSent=false;g.followup=false;g.sent=true;g.sentAt=ts();g.sentBy=sessionSender;todayCount++;updateTodayBadge();
@@ -3346,6 +3370,7 @@ function buildGuestCard(g, mergedPairPos){
   var lC=g.lang&&g.lang!=='en'?'<span class="chip chip-lang">'+(g.lang==='de'?'DE':'RU')+'</span>':'';
   var rC=g.confirmed?'<span class="chip chip-rsvp">RSVP</span>':'';
   var cC=g.isChild?'<span class="chip chip-child">Child</span>':'';
+  var roleC=g.role?'<span class="chip chip-role" data-action="role" data-qi="'+ri+'">'+g.role+'</span>':'';
   var claimC=claimedBy?('<span class="claim-badge claim-badge-'+(claimedBy==='Arina'?'a':'e')+'"><span class="claim-dot claim-dot-'+(claimedBy==='Arina'?'a':'e')+'"></span>'+(claimedByMe?'You':''+claimedBy)+'</span>'):'';
   var sentBy=g.sentBy?g.sentBy:'';var sentLetter=sentBy==='Arina'?'a':sentBy==='Elnur'?'e':'';var sentTime=g.sent&&g.sentAt?'<span class="g-sent-time">'+fmtSentAt(g.sentAt)+(sentLetter?' · '+sentLetter:'')+'</span>':'';
 
@@ -3407,6 +3432,7 @@ function buildGuestCard(g, mergedPairPos){
     var senderChipSent=g.sender?('<span class="g-sender-br '+(g.sender==='Arina'?'a':'e')+'">'+(g.sender==='Arina'?'a':'e')+'</span>'):''
     var infoActions='<div class="g-swipe-info-actions">'
       +'<button class="g-undo-btn" data-qi="'+ri+'" data-action="undo" title="Mark as unsent"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8s2-4.5 9.5-4.5a9 9 0 1 1-9 9"/><polyline points="2.5 3 2.5 8 7.5 8"/></svg></button>'
+      +'<button class="ga-btn ga-btn-role'+(g.role?' has-role':'')+'" data-qi="'+ri+'" data-action="role" title="'+(g.role?'Role: '+g.role:'Assign role')+'"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41 11 3.83A2 2 0 0 0 9.59 3.24L4 3a1 1 0 0 0-1 1l.24 5.59a2 2 0 0 0 .59 1.41l9.58 9.59a2 2 0 0 0 2.83 0l4.35-4.35a2 2 0 0 0 0-2.83z"/><circle cx="7.5" cy="7.5" r="1.2" fill="currentColor" stroke="none"/></svg></button>'
       +'<button class="g-del" data-qi="'+ri+'" data-action="del" title="Delete"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>'
       +'</div>';
     var infoPanel='<div class="g-swipe-action-left sw-info"><div class="g-swipe-action-inner">'+infoActions+'</div></div>';
@@ -3422,7 +3448,7 @@ function buildGuestCard(g, mergedPairPos){
         +'<div class="g-inner">'
           +'<div class="g-inner-left">'
             +'<div class="g-main">'
-              +'<div class="g-name-row" style="flex-wrap:wrap"><span class="g-name" style="font-size:15px;flex:0 1 auto">'+g.name+'</span>'+pillWrap+parentRefHtml+'</div>'
+              +'<div class="g-name-row" style="flex-wrap:wrap"><span class="g-name" style="font-size:15px;flex:0 1 auto">'+g.name+'</span>'+pillWrap+(g.role?'<span class="chip chip-role" data-action="role" data-qi="'+ri+'">'+g.role+'</span>':'')+parentRefHtml+'</div>'
               +partnerRefHtml
               +debugTag
             +'</div>'
@@ -3445,7 +3471,7 @@ function buildGuestCard(g, mergedPairPos){
               +(g.sender?'<span class="g-sender-br '+senderCls+'">'+(g.sender==='Arina'?'a':'e')+'</span>':'')
               +tC+rC
             +'</div>'
-            +(lC||cC?'<div class="g-tags">'+lC+cC+'</div>':'')
+            +(lC||cC||roleC?'<div class="g-tags">'+lC+cC+roleC+'</div>':'')
             +(g.note?'<div class="g-note">'+g.note+'</div>':'')
           +'</div>'
         +'</div>'
@@ -3453,6 +3479,7 @@ function buildGuestCard(g, mergedPairPos){
           +'<button class="ga-btn ga-btn-wa'+(g.sent?' done':'')+(!((g.phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,''))?' no-phone':'')+'" data-qi="'+ri+'" data-action="wa" title="Send WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.556 4.121 1.528 5.855L.057 23.882a.5.5 0 0 0 .614.612l6.094-1.597A11.937 11.937 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.808 9.808 0 0 1-5.032-1.384l-.36-.214-3.733.979.995-3.63-.234-.374A9.808 9.808 0 0 1 2.182 12C2.182 6.57 6.57 2.182 12 2.182c5.43 0 9.818 4.388 9.818 9.818 0 5.43-4.388 9.818-9.818 9.818z"/></svg></button>'
           +'<button class="ga-btn'+(claimedByMe?' ga-btn-flag flagged':claimedByOther?' ga-btn-flag':' ga-btn-flag')+(claimedBy&&!claimedByOther?' flagged':'')+'" data-qi="'+ri+'" data-action="claim" title="'+(claimedByMe?'Mine':claimedByOther?claimedBy:'Claim')+'">'+(claimedByMe?'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><line x1="12" y1="16" x2="12" y2="16" stroke-width="3" stroke-linecap="round"/></svg>':claimedByOther?'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>':'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M17 11V7a5 5 0 0 0-9.9-1" stroke-dasharray="4 2"/></svg>')+'</button>'
           +'<button class="ga-btn ga-btn-flag'+(g.followup?' flagged':'')+'" data-qi="'+ri+'" data-action="flag" title="'+(g.followup?'Flagged':'Follow Up')+'">'+(g.followup?'<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M4 3h16l-3 6 3 6H4V3z"/><rect x="3" y="3" width="2" height="18" rx="1"/></svg>':'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3h16l-3 6 3 6H4V3z"/><line x1="4" y1="21" x2="4" y2="3"/></svg>')+'</button>'
+          +'<button class="ga-btn ga-btn-role'+(g.role?' has-role':'')+'" data-qi="'+ri+'" data-action="role" title="'+(g.role?'Role: '+g.role:'Assign role')+'"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41 11 3.83A2 2 0 0 0 9.59 3.24L4 3a1 1 0 0 0-1 1l.24 5.59a2 2 0 0 0 .59 1.41l9.58 9.59a2 2 0 0 0 2.83 0l4.35-4.35a2 2 0 0 0 0-2.83z"/><circle cx="7.5" cy="7.5" r="1.2" fill="currentColor" stroke="none"/></svg></button>'
           +'<button class="g-del" data-qi="'+ri+'" data-action="del" style="position:static;width:18px;height:18px;color:var(--soft);border:none;background:transparent;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;transition:all var(--ease)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>'
         +'</div>'
       +'</div>'
@@ -3995,6 +4022,20 @@ function openNoteModal(ri){noteTarget=ri;var g=importQueue[ri];document.getEleme
 document.getElementById('noteModalCancel').addEventListener('click',function(){noteModalBg.style.display='none';});
 document.getElementById('noteModalSave').addEventListener('click',function(){if(noteTarget>=0&&importQueue[noteTarget]){importQueue[noteTarget].note=document.getElementById('noteModalTA').value.trim();saveGuestMeta();pushMetaToWorker(importQueue[noteTarget]);renderGuestList();}noteModalBg.style.display='none';});
 
+var ROLE_PRESETS=['Best Man','Maid of Honor','Groomsman','Bridesmaid','Usher','Officiant','Photographer','MC','Driver'];
+var roleModalBg=document.getElementById('roleModalBg'),roleTarget=-1;
+(function(){
+  var row=document.getElementById('rolePresetRow');
+  row.innerHTML=ROLE_PRESETS.map(function(r){return '<button type="button" class="role-preset-chip" data-role="'+r+'">'+r+'</button>';}).join('');
+  row.querySelectorAll('.role-preset-chip').forEach(function(b){
+    b.addEventListener('click',function(){document.getElementById('roleModalTA').value=this.dataset.role;});
+  });
+})();
+function openRoleModal(ri){roleTarget=ri;var g=importQueue[ri];document.getElementById('roleModalTitle').textContent='Role — '+g.name;document.getElementById('roleModalTA').value=g.role||'';roleModalBg.style.display='flex';setTimeout(function(){document.getElementById('roleModalTA').focus();},50);}
+document.getElementById('roleModalCancel').addEventListener('click',function(){roleModalBg.style.display='none';});
+document.getElementById('roleModalClear').addEventListener('click',function(){if(roleTarget>=0&&importQueue[roleTarget]){importQueue[roleTarget].role='';saveGuestMeta();pushMetaToWorker(importQueue[roleTarget]);renderGuestList();}roleModalBg.style.display='none';});
+document.getElementById('roleModalSave').addEventListener('click',function(){if(roleTarget>=0&&importQueue[roleTarget]){importQueue[roleTarget].role=document.getElementById('roleModalTA').value.trim();saveGuestMeta();pushMetaToWorker(importQueue[roleTarget]);renderGuestList();}roleModalBg.style.display='none';});
+
 /* ══ UNIFIED BRIDGE ══════════════════════════ */
 // When a guest list guest is marked sent, mirror it into the manual tracker
 // so both views show a consistent picture
@@ -4258,6 +4299,9 @@ function startAutoPoll(){
           }
           if(remote.note!==undefined&&local.note===undefined&&remote.note!==g.note){
             g.note=remote.note;dirty=true;
+          }
+          if(remote.role!==undefined&&local.role===undefined&&remote.role!==g.role){
+            g.role=remote.role;dirty=true;
           }
           if(remote.claim!==undefined&&remote.claim!==g.claim){
             g.claim=remote.claim;dirty=true;
