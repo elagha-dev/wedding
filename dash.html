@@ -221,7 +221,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .f-pill.on-a{background:var(--arina-bg);border-color:var(--arina-border);color:var(--arina-txt)}
 .f-pill.on-e{background:var(--elnur-bg);border-color:var(--elnur-border);color:var(--elnur-txt)}
 .f-pill.f-sent-pill.on{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 2px 8px rgba(58,140,92,.25)}
-.search-filter-row{display:flex;gap:8px;margin-bottom:12px;align-items:stretch}
+.search-filter-row{display:flex;gap:8px;margin-bottom:12px;align-items:stretch;flex-wrap:wrap}
 .search-wrap{position:relative;flex:1;min-width:0}
 .search-wrap::before{display:none}
 .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none;flex-shrink:0;z-index:1}
@@ -960,6 +960,7 @@ body.lite-mode #liteModeTopBtn {
           <input class="search-input" id="searchInput" type="text" placeholder=""/>
         </div>
         <select class="group-sel" id="groupSel" style="display:none"><option value="">All groups</option></select>
+        <select class="group-sel" id="typeSel" style="width:100px;flex-shrink:0"><option value="">Church + Party</option><option value="church">Church</option><option value="party">Party</option></select>
         <button class="sort-btn" id="sortBtn" title="Sort">A–Z</button>
       </div>
     </div>
@@ -1444,7 +1445,7 @@ function formatDeployStamp(iso){
 /* ══ STATE ═══════════════════════════════════ */
 var selType='ceremony-single',selLang='en',selSender='Arina',cur=null;
 var sortMode=(function(){try{return sessionStorage.getItem('ww_sort')||'default';}catch(e){return'default';}})();
-var mem=[],importQueue=[],selectedIdxs=[],importFilter='all',searchQuery='',groupFilter='';
+var mem=[],importQueue=[],selectedIdxs=[],importFilter='all',searchQuery='',groupFilter='',typeFilter='';
 var sessionSender='Arina'; // active session
 var todayCount=0; // sent this session
 // Unique per-tab ID so the poller can ignore events this tab generated
@@ -1971,6 +1972,8 @@ function renderFilterRow(){
 }
 
 /* ══ GUEST LIST ══════════════════════════════ */
+function isPartyType(g){ return g.type==='ceremony-party-single'||g.type==='couple-party'; }
+
 function getFiltered(){
   return importQueue.filter(function(g){
     if(g.skipped)return false;
@@ -1982,6 +1985,7 @@ function getFiltered(){
     return true;
   }).filter(function(g){return!searchQuery||(g.name||'').toLowerCase().includes(searchQuery);})
     .filter(function(g){return!groupFilter||(g.group||'')===groupFilter;})
+    .filter(function(g){return!typeFilter||(typeFilter==='party'?isPartyType(g):!isPartyType(g));})
     .sort(function(a,b){
       if(sortMode==='az')return(a.name||'').localeCompare(b.name||'');
       if(sortMode==='za')return(b.name||'').localeCompare(a.name||'');
@@ -3267,7 +3271,7 @@ function buildGuestCard(g, mergedPairPos){
   var senderCls=g.sender==='Arina'?'a':'e';
   var sC=g.sender==='Arina'?'<span class="chip chip-a chip-sender-corner">a</span>':'<span class="chip chip-e chip-sender-corner">e</span>';
   var sBR=g.sender?('<span class="g-sender-br '+senderCls+'">'+(g.sender==='Arina'?'a':'e')+'</span>'):'';
-  var tC=(g.type==='ceremony-party-single'||g.type==='couple-party')?'<span class="chip chip-type">Party</span>':'<span class="chip chip-type">Church</span>';
+  var tC=isPartyType(g)?'<span class="chip chip-type">Party</span>':'<span class="chip chip-type">Church</span>';
   var lC=g.lang&&g.lang!=='en'?'<span class="chip chip-lang">'+(g.lang==='de'?'DE':'RU')+'</span>':'';
   var rC=g.confirmed?'<span class="chip chip-rsvp">RSVP</span>':'';
   var cC=g.isChild?'<span class="chip chip-child">Child</span>':'';
@@ -4316,6 +4320,7 @@ function renderGroupDropdown(){
   sel.value=groupFilter||'';
   sel.onchange=function(){groupFilter=this.value;renderGuestList();};
 }
+document.getElementById('typeSel').onchange=function(){typeFilter=this.value;renderGuestList();};
 document.getElementById('searchInput').addEventListener('input',function(){
   searchQuery=this.value.trim().toLowerCase();
   this.classList.toggle('has-value',!!this.value);
