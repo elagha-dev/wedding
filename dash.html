@@ -371,20 +371,40 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
    of the full-bleed green/red used for adults, so the family reads as a
    group rather than a run of disconnected rows. Actual RSVP status is kept
    as a slim left accent instead of a solid fill. ── */
-.g-family-pod{margin:3px 0 10px 21px;padding-left:16px;position:relative;display:flex;flex-direction:column;gap:6px}
-.g-family-pod::before{content:'';position:absolute;left:0;top:-9px;bottom:15px;width:1.5px;background:linear-gradient(to bottom,rgba(74,110,168,.4),rgba(74,110,168,.08))}
+.g-family-pod{--pod-accent:rgba(74,110,168,.45);margin:3px 0 10px 21px;padding-left:16px;position:relative;display:flex;flex-direction:column;gap:6px}
+.g-family-pod::before{content:'';position:absolute;left:0;top:-9px;bottom:15px;width:1.5px;background:linear-gradient(to bottom,var(--pod-accent),transparent)}
 .g-family-pod .g-swipe-wrap{position:relative}
-.g-family-pod .g-swipe-wrap::before{content:'';position:absolute;left:-16px;top:19px;width:13px;height:1.5px;background:rgba(74,110,168,.35)}
-.g-family-pod .g-swipe-wrap::after{content:'';position:absolute;left:-18.5px;top:14px;width:6px;height:6px;border-radius:50%;background:var(--cream);border:1.5px solid rgba(74,110,168,.5)}
-.g-family-pod .g-card.sent{background:#F2F6FC!important;box-shadow:inset 3px 0 0 rgba(74,110,168,.4)}
-.g-family-pod .g-swipe-wrap.rsvp-yes .g-card.sent{background:#F2F6FC!important;box-shadow:inset 3px 0 0 var(--green)!important}
-.g-family-pod .g-swipe-wrap.rsvp-no .g-card.sent{background:#F2F6FC!important;box-shadow:inset 3px 0 0 var(--red)!important}
-.g-family-pod .g-swipe-wrap.rsvp-pending .g-card.sent{background:#F2F6FC!important;box-shadow:inset 3px 0 0 #f59e0b!important}
-.g-family-pod .g-card.sent .g-name{color:#3D4F7A!important;font-weight:600!important}
-.g-family-pod .g-card.sent .g-sent-time,.g-family-pod .g-card.sent .g-partner-ref{color:var(--muted)!important}
-.g-family-pod .g-card.sent .g-undo-btn,.g-family-pod .g-card.sent .g-del{color:var(--soft)!important}
+.g-family-pod .g-swipe-wrap::before{content:'';position:absolute;left:-16px;top:19px;width:13px;height:1.5px;background:var(--pod-accent)}
+.g-family-pod .g-swipe-wrap::after{content:'';position:absolute;left:-18.5px;top:14px;width:6px;height:6px;border-radius:50%;background:var(--cream);border:1.5px solid var(--pod-accent)}
+/* Background + accent stripe, keyed to each kid's own RSVP state */
+.g-family-pod .g-card.sent,
+.g-family-pod .g-swipe-wrap.rsvp-yes .g-card.sent,
+.g-family-pod .g-swipe-wrap.rsvp-no .g-card.sent,
+.g-family-pod .g-swipe-wrap.rsvp-pending .g-card.sent{background:#F2F6FC!important}
+.g-family-pod .g-card.sent{box-shadow:inset 3px 0 0 rgba(74,110,168,.4)}
+.g-family-pod .g-swipe-wrap.rsvp-yes .g-card.sent{box-shadow:inset 3px 0 0 var(--green)!important}
+.g-family-pod .g-swipe-wrap.rsvp-no .g-card.sent{box-shadow:inset 3px 0 0 var(--red)!important}
+.g-family-pod .g-swipe-wrap.rsvp-pending .g-card.sent{box-shadow:inset 3px 0 0 #f59e0b!important}
+/* Text/icon colors — these must match the specificity of the yes/no/pending
+   rules above (which also target .g-card.sent .g-name etc with !important)
+   or the light pod background makes white-on-white text disappear. */
+.g-family-pod .g-card.sent .g-name,
+.g-family-pod .g-swipe-wrap.rsvp-yes .g-card.sent .g-name,
+.g-family-pod .g-swipe-wrap.rsvp-no .g-card.sent .g-name,
+.g-family-pod .g-swipe-wrap.rsvp-pending .g-card.sent .g-name{color:#3D4F7A!important;font-weight:600!important}
+.g-family-pod .g-card.sent .g-sent-time,.g-family-pod .g-card.sent .g-partner-ref,
+.g-family-pod .g-swipe-wrap.rsvp-yes .g-card.sent .g-sent-time,.g-family-pod .g-swipe-wrap.rsvp-yes .g-card.sent .g-partner-ref,
+.g-family-pod .g-swipe-wrap.rsvp-no .g-card.sent .g-sent-time,.g-family-pod .g-swipe-wrap.rsvp-no .g-card.sent .g-partner-ref,
+.g-family-pod .g-swipe-wrap.rsvp-pending .g-card.sent .g-sent-time,.g-family-pod .g-swipe-wrap.rsvp-pending .g-card.sent .g-partner-ref{color:var(--muted)!important}
+.g-family-pod .g-card.sent .g-undo-btn,.g-family-pod .g-card.sent .g-del,
+.g-family-pod .g-swipe-wrap.rsvp-yes .g-card.sent .g-undo-btn,.g-family-pod .g-swipe-wrap.rsvp-yes .g-card.sent .g-del,
+.g-family-pod .g-swipe-wrap.rsvp-no .g-card.sent .g-undo-btn,.g-family-pod .g-swipe-wrap.rsvp-no .g-card.sent .g-del,
+.g-family-pod .g-swipe-wrap.rsvp-pending .g-card.sent .g-undo-btn,.g-family-pod .g-swipe-wrap.rsvp-pending .g-card.sent .g-del{color:var(--soft)!important}
 .g-family-pod .g-card.sent .g-inner-right{background:rgba(74,110,168,.06)!important}
 .g-child-tag{font-size:9.5px;color:#7A8FB8;margin-top:1px;font-style:italic}
+/* Couple frame — two partners share one bordered card instead of floating
+   as separate rows, in either the unsent or sent list. */
+.g-pair-merged{border:1.5px solid var(--parchment)}
 /* ── THE COUPLE: Arina & Elnur get their own card treatment, not a generic
    RSVP-colored guest row — a soft brand-color wash plus a role badge. ── */
 .chip-couple-role{gap:4px;padding:2px 9px}
@@ -2039,7 +2059,12 @@ function renderGuestList(){
       });
     });
     if(!out.length)return '';
-    return '<div class="g-family-pod">'
+    // Match the pod's connector line to the parent's own RSVP color instead of
+    // a fixed blue, so a "no" parent doesn't sit next to a jarring blue line.
+    var hostGuest=nameToGuest[names[0]];
+    var hostYN=hostGuest?getGuestRsvpYesNo(hostGuest):null;
+    var accent=hostYN===true?'rgba(58,140,92,.5)':hostYN===false?'rgba(192,64,46,.5)':'rgba(74,110,168,.45)';
+    return '<div class="g-family-pod" style="--pod-accent:'+accent+'">'
       +out.map(function(kid){return buildGuestCard(kid);}).join('')+'</div>';
   }
 
@@ -2052,7 +2077,24 @@ function renderGuestList(){
   var grpKeys=Object.keys(sections).sort(function(a,b){if(a==='_')return-1;if(b==='_')return 1;return a.localeCompare(b);});
   grpKeys.forEach(function(grp){
     if(grp!=='_')html+='<div class="g-group-hdr">'+grp+' <span style="opacity:.4">('+sections[grp].length+')</span></div>';
-    sections[grp].forEach(function(g){html+=buildGuestCard(g)+nestedChildrenHtml([g.name]);});
+    // Frame couples (two guests who mutually infer each other as partner) as
+    // one bordered card instead of two loose rows, same idea as the Sent
+    // list's confirmed-pair box — makes "this is a couple" visible before
+    // either of them has even RSVP'd.
+    var mergedSeenUnsent={};
+    sections[grp].forEach(function(g){
+      if(mergedSeenUnsent[g.name])return;
+      var partnerName=inferPartnerName(g);
+      var partnerObj=partnerName?nameToGuest[partnerName]:null;
+      var mutual=partnerObj&&!partnerObj.sent&&!partnerObj.isChild&&inferPartnerName(partnerObj)===g.name;
+      var partnerInThisSection=mutual&&sections[grp].indexOf(partnerObj)!==-1;
+      if(partnerInThisSection){
+        mergedSeenUnsent[partnerObj.name]=true;
+        html+='<div class="g-pair-merged">'+buildGuestCard(g,'top')+buildGuestCard(partnerObj,'bottom')+'</div>'+nestedChildrenHtml([g.name,partnerObj.name]);
+      } else {
+        html+=buildGuestCard(g)+nestedChildrenHtml([g.name]);
+      }
+    });
   });
 
   // Children section — no buttons, just names. Anyone already nested under
