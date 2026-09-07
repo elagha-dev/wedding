@@ -382,6 +382,9 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
    border-radius on an invisible box — sweeping down from the trunk line
    into the top-left of the card. No elbow corner, no dot. */
 .g-family-pod-item{position:relative}
+.g-family-pod-toggle{margin:3px 0 8px 21px;padding:4px 11px;display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--pod-accent);border:1.5px solid var(--pod-accent);border-radius:999px;cursor:pointer;background:rgba(255,255,255,.65);width:fit-content}
+.g-family-pod-toggle:hover{background:rgba(255,255,255,.95)}
+.g-family-pod-toggle svg{flex-shrink:0}
 .g-family-pod-item::before{content:'';position:absolute;left:-20px;top:-8px;width:20px;height:30px;border-left:1.5px solid var(--pod-accent);border-bottom:1.5px solid var(--pod-accent);border-bottom-left-radius:20px;pointer-events:none}
 .g-child-tag{font-size:9.5px;color:#7A8FB8;margin-top:1px;font-style:italic}
 .g-swipe-wrap.rsvp-yes .g-card.sent .g-child-tag,
@@ -1471,6 +1474,7 @@ var todayCount=0; // sent this session
 // Unique per-tab ID so the poller can ignore events this tab generated
 var deviceId=(function(){try{var d=sessionStorage.getItem('ww_device');if(!d){d=Math.random().toString(36).slice(2)+Date.now().toString(36);sessionStorage.setItem('ww_device',d);}return d;}catch(e){return Math.random().toString(36).slice(2);}})();
 var showSent=true; // collapse sent guests
+var expandedFamilyPods={}; // host guest name -> true if their nested kids are expanded
 
 /* ══ CLAIM LOCKS ══════════════════════════════ */
 var claims={}; // {guestName: 'Arina'|'Elnur'}
@@ -2053,7 +2057,17 @@ function renderGuestList(){
     var hostGuest=nameToGuest[names[0]];
     var hostYN=hostGuest?getGuestRsvpYesNo(hostGuest):null;
     var accent=hostYN===true?'rgba(58,140,92,.5)':hostYN===false?'rgba(192,64,46,.5)':'rgba(74,110,168,.45)';
-    return '<div class="g-family-pod" style="--pod-accent:'+accent+'">'
+    // Kids stay collapsed behind a small toggle by default — a family with
+    // several kids used to dump every kid card into view under the parent;
+    // now it's just a "+N kids" pill until tapped open.
+    var podKey=names[0];
+    var expanded=!!expandedFamilyPods[podKey];
+    var toggleHtml='<div class="g-family-pod-toggle" data-pod-key="'+podKey.replace(/"/g,'&quot;')+'" style="--pod-accent:'+accent+'">'
+      +'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">'+(expanded?'<polyline points="18 15 12 9 6 15"/>':'<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>')+'</svg>'
+      +'<span>'+(expanded?'Hide ':'')+out.length+' kid'+(out.length>1?'s':'')+'</span>'
+      +'</div>';
+    if(!expanded)return toggleHtml;
+    return toggleHtml+'<div class="g-family-pod" style="--pod-accent:'+accent+'">'
       +out.map(function(kid){return '<div class="g-family-pod-item">'+buildGuestCard(kid)+'</div>';}).join('')+'</div>';
   }
 
@@ -2133,6 +2147,11 @@ function renderGuestList(){
 
   var ssBtn=document.getElementById('showSentBtn');
   if(ssBtn)ssBtn.addEventListener('click',function(e){e.stopPropagation();showSent=!showSent;renderGuestList();});
+
+  // Kids toggle — expand/collapse the "+N kids" pill under a parent
+  list.querySelectorAll('.g-family-pod-toggle').forEach(function(t){
+    t.addEventListener('click',function(e){e.stopPropagation();var key=this.dataset.podKey;expandedFamilyPods[key]=!expandedFamilyPods[key];renderGuestList();});
+  });
 
   // Row tap = select
   list.querySelectorAll('.g-card').forEach(function(card){
@@ -2254,7 +2273,7 @@ function buildPairSentCard(g1,g2){
     +'<button class="g-del" data-qi="'+ri1+'" data-action="del" title="Delete"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>'
     +'</div>';
   return '<div class="g-swipe-wrap'+rsvpClassPair+'">'
-    +'<div class="g-swipe-action-left sw-info"><div class="g-swipe-action-inner">'+senderChip+sentTime+infoActionsPair+'</div></div>'
+    +'<div class="g-swipe-action-left sw-info"><div class="g-swipe-action-inner">'+infoActionsPair+'</div></div>'
     +rsvpPanelPair
     +'<div class="g-card sent">'
       +'<div class="g-inner">'
@@ -3358,7 +3377,7 @@ function buildGuestCard(g, mergedPairPos){
       +'<button class="g-undo-btn" data-qi="'+ri+'" data-action="undo" title="Mark as unsent"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8s2-4.5 9.5-4.5a9 9 0 1 1-9 9"/><polyline points="2.5 3 2.5 8 7.5 8"/></svg></button>'
       +'<button class="g-del" data-qi="'+ri+'" data-action="del" title="Delete"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>'
       +'</div>';
-    var infoPanel='<div class="g-swipe-action-left sw-info"><div class="g-swipe-action-inner">'+senderChipSent+sentTime+infoActions+'</div></div>';
+    var infoPanel='<div class="g-swipe-action-left sw-info"><div class="g-swipe-action-inner">'+infoActions+'</div></div>';
     var rsvpPanel='<div class="g-swipe-action-right sw-rsvp"><div class="g-swipe-action-inner">'
       +'<button class="ga-btn ga-btn-rsvp-yes swipe-rsvp-btn'+(effState==='yes'?' active':'')+'" data-qi="'+ri+'" data-action="rsvp-yes" title="Mark RSVP: Yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button>'
       +'<button class="ga-btn ga-btn-rsvp-no swipe-rsvp-btn'+(effState==='no'?' active':'')+'" data-qi="'+ri+'" data-action="rsvp-no" title="Mark RSVP: No"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>'
