@@ -291,6 +291,18 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-swipe-info-actions{display:flex;align-items:center;gap:10px;margin-top:3px}
 .g-swipe-info-actions .g-undo-btn,.g-swipe-info-actions .g-del{width:20px;height:20px}
 .g-swipe-info-actions .g-undo-btn svg,.g-swipe-info-actions .g-del svg{width:14px;height:14px}
+/* Deep-swipe-to-delete: dragging the sent-card panel past DELETE_ARM_X (see
+   attachSwipe) adds .sw-delete-ready to the wrap, which turns this panel red
+   and swaps its content for the delete hint below. Releasing while armed
+   deletes the guest (with an undo toast); releasing short of it just snaps
+   back to the normal undo/role panel. */
+.g-swipe-delete-hint{display:none;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#fff;width:100%;height:100%}
+.g-swipe-delete-hint span{font-size:8px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-align:center;line-height:1.2}
+.g-swipe-wrap.sw-delete-ready .g-swipe-action-left.sw-info{background:linear-gradient(135deg,#e74c3c,#c0392b)!important}
+.g-swipe-wrap.sw-delete-ready .g-swipe-action-left.sw-info .g-swipe-info-actions,
+.g-swipe-wrap.sw-delete-ready .g-swipe-action-left.sw-info .g-sender-br,
+.g-swipe-wrap.sw-delete-ready .g-swipe-action-left.sw-info .g-sent-time{display:none!important}
+.g-swipe-wrap.sw-delete-ready .g-swipe-action-left.sw-info .g-swipe-delete-hint{display:flex}
 .g-swipe-action-right.sw-rsvp{background:#fff;flex-direction:row;gap:8px;box-shadow:inset -1px 0 0 rgba(0,0,0,.06)}
 .g-swipe-action-right.sw-rsvp .swipe-rsvp-btn{width:32px;height:32px;border-radius:50%;background:var(--cream2);border:1.5px solid var(--parchment);color:var(--muted);pointer-events:all}
 .g-swipe-action-right.sw-rsvp .swipe-rsvp-btn svg{width:15px;height:15px}
@@ -1469,10 +1481,26 @@ body.lite-mode #liteModeTopBtn {
     <div id="pairsReviewSearchWrap" style="padding:0 18px 10px;flex-shrink:0;background:#fff">
       <input id="pairsReviewSearch" type="text" placeholder="Search a name…" style="width:100%;box-sizing:border-box;padding:8px 10px;border:1.5px solid var(--parchment);border-radius:var(--r-sm);font-family:var(--sans);font-size:12px;color:var(--ink);background:var(--cream)"/>
     </div>
+    <!-- Fixed, non-scrolling: manual couple/kid linking + roles overview stay
+         in view while the pairs list below is scrolled, since these are
+         actions people reach for regardless of scroll position. -->
+    <div id="pairsReviewManualFixed" style="padding:0 18px 8px;flex-shrink:0;background:#fff;max-height:42vh;overflow-y:auto;border-bottom:1px solid var(--parchment)"></div>
     <div id="pairsReviewList" style="overflow-y:auto;padding:6px 12px 16px;flex:1;background:#fff"></div>
   </div>
 </div>
 <div id="undoToast"><span id="undoToastMsg">Marked as sent</span><button id="undoToastBtn">Undo</button></div>
+
+<!-- Roles overview modal — "who's doing what" across all guests -->
+<div class="modal-bg" id="rolesOverviewModal" style="display:none;z-index:10000">
+  <div class="modal" style="max-width:480px;width:92vw;max-height:78vh;display:flex;flex-direction:column;padding:0;overflow:hidden;background:#fff">
+    <div style="padding:16px 18px 10px;border-bottom:1px solid var(--parchment);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:#fff">
+      <div style="font-family:var(--sans);font-weight:800;font-size:14px;color:var(--ink)">Who's doing what</div>
+      <button id="rolesOverviewClose" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);line-height:1;padding:0 4px">×</button>
+    </div>
+    <div id="rolesOverviewSub" style="padding:8px 18px;font-family:var(--sans);font-size:11px;color:var(--muted);flex-shrink:0;background:#fff"></div>
+    <div id="rolesOverviewList" style="overflow-y:auto;padding:6px 12px 16px;flex:1;background:#fff"></div>
+  </div>
+</div>
 <!-- VERSION STAMP -->
 
 <script>
@@ -2326,7 +2354,6 @@ function buildPairSentCard(g1,g2){
   // Sender/time/undo/delete hidden by default — right-swipe reveals them (matches single sent cards).
   var infoActionsPair='<div class="g-swipe-info-actions">'
     +'<button class="g-undo-btn" data-qi="'+ri1+'" data-action="undo" title="Mark as unsent"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8s2-4.5 9.5-4.5a9 9 0 1 1-9 9"/><polyline points="2.5 3 2.5 8 7.5 8"/></svg></button>'
-    +'<button class="g-del" data-qi="'+ri1+'" data-action="del" title="Delete"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>'
     +'</div>';
   return '<div class="g-swipe-wrap'+rsvpClassPair+'">'
     +'<div class="g-swipe-action-left sw-info"><div class="g-swipe-action-inner">'+infoActionsPair+'</div></div>'
@@ -2590,9 +2617,13 @@ function renderPairsReview(){
   if(_pairsReviewTab==='tree'){
     var searchWrap0=document.getElementById('pairsReviewSearchWrap');
     if(searchWrap0)searchWrap0.style.display='';
+    var manualFixed0=document.getElementById('pairsReviewManualFixed');
+    if(manualFixed0){manualFixed0.style.display='none';manualFixed0.innerHTML='';}
     renderFamilyTree();
     return;
   }
+  var manualFixedShow=document.getElementById('pairsReviewManualFixed');
+  if(manualFixedShow)manualFixedShow.style.display='';
   var allPairs=auditPairs();
   var allMissing=auditMissingPairs();
   var pairs=allPairs,missing=allMissing;
@@ -2685,14 +2716,21 @@ function renderPairsReview(){
   });
 
   // Manual fallback — for when the auto-detection above doesn't catch a
-  // pair (different surnames, no shared group, etc). Placed last since
-  // it's the fallback path, not the first thing most visits need.
+  // pair (different surnames, no shared group, etc). Rendered into the
+  // fixed (non-scrolling) container above the pairs list, since these are
+  // action panels people reach for regardless of where they've scrolled to.
+  var manualHtml='';
   {
-    html+='<div style="font-family:var(--sans);font-weight:800;font-size:12px;color:var(--ink2);margin:14px 4px 6px">Can\'t find a match? Link manually</div>';
+    manualHtml+='<div style="font-family:var(--sans);font-weight:800;font-size:12px;color:var(--ink2);margin:10px 4px 6px">Can\'t find a match? Link manually</div>';
+
+    // "Who's doing what" — browse/manage wedding-party role assignments.
+    // Lives right alongside the manual-link tools since both are
+    // "management" actions rather than things that scroll with the list.
+    manualHtml+='<button id="rolesOverviewBtn" style="width:100%;text-align:left;padding:8px 10px;margin-bottom:10px;border-radius:8px;border:1px dashed #8B5FBF;background:#F0E6F7;color:#6B3FA0;font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Who\'s doing what — roles overview</button>';
 
     // Manual link panel — for pairing two people the surname/group heuristic
     // wouldn't catch on its own (different surnames, no shared group, etc).
-    html+='<div style="margin-bottom:10px">'
+    manualHtml+='<div style="margin-bottom:10px">'
       +'<button id="pairsManualToggle" style="width:100%;text-align:left;padding:8px 10px;border-radius:8px;border:1px dashed var(--sky);background:var(--sky-bg);color:var(--sky);font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer">'+(_manualLinkOpen?'− Hide manual link':'+ Link two guests manually')+'</button>';
     if(_manualLinkOpen){
       // Progressive: only show the second guest's picker once the first is
@@ -2701,7 +2739,7 @@ function renderPairsReview(){
       [1,2].forEach(function(slot){
         if(slot===2&&!_manualLinkPick[1])return;
         var picked=_manualLinkPick[slot];
-        html+='<div style="margin-top:8px">'
+        manualHtml+='<div style="margin-top:8px">'
           +'<div style="font-size:10px;color:var(--muted);font-family:var(--sans);margin-bottom:3px">'+(slot===1?'First guest':'Second guest')+'</div>'
           +(picked
             ? '<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);background:#fff;font-family:var(--sans);font-size:12px;color:var(--ink)"><span>'+picked+'</span><button data-manual-clear="'+slot+'" style="border:none;background:none;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;padding:0 2px">×</button></div>'
@@ -2710,33 +2748,33 @@ function renderPairsReview(){
         +'</div>';
       });
       if(_manualLinkPick[1]&&_manualLinkPick[2]){
-        html+='<button id="pairsManualLinkBtn" style="margin-top:8px;width:100%;padding:8px;border-radius:8px;border:1px solid var(--green);background:var(--green-bg);color:var(--green);font-family:var(--sans);font-size:12px;font-weight:700;cursor:pointer">Link these two</button>';
+        manualHtml+='<button id="pairsManualLinkBtn" style="margin-top:8px;width:100%;padding:8px;border-radius:8px;border:1px solid var(--green);background:var(--green-bg);color:var(--green);font-family:var(--sans);font-size:12px;font-weight:700;cursor:pointer">Link these two</button>';
       }
     }
-    html+='</div>';
+    manualHtml+='</div>';
 
     // Kid ↔ parent(s) panel. A child can have up to two parents, which is
     // why this can't just reuse bulkWith (strictly one-to-one) — it's a
     // separate field (parentNames) stored on the kid's own guest record.
-    html+='<div style="margin-bottom:10px">'
+    manualHtml+='<div style="margin-bottom:6px">'
       +'<button id="parentLinkToggle" style="width:100%;text-align:left;padding:8px 10px;border-radius:8px;border:1px dashed var(--sky);background:var(--sky-bg);color:var(--sky);font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer">'+(_parentLinkOpen?'− Hide link kid to parent(s)':'+ Link a kid to their parent(s)')+'</button>';
     if(_parentLinkOpen){
-      html+='<div style="margin-top:6px;font-size:10px;color:var(--muted);font-family:var(--sans)">Kid'+(_parentLinkKids.length>1?'s':'')+(_parentLinkKids.length?' ('+_parentLinkKids.length+')':'')+'</div>';
+      manualHtml+='<div style="margin-top:6px;font-size:10px;color:var(--muted);font-family:var(--sans)">Kid'+(_parentLinkKids.length>1?'s':'')+(_parentLinkKids.length?' ('+_parentLinkKids.length+')':'')+'</div>';
       _parentLinkKids.forEach(function(kn){
-        html+='<div style="margin-top:3px;display:flex;align-items:center;justify-content:space-between;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);background:#fff;font-family:var(--sans);font-size:12px;color:var(--ink)"><span>'+kn+'</span><button data-kid-remove="'+kn.replace(/"/g,'&quot;')+'" style="border:none;background:none;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;padding:0 2px">×</button></div>';
+        manualHtml+='<div style="margin-top:3px;display:flex;align-items:center;justify-content:space-between;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);background:#fff;font-family:var(--sans);font-size:12px;color:var(--ink)"><span>'+kn+'</span><button data-kid-remove="'+kn.replace(/"/g,'&quot;')+'" style="border:none;background:none;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;padding:0 2px">×</button></div>';
       });
-      html+='<div style="margin-top:3px">'
+      manualHtml+='<div style="margin-top:3px">'
         +'<input type="text" id="kidPickInput" placeholder="'+(_parentLinkKids.length?'Add another kid…':'Search, or pick from the list below…')+'" style="width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);font-family:var(--sans);font-size:12px;box-sizing:border-box;background:#fff;color:var(--ink)">'
         +'<div id="kidPickResults" style="margin-top:4px;max-height:140px;overflow-y:auto">'+renderKidPickList('')+'</div>'
       +'</div>';
       // Progressive: parent picker only appears once at least one kid is chosen.
       if(_parentLinkKids.length){
-      html+='<div style="margin-top:8px;font-size:10px;color:var(--muted);font-family:var(--sans)">Parent'+(_parentLinkParents.length?'s':'')+' ('+_parentLinkParents.length+'/2)</div>';
+      manualHtml+='<div style="margin-top:8px;font-size:10px;color:var(--muted);font-family:var(--sans)">Parent'+(_parentLinkParents.length?'s':'')+' ('+_parentLinkParents.length+'/2)</div>';
       _parentLinkParents.forEach(function(pn){
-        html+='<div style="margin-top:3px;display:flex;align-items:center;justify-content:space-between;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);background:#fff;font-family:var(--sans);font-size:12px;color:var(--ink)"><span>'+pn+'</span><button data-parent-remove="'+pn.replace(/"/g,'&quot;')+'" style="border:none;background:none;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;padding:0 2px">×</button></div>';
+        manualHtml+='<div style="margin-top:3px;display:flex;align-items:center;justify-content:space-between;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);background:#fff;font-family:var(--sans);font-size:12px;color:var(--ink)"><span>'+pn+'</span><button data-parent-remove="'+pn.replace(/"/g,'&quot;')+'" style="border:none;background:none;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;padding:0 2px">×</button></div>';
       });
       if(_parentLinkParents.length<2){
-        html+='<div style="margin-top:3px">'
+        manualHtml+='<div style="margin-top:3px">'
           +'<input type="text" id="parentPickInput" placeholder="Search a parent\'s name…" style="width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);font-family:var(--sans);font-size:12px;box-sizing:border-box;background:#fff;color:var(--ink)">'
           +'<div id="parentPickResults" style="margin-top:4px"></div>'
         +'</div>';
@@ -2744,15 +2782,18 @@ function renderPairsReview(){
       }
       var parentLinkReady=_parentLinkKids.length>0&&_parentLinkParents.length>0;
       if(parentLinkReady){
-        html+='<button id="parentLinkBtn" style="margin-top:8px;width:100%;padding:8px;border-radius:8px;border:1px solid var(--green);background:var(--green-bg);color:var(--green);font-family:var(--sans);font-size:12px;font-weight:700;cursor:pointer">Link '+_parentLinkKids.length+' kid'+(_parentLinkKids.length>1?'s':'')+' to parent'+(_parentLinkParents.length>1?'s':'')+'</button>';
+        manualHtml+='<button id="parentLinkBtn" style="margin-top:8px;width:100%;padding:8px;border-radius:8px;border:1px solid var(--green);background:var(--green-bg);color:var(--green);font-family:var(--sans);font-size:12px;font-weight:700;cursor:pointer">Link '+_parentLinkKids.length+' kid'+(_parentLinkKids.length>1?'s':'')+' to parent'+(_parentLinkParents.length>1?'s':'')+'</button>';
       }
     }
-    html+='</div>';
+    manualHtml+='</div>';
   }
+  var manualFixedEl=document.getElementById('pairsReviewManualFixed');
+  if(manualFixedEl)manualFixedEl.innerHTML=manualHtml;
 
   document.getElementById('pairsReviewList').innerHTML=html||('<div style="padding:20px;text-align:center;color:var(--muted);font-family:var(--sans);font-size:12px">'+(_pairsReviewQuery?'No matches for "'+_pairsReviewQuery+'".':'No pairs yet.')+'</div>');
 
   var list=document.getElementById('pairsReviewList');
+  var mlist=manualFixedEl||list;
   list.querySelectorAll('[data-pr-header]').forEach(function(el){
     el.addEventListener('click',function(){
       var p=pairs[parseInt(this.dataset.prHeader)];
@@ -2764,19 +2805,21 @@ function renderPairsReview(){
       renderPairsReview();
     });
   });
+  var rolesOverviewBtn=document.getElementById('rolesOverviewBtn');
+  if(rolesOverviewBtn)rolesOverviewBtn.addEventListener('click',function(){openRolesOverview();});
   var manualToggle=document.getElementById('pairsManualToggle');
   if(manualToggle)manualToggle.addEventListener('click',function(){
     _manualLinkOpen=!_manualLinkOpen;
     if(!_manualLinkOpen)_manualLinkPick={1:null,2:null};
     renderPairsReview();
   });
-  list.querySelectorAll('[data-manual-clear]').forEach(function(btn){
+  mlist.querySelectorAll('[data-manual-clear]').forEach(function(btn){
     btn.addEventListener('click',function(){
       _manualLinkPick[this.dataset.manualClear]=null;
       renderPairsReview();
     });
   });
-  list.querySelectorAll('.pairs-manual-input').forEach(function(input){
+  mlist.querySelectorAll('.pairs-manual-input').forEach(function(input){
     var bindPicks=function(resultsEl){
       resultsEl.querySelectorAll('[data-manual-pick]').forEach(function(pickBtn){
         pickBtn.addEventListener('click',function(){
@@ -2787,13 +2830,13 @@ function renderPairsReview(){
     };
     input.addEventListener('input',function(){
       var slot=this.dataset.manualSlot;
-      var resultsEl=list.querySelector('[data-manual-results="'+slot+'"]');
+      var resultsEl=mlist.querySelector('[data-manual-results="'+slot+'"]');
       resultsEl.innerHTML=renderManualPickList(this.value,slot);
       bindPicks(resultsEl);
     });
   });
   // Bind the picks already rendered on page load (before any typing)
-  list.querySelectorAll('.pairs-manual-results').forEach(function(resultsEl){
+  mlist.querySelectorAll('.pairs-manual-results').forEach(function(resultsEl){
     resultsEl.querySelectorAll('[data-manual-pick]').forEach(function(pickBtn){
       pickBtn.addEventListener('click',function(){
         _manualLinkPick[this.dataset.manualPick]=this.dataset.manualPickName;
@@ -2838,14 +2881,14 @@ function renderPairsReview(){
     if(!_parentLinkOpen){_parentLinkKids=[];_parentLinkParents=[];}
     renderPairsReview();
   });
-  list.querySelectorAll('[data-kid-remove]').forEach(function(btn){
+  mlist.querySelectorAll('[data-kid-remove]').forEach(function(btn){
     btn.addEventListener('click',function(){
       var removeName=this.dataset.kidRemove;
       _parentLinkKids=_parentLinkKids.filter(function(n){return n!==removeName;});
       renderPairsReview();
     });
   });
-  list.querySelectorAll('[data-parent-remove]').forEach(function(btn){
+  mlist.querySelectorAll('[data-parent-remove]').forEach(function(btn){
     btn.addEventListener('click',function(){
       var removeName=this.dataset.parentRemove;
       _parentLinkParents=_parentLinkParents.filter(function(n){return n!==removeName;});
@@ -3433,9 +3476,14 @@ function buildGuestCard(g, mergedPairPos){
     var infoActions='<div class="g-swipe-info-actions">'
       +'<button class="g-undo-btn" data-qi="'+ri+'" data-action="undo" title="Mark as unsent"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8s2-4.5 9.5-4.5a9 9 0 1 1-9 9"/><polyline points="2.5 3 2.5 8 7.5 8"/></svg></button>'
       +'<button class="ga-btn ga-btn-role'+(g.role?' has-role':'')+'" data-qi="'+ri+'" data-action="role" title="'+(g.role?'Role: '+g.role:'Assign role')+'"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41 11 3.83A2 2 0 0 0 9.59 3.24L4 3a1 1 0 0 0-1 1l.24 5.59a2 2 0 0 0 .59 1.41l9.58 9.59a2 2 0 0 0 2.83 0l4.35-4.35a2 2 0 0 0 0-2.83z"/><circle cx="7.5" cy="7.5" r="1.2" fill="currentColor" stroke="none"/></svg></button>'
-      +'<button class="g-del" data-qi="'+ri+'" data-action="del" title="Delete"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>'
       +'</div>';
-    var infoPanel='<div class="g-swipe-action-left sw-info"><div class="g-swipe-action-inner">'+infoActions+'</div></div>';
+    // No delete button here anymore — it made the panel cramped. Instead,
+    // dragging the card further than the normal reveal "arms" delete: the
+    // panel below turns red and swaps to this hint. Releasing past that
+    // point deletes (with an undo toast); releasing short of it just snaps
+    // back to the normal undo/role panel. See attachSwipe's DELETE_ARM_X.
+    var deleteHint='<div class="g-swipe-delete-hint"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg><span>Release to delete</span></div>';
+    var infoPanel='<div class="g-swipe-action-left sw-info"><div class="g-swipe-action-inner">'+infoActions+'</div>'+deleteHint+'</div>';
     var rsvpPanel='<div class="g-swipe-action-right sw-rsvp"><div class="g-swipe-action-inner">'
       +'<button class="ga-btn ga-btn-rsvp-yes swipe-rsvp-btn'+(effState==='yes'?' active':'')+'" data-qi="'+ri+'" data-action="rsvp-yes" title="Mark RSVP: Yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button>'
       +'<button class="ga-btn ga-btn-rsvp-no swipe-rsvp-btn'+(effState==='no'?' active':'')+'" data-qi="'+ri+'" data-action="rsvp-no" title="Mark RSVP: No"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>'
@@ -3545,6 +3593,15 @@ function attachSwipe(card){
   var SNAP_THRESHOLD = 40;
   // How far the card slides to reveal the 80px action button
   var OPEN_X = 88;
+  // Sent cards have a left "info" panel (undo/role) revealed by swiping
+  // right. Those cards support a deeper second-stage swipe that deletes
+  // directly instead of needing a cramped trash icon in that panel.
+  var hasDeletePanel = !!wrap.querySelector('.g-swipe-action-left.sw-info') && card.dataset.qi !== undefined && card.dataset.qi !== '';
+  // How far past OPEN_X the card can keep sliding for the delete gesture.
+  var DELETE_MAX_X = 190;
+  // Drag distance at which delete "arms" (panel turns red; releasing here deletes).
+  var DELETE_ARM_X = 150;
+  var deleteArmed = false;
 
   var startX, startY, isDragging = false, isOpen = false, openDir = 0; // openDir: 1=right, -1=left
 
@@ -3557,10 +3614,18 @@ function attachSwipe(card){
     setTimeout(function(){ card.style.transition = ''; }, 220);
   }
 
+  function resetDeleteArm(){
+    deleteArmed = false;
+    wrap.classList.remove('sw-delete-ready');
+    var infoPanelEl = wrap.querySelector('.g-swipe-action-left.sw-info');
+    if(infoPanelEl) infoPanelEl.style.width = '';
+  }
+
   function closeCard(){
     snapTo(0);
     isOpen = false; openDir = 0;
     wrap.classList.remove('sw-open-right','sw-open-left');
+    resetDeleteArm();
     wrap.querySelectorAll('.g-swipe-action-left,.g-swipe-action-right').forEach(function(b){
       b.style.opacity='';
       var ic = b.querySelector('.g-swipe-action-icon'); if(ic) ic.style.transform='';
@@ -3574,11 +3639,36 @@ function attachSwipe(card){
     isOpen = true; openDir = dir;
     wrap.classList.toggle('sw-open-right', dir === 1);
     wrap.classList.toggle('sw-open-left', dir === -1);
+    resetDeleteArm();
     // Reset inline styles so CSS takes over at full 80px
     var btnSel = dir === 1 ? '.g-swipe-action-left' : '.g-swipe-action-right';
     var btn = wrap.querySelector(btnSel);
     if(btn){ btn.style.opacity=''; var ic = btn.querySelector('.g-swipe-action-icon'); if(ic) ic.style.transform=''; }
     if(navigator.vibrate) navigator.vibrate(18);
+  }
+
+  // Deletes the guest this card belongs to, with a short slide-out and an
+  // undo toast — the safety net that replaces the old always-visible trash
+  // icon now that deletion happens via a deliberate deep swipe instead.
+  function deleteWithUndo(){
+    var g = getG();
+    if(!g){ closeCard(); return; }
+    if(navigator.vibrate) navigator.vibrate([15,30,15]);
+    wrap.style.transition = 'max-height .2s ease, opacity .2s ease';
+    card.style.transition = 'transform .18s ease-in';
+    card.style.transform = 'translateX(240px)';
+    wrap.style.opacity = '0';
+    setTimeout(function(){
+      var idx = importQueue.indexOf(g);
+      if(idx===-1) return;
+      importQueue.splice(idx,1);
+      selectedIdxs = selectedIdxs.filter(function(i){return i!==idx;});
+      saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();
+      showUndo('Deleted '+g.name,function(){
+        importQueue.push(g);
+        saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();
+      });
+    }, 180);
   }
 
   // Wire up action button clicks
@@ -3628,8 +3718,11 @@ function attachSwipe(card){
     // If card is open, offset from open position
     var base = isOpen ? openDir * OPEN_X : 0;
     var raw = base + dx;
-    // Hard cap at OPEN_X — card never slides further than the button width
-    var clamped = Math.max(-OPEN_X, Math.min(OPEN_X, raw));
+    // Rightward drag on a delete-capable card can go past OPEN_X, up to
+    // DELETE_MAX_X, for the deep-swipe-to-delete gesture. Every other
+    // direction/card type keeps the original hard cap at OPEN_X.
+    var posMax = hasDeletePanel ? DELETE_MAX_X : OPEN_X;
+    var clamped = raw >= 0 ? Math.min(posMax, raw) : Math.max(-OPEN_X, raw);
     card.style.transform = 'translateX('+clamped+'px)';
     // Show the relevant action button during drag, growing with drag distance
     wrap.classList.remove('sw-open-left','sw-open-right');
@@ -3638,6 +3731,13 @@ function attachSwipe(card){
       wrap.classList.add('sw-open-right');
       var btn = wrap.querySelector('.g-swipe-action-left');
       if(btn){ var sc = Math.min(absDrag/OPEN_X, 1); btn.style.opacity = sc; var ic = btn.querySelector('.g-swipe-action-icon'); if(ic) ic.style.transform = 'scale('+(.6+sc*.4)+')'; }
+      if(hasDeletePanel){
+        var infoPanelEl = wrap.querySelector('.g-swipe-action-left.sw-info');
+        if(infoPanelEl) infoPanelEl.style.width = Math.min(clamped, DELETE_MAX_X)+'px';
+        var nowArmed = clamped >= DELETE_ARM_X;
+        if(nowArmed && !deleteArmed){ deleteArmed = true; wrap.classList.add('sw-delete-ready'); if(navigator.vibrate) navigator.vibrate(14); }
+        else if(!nowArmed && deleteArmed){ deleteArmed = false; wrap.classList.remove('sw-delete-ready'); }
+      }
     } else if(clamped < -8){
       wrap.classList.add('sw-open-left');
       var btn = wrap.querySelector('.g-swipe-action-right');
@@ -3645,6 +3745,7 @@ function attachSwipe(card){
     } else {
       // reset both
       ['.g-swipe-action-left','.g-swipe-action-right'].forEach(function(sel){ var b=wrap.querySelector(sel); if(b){b.style.opacity='';} });
+      if(hasDeletePanel) resetDeleteArm();
     }
   }
 
@@ -3660,6 +3761,11 @@ function attachSwipe(card){
     var base = isOpen ? openDir * OPEN_X : 0;
     var net = base + dx; // net position from closed
     startX = null;
+
+    if(hasDeletePanel && net >= DELETE_ARM_X){
+      deleteWithUndo();
+      return;
+    }
 
     if(Math.abs(net) > SNAP_THRESHOLD){
       openCard(net > 0 ? 1 : -1);
@@ -4032,6 +4138,54 @@ var roleModalBg=document.getElementById('roleModalBg'),roleTarget=-1;
   });
 })();
 function openRoleModal(ri){roleTarget=ri;var g=importQueue[ri];document.getElementById('roleModalTitle').textContent='Role — '+g.name;document.getElementById('roleModalTA').value=g.role||'';roleModalBg.style.display='flex';setTimeout(function(){document.getElementById('roleModalTA').focus();},50);}
+
+/* ══ ROLES OVERVIEW — "who's doing what" across all guests ═══════════ */
+function openRolesOverview(){
+  renderRolesOverview();
+  document.getElementById('rolesOverviewModal').style.display='flex';
+}
+function renderRolesOverview(){
+  var withRole=importQueue.filter(function(g){return (g.role||'').trim();});
+  var groups={};
+  withRole.forEach(function(g){
+    var key=g.role.trim();
+    if(!groups[key])groups[key]=[];
+    groups[key].push(g);
+  });
+  var roleNames=Object.keys(groups).sort(function(a,b){return a.localeCompare(b);});
+  document.getElementById('rolesOverviewSub').textContent=roleNames.length
+    ? withRole.length+' guest'+(withRole.length===1?'':'s')+' assigned across '+roleNames.length+' role'+(roleNames.length===1?'':'s')+'.'
+    : 'No roles assigned yet — tap the role icon on a guest to give them one.';
+  var html='';
+  roleNames.forEach(function(roleName){
+    var members=groups[roleName];
+    html+='<div style="margin-bottom:10px">'
+      +'<div style="font-family:var(--sans);font-weight:800;font-size:12px;color:#6B3FA0;margin:4px 4px 5px">'+roleName+' <span style="font-weight:600;color:var(--muted)">('+members.length+')</span></div>';
+    members.forEach(function(g){
+      var ri=importQueue.indexOf(g);
+      html+='<button data-ro-edit="'+ri+'" style="width:100%;text-align:left;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;margin-bottom:4px;border-radius:8px;border:1px solid var(--parchment);background:var(--cream);font-family:var(--sans);font-size:12.5px;color:var(--ink);cursor:pointer">'
+        +'<span>'+g.name+'</span>'
+        +'<span style="font-size:10px;color:var(--muted);font-weight:600">Edit ›</span>'
+      +'</button>';
+    });
+    html+='</div>';
+  });
+  document.getElementById('rolesOverviewList').innerHTML=html||('<div style="padding:20px;text-align:center;color:var(--muted);font-family:var(--sans);font-size:12px">No roles assigned yet.</div>');
+  document.getElementById('rolesOverviewList').querySelectorAll('[data-ro-edit]').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var ri=parseInt(this.dataset.roEdit);
+      document.getElementById('rolesOverviewModal').style.display='none';
+      openRoleModal(ri);
+    });
+  });
+}
+document.getElementById('rolesOverviewClose').addEventListener('click',function(){document.getElementById('rolesOverviewModal').style.display='none';});
+// Refresh the roles overview in place after a role is saved/cleared while it's
+// open behind the role modal. Deferred with setTimeout so this runs after the
+// save/clear handlers above have actually updated the guest's g.role.
+function _refreshRolesOverviewIfOpen(){setTimeout(function(){if(document.getElementById('rolesOverviewModal').style.display==='flex')renderRolesOverview();},0);}
+document.getElementById('roleModalSave').addEventListener('click',_refreshRolesOverviewIfOpen);
+document.getElementById('roleModalClear').addEventListener('click',_refreshRolesOverviewIfOpen);
 document.getElementById('roleModalCancel').addEventListener('click',function(){roleModalBg.style.display='none';});
 document.getElementById('roleModalClear').addEventListener('click',function(){if(roleTarget>=0&&importQueue[roleTarget]){importQueue[roleTarget].role='';saveGuestMeta();pushMetaToWorker(importQueue[roleTarget]);renderGuestList();}roleModalBg.style.display='none';});
 document.getElementById('roleModalSave').addEventListener('click',function(){if(roleTarget>=0&&importQueue[roleTarget]){importQueue[roleTarget].role=document.getElementById('roleModalTA').value.trim();saveGuestMeta();pushMetaToWorker(importQueue[roleTarget]);renderGuestList();}roleModalBg.style.display='none';});
