@@ -298,20 +298,20 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-swipe-wrap:has(.g-card.fup){box-shadow:inset 3px 0 0 var(--amber),var(--shadow-sm)}
 .g-swipe-wrap:has(.g-card.sent) .g-card{background:#fafafa}
 .g-swipe-wrap.rsvp-yes{box-shadow:inset 3px 0 0 var(--green)!important}
-.g-swipe-wrap.rsvp-yes .g-card.sent{background:#fff!important}
-.g-swipe-wrap.rsvp-yes .g-card.sent .g-name{color:var(--ink)!important;font-weight:600!important}
+.g-swipe-wrap.rsvp-yes .g-card.sent{background:var(--green-bg)!important}
+.g-swipe-wrap.rsvp-yes .g-card.sent .g-name{color:var(--green)!important;font-weight:700!important}
 .g-swipe-wrap.rsvp-yes .g-card.sent .g-sent-time{color:var(--muted)!important}
 .g-swipe-wrap.rsvp-yes .g-card.sent .g-undo-btn,.g-swipe-wrap.rsvp-yes .g-card.sent .g-del{color:var(--soft)!important}
 .g-swipe-wrap.rsvp-yes .g-card.sent .g-sender-br{opacity:1!important}
 .g-swipe-wrap.rsvp-no{box-shadow:inset 3px 0 0 var(--red)!important}
-.g-swipe-wrap.rsvp-no .g-card.sent{background:#fff!important}
-.g-swipe-wrap.rsvp-no .g-card.sent .g-name{color:var(--ink)!important;font-weight:600!important}
+.g-swipe-wrap.rsvp-no .g-card.sent{background:var(--red-bg)!important}
+.g-swipe-wrap.rsvp-no .g-card.sent .g-name{color:var(--red)!important;font-weight:700!important}
 .g-swipe-wrap.rsvp-no .g-card.sent .g-sent-time{color:var(--muted)!important}
 .g-swipe-wrap.rsvp-no .g-card.sent .g-undo-btn,.g-swipe-wrap.rsvp-no .g-card.sent .g-del{color:var(--soft)!important}
 .g-swipe-wrap.rsvp-no .g-card.sent .g-sender-br{opacity:1!important}
 .g-swipe-wrap.rsvp-pending{box-shadow:inset 3px 0 0 var(--amber)!important}
-.g-swipe-wrap.rsvp-pending .g-card.sent{background:#fff!important}
-.g-swipe-wrap.rsvp-pending .g-card.sent .g-name{color:var(--ink)!important;font-weight:600!important}
+.g-swipe-wrap.rsvp-pending .g-card.sent{background:var(--amber-bg)!important}
+.g-swipe-wrap.rsvp-pending .g-card.sent .g-name{color:var(--amber)!important;font-weight:700!important}
 .g-swipe-wrap.rsvp-pending .g-card.sent .g-sent-time{color:var(--muted)!important}
 .g-swipe-wrap.rsvp-pending .g-card.sent .g-undo-btn,.g-swipe-wrap.rsvp-pending .g-card.sent .g-del{color:var(--soft)!important}
 .g-swipe-wrap:has(.g-card.pending-sent){box-shadow:inset 3px 0 0 var(--rose),var(--shadow-sm)}
@@ -839,10 +839,8 @@ body.lite-mode #liteModeTopBtn {
   <button class="rsvp-count-btn" id="rsvpCountBtn" title="RSVP Responses">
     <span class="rc-num" id="rsvpCountNum">—</span>
   </button>
-  <!-- Quick add / new invite (moved off the old bottom + button) -->
-  <button class="quickadd-btn" id="quickAddBtn" title="New invite (N)">
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-  </button>
+  <!-- Quick add moved to Settings → Developer → Manual sending -->
+  <button class="quickadd-btn" id="quickAddBtn" title="New invite (N)" style="display:none"></button>
   <!-- Deploy (keep hidden, still needed) -->
   <button class="deploy-btn" id="deployBtn" title="Deploy to GitHub" style="display:none"></button>
   <!-- Dev mode -->
@@ -1113,6 +1111,23 @@ body.lite-mode #liteModeTopBtn {
   </div>
   <div class="settings-body">
 
+    <!-- SECTION: Developer (manual sending lives here, shown first) -->
+    <div class="s-section">
+      <div class="s-section-label">Developer</div>
+      <div class="s-row">
+        <div class="s-row-info"><div class="s-row-title">Manual sending</div><div class="s-row-sub">Add a single guest or couple by hand</div></div>
+        <button class="s-btn-small" id="sManualSendBtn">New invite</button>
+      </div>
+      <div class="s-row">
+        <div class="s-row-info"><div class="s-row-title">Last deployed</div><div class="s-row-sub">When this file was last pushed to GitHub</div></div>
+        <span id="sAppVersion" style="font-family:var(--sans);font-size:11px;font-weight:700;color:var(--muted);background:var(--parchment);padding:5px 10px;border-radius:var(--r-pill)"></span>
+      </div>
+      <div class="s-row">
+        <div class="s-row-info"><div class="s-row-title">Dev mode</div><div class="s-row-sub">Highlight layout regions and inspect elements</div></div>
+        <button class="dev-btn" id="devBtnSettings" title="Dev mode"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      </div>
+    </div>
+
     <!-- SECTION: People -->
     <div class="s-section">
       <div class="s-section-label">People</div>
@@ -1265,19 +1280,6 @@ body.lite-mode #liteModeTopBtn {
       <div class="s-row">
         <div class="s-row-info"><div class="s-row-title">RSVP &amp; B&amp;S List</div><div class="s-row-sub">Opens from the ✓ button in toolbar</div></div>
         <a href="https://docs.google.com/spreadsheets/d/1plydb1KSGgwbxCZzmSD8e12f-Rzzm9-dOlFml4ivUKQ/edit?usp=drivesdk" target="_blank" rel="noreferrer" style="font-size:10.5px;font-weight:600;color:var(--green);text-decoration:none;padding:5px 12px;border-radius:var(--r-pill);background:var(--green-bg);border:1.5px solid rgba(58,140,92,.3);white-space:nowrap;transition:all var(--ease)" onmouseover="this.style.background='rgba(58,140,92,.18)'" onmouseout="this.style.background='var(--green-bg)'">Open Sheet ↗</a>
-      </div>
-    </div>
-
-    <!-- SECTION: Developer -->
-    <div class="s-section">
-      <div class="s-section-label">Developer</div>
-      <div class="s-row">
-        <div class="s-row-info"><div class="s-row-title">Last deployed</div><div class="s-row-sub">When this file was last pushed to GitHub</div></div>
-        <span id="sAppVersion" style="font-family:var(--sans);font-size:11px;font-weight:700;color:var(--muted);background:var(--parchment);padding:5px 10px;border-radius:var(--r-pill)"></span>
-      </div>
-      <div class="s-row">
-        <div class="s-row-info"><div class="s-row-title">Dev mode</div><div class="s-row-sub">Highlight layout regions and inspect elements</div></div>
-        <button class="dev-btn" id="devBtnSettings" title="Dev mode"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
       </div>
     </div>
 
@@ -3771,6 +3773,10 @@ function doGroupSend(guests,phone,msgLang){
 })();
 document.getElementById('quickAddBtn').addEventListener('click',function(){
   openQuickForm(sessionSender);
+});
+document.getElementById('sManualSendBtn').addEventListener('click',function(){
+  closeSettings();
+  setTimeout(function(){ openQuickForm(sessionSender); }, 250);
 });
 
 var qfMode='single',qfScope='ceremony';
