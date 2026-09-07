@@ -254,6 +254,8 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 /* Confirmed-pair merge: two guest cards drawn as one unit, divided by a
    hairline instead of the usual gap+shadow+rounded-corners-on-both. */
 .g-pair-merged{display:flex;flex-direction:column;border-radius:var(--r-sm);overflow:hidden;box-shadow:var(--shadow-sm)}
+.g-pair-merged-wrap{position:relative;margin-bottom:6px}
+.g-pair-merged-wrap .g-pair-merged{margin-bottom:0}
 .g-pair-merged .g-swipe-wrap{box-shadow:none;border-radius:0}
 .g-pair-merged .g-swipe-wrap .g-card{border-radius:0}
 .g-pair-merged .g-swipe-wrap:last-child{border-top:1px solid rgba(0,0,0,.06)}
@@ -386,7 +388,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
    border-radius on an invisible box — sweeping down from the trunk line
    into the top-left of the card. No elbow corner, no dot. */
 .g-family-pod-item{position:relative}
-.g-family-pod-toggle{margin:3px auto 8px;padding:4px 11px;display:flex;align-items:center;justify-content:center;gap:5px;font-size:11px;font-weight:700;color:var(--pod-accent);border:1.5px solid var(--pod-accent);border-radius:999px;cursor:pointer;background:rgba(255,255,255,.65);width:fit-content}
+.g-family-pod-toggle{margin:3px auto 8px;padding:4px 11px;display:flex;align-items:center;justify-content:center;gap:5px;font-size:11px;font-weight:700;color:var(--pod-accent);border:1.5px solid var(--pod-accent);border-radius:999px;cursor:pointer;background:#fff;width:fit-content;box-shadow:var(--shadow-sm)}
 .g-family-pod-toggle:hover{background:rgba(255,255,255,.95)}
 .g-family-pod-toggle-icon{flex-shrink:0;transition:transform .15s ease}
 .g-family-pod-toggle.is-open .g-family-pod-toggle-icon{transform:rotate(45deg)}
@@ -2048,7 +2050,11 @@ function renderGuestList(){
     childrenByHost[hostName].push(g);
   });
   function isNestedElsewhere(g){return!!childHost[g.name];}
-  function nestedChildrenHtml(names){
+  // Returns {toggleHtml, podHtml} so callers can place the toggle badge
+  // wherever it belongs (overlapping the seam between a merged couple, or
+  // just below a single card) while the expanded kid list always flows
+  // underneath as a normal block. Returns null if there are no kids.
+  function nestedChildrenParts(names, seam){
     var out=[],seenHere={};
     names.forEach(function(n){
       (childrenByHost[n]||[]).forEach(function(kid){
@@ -2056,7 +2062,7 @@ function renderGuestList(){
         seenHere[kid.name]=true;out.push(kid);
       });
     });
-    if(!out.length)return '';
+    if(!out.length)return null;
     // Match the pod's connector line to the parent's own RSVP color instead of
     // a fixed blue, so a "no" parent doesn't sit next to a jarring blue line.
     var hostGuest=nameToGuest[names[0]];
@@ -2064,16 +2070,33 @@ function renderGuestList(){
     var accent=hostYN===true?'rgba(58,140,92,.5)':hostYN===false?'rgba(192,64,46,.5)':'rgba(74,110,168,.45)';
     // Kids stay collapsed behind a small toggle by default — a family with
     // several kids used to dump every kid card into view under the parent;
-    // now it's just a "+N kids" pill until tapped open.
+    // now it's just a "+N" pill until tapped open.
     var podKey=names[0];
     var expanded=!!expandedFamilyPods[podKey];
-    var toggleHtml='<div class="g-family-pod-toggle'+(expanded?' is-open':'')+'" data-pod-key="'+podKey.replace(/"/g,'&quot;')+'" style="--pod-accent:'+accent+'">'
+    // For a couple, the badge sits pinned to the seam between the two names
+    // instead of floating in its own row below — same boxes, badge just
+    // overlaps the border between them.
+    var seamStyle=seam?'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:3;margin:0':'';
+    var toggleHtml='<div class="g-family-pod-toggle'+(expanded?' is-open':'')+'" data-pod-key="'+podKey.replace(/"/g,'&quot;')+'" style="--pod-accent:'+accent+';'+seamStyle+'">'
       +'<svg class="g-family-pod-toggle-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'
-      +'<span>'+out.length+' kid'+(out.length>1?'s':'')+'</span>'
+      +'<span>'+out.length+'</span>'
       +'</div>';
-    if(!expanded)return toggleHtml;
-    return toggleHtml+'<div class="g-family-pod" style="--pod-accent:'+accent+'">'
-      +out.map(function(kid){return '<div class="g-family-pod-item">'+buildGuestCard(kid)+'</div>';}).join('')+'</div>';
+    var podHtml=expanded?('<div class="g-family-pod" style="--pod-accent:'+accent+'">'
+      +out.map(function(kid){return '<div class="g-family-pod-item">'+buildGuestCard(kid)+'</div>';}).join('')+'</div>'):'';
+    return {toggleHtml:toggleHtml, podHtml:podHtml};
+  }
+  // Back-compat wrapper for single-guest (non-couple) call sites: toggle and
+  // pod just flow one after the other in normal document order.
+  function nestedChildrenHtml(names){
+    var parts=nestedChildrenParts(names,false);
+    return parts?(parts.toggleHtml+parts.podHtml):'';
+  }
+  // For a merged couple: wraps the pair card + seam badge in a positioned
+  // container, then returns the expanded kid list (if any) to flow after it.
+  function mergedPairWithKids(pairHtml, names){
+    var parts=nestedChildrenParts(names,true);
+    if(!parts)return pairHtml;
+    return '<div class="g-pair-merged-wrap">'+pairHtml+parts.toggleHtml+'</div>'+parts.podHtml;
   }
 
   var sections={};
@@ -2098,7 +2121,7 @@ function renderGuestList(){
       var partnerInThisSection=mutual&&sections[grp].indexOf(partnerObj)!==-1;
       if(partnerInThisSection){
         mergedSeenUnsent[partnerObj.name]=true;
-        html+='<div class="g-pair-merged">'+buildGuestCard(g,'top')+buildGuestCard(partnerObj,'bottom')+'</div>'+nestedChildrenHtml([g.name,partnerObj.name]);
+        html+=mergedPairWithKids('<div class="g-pair-merged">'+buildGuestCard(g,'top')+buildGuestCard(partnerObj,'bottom')+'</div>',[g.name,partnerObj.name]);
       } else {
         html+=buildGuestCard(g)+nestedChildrenHtml([g.name]);
       }
@@ -2137,7 +2160,7 @@ function renderGuestList(){
         if(isConfirmedPair){
           var partnerRi=importQueue.indexOf(partnerObj);
           mergedSeen[partnerRi]=true;
-          html+='<div class="g-pair-merged">'+buildGuestCard(g,'top')+buildGuestCard(partnerObj,'bottom')+'</div>'+nestedChildrenHtml([g.name,partnerObj.name]);
+          html+=mergedPairWithKids('<div class="g-pair-merged">'+buildGuestCard(g,'top')+buildGuestCard(partnerObj,'bottom')+'</div>',[g.name,partnerObj.name]);
         } else {
           html+=buildGuestCard(g)+nestedChildrenHtml([g.name]);
         }
