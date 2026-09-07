@@ -319,6 +319,10 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-swipe-wrap.rsvp-pending .g-card.sent .g-name{color:#fff!important;font-weight:800!important}
 .g-swipe-wrap.rsvp-pending .g-card.sent .g-sent-time{color:rgba(255,255,255,.7)!important}
 .g-swipe-wrap:has(.g-card.pending-sent){box-shadow:inset 3px 0 0 var(--rose),var(--shadow-sm)}
+/* When a card is swiped open, the left action panel sits flush against this
+   same edge — the colored accent line then peeks out behind/around it and
+   looks like a stray sliver. Drop it while swiped open. */
+.g-swipe-wrap.sw-open-left,.g-swipe-wrap.sw-open-right{box-shadow:none!important}
 .g-partner-ref-wrap{display:inline-flex;align-items:center;gap:6px;margin-top:2px;max-width:100%}
 .g-partner-ref-wrap .g-partner-ref{margin-top:0;flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .g-partner-unlink{flex-shrink:0;width:14px;height:14px;border-radius:50%;border:none;background:rgba(0,0,0,.08);color:var(--muted);font-size:8px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
@@ -382,9 +386,10 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
    border-radius on an invisible box — sweeping down from the trunk line
    into the top-left of the card. No elbow corner, no dot. */
 .g-family-pod-item{position:relative}
-.g-family-pod-toggle{margin:3px 0 8px 21px;padding:4px 11px;display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--pod-accent);border:1.5px solid var(--pod-accent);border-radius:999px;cursor:pointer;background:rgba(255,255,255,.65);width:fit-content}
+.g-family-pod-toggle{margin:3px auto 8px;padding:4px 11px;display:flex;align-items:center;justify-content:center;gap:5px;font-size:11px;font-weight:700;color:var(--pod-accent);border:1.5px solid var(--pod-accent);border-radius:999px;cursor:pointer;background:rgba(255,255,255,.65);width:fit-content}
 .g-family-pod-toggle:hover{background:rgba(255,255,255,.95)}
-.g-family-pod-toggle svg{flex-shrink:0}
+.g-family-pod-toggle-icon{flex-shrink:0;transition:transform .15s ease}
+.g-family-pod-toggle.is-open .g-family-pod-toggle-icon{transform:rotate(45deg)}
 .g-family-pod-item::before{content:'';position:absolute;left:-20px;top:-8px;width:20px;height:30px;border-left:1.5px solid var(--pod-accent);border-bottom:1.5px solid var(--pod-accent);border-bottom-left-radius:20px;pointer-events:none}
 .g-child-tag{font-size:9.5px;color:#7A8FB8;margin-top:1px;font-style:italic}
 .g-swipe-wrap.rsvp-yes .g-card.sent .g-child-tag,
@@ -2062,9 +2067,9 @@ function renderGuestList(){
     // now it's just a "+N kids" pill until tapped open.
     var podKey=names[0];
     var expanded=!!expandedFamilyPods[podKey];
-    var toggleHtml='<div class="g-family-pod-toggle" data-pod-key="'+podKey.replace(/"/g,'&quot;')+'" style="--pod-accent:'+accent+'">'
-      +'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">'+(expanded?'<polyline points="18 15 12 9 6 15"/>':'<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>')+'</svg>'
-      +'<span>'+(expanded?'Hide ':'')+out.length+' kid'+(out.length>1?'s':'')+'</span>'
+    var toggleHtml='<div class="g-family-pod-toggle'+(expanded?' is-open':'')+'" data-pod-key="'+podKey.replace(/"/g,'&quot;')+'" style="--pod-accent:'+accent+'">'
+      +'<svg class="g-family-pod-toggle-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'
+      +'<span>'+out.length+' kid'+(out.length>1?'s':'')+'</span>'
       +'</div>';
     if(!expanded)return toggleHtml;
     return toggleHtml+'<div class="g-family-pod" style="--pod-accent:'+accent+'">'
@@ -3365,7 +3370,7 @@ function buildGuestCard(g, mergedPairPos){
     var parentRefHtml='';
     if(g.parentNames){
       var parentFirstNames=_parentNameList(g.parentNames).map(function(n){return n.split(' ')[0];}).join(' & ');
-      parentRefHtml='<div class="g-child-tag" title="Child of '+g.parentNames+'">with '+parentFirstNames+'</div>';
+      parentRefHtml='<div class="g-child-tag" style="margin-left:auto;margin-top:0;flex-shrink:0;white-space:nowrap;padding-left:8px" title="Child of '+g.parentNames+'">with '+parentFirstNames+'</div>';
     }
 
     // Effective RSVP state to pre-select in the swipe panel: a manual override wins,
@@ -3390,9 +3395,8 @@ function buildGuestCard(g, mergedPairPos){
         +'<div class="g-inner">'
           +'<div class="g-inner-left">'
             +'<div class="g-main">'
-              +'<div class="g-name-row" style="flex-wrap:wrap"><span class="g-name" style="font-size:15px;flex:0 1 auto">'+g.name+'</span>'+pillWrap+'</div>'
+              +'<div class="g-name-row" style="flex-wrap:wrap"><span class="g-name" style="font-size:15px;flex:0 1 auto">'+g.name+'</span>'+pillWrap+parentRefHtml+'</div>'
               +partnerRefHtml
-              +parentRefHtml
               +debugTag
             +'</div>'
           +'</div>'
