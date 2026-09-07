@@ -221,6 +221,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .f-pill.on-a{background:var(--arina-bg);border-color:var(--arina-border);color:var(--arina-txt)}
 .f-pill.on-e{background:var(--elnur-bg);border-color:var(--elnur-border);color:var(--elnur-txt)}
 .f-pill.f-sent-pill.on{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 2px 8px rgba(58,140,92,.25)}
+.f-pill.on-c{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 2px 8px rgba(58,140,92,.25)}
 .search-filter-row{display:flex;gap:8px;margin-bottom:12px;align-items:stretch;flex-wrap:wrap}
 .search-wrap{position:relative;flex:1;min-width:0}
 .search-wrap::before{display:none}
@@ -1956,6 +1957,7 @@ function renderFilterRow(){
   var isOpen = isAll||isA||isE;
   var fCls = importFilter==='followup' ? 'on-f' : '';
   var sCls = importFilter==='sent' ? 'on' : '';
+  var cCls = importFilter==='confirmed' ? 'on-c' : '';
   /* Compound Open pill with embedded A/E toggles */
   var openPillCls = 'f-pill f-pill-open'+(isOpen?' on':'');
   row.innerHTML = ''
@@ -1968,7 +1970,8 @@ function renderFilterRow(){
       +'</span>'
     +'</button>'
     +'<button class="f-pill '+fCls+'" data-f="followup">Flag</button>'
-    +'<button class="f-pill f-sent-pill '+sCls+'" data-f="sent">Sent</button>';
+    +'<button class="f-pill f-sent-pill '+sCls+'" data-f="sent">Sent</button>'
+    +'<button class="f-pill '+cCls+'" data-f="confirmed">Confirmed</button>';
 
   /* Open pill: click label area → all open */
   var pillOpen=document.getElementById('fPillOpen');
@@ -2013,6 +2016,7 @@ function getFiltered(){
     if(importFilter==='followup')return g.followup;
     if(importFilter==='pending')return!g.sent;
     if(importFilter==='sent')return g.sent;
+    if(importFilter==='confirmed')return g.sent&&getGuestRsvpYesNo(g)===true;
     return true;
   }).filter(function(g){return!searchQuery||(g.name||'').toLowerCase().includes(searchQuery);})
     .filter(function(g){return!groupFilter||(g.group||'')===groupFilter;})
