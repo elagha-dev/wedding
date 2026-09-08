@@ -222,6 +222,21 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .f-pill.on-e{background:var(--elnur-bg);border-color:var(--elnur-border);color:var(--elnur-txt)}
 .f-pill.f-sent-pill.on{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 2px 8px rgba(58,140,92,.25)}
 .f-pill.on-c{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 2px 8px rgba(58,140,92,.25)}
+/* Guest-list filter row restyled as browser-style tabs: flat top corners,
+   sitting on a shared baseline rule; the active tab's own bottom border
+   overwrites that line in its accent color, so it reads as "attached" to
+   the content below — same idea as the pairs-modal "Link & roles" tab,
+   adapted for a row of mutually-exclusive filters instead of a single
+   toggle. Scoped to #filterRow so the tracker's reused .f-pill filter
+   bar elsewhere keeps its original pill look. */
+#filterRow{border-bottom:1.5px solid var(--parchment);margin-bottom:10px;padding-bottom:0;gap:3px}
+#filterRow .f-pill{border-radius:9px 9px 0 0;-webkit-mask-image:none;border:1.5px solid var(--parchment);background:var(--cream2);box-shadow:none;margin-bottom:-1.5px;border-bottom-color:var(--parchment)}
+#filterRow .f-pill:hover{border-color:var(--blush);border-bottom-color:var(--blush)}
+#filterRow .f-pill.on{background:var(--rose);border-color:var(--rose);color:#fff;border-bottom-color:var(--rose);box-shadow:none}
+#filterRow .f-pill.on-f{background:var(--amber-bg);border-color:rgba(176,120,48,.3);color:var(--amber);border-bottom-color:var(--amber-bg)}
+#filterRow .f-pill.on-c,#filterRow .f-pill.f-sent-pill.on{background:var(--green);border-color:var(--green);color:#fff;border-bottom-color:var(--green);box-shadow:none}
+#filterRow .f-pill-open{border-radius:9px 9px 0 0}
+#filterRow .f-pill-open.on{border-bottom-color:var(--rose)}
 .search-filter-row{display:flex;gap:8px;margin-bottom:12px;align-items:stretch;flex-wrap:wrap}
 .search-wrap{position:relative;flex:1;min-width:0}
 .search-wrap::before{display:none}
