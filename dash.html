@@ -2222,7 +2222,7 @@ function renderGuestList(){
         mergedSeenUnsent[partnerObj.name]=true;
         html+=mergedPairWithKids('<div class="g-pair-merged">'+buildGuestCard(g,'top')+buildGuestCard(partnerObj,'bottom')+'</div>',[g.name,partnerObj.name]);
       } else {
-        html+=buildGuestCard(g)+nestedChildrenHtml([g.name]);
+        html+=mergedPairWithKids(buildGuestCard(g),[g.name]);
       }
     });
   });
@@ -2262,7 +2262,7 @@ function renderGuestList(){
           mergedSeen[partnerRi]=true;
           html+=mergedPairWithKids('<div class="g-pair-merged">'+buildGuestCard(g,'top')+buildGuestCard(partnerObj,'bottom')+'</div>',[g.name,partnerObj.name]);
         } else {
-          html+=buildGuestCard(g)+nestedChildrenHtml([g.name]);
+          html+=mergedPairWithKids(buildGuestCard(g),[g.name]);
         }
       });
       html+='<button class="show-sent-btn" id="showSentBtn">Hide '+sentHdrLabel.toLowerCase()+'</button>';
@@ -2515,7 +2515,7 @@ var _matchTabOpen=false;
 var _manualLinkPick={1:null,2:null}; // selected guest names for the two manual-link slots
 var _parentLinkOpen=false;
 var _parentLinkKids=[]; // names of the kid guests being linked (multi-select)
-var _parentLinkParents=[]; // up to 2 parent names picked
+var _parentLinkParents=[]; // parent/guardian names picked — no cap, blended families can list more than 2
 // Browsable candidate list for the manual-link panel — defaults to every
 // guest with no partner recorded yet (the ones you'd actually want to pick
 // from), and narrows by typed text when there's a query. Excludes whoever
@@ -2590,7 +2590,7 @@ function renderParentPickList(query){
   }).join('');
 }
 // Names a child's parentNames field lists, trimmed — a kid can be linked
-// to one or two parents, comma-separated in whatever order they were picked.
+// to any number of parents/guardians, comma-separated in whatever order they were picked.
 function _parentNameList(s){return (s||'').split(',').map(function(n){return n.trim();}).filter(Boolean);}
 function buildFamilyTree(){
   var allPairs=auditPairs();
@@ -2819,16 +2819,14 @@ function renderPairsReview(){
       +'</div>';
       // Progressive: parent picker only appears once at least one kid is chosen.
       if(_parentLinkKids.length){
-      manualHtml+='<div style="margin-top:8px;font-size:10px;color:var(--muted);font-family:var(--sans)">Parent'+(_parentLinkParents.length?'s':'')+' ('+_parentLinkParents.length+'/2)</div>';
+      manualHtml+='<div style="margin-top:8px;font-size:10px;color:var(--muted);font-family:var(--sans)">Parent'+(_parentLinkParents.length===1?'':'s')+(_parentLinkParents.length?' ('+_parentLinkParents.length+')':'')+'</div>';
       _parentLinkParents.forEach(function(pn){
         manualHtml+='<div style="margin-top:3px;display:flex;align-items:center;justify-content:space-between;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);background:#fff;font-family:var(--sans);font-size:12px;color:var(--ink)"><span>'+pn+'</span><button data-parent-remove="'+pn.replace(/"/g,'&quot;')+'" style="border:none;background:none;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;padding:0 2px">×</button></div>';
       });
-      if(_parentLinkParents.length<2){
-        manualHtml+='<div style="margin-top:3px">'
-          +'<input type="text" id="parentPickInput" placeholder="Search a parent\'s name…" style="width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);font-family:var(--sans);font-size:12px;box-sizing:border-box;background:#fff;color:var(--ink)">'
-          +'<div id="parentPickResults" style="margin-top:4px"></div>'
-        +'</div>';
-      }
+      manualHtml+='<div style="margin-top:3px">'
+        +'<input type="text" id="parentPickInput" placeholder="'+(_parentLinkParents.length?'Add another parent/guardian…':'Search a parent\'s name…')+'" style="width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);font-family:var(--sans);font-size:12px;box-sizing:border-box;background:#fff;color:var(--ink)">'
+        +'<div id="parentPickResults" style="margin-top:4px"></div>'
+      +'</div>';
       }
       var parentLinkReady=_parentLinkKids.length>0&&_parentLinkParents.length>0;
       if(parentLinkReady){
@@ -2967,7 +2965,7 @@ function renderPairsReview(){
     resultsEl.innerHTML=renderParentPickList(this.value);
     resultsEl.querySelectorAll('[data-parent-pick]').forEach(function(btn){
       btn.addEventListener('click',function(){
-        if(_parentLinkParents.length<2)_parentLinkParents.push(this.dataset.parentPickName);
+        _parentLinkParents.push(this.dataset.parentPickName);
         renderPairsReview();
       });
     });
