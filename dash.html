@@ -399,7 +399,6 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .chip-rsvp{background:var(--green-bg);color:var(--green)}
 .chip-child{background:#EAF0FA;color:#4A6EA8}.is-child .g-inner-right .ga-btn-wa,.is-child .g-inner-right .g-del{display:none!important}
 .chip-role{background:#F0E6F7;color:#6B3FA0;cursor:pointer}
-.chip-role-icon{width:18px;height:18px;border-radius:50%;background:#F0E6F7;color:#8B5FBF;border:none;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0;flex-shrink:0}
 .chip-role-empty{background:transparent;color:var(--soft);border:1.5px dashed var(--soft)}
 .ga-btn-role{color:#8B5FBF}.ga-btn-role.has-role{color:#6B3FA0;background:#F0E6F7}
 .role-preset-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
@@ -1484,8 +1483,15 @@ body.lite-mode #liteModeTopBtn {
       <div style="font-family:var(--sans);font-weight:800;font-size:14px;color:var(--ink)">Sent-together pairs</div>
       <button id="pairsReviewClose" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);line-height:1;padding:0 4px">×</button>
     </div>
-    <div id="pairsReviewSub" style="padding:8px 18px;font-family:var(--sans);font-size:11px;color:var(--muted);flex-shrink:0;background:#fff"></div>
-    <div id="pairsReviewTabs" style="display:flex;align-items:center;justify-content:space-between;padding:0 18px 10px;flex-shrink:0;background:#fff">
+    <div id="pairsReviewSub" style="padding:8px 18px 0;font-family:var(--sans);font-size:11px;color:var(--muted);flex-shrink:0;background:#fff"></div>
+    <div style="padding:8px 18px 0;flex-shrink:0;background:#fff;display:flex;gap:4px">
+      <button id="pairsMatchTab" style="padding:7px 14px;border:1px solid var(--parchment);border-bottom:none;border-radius:10px 10px 0 0;background:var(--cream);color:var(--ink2);font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Link &amp; roles</button>
+    </div>
+    <!-- Tab content: manual couple/kid linking + roles overview. Hidden
+         until the "Link & roles" tab above is tapped, instead of always
+         sitting fixed on screen. -->
+    <div id="pairsReviewManualFixed" style="display:none;padding:10px 18px 0;flex-shrink:0;background:#fff;max-height:42vh;overflow-y:auto;border:1px solid var(--parchment);border-radius:0 10px 10px 10px;margin:0 18px"></div>
+    <div id="pairsReviewTabs" style="display:flex;align-items:center;justify-content:space-between;padding:10px 18px 10px;flex-shrink:0;background:#fff">
       <span style="font-family:var(--sans);font-size:12px;font-weight:700;color:var(--ink2)">Family tree view</span>
       <label class="s-toggle"><input type="checkbox" id="prTreeToggle"/><span class="s-toggle-track"></span></label>
     </div>
@@ -1493,11 +1499,6 @@ body.lite-mode #liteModeTopBtn {
       <input id="pairsReviewSearch" type="text" placeholder="Search a name…" style="width:100%;box-sizing:border-box;padding:8px 10px;border:1.5px solid var(--parchment);border-radius:var(--r-sm);font-family:var(--sans);font-size:12px;color:var(--ink);background:var(--cream)"/>
     </div>
     <div id="pairsReviewList" style="overflow-y:auto;padding:6px 12px 16px;flex:1;background:#fff"></div>
-    <!-- Fixed, non-scrolling: manual couple/kid linking + roles overview stay
-         pinned at the bottom of the modal, in view regardless of how far
-         the pairs list above has been scrolled, since these are actions
-         people reach for regardless of scroll position. -->
-    <div id="pairsReviewManualFixed" style="padding:8px 18px 0;flex-shrink:0;background:#fff;max-height:42vh;overflow-y:auto;border-top:1px solid var(--parchment);box-shadow:0 -4px 10px rgba(0,0,0,.04)"></div>
   </div>
 </div>
 <div id="undoToast"><span id="undoToastMsg">Marked as sent</span><button id="undoToastBtn">Undo</button></div>
@@ -1957,7 +1958,9 @@ document.getElementById('ovTotal').addEventListener('click',function(){
 (function(){
   var reviewBtn=document.getElementById('reviewPairsBtn');
   var reviewModal=document.getElementById('pairsReviewModal');
-  if(reviewBtn&&reviewModal)reviewBtn.addEventListener('click',function(){_pairsReviewTab='couples';renderPairsReview();reviewModal.style.display='flex';});
+  if(reviewBtn&&reviewModal)reviewBtn.addEventListener('click',function(){_pairsReviewTab='couples';_matchTabOpen=false;renderPairsReview();reviewModal.style.display='flex';});
+  var matchTab=document.getElementById('pairsMatchTab');
+  if(matchTab)matchTab.addEventListener('click',function(){_matchTabOpen=!_matchTabOpen;renderPairsReview();});
 })();
 (function(){
   var stampBtn=document.getElementById('deployStampBtn');
@@ -2493,6 +2496,7 @@ var _pairsReviewTab='couples'; // 'couples' | 'tree'
 // "use the automatic default" (expanded only if it needs attention).
 var _expandedPairs={};
 var _manualLinkOpen=false;
+var _matchTabOpen=false;
 var _manualLinkPick={1:null,2:null}; // selected guest names for the two manual-link slots
 var _parentLinkOpen=false;
 var _parentLinkKids=[]; // names of the kid guests being linked (multi-select)
@@ -2650,7 +2654,14 @@ function renderPairsReview(){
     return;
   }
   var manualFixedShow=document.getElementById('pairsReviewManualFixed');
-  if(manualFixedShow)manualFixedShow.style.display='';
+  if(manualFixedShow)manualFixedShow.style.display=_matchTabOpen?'':'none';
+  var matchTabBtn=document.getElementById('pairsMatchTab');
+  if(matchTabBtn){
+    matchTabBtn.style.background=_matchTabOpen?'#fff':'var(--cream)';
+    matchTabBtn.style.color=_matchTabOpen?'var(--ink)':'var(--ink2)';
+    matchTabBtn.style.borderColor=_matchTabOpen?'var(--parchment)':'var(--parchment)';
+    matchTabBtn.style.boxShadow=_matchTabOpen?'0 -2px 6px rgba(0,0,0,.03)':'none';
+  }
   var allPairs=auditPairs();
   var allMissing=auditMissingPairs();
   var pairs=allPairs,missing=allMissing;
@@ -2733,11 +2744,10 @@ function renderPairsReview(){
           +'<button data-pr-action="cancel-relink" data-pr="'+idx+'" style="margin-top:6px;width:100%;padding:6px;border-radius:8px;border:1px solid var(--parchment);background:#fff;color:var(--muted);font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer">Cancel</button>'
         +'</div>';
     }
-    var roleIconHtml='<button data-pr-role="'+idx+'" title="Assign roles for both" style="width:18px;height:18px;border-radius:50%;background:#F0E6F7;color:#8B5FBF;border:none;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0;flex-shrink:0"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41 11 3.83A2 2 0 0 0 9.59 3.24L4 3a1 1 0 0 0-1 1l.24 5.59a2 2 0 0 0 .59 1.41l9.58 9.59a2 2 0 0 0 2.83 0l4.35-4.35a2 2 0 0 0 0-2.83z"/><circle cx="7.5" cy="7.5" r="1.2" fill="currentColor" stroke="none"/></svg></button>';
     html+='<div class="pr-row" data-pr="'+idx+'" style="padding:8px;margin-bottom:6px;border-radius:10px;background:var(--cream)">'
       +'<div data-pr-header="'+idx+'" style="display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer">'
         +'<div style="font-family:var(--sans);font-size:13px;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+p.g.name+' &harr; '+partnerName+'</div>'
-        +'<div style="display:flex;align-items:center;gap:6px;flex-shrink:0">'+roleIconHtml+badgeHtml+chevronHtml+'</div>'
+        +'<div style="display:flex;align-items:center;gap:6px;flex-shrink:0">'+badgeHtml+chevronHtml+'</div>'
       +'</div>'
       +bodyHtml
     +'</div>';
@@ -2745,13 +2755,10 @@ function renderPairsReview(){
 
   // Manual fallback — for when the auto-detection above doesn't catch a
   // pair (different surnames, no shared group, etc). Rendered into the
-  // fixed (non-scrolling) container above the pairs list, since these are
-  // action panels people reach for regardless of where they've scrolled to.
+  // "Link & roles" tab content panel, toggled via #pairsMatchTab, instead
+  // of always sitting fixed on screen.
   var manualHtml='';
   {
-    manualHtml+='<div style="font-family:var(--sans);font-weight:800;font-size:12px;color:var(--ink2);margin:10px 4px 6px">Can\'t find a match? Link manually</div>';
-
-    // "Who's doing what" — browse/manage wedding-party role assignments.
     // Lives right alongside the manual-link tools since both are
     // "management" actions rather than things that scroll with the list.
     manualHtml+='<button id="rolesOverviewBtn" style="width:100%;text-align:left;padding:8px 10px;margin-bottom:10px;border-radius:8px;border:1px dashed #8B5FBF;background:#F0E6F7;color:#6B3FA0;font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Who\'s doing what — roles overview</button>';
@@ -2835,16 +2842,6 @@ function renderPairsReview(){
   });
   var rolesOverviewBtn=document.getElementById('rolesOverviewBtn');
   if(rolesOverviewBtn)rolesOverviewBtn.addEventListener('click',function(){openRolesOverview();});
-  list.querySelectorAll('[data-pr-role]').forEach(function(btn){
-    btn.addEventListener('click',function(e){
-      e.stopPropagation();
-      var p=pairs[parseInt(this.dataset.prRole)];
-      if(!p)return;
-      var ri=importQueue.indexOf(p.g);
-      var pri=p.partner?importQueue.indexOf(p.partner):-1;
-      if(ri>-1)openRoleModal(ri,pri);
-    });
-  });
   var manualToggle=document.getElementById('pairsManualToggle');
   if(manualToggle)manualToggle.addEventListener('click',function(){
     _manualLinkOpen=!_manualLinkOpen;
@@ -3537,7 +3534,7 @@ function buildGuestCard(g, mergedPairPos){
         +'<div class="g-inner">'
           +'<div class="g-inner-left">'
             +'<div class="g-main">'
-              +'<div class="g-name-row" style="flex-wrap:wrap"><span class="g-name" style="font-size:15px;flex:0 1 auto">'+g.name+'</span>'+pillWrap+(g.role?'<span class="chip chip-role" data-action="role" data-qi="'+ri+'">'+g.role+'</span>':'<button class="chip-role-icon" data-action="role" data-qi="'+ri+'" title="Assign role"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41 11 3.83A2 2 0 0 0 9.59 3.24L4 3a1 1 0 0 0-1 1l.24 5.59a2 2 0 0 0 .59 1.41l9.58 9.59a2 2 0 0 0 2.83 0l4.35-4.35a2 2 0 0 0 0-2.83z"/><circle cx="7.5" cy="7.5" r="1.2" fill="currentColor" stroke="none"/></svg></button>')+parentRefHtml+'</div>'
+              +'<div class="g-name-row" style="flex-wrap:wrap"><span class="g-name" style="font-size:15px;flex:0 1 auto">'+g.name+'</span>'+pillWrap+(g.role?'<span class="chip chip-role" data-action="role" data-qi="'+ri+'">'+g.role+'</span>':'')+parentRefHtml+'</div>'
               +partnerRefHtml
               +debugTag
             +'</div>'
@@ -4236,7 +4233,7 @@ document.getElementById('noteModalCancel').addEventListener('click',function(){n
 document.getElementById('noteModalSave').addEventListener('click',function(){if(noteTarget>=0&&importQueue[noteTarget]){importQueue[noteTarget].note=document.getElementById('noteModalTA').value.trim();saveGuestMeta();pushMetaToWorker(importQueue[noteTarget]);renderGuestList();}noteModalBg.style.display='none';});
 
 var ROLE_PRESETS=['Best Man','Maid of Honor','Groomsman','Bridesmaid','Usher','Officiant','Photographer','MC','Driver'];
-var roleModalBg=document.getElementById('roleModalBg'),roleTarget=-1,roleModalNextRi=-1;
+var roleModalBg=document.getElementById('roleModalBg'),roleTarget=-1;
 (function(){
   var row=document.getElementById('rolePresetRow');
   row.innerHTML=ROLE_PRESETS.map(function(r){return '<button type="button" class="role-preset-chip" data-role="'+r+'">'+r+'</button>';}).join('');
@@ -4244,14 +4241,7 @@ var roleModalBg=document.getElementById('roleModalBg'),roleTarget=-1,roleModalNe
     b.addEventListener('click',function(){document.getElementById('roleModalTA').value=this.dataset.role;});
   });
 })();
-function openRoleModal(ri,nextRi){roleTarget=ri;roleModalNextRi=(nextRi===undefined||nextRi===null)?-1:nextRi;var g=importQueue[ri];var nextHint=(roleModalNextRi>=0&&importQueue[roleModalNextRi])?' · then '+firstName(importQueue[roleModalNextRi].name):'';document.getElementById('roleModalTitle').textContent='Role — '+g.name+nextHint;document.getElementById('roleModalTA').value=g.role||'';roleModalBg.style.display='flex';setTimeout(function(){document.getElementById('roleModalTA').focus();},50);}
-// After Save/Clear, if a second guest was queued (e.g. both halves of a
-// pair from the "Sent-together pairs" role icon), continue straight into
-// their role modal instead of closing.
-function _roleModalAdvanceOrClose(){
-  if(roleModalNextRi>=0&&importQueue[roleModalNextRi]){var n=roleModalNextRi;roleModalNextRi=-1;openRoleModal(n);}
-  else{roleModalBg.style.display='none';}
-}
+function openRoleModal(ri){roleTarget=ri;var g=importQueue[ri];document.getElementById('roleModalTitle').textContent='Role — '+g.name;document.getElementById('roleModalTA').value=g.role||'';roleModalBg.style.display='flex';setTimeout(function(){document.getElementById('roleModalTA').focus();},50);}
 
 /* ══ ROLES OVERVIEW — "who's doing what" across all guests ═══════════ */
 function openRolesOverview(){
@@ -4300,9 +4290,9 @@ document.getElementById('rolesOverviewClose').addEventListener('click',function(
 function _refreshRolesOverviewIfOpen(){setTimeout(function(){if(document.getElementById('rolesOverviewModal').style.display==='flex')renderRolesOverview();},0);}
 document.getElementById('roleModalSave').addEventListener('click',_refreshRolesOverviewIfOpen);
 document.getElementById('roleModalClear').addEventListener('click',_refreshRolesOverviewIfOpen);
-document.getElementById('roleModalCancel').addEventListener('click',function(){roleModalNextRi=-1;roleModalBg.style.display='none';});
-document.getElementById('roleModalClear').addEventListener('click',function(){if(roleTarget>=0&&importQueue[roleTarget]){importQueue[roleTarget].role='';saveGuestMeta();pushMetaToWorker(importQueue[roleTarget]);renderGuestList();}_roleModalAdvanceOrClose();});
-document.getElementById('roleModalSave').addEventListener('click',function(){if(roleTarget>=0&&importQueue[roleTarget]){importQueue[roleTarget].role=document.getElementById('roleModalTA').value.trim();saveGuestMeta();pushMetaToWorker(importQueue[roleTarget]);renderGuestList();}_roleModalAdvanceOrClose();});
+document.getElementById('roleModalCancel').addEventListener('click',function(){roleModalBg.style.display='none';});
+document.getElementById('roleModalClear').addEventListener('click',function(){if(roleTarget>=0&&importQueue[roleTarget]){importQueue[roleTarget].role='';saveGuestMeta();pushMetaToWorker(importQueue[roleTarget]);renderGuestList();}roleModalBg.style.display='none';});
+document.getElementById('roleModalSave').addEventListener('click',function(){if(roleTarget>=0&&importQueue[roleTarget]){importQueue[roleTarget].role=document.getElementById('roleModalTA').value.trim();saveGuestMeta();pushMetaToWorker(importQueue[roleTarget]);renderGuestList();}roleModalBg.style.display='none';});
 
 /* ══ UNIFIED BRIDGE ══════════════════════════ */
 // When a guest list guest is marked sent, mirror it into the manual tracker
