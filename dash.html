@@ -3989,19 +3989,49 @@ function sendSingleWithLang(g,ri,msgLang,resolvedPhone){
 // the server side adds a matching field.
 function sendReminder(g,ri){
   var type=g.type||'ceremony-single';var lang=g.lang||selLang||'en';
-  var url=buildUrl(g.name,'',type,lang);
-  var msg=buildReminderMsg(firstName(g.name),lang,url);
-  var phone=(g.phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');
+  // If this guest was originally sent a shared couple/bulk link
+  // (g.bulkWith set), reuse that same combined link + plural message
+  // instead of generating a fresh solo one — mirrors doGroupSend's own
+  // dName/url/isPlural construction so the reminder matches what was
+  // actually sent.
+  var partner=g.bulkWith?importQueue.find(function(o){return o.name===g.bulkWith;}):null;
+  var isPlural=!!partner;
+  var p1=g.name,p2=partner?partner.name:'';
+  var dName;
+  if(isPlural){
+    var ln1=lastName(p1),ln2=lastName(p2);
+    dName=(ln1&&ln2&&ln1.toLowerCase()===ln2.toLowerCase())?(firstName(p1)+' & '+firstName(p2)+' '+ln1):(firstName(p1)+' & '+firstName(p2));
+  } else {
+    dName=firstName(p1);
+  }
+  var url=isPlural?buildUrl(p1,p2,type,lang):buildUrl(g.name,'',type,lang);
+  var msg=buildReminderMsg(dName,lang,url,isPlural,p1,p2);
+  // Prefer this guest's own phone; fall back to the partner's if this one
+  // doesn't have a number on file (same idea as doGroupSend's phoneOwner).
+  var rawPhone=g.phone||(partner&&partner.phone)||'';
+  var phone=rawPhone.replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');
   function fire(resolvedPhone){
     var p=resolvedPhone!==undefined?resolvedPhone:phone;
     if(resolvedPhone)g.phone='+'+resolvedPhone;
     var waUrl=p?'https://wa.me/'+p+'?text='+encodeURIComponent(msg):'https://wa.me/?text='+encodeURIComponent(msg);
-    window.open(waUrl,'_blank');
-    var prevReminderAt=g.reminderSentAt;
-    g.reminderSentAt=ts();saveGuestMeta();renderGuestList();
-    showUndo('Reminder sent to '+firstName(g.name),function(){g.reminderSentAt=prevReminderAt||'';saveGuestMeta();renderGuestList();});
+    var displayPhone=resolvedPhone?'+'+resolvedPhone:(g.phone||partner&&partner.phone||'+'+p);
+    // Always confirm before opening — matches sendSingleWithLang and
+    // doGroupSend. Firing window.open without this direct click can get
+    // silently blocked by the browser, while the toast below would still
+    // (falsely) claim it went out.
+    showPhoneConfirm(dName,displayPhone,function(){
+      window.open(waUrl,'_blank');
+      var prevReminderAt=g.reminderSentAt,prevPartnerReminderAt=partner?partner.reminderSentAt:undefined;
+      g.reminderSentAt=ts();if(partner)partner.reminderSentAt=g.reminderSentAt;
+      saveGuestMeta();renderGuestList();
+      showUndo('Reminder sent to '+dName,function(){
+        g.reminderSentAt=prevReminderAt||'';
+        if(partner)partner.reminderSentAt=prevPartnerReminderAt||'';
+        saveGuestMeta();renderGuestList();
+      });
+    });
   }
-  if(!phone){showPhoneModal(firstName(g.name),function(p){fire(p);});return;}
+  if(!phone){showPhoneModal(dName,function(p){fire(p);});return;}
   fire();
 }
 function showCrossSenderConfirm(assigned,active,onConfirm){
