@@ -6281,10 +6281,10 @@ window.addEventListener('unhandledrejection', function(e){ e.preventDefault(); }
      numbered automatically and colour themselves by RSVP status, using
      the exact same status the guest list already shows (manual override,
      then the live RSVP-form match).
-     NOTE: this data is stored locally on this device (localStorage) only —
-     unlike the rest of the dashboard it is not pushed to the shared sync
-     backend yet, so a seating chart built on one phone won't appear on
-     another device until that's wired up.
+     Synced with the other device via the Worker's /seatmap endpoint
+     (same shared-KV pattern as /chat): localStorage is kept as an
+     instant local cache, but every change is pushed to the backend and
+     the screen polls for the other person's edits while it's open.
      ══════════════════════════════════════════════════════════════ -->
 <script>
 (function(){
@@ -6316,8 +6316,64 @@ function loadSeatMap(){
 }
 function saveSeatMap(){
   try{ localStorage.setItem('ww_seatmap', JSON.stringify(seatMap)); }catch(e){}
+  pushSeatMap();
 }
 loadSeatMap();
+
+/* ── SEAT MAP SYNC ──
+   Same shared-blob pattern as the /chat feature: GET /seatmap returns
+   {seatMap, updatedAt, updatedBy}, POST replaces it. localStorage stays
+   the instant local cache so the screen never feels laggy; the network
+   round-trip only decides who "wins" when both devices have edited. */
+function seatMapWho(){ return (typeof sessionSender !== 'undefined') ? sessionSender : ''; }
+function seatMapWorkerBase(){ return (typeof workerUrl !== 'undefined' && workerUrl) ? workerUrl.replace(/\/$/, '') : 'https://guestlist.elnur-agha.workers.dev'; }
+
+var _seatMapLastUpdatedAt = 0;
+var _seatMapPushTimer = null;
+var _seatMapPollTimer = null;
+var SEATMAP_POLL_MS = 8000;
+
+function pullSeatMap(notifyIfRemote){
+  fetch(seatMapWorkerBase() + '/seatmap', {cache:'no-store'})
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(data){
+      if(!data || !data.seatMap) return;
+      if(data.updatedAt && data.updatedAt <= _seatMapLastUpdatedAt) return; // nothing newer than what we have
+      var remote = data.seatMap;
+      if(!remote.assignments) remote.assignments = {};
+      if(!Array.isArray(remote.tables)) remote.tables = [];
+      if(!remote.floorColor) remote.floorColor = DEFAULT_FLOOR_COLOR;
+      if(!remote.tableColor) remote.tableColor = DEFAULT_TABLE_COLOR;
+      seatMap = remote;
+      _seatMapLastUpdatedAt = data.updatedAt || Date.now();
+      try{ localStorage.setItem('ww_seatmap', JSON.stringify(seatMap)); }catch(e){}
+      var screen = document.getElementById('seatmapScreen');
+      if(screen && screen.classList.contains('open')) renderSeatMap();
+      if(notifyIfRemote && data.updatedBy && data.updatedBy !== seatMapWho() && typeof showActivityToast === 'function'){
+        showActivityToast('Seating chart updated by ' + data.updatedBy + ' on another device');
+      }
+    })
+    .catch(function(){});
+}
+
+function pushSeatMap(){
+  if(_seatMapPushTimer) clearTimeout(_seatMapPushTimer);
+  // Debounce so a drag or a burst of clicks becomes one network write, not dozens.
+  _seatMapPushTimer = setTimeout(function(){
+    var payload = { seatMap: seatMap, updatedBy: seatMapWho(), ts: Date.now() };
+    fetch(seatMapWorkerBase() + '/seatmap', {
+      method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload)
+    })
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(data){ if(data && data.updatedAt) _seatMapLastUpdatedAt = data.updatedAt; })
+      .catch(function(){});
+  }, 500);
+}
+
+function startSeatMapPoll(){ stopSeatMapPoll(); _seatMapPollTimer = setInterval(function(){ pullSeatMap(true); }, SEATMAP_POLL_MS); }
+function stopSeatMapPoll(){ if(_seatMapPollTimer){ clearInterval(_seatMapPollTimer); _seatMapPollTimer = null; } }
+
+pullSeatMap(false); // catch up with whatever the other device last saved
 
 function seatKey(tableId, n){ return tableId+'-'+n; }
 /* Seat buttons only have room for a short label — show just the first
@@ -7044,10 +7100,13 @@ function openSeatMap(){
   renderSeatMap();
   document.getElementById('seatmapOverlay').classList.add('open');
   document.getElementById('seatmapScreen').classList.add('open');
+  pullSeatMap(true); // grab anything the other device saved since our last pull
+  startSeatMapPoll();
 }
 function closeSeatMapScreen(){
   document.getElementById('seatmapOverlay').classList.remove('open');
   document.getElementById('seatmapScreen').classList.remove('open');
+  stopSeatMapPoll();
 }
 
 /* Wiring — this script tag sits at the very end of <body>, so every
