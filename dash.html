@@ -897,6 +897,21 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-fab-add{position:fixed;right:18px;bottom:24px;z-index:400;width:52px;height:52px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--rose),var(--rose-deep));color:#fff;font-size:26px;font-weight:400;cursor:pointer;box-shadow:0 8px 24px rgba(160,97,74,.4);display:flex;align-items:center;justify-content:center}
 .seatmap-summary{display:flex;gap:8px;padding:0 2px 12px;flex-wrap:wrap}
 .seatmap-summary-pill{font-family:var(--sans);font-size:10.5px;font-weight:700;padding:5px 11px;border-radius:var(--r-pill);background:var(--cream2);color:var(--muted);border:1px solid var(--parchment)}
+.seatmap-view-toggle{flex-shrink:0;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;border:1.5px solid var(--parchment);background:var(--cream2);color:var(--muted);cursor:pointer;padding:0}
+.seatmap-view-toggle.active{background:var(--sky-bg);color:var(--sky);border-color:transparent}
+.seatmap-floor{position:relative;width:100%;height:min(70vh,520px);background:
+    linear-gradient(var(--parchment) 1px,transparent 1px),
+    linear-gradient(90deg,var(--parchment) 1px,transparent 1px);
+  background-size:24px 24px;background-color:var(--cream);border:1.5px dashed var(--parchment);border-radius:var(--r-md,14px);margin-bottom:14px;overflow:hidden;touch-action:none}
+.seatmap-floor-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);font-size:12.5px;padding:24px;line-height:1.6}
+.seatmap-floor-hint{text-align:center;color:var(--muted);font-size:11px;padding:0 2px 12px;font-family:var(--sans)}
+.seatmap-table-node{position:absolute;transform:translate(-50%,-50%);width:84px;min-height:84px;border-radius:50%;background:var(--cream);border:2px solid var(--parchment);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px;cursor:grab;box-shadow:0 3px 10px rgba(0,0,0,.08);user-select:none}
+.seatmap-table-node:active{cursor:grabbing;box-shadow:0 6px 18px rgba(0,0,0,.16);z-index:5}
+.seatmap-table-node.dragging{transition:none}
+.seatmap-table-node-name{font-family:var(--sans);font-size:11px;font-weight:800;color:var(--ink2);text-align:center;line-height:1.15;word-break:break-word;max-width:74px}
+.seatmap-table-node-meta{font-family:var(--sans);font-size:9.5px;font-weight:700;color:var(--muted)}
+.seatmap-table-node.full{border-color:rgba(58,140,92,.55)}
+.seatmap-table-node.full .seatmap-table-node-meta{color:#2f7a4d}
 /* Assign-guest sheet */
 .seat-assign-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:409;opacity:0;pointer-events:none;transition:opacity .2s}
 .seat-assign-overlay.open{opacity:1;pointer-events:all}
@@ -1011,7 +1026,7 @@ body.lite-mode #liteModeTopBtn {
       <span class="presence-guest-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
       <span class="presence-dot"></span>
     </div>
-    <span id="presenceMeLabel" class="presence-me-label"></span>
+    <span id="presenceMeLabel" class="presence-me-label" style="display:none"></span>
   </div>
   <!-- Settings btn (hidden, triggered by avatar) -->
   <button id="settingsBtn" style="display:none"></button>
@@ -1623,6 +1638,7 @@ body.lite-mode #liteModeTopBtn {
       <div class="seatmap-hdr-title">Seat Map</div>
       <div class="seatmap-hdr-sub" id="seatmapHdrSub"></div>
     </div>
+    <button class="seatmap-view-toggle" id="seatmapViewToggle" title="Floor plan view"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></button>
     <button class="seatmap-add-btn" id="seatmapAddTableBtn">+ Table</button>
     <button class="seatmap-close" id="seatmapCloseBtn">✕</button>
   </div>
@@ -6466,6 +6482,7 @@ function renderSeatAssignList(query){
   var q = (query||'').trim().toLowerCase();
   var guests = (typeof importQueue!=='undefined'?importQueue:[]).filter(function(g){
     if(g.skipped) return false;
+    if(typeof isPartyType==='function' && !isPartyType(g)) return false;
     if(q && g.name.toLowerCase().indexOf(q)===-1) return false;
     return true;
   }).sort(function(a,b){ return a.name.localeCompare(b.name); });
@@ -6508,8 +6525,21 @@ function unassignSeat(tableId, seatNum){
   if(typeof renderGuestList==='function') renderGuestList();
 }
 
+/* ── View mode: 'list' (default cards) or 'floor' (drag-to-arrange plan) ── */
+var seatMapView = (function(){
+  try{ return localStorage.getItem('ww_seatmap_view') === 'floor' ? 'floor' : 'list'; }catch(e){ return 'list'; }
+})();
+function setSeatMapView(v){
+  seatMapView = v;
+  try{ localStorage.setItem('ww_seatmap_view', v); }catch(e){}
+  var btn = document.getElementById('seatmapViewToggle');
+  if(btn) btn.classList.toggle('active', v==='floor');
+  renderSeatMap();
+}
+
 /* ── Render ── */
 function renderSeatMap(){
+  if(seatMapView === 'floor') return renderSeatFloorPlan();
   var body = document.getElementById('seatmapBody');
   var sub = document.getElementById('seatmapHdrSub');
   var fab = document.getElementById('seatmapFabAdd');
@@ -6587,6 +6617,124 @@ function renderSeatMap(){
   });
 }
 
+/* Give a table a default spot on the floor (staggered grid) if it doesn't
+   have a saved position yet — so new tables don't all stack on top of
+   each other in the middle of the canvas. */
+function defaultTablePos(index){
+  var cols = 3;
+  var col = index % cols, row = Math.floor(index / cols);
+  return { x: 18 + col * 32, y: 20 + row * 28 };
+}
+
+function renderSeatFloorPlan(){
+  var body = document.getElementById('seatmapBody');
+  var sub = document.getElementById('seatmapHdrSub');
+  var fab = document.getElementById('seatmapFabAdd');
+  if(!body) return;
+
+  if(fab) fab.style.display = seatMap.tables.length ? 'flex' : 'none';
+
+  var totalSeats=0, totalAssigned=0;
+  seatMap.tables.forEach(function(t){
+    totalSeats += t.seats;
+    for(var n=1;n<=t.seats;n++) if(seatMap.assignments[seatKey(t.id,n)]) totalAssigned++;
+  });
+  if(sub) sub.textContent = seatMap.tables.length ? (totalAssigned+' of '+totalSeats+' seats assigned') : '';
+
+  if(!seatMap.tables.length){
+    body.innerHTML = '<div class="seatmap-floor"><div class="seatmap-floor-empty">No tables yet.<br><br>Tap <strong>+ Table</strong> above, then drag it into place here to match your room layout.</div></div>';
+    return;
+  }
+
+  var nodes = seatMap.tables.map(function(t, i){
+    if(!t.pos) t.pos = defaultTablePos(i);
+    var filled = 0;
+    for(var n=1;n<=t.seats;n++) if(seatMap.assignments[seatKey(t.id,n)]) filled++;
+    var cls = 'seatmap-table-node'+(filled===t.seats && t.seats>0 ? ' full':'');
+    return '<div class="'+cls+'" data-table-id="'+t.id+'" style="left:'+t.pos.x+'%;top:'+t.pos.y+'%">'
+      + '<span class="seatmap-table-node-name">'+t.name.replace(/</g,'&lt;')+'</span>'
+      + '<span class="seatmap-table-node-meta">'+filled+'/'+t.seats+'</span>'
+      + '</div>';
+  }).join('');
+
+  body.innerHTML = '<div class="seatmap-floor-hint">Drag tables to match your room layout · tap a table to seat guests</div>'
+    + '<div class="seatmap-floor" id="seatmapFloorCanvas">'+nodes+'</div>';
+
+  saveSeatMap();
+  wireFloorDrag();
+}
+
+function wireFloorDrag(){
+  var canvas = document.getElementById('seatmapFloorCanvas');
+  if(!canvas) return;
+  canvas.querySelectorAll('.seatmap-table-node').forEach(function(node){
+    var dragging = false, moved = false, startX=0, startY=0;
+    node.addEventListener('pointerdown', function(e){
+      dragging = true; moved = false;
+      startX = e.clientX; startY = e.clientY;
+      node.classList.add('dragging');
+      try{ node.setPointerCapture(e.pointerId); }catch(err){}
+    });
+    node.addEventListener('pointermove', function(e){
+      if(!dragging) return;
+      var dx = e.clientX - startX, dy = e.clientY - startY;
+      if(Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
+      var rect = canvas.getBoundingClientRect();
+      var xPct = ((e.clientX - rect.left) / rect.width) * 100;
+      var yPct = ((e.clientY - rect.top) / rect.height) * 100;
+      xPct = Math.max(4, Math.min(96, xPct));
+      yPct = Math.max(6, Math.min(94, yPct));
+      node.style.left = xPct + '%';
+      node.style.top = yPct + '%';
+    });
+    function endDrag(e){
+      if(!dragging) return;
+      dragging = false;
+      node.classList.remove('dragging');
+      var id = node.dataset.tableId;
+      var t = seatMap.tables.find(function(x){return x.id===id;});
+      if(t){
+        t.pos = { x: parseFloat(node.style.left), y: parseFloat(node.style.top) };
+        saveSeatMap();
+      }
+      if(!moved) openTableFromFloor(id);
+    }
+    node.addEventListener('pointerup', endDrag);
+    node.addEventListener('pointercancel', endDrag);
+  });
+}
+
+/* Tapping (not dragging) a table on the floor plan opens the same seats
+   list used in list view, in a lightweight sheet, so guests can still be
+   assigned without leaving the spatial layout. */
+function openTableFromFloor(tableId){
+  var t = seatMap.tables.find(function(x){return x.id===tableId;});
+  if(!t) return;
+  var seatsHtml = '';
+  for(var n=1;n<=t.seats;n++){
+    var name = seatMap.assignments[seatKey(t.id,n)] || '';
+    var state = name ? seatGuestRsvpState(name) : '';
+    var cls = 'seatmap-seat'+(name?'':' empty')+(state==='yes'?' rsvp-yes':state==='no'?' rsvp-no':'');
+    seatsHtml += '<div class="'+cls+'" data-table="'+t.id+'" data-seat="'+n+'">'
+      + '<span class="seatmap-seat-num">Seat '+n+'</span>'
+      + '<span class="seatmap-seat-name">'+(name?name:'+ Add')+'</span>'
+      + '</div>';
+  }
+  document.getElementById('seatAssignTitle').textContent = t.name;
+  document.getElementById('seatAssignSearch').value = '';
+  document.getElementById('seatAssignUnassignBtn').style.display = 'none';
+  var list = document.getElementById('seatAssignList');
+  list.innerHTML = '<div class="seatmap-seats" style="padding:2px 2px 14px">'+seatsHtml+'</div>';
+  list.querySelectorAll('.seatmap-seat').forEach(function(seat){
+    seat.addEventListener('click', function(){
+      closeSeatAssign();
+      openSeatAssign(this.dataset.table, parseInt(this.dataset.seat,10));
+    });
+  });
+  document.getElementById('seatAssignOverlay').classList.add('open');
+  document.getElementById('seatAssignSheet').classList.add('open');
+}
+
 /* Called after every renderGuestList() so the seat map, if open, always
    reflects the latest RSVP status — this is what makes seat colours
    "auto-update" when someone's RSVP changes anywhere in the app. */
@@ -6596,6 +6744,8 @@ window.refreshSeatBadges = function(){
 };
 
 function openSeatMap(){
+  var btn = document.getElementById('seatmapViewToggle');
+  if(btn) btn.classList.toggle('active', seatMapView==='floor');
   renderSeatMap();
   document.getElementById('seatmapOverlay').classList.add('open');
   document.getElementById('seatmapScreen').classList.add('open');
@@ -6615,6 +6765,10 @@ var _smOverlay = document.getElementById('seatmapOverlay');
 if(_smOverlay) _smOverlay.addEventListener('click', closeSeatMapScreen);
 var _smAdd = document.getElementById('seatmapAddTableBtn');
 if(_smAdd) _smAdd.addEventListener('click', addTable);
+var _smViewToggle = document.getElementById('seatmapViewToggle');
+if(_smViewToggle) _smViewToggle.addEventListener('click', function(){
+  setSeatMapView(seatMapView==='floor' ? 'list' : 'floor');
+});
 var _smFab = document.getElementById('seatmapFabAdd');
 if(_smFab) _smFab.addEventListener('click', addTable);
 var _saOverlay = document.getElementById('seatAssignOverlay');
