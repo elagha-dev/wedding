@@ -244,7 +244,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .search-wrap{position:relative;flex:1;min-width:0;height:32px}
 .search-wrap::before{display:none}
 .search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);pointer-events:none;flex-shrink:0;z-index:2;transition:opacity var(--ease)}
-.search-input{box-sizing:border-box;font-family:var(--sans);font-size:13px;padding:0 30px 0 34px;background:var(--cream);border:1.5px solid var(--parchment);border-radius:var(--r-sm);color:var(--ink);outline:none;width:100%;height:100%;line-height:32px;transition:border-color var(--ease),box-shadow var(--ease)}
+.search-input{box-sizing:border-box;font-family:var(--sans);font-size:16px;padding:0 30px 0 34px;background:var(--cream);border:1.5px solid var(--parchment);border-radius:var(--r-sm);color:var(--ink);outline:none;width:100%;height:100%;line-height:32px;transition:border-color var(--ease),box-shadow var(--ease)}
 .search-clear-btn{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:18px;height:18px;border:none;border-radius:50%;background:var(--soft);color:#fff;display:none;align-items:center;justify-content:center;cursor:pointer;padding:0;z-index:2}
 .search-wrap.has-value .search-clear-btn{display:flex}
 .search-clear-btn:hover{background:var(--muted)}
@@ -480,7 +480,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-sender-br.a{background:var(--arina-bg);color:var(--arina-txt)}
 .g-sender-br.e{background:var(--elnur-bg);color:var(--elnur-txt)}
 .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none;flex-shrink:0;z-index:1;transition:opacity .15s}
-.search-input.has-value ~ .search-icon, .search-wrap.has-value .search-icon{opacity:0}
+.search-input.has-value ~ .search-icon, .search-wrap.has-value .search-icon, .search-wrap.is-focused .search-icon{opacity:0}
 .g-confirm{display:flex;align-items:center;gap:7px;padding:9px 16px;background:linear-gradient(135deg,#FDF0E8,var(--blush));border-top:1px solid var(--rose-soft);flex-wrap:wrap}
 .g-confirm-msg{font-size:11px;font-weight:500;color:var(--rose-deep);flex:1;min-width:100px}
 .g-confirm-yes{padding:5px 14px;border-radius:var(--r-pill);background:var(--rose);color:#fff;border:none;font-family:var(--sans);font-size:9.5px;font-weight:700;cursor:pointer}
@@ -619,10 +619,8 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .rsvp-count-btn{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#FF7A1A,#FF6B00);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--ease);font-family:var(--sans);box-shadow:0 2px 8px rgba(255,107,0,.3);align-self:center;box-sizing:border-box;padding:0}
 .rsvp-count-btn:hover{background:linear-gradient(135deg,#FF8C30,#FF7A1A);transform:translateY(-1px);box-shadow:0 4px 14px rgba(255,107,0,.45)}
 .rsvp-count-btn .rc-num{font-size:12px;font-weight:800;line-height:1}
-.seatmap-count-btn{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#FFE9A8,#E8B84B 45%,#C6892A);border:none;color:#5b3a12;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--ease);font-family:var(--sans);box-shadow:0 2px 8px rgba(198,137,42,.45);align-self:center;box-sizing:border-box;padding:0;position:relative;overflow:hidden}
-.seatmap-count-btn::after{content:'';position:absolute;inset:0;border-radius:50%;background-image:radial-gradient(circle at 22% 28%,rgba(255,255,255,.95) 0 1px,transparent 1.6px),radial-gradient(circle at 68% 22%,rgba(255,255,255,.85) 0 1px,transparent 1.5px),radial-gradient(circle at 78% 62%,rgba(255,255,255,.75) 0 1px,transparent 1.4px),radial-gradient(circle at 35% 72%,rgba(255,255,255,.7) 0 1px,transparent 1.3px),radial-gradient(circle at 55% 50%,rgba(255,255,255,.6) 0 1px,transparent 1.2px);pointer-events:none}
-.seatmap-count-btn:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(198,137,42,.6)}
-.seatmap-count-btn svg{position:relative;z-index:1}
+.seatmap-toolbar-btn{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6EC6FF,#2196F3);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--ease);font-family:var(--sans);box-shadow:0 2px 8px rgba(33,150,243,.4);align-self:center;box-sizing:border-box;padding:0}
+.seatmap-toolbar-btn:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(33,150,243,.55)}
 #rsvpDrawer{position:fixed;top:0;right:0;bottom:0;width:320px;max-width:95vw;background:var(--cream);z-index:300;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);border-left:1px solid var(--parchment);display:flex;flex-direction:column;box-shadow:-4px 0 24px rgba(0,0,0,.08)}
 #rsvpDrawer.open{transform:translateX(0)}
 .rsvp-drawer-hdr{padding:14px 16px;border-bottom:1px solid var(--parchment);display:flex;align-items:center;gap:10px;flex-shrink:0}
@@ -898,6 +896,17 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-seat.rsvp-yes .seatmap-seat-num{color:#2f7a4d}
 .seatmap-seat.rsvp-no{background:rgba(185,28,28,.10);border-color:rgba(185,28,28,.4)}
 .seatmap-seat.rsvp-no .seatmap-seat-num{color:#b91c1c}
+.seatmap-seat.rsvp-pending{background:rgba(176,120,48,.14);border-color:rgba(176,120,48,.45)}
+.seatmap-seat.rsvp-pending .seatmap-seat-num{color:var(--amber)}
+/* Bride & groom's own seats — gold gradient + sparkle so they stand out
+   from every other seat at a glance, with the name tinted in each
+   person's existing accent color so the two are still told apart. */
+.seatmap-seat.is-couple{background:linear-gradient(135deg,#FFE9A8,#E8B84B 45%,#C6892A)!important;border-color:#C6892A!important;position:relative;overflow:hidden}
+.seatmap-seat.is-couple::after{content:'';position:absolute;inset:0;border-radius:inherit;background-image:radial-gradient(circle at 22% 24%,rgba(255,255,255,.95) 0 1px,transparent 1.6px),radial-gradient(circle at 70% 20%,rgba(255,255,255,.85) 0 1px,transparent 1.5px),radial-gradient(circle at 80% 60%,rgba(255,255,255,.75) 0 1px,transparent 1.4px),radial-gradient(circle at 32% 74%,rgba(255,255,255,.7) 0 1px,transparent 1.3px),radial-gradient(circle at 55% 48%,rgba(255,255,255,.6) 0 1px,transparent 1.2px);pointer-events:none}
+.seatmap-seat.is-couple .seatmap-seat-num{color:#5b3a12!important;position:relative;z-index:1}
+.seatmap-seat.is-couple .seatmap-seat-name{font-weight:800!important;position:relative;z-index:1}
+.seatmap-seat.is-couple.bride .seatmap-seat-name{color:var(--arina-txt)!important}
+.seatmap-seat.is-couple.groom .seatmap-seat-name{color:var(--elnur-txt)!important}
 .seatmap-summary{display:flex;gap:8px;padding:0 2px 12px;flex-wrap:wrap}
 .seatmap-summary-pill{font-family:var(--sans);font-size:10.5px;font-weight:700;padding:5px 11px;border-radius:var(--r-pill);background:var(--cream2);color:var(--muted);border:1px solid var(--parchment)}
 .seatmap-view-toggle{flex-shrink:0;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;border:1.5px solid var(--parchment);background:var(--cream2);color:var(--muted);cursor:pointer;padding:0}
@@ -924,6 +933,10 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-node-dot{position:absolute;width:11px;height:11px;border-radius:50%;background:rgba(255,255,255,.28);border:1.5px solid rgba(255,255,255,.4);transform:translate(-50%,-50%);cursor:pointer}
 .seatmap-node-dot.rsvp-yes{background:#3A8C5C;border-color:#5fd393}
 .seatmap-node-dot.rsvp-no{background:#b91c1c;border-color:#e57373}
+.seatmap-node-dot.rsvp-pending{background:rgba(176,120,48,.65);border-color:#B07830}
+.seatmap-node-dot.is-couple{width:13px;height:13px;background:radial-gradient(circle at 35% 30%,#FFF6DC,#E8B84B 55%,#C6892A);border-width:2px}
+.seatmap-node-dot.is-couple.bride{border-color:var(--arina-txt);box-shadow:0 0 6px rgba(230,180,80,.9)}
+.seatmap-node-dot.is-couple.groom{border-color:var(--elnur-txt);box-shadow:0 0 6px rgba(230,180,80,.9)}
 .seatmap-landmark{position:absolute;transform:translate(-50%,-50%);display:flex;align-items:center;gap:6px;padding:9px 14px;border-radius:var(--r-pill);cursor:grab;user-select:none;box-shadow:0 3px 10px rgba(0,0,0,.35);font-family:var(--sans);font-size:12px;font-weight:800;white-space:nowrap}
 .seatmap-landmark:active{cursor:grabbing}
 .seatmap-landmark.dragging{transition:none}
@@ -936,6 +949,8 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-color-swatch::-webkit-color-swatch-wrapper{padding:2px;border-radius:50%}
 .seatmap-color-swatch::-webkit-color-swatch{border:none;border-radius:50%}
 .seatmap-color-swatch::-moz-color-swatch{border:none;border-radius:50%}
+.seatmap-color-reset{-webkit-appearance:none;appearance:none;flex-shrink:0;width:32px;height:32px;border-radius:50%;border:1.5px solid var(--parchment);background:var(--cream2);color:var(--muted);font-size:15px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;margin-left:-4px}
+.seatmap-color-reset:hover{border-color:var(--blush);color:var(--ink2)}
 .seatmap-snap-guide{position:absolute;background:#ff5c8a;pointer-events:none;z-index:6;display:none}
 .seatmap-snap-guide.v{width:1px;top:0;bottom:0}
 .seatmap-snap-guide.h{height:1px;left:0;right:0}
@@ -947,7 +962,7 @@ body.lite-mode #liteModeTopBtn {
 .seat-assign-hdr{flex-shrink:0;padding:14px 16px 10px;border-bottom:1px solid var(--parchment)}
 .seat-assign-title{font-family:var(--sans);font-size:14px;font-weight:800;color:var(--ink2);margin-bottom:8px}
 .seat-assign-close{flex-shrink:0;width:28px;height:28px;border-radius:50%;border:none;background:var(--cream2);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;line-height:1;padding:0}
-.seat-assign-search{width:100%;box-sizing:border-box;font-family:var(--sans);font-size:13px;padding:8px 12px;background:var(--cream2);border:1.5px solid var(--parchment);border-radius:var(--r-sm);outline:none}
+.seat-assign-search{width:100%;box-sizing:border-box;font-family:var(--sans);font-size:16px;padding:8px 12px;background:var(--cream2);border:1.5px solid var(--parchment);border-radius:var(--r-sm);outline:none}
 .seat-assign-list{overflow-y:auto;padding:6px 8px 20px}
 .seat-assign-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 10px;border-radius:10px;cursor:pointer}
 .seat-assign-row:active{background:var(--cream2)}
@@ -1028,8 +1043,8 @@ body.lite-mode #liteModeTopBtn {
   <div class="stat-pill new-guests" id="ovNew" title="New since last sync" style="display:none"></div>
   <!-- spacer -->
   <div style="flex:1"></div>
-  <!-- Seat Map — sits right before RSVP, matching pill styling, warm gold gradient -->
-  <button class="seatmap-count-btn" id="seatMapBtn" title="Seat Map"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 11V5.5A1.5 1.5 0 0 1 6.5 4h11A1.5 1.5 0 0 1 19 5.5V11"/><path d="M4 11h16a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1z"/><path d="M5 15v4"/><path d="M19 15v4"/></svg></button>
+  <!-- Seat Map — sits right before RSVP, matching pill styling, bright light blue -->
+  <button class="seatmap-toolbar-btn" id="seatMapBtn" title="Seat Map"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 11V5.5A1.5 1.5 0 0 1 6.5 4h11A1.5 1.5 0 0 1 19 5.5V11"/><path d="M4 11h16a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1z"/><path d="M5 15v4"/><path d="M19 15v4"/></svg></button>
   <!-- RSVP -->
   <button class="rsvp-count-btn" id="rsvpCountBtn" title="RSVP Responses">
     <span class="rc-num" id="rsvpCountNum">—</span>
@@ -1599,7 +1614,7 @@ body.lite-mode #liteModeTopBtn {
       <label class="s-toggle"><input type="checkbox" id="prTreeToggle"/><span class="s-toggle-track"></span></label>
     </div>
     <div id="pairsReviewSearchWrap" style="padding:0 18px 10px;flex-shrink:0;background:#fff;position:relative">
-      <input id="pairsReviewSearch" type="text" placeholder="Search a name…" name="pairsReviewSearchField" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" style="width:100%;box-sizing:border-box;padding:8px 30px 8px 10px;border:1.5px solid var(--parchment);border-radius:var(--r-sm);font-family:var(--sans);font-size:12px;color:var(--ink);background:var(--cream)"/>
+      <input id="pairsReviewSearch" type="text" placeholder="Search a name…" name="pairsReviewSearchField" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" style="width:100%;box-sizing:border-box;padding:8px 30px 8px 10px;border:1.5px solid var(--parchment);border-radius:var(--r-sm);font-family:var(--sans);font-size:16px;color:var(--ink);background:var(--cream)"/>
       <button id="pairsReviewSearchClear" type="button" title="Clear search" style="display:none;position:absolute;right:24px;top:50%;transform:translateY(-50%);width:20px;height:20px;border:none;border-radius:50%;background:var(--soft);color:#fff;align-items:center;justify-content:center;cursor:pointer;padding:0"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div id="pairsReviewList" style="overflow-y:auto;padding:6px 12px 16px;flex:1;background:#fff"></div>
@@ -4838,6 +4853,14 @@ document.getElementById('searchInput').addEventListener('input',function(){
   this.closest('.search-wrap').classList.toggle('has-value',!!this.value);
   renderGuestList();
 });
+/* Hide the magnifying glass the moment the field is tapped, not just once
+   text has been typed — otherwise it sits right where the cursor blinks. */
+document.getElementById('searchInput').addEventListener('focus',function(){
+  this.closest('.search-wrap').classList.add('is-focused');
+});
+document.getElementById('searchInput').addEventListener('blur',function(){
+  this.closest('.search-wrap').classList.remove('is-focused');
+});
 document.getElementById('searchClearBtn').addEventListener('click',function(){
   var input=document.getElementById('searchInput');
   input.value='';
@@ -5726,7 +5749,7 @@ function showChatNotif(who, text){
     var totalHtml = '<div style="margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--parchment)">'
       + '<div style="position:relative;margin-bottom:8px">'
       + '<svg style="position:absolute;left:9px;top:50%;transform:translateY(-50%);pointer-events:none" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--soft)" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>'
-      + '<input id="rsvpSearchInput" type="text" placeholder="Search…" name="rsvpSearchField" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" style="width:100%;font-family:var(--sans);font-size:12px;padding:7px 30px 7px 28px;background:var(--cream2);border:1.5px solid var(--parchment);border-radius:100px;color:var(--ink);outline:none;box-sizing:border-box">'
+      + '<input id="rsvpSearchInput" type="text" placeholder="Search…" name="rsvpSearchField" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" style="width:100%;font-family:var(--sans);font-size:16px;padding:7px 30px 7px 28px;background:var(--cream2);border:1.5px solid var(--parchment);border-radius:100px;color:var(--ink);outline:none;box-sizing:border-box">'
       + '<button id="rsvpSearchClear" type="button" title="Clear search" style="display:none;position:absolute;right:6px;top:50%;transform:translateY(-50%);width:20px;height:20px;border:none;border-radius:50%;background:var(--soft);color:#fff;align-items:center;justify-content:center;cursor:pointer;padding:0"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>'
       + '</div>'
       + '<div style="display:flex;align-items:center;justify-content:flex-end">'
@@ -6342,6 +6365,15 @@ function seatGuestRsvpState(name){
   return 'pending';
 }
 
+/* Is this seat's occupant the bride or groom? Mirrors the exact same
+   name check the guest list already uses for its "Bride"/"Groom" chip,
+   so the seat map and guest list always agree on who the couple is. */
+function seatCoupleRole(name){
+  if(name==='Arina') return 'bride';
+  if(name==='Elnur') return 'groom';
+  return '';
+}
+
 /* Reverse lookup: where (if anywhere) is this guest seated? */
 function getSeatForGuest(name){
   for(var i=0;i<seatMap.tables.length;i++){
@@ -6529,7 +6561,9 @@ function renderSeatMap(){
     for(var n=1;n<=t.seats;n++){
       var name = seatMap.assignments[seatKey(t.id,n)] || '';
       var state = name ? seatGuestRsvpState(name) : '';
-      var cls = 'seatmap-seat'+(name?'':' empty')+(state==='yes'?' rsvp-yes':state==='no'?' rsvp-no':'');
+      var role = name ? seatCoupleRole(name) : '';
+      var stateCls = role ? ' is-couple '+role : !name ? '' : (state==='yes'?' rsvp-yes':state==='no'?' rsvp-no':' rsvp-pending');
+      var cls = 'seatmap-seat'+(name?'':' empty')+stateCls;
       seatsHtml += '<div class="'+cls+'" data-table="'+t.id+'" data-seat="'+n+'"'+(name?' title="'+name.replace(/"/g,'&quot;')+'"':'')+'>'
         + '<span class="seatmap-seat-num">Seat '+n+'</span>'
         + '<span class="seatmap-seat-name">'+(name?seatFirstName(name):'+ Add')+'</span>'
@@ -6620,14 +6654,22 @@ function tableFloorLayout(t){
   return { w:w, h:h, shapeW:d, shapeH:d, shapeCls:'round', dots:dots };
 }
 
+/* Nice, high-contrast defaults for the floor plan — a warm charcoal room
+   with rose-gold tables, matching the site's own palette, so tables read
+   clearly against the canvas without anyone having to hunt for a good
+   combo. Used both as the first-time default and as what the reset
+   buttons restore. */
+var DEFAULT_FLOOR_COLOR = '#1C2430';
+var DEFAULT_TABLE_COLOR = '#C9876A';
+
 function renderSeatFloorPlan(){
   var body = document.getElementById('seatmapBody');
   var sub = document.getElementById('seatmapHdrSub');
   var fab = document.getElementById('seatmapFabAdd');
   if(!body) return;
   if(!seatMap.landmarks) seatMap.landmarks = [];
-  if(!seatMap.floorColor) seatMap.floorColor = '#0f1f3d';
-  if(!seatMap.tableColor) seatMap.tableColor = '#16294d';
+  if(!seatMap.floorColor) seatMap.floorColor = DEFAULT_FLOOR_COLOR;
+  if(!seatMap.tableColor) seatMap.tableColor = DEFAULT_TABLE_COLOR;
 
   if(fab) fab.style.display = seatMap.tables.length ? 'flex' : 'none';
 
@@ -6644,7 +6686,9 @@ function renderSeatFloorPlan(){
   var controls = '<div class="seatmap-floor-controls">'
     + '<button class="seatmap-floor-add-btn" id="addMarkerBtn">+ Add venue marker</button>'
     + '<input type="color" class="seatmap-color-swatch" id="floorColorPicker" value="'+seatMap.floorColor+'" title="Canvas color">'
+    + '<button type="button" class="seatmap-color-reset" id="floorColorReset" title="Reset canvas color to default">↺</button>'
     + '<input type="color" class="seatmap-color-swatch" id="tableColorPicker" value="'+seatMap.tableColor+'" title="Table color">'
+    + '<button type="button" class="seatmap-color-reset" id="tableColorReset" title="Reset table color to default">↺</button>'
     + '</div>'
     + '<div class="seatmap-marker-picker' + (_markerPickerOpen ? ' open' : '') + '" id="markerPicker">'
     + Object.keys(LANDMARK_TYPES).map(function(key){
@@ -6667,8 +6711,9 @@ function renderSeatFloorPlan(){
     var dotsHtml = lay.dots.map(function(d){
       var name = seatMap.assignments[seatKey(t.id,d.num)] || '';
       var state = name ? seatGuestRsvpState(name) : '';
+      var role = name ? seatCoupleRole(name) : '';
       if(name) filled++;
-      var dcls = 'seatmap-node-dot'+(state==='yes'?' rsvp-yes':state==='no'?' rsvp-no':'');
+      var dcls = 'seatmap-node-dot'+(role ? ' is-couple '+role : !name ? '' : (state==='yes'?' rsvp-yes':state==='no'?' rsvp-no':' rsvp-pending'));
       return '<div class="'+dcls+'" data-table="'+t.id+'" data-seat="'+d.num+'" title="'+(name?name.replace(/"/g,'&quot;'):'Seat '+d.num)+'" style="left:'+d.x+'px;top:'+d.y+'px"></div>';
     }).join('');
     var shapeCls = 'seatmap-node-shape '+lay.shapeCls+(filled===t.seats && t.seats>0 ? ' full':'');
@@ -6701,7 +6746,7 @@ function renderSeatFloorPlan(){
 /* Build the table-shape style for a chosen colour, picking readable text
    and border tones whether the colour is light or dark. */
 function tableNodeStyle(hex){
-  var h = (hex||'#16294d').replace('#','');
+  var h = (hex||DEFAULT_TABLE_COLOR).replace('#','');
   if(h.length===3) h = h.split('').map(function(c){return c+c;}).join('');
   var r = parseInt(h.substr(0,2),16)||0, g = parseInt(h.substr(2,2),16)||0, b = parseInt(h.substr(4,2),16)||0;
   var brightness = (r*299 + g*587 + b*114) / 1000;
@@ -6718,7 +6763,7 @@ function tableNodeStyle(hex){
    and empty-state text tones that stay readable whether the colour is
    light or dark. */
 function floorCanvasStyle(hex){
-  var h = (hex||'#0f1f3d').replace('#','');
+  var h = (hex||DEFAULT_FLOOR_COLOR).replace('#','');
   if(h.length===3) h = h.split('').map(function(c){return c+c;}).join('');
   var r = parseInt(h.substr(0,2),16)||0, g = parseInt(h.substr(2,2),16)||0, b = parseInt(h.substr(4,2),16)||0;
   var brightness = (r*299 + g*587 + b*114) / 1000;
@@ -6748,6 +6793,22 @@ function wireFloorColorPicker(){
   if(tPicker){
     tPicker.addEventListener('change', function(){
       seatMap.tableColor = this.value;
+      saveSeatMap();
+      renderSeatFloorPlan();
+    });
+  }
+  var floorReset = document.getElementById('floorColorReset');
+  if(floorReset){
+    floorReset.addEventListener('click', function(){
+      seatMap.floorColor = DEFAULT_FLOOR_COLOR;
+      saveSeatMap();
+      renderSeatFloorPlan();
+    });
+  }
+  var tableReset = document.getElementById('tableColorReset');
+  if(tableReset){
+    tableReset.addEventListener('click', function(){
+      seatMap.tableColor = DEFAULT_TABLE_COLOR;
       saveSeatMap();
       renderSeatFloorPlan();
     });
@@ -6938,7 +6999,9 @@ function openTableFromFloor(tableId){
   for(var n=1;n<=t.seats;n++){
     var name = seatMap.assignments[seatKey(t.id,n)] || '';
     var state = name ? seatGuestRsvpState(name) : '';
-    var cls = 'seatmap-seat'+(name?'':' empty')+(state==='yes'?' rsvp-yes':state==='no'?' rsvp-no':'');
+    var role = name ? seatCoupleRole(name) : '';
+    var stateCls = role ? ' is-couple '+role : !name ? '' : (state==='yes'?' rsvp-yes':state==='no'?' rsvp-no':' rsvp-pending');
+    var cls = 'seatmap-seat'+(name?'':' empty')+stateCls;
     seatsHtml += '<div class="'+cls+'" data-table="'+t.id+'" data-seat="'+n+'"'+(name?' title="'+name.replace(/"/g,'&quot;')+'"':'')+'>'
       + '<span class="seatmap-seat-num">Seat '+n+'</span>'
       + '<span class="seatmap-seat-name">'+(name?seatFirstName(name):'+ Add')+'</span>'
