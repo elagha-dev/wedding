@@ -6338,7 +6338,7 @@ function pullSeatMap(notifyIfRemote){
     .then(function(r){ return r.ok ? r.json() : null; })
     .then(function(data){
       if(!data || !data.seatMap) return;
-      if(data.updatedAt && data.updatedAt <= _seatMapLastUpdatedAt) return; // nothing newer than what we have
+      if(!data.updatedAt || data.updatedAt <= _seatMapLastUpdatedAt) return; // nothing newer than what we have
       var remote = data.seatMap;
       if(!remote.assignments) remote.assignments = {};
       if(!Array.isArray(remote.tables)) remote.tables = [];
