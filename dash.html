@@ -801,8 +801,6 @@ body.lite-mode .update-banner,
 body.lite-mode .split-bar,
 body.lite-mode #syncInfoBanner,
 body.lite-mode #rsvpChangeBanner,
-body.lite-mode #toolsDrawer,
-body.lite-mode #toolsToggleBtn,
 body.lite-mode .kb-hint,
 body.lite-mode .g-swipe-action-right,
 body.lite-mode .g-swipe-action-left { display: none !important; }
@@ -892,12 +890,17 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-seat-num{font-family:var(--sans);font-size:9px;font-weight:800;letter-spacing:.03em;color:var(--soft);text-transform:uppercase}
 .seatmap-seat-name{font-family:var(--sans);font-size:10.5px;font-weight:700;color:var(--ink2);line-height:1.2;word-break:break-word;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .seatmap-seat.empty .seatmap-seat-name{color:var(--soft);font-weight:600}
-.seatmap-seat.rsvp-yes{background:rgba(58,140,92,.14);border-color:rgba(58,140,92,.45)}
-.seatmap-seat.rsvp-yes .seatmap-seat-num{color:#2f7a4d}
-.seatmap-seat.rsvp-no{background:rgba(185,28,28,.10);border-color:rgba(185,28,28,.4)}
-.seatmap-seat.rsvp-no .seatmap-seat-num{color:#b91c1c}
-.seatmap-seat.rsvp-pending{background:rgba(176,120,48,.14);border-color:rgba(176,120,48,.45)}
-.seatmap-seat.rsvp-pending .seatmap-seat-num{color:var(--amber)}
+/* Strong, saturated fills for the three RSVP states — confirmed / declined
+   / pending need to read at a glance without squinting at a pale tint. */
+.seatmap-seat.rsvp-yes{background:#16A34A;border-color:#15803D}
+.seatmap-seat.rsvp-yes .seatmap-seat-num{color:rgba(255,255,255,.85)}
+.seatmap-seat.rsvp-yes .seatmap-seat-name{color:#fff;font-weight:800}
+.seatmap-seat.rsvp-no{background:#DC2626;border-color:#B91C1C}
+.seatmap-seat.rsvp-no .seatmap-seat-num{color:rgba(255,255,255,.85)}
+.seatmap-seat.rsvp-no .seatmap-seat-name{color:#fff;font-weight:800}
+.seatmap-seat.rsvp-pending{background:#F59E0B;border-color:#B45309}
+.seatmap-seat.rsvp-pending .seatmap-seat-num{color:rgba(255,255,255,.85)}
+.seatmap-seat.rsvp-pending .seatmap-seat-name{color:#fff;font-weight:800}
 /* Bride & groom's own seats — gold gradient + sparkle so they stand out
    from every other seat at a glance, with the name tinted in each
    person's existing accent color so the two are still told apart. */
@@ -1204,38 +1207,6 @@ body.lite-mode #liteModeTopBtn {
       </div>
     </div>
   </div>
-
-  <!-- TOOLS DRAWER -->
-  <div style="display:flex;justify-content:center;margin:24px 0 8px">
-    <button id="toolsToggleBtn" style="display:flex;align-items:center;gap:7px;padding:9px 20px;background:var(--cream2);border:1.5px solid var(--parchment);border-radius:var(--r-pill);font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);cursor:pointer;transition:all var(--ease)">
-      <svg id="toolsChevronIcon" width="10" height="10" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-      Extra
-    </button>
-  </div>
-  <div id="toolsDrawer" style="display:none">
-
-    <!-- TRACKER -->
-    <div class="sec">Manual History</div>
-    <div class="card">
-      <div class="card-hdr" id="trackerToggle">
-        <span class="card-hdr-title">Invite Tracker</span>
-        <div class="card-hdr-right">
-          <button style="font-size:10px;color:var(--soft);background:none;border:none;cursor:pointer;font-family:var(--sans)" id="clearTrackerBtn" onclick="event.stopPropagation()">Clear all</button>
-          <span id="trackerChevron" class="chevron">▼</span>
-        </div>
-      </div>
-      <div id="trackerBody" style="display:none">
-        <div class="card-divider"></div>
-        <div class="card-body">
-          <div id="trackerSummary"></div>
-          <div class="filter-row" id="trackerFilterBar" style="margin-bottom:14px"></div>
-          <div id="trackList"></div>
-        </div>
-      </div>
-    </div>
-
-
-  </div><!-- /toolsDrawer -->
 
 </div>
 
@@ -4896,11 +4867,20 @@ document.getElementById('waSendBtn').addEventListener('click',function(){
 });
 
 /* ══ TRACKER ═════════════════════════════════ */
+/* The "Manual History" tracker card lived in the removed "Extra"
+   section — its markup no longer exists, so these are guarded to quietly
+   no-op instead of throwing (mem/save/cur bookkeeping elsewhere still
+   works fine without a tracker UI to render into). */
 var trackerFilter='all';
-document.getElementById('trackerToggle').addEventListener('click',function(){var b=document.getElementById('trackerBody'),c=document.getElementById('trackerChevron');var open=b.style.display!=='none';b.style.display=open?'none':'';c.classList.toggle('open',!open);});
-document.getElementById('clearTrackerBtn').addEventListener('click',function(){if(!mem.length)return;if(confirm('Clear all tracker history?')){mem=[];cur=null;save();renderTracker();document.getElementById('outCard').style.display='none';}});
+(function(){
+  var toggleBtn=document.getElementById('trackerToggle');
+  if(toggleBtn) toggleBtn.addEventListener('click',function(){var b=document.getElementById('trackerBody'),c=document.getElementById('trackerChevron');var open=b.style.display!=='none';b.style.display=open?'none':'';c.classList.toggle('open',!open);});
+  var clearBtn=document.getElementById('clearTrackerBtn');
+  if(clearBtn) clearBtn.addEventListener('click',function(){if(!mem.length)return;if(confirm('Clear all tracker history?')){mem=[];cur=null;save();renderTracker();document.getElementById('outCard').style.display='none';}});
+})();
 function renderTracker(){
   var list=document.getElementById('trackList'),sumEl=document.getElementById('trackerSummary'),fbBar=document.getElementById('trackerFilterBar');
+  if(!list||!sumEl||!fbBar) return;
   if(!mem.length){list.innerHTML='<div class="empty-state">No manual invites yet.</div>';sumEl.innerHTML='';fbBar.innerHTML='';return;}
   fbBar.innerHTML=['all','Arina','Elnur'].map(function(s){return'<button class="f-pill'+(trackerFilter===s?' on':'')+'" data-f="'+s+'">'+(s==='all'?'All':s)+'</button>';}).join('');
   fbBar.querySelectorAll('.f-pill').forEach(function(b){b.addEventListener('click',function(){trackerFilter=this.dataset.f;renderTracker();});});
@@ -5431,19 +5411,7 @@ function showChatNotif(who, text){
 
 
 /* ── TOOLS DRAWER TOGGLE ── */
-(function(){
-  var btn=document.getElementById('toolsToggleBtn');
-  var drawer=document.getElementById('toolsDrawer');
-  var icon=document.getElementById('toolsChevronIcon');
-  var open=false;
-  btn.addEventListener('click',function(){
-    open=!open;
-    drawer.style.display=open?'':'none';
-    icon.style.transform=open?'rotate(180deg)':'';
-    btn.style.color=open?'var(--rose-deep)':'';
-    btn.style.borderColor=open?'var(--rose-soft)':'';
-  });
-})();
+/* (removed along with the "Extra" section / tools drawer) */
 
 
 
@@ -6323,6 +6291,16 @@ window.addEventListener('unhandledrejection', function(e){ e.preventDefault(); }
 
 var seatMap = {tables:[], assignments:{}};
 
+/* Nice, high-contrast defaults for the floor plan — a warm charcoal room
+   with rose-gold tables, matching the site's own palette, so tables read
+   clearly against the canvas without anyone having to hunt for a good
+   combo. Used both as the first-time default and as what the reset
+   buttons restore. Declared up here (not just where the floor plan
+   renders) so they're already set no matter which seat-map view — list
+   or floor — is opened first. */
+var DEFAULT_FLOOR_COLOR = '#1C2430';
+var DEFAULT_TABLE_COLOR = '#C9876A';
+
 function loadSeatMap(){
   try{
     var raw = localStorage.getItem('ww_seatmap');
@@ -6333,6 +6311,8 @@ function loadSeatMap(){
   }catch(e){}
   if(!seatMap.assignments) seatMap.assignments = {};
   if(!Array.isArray(seatMap.tables)) seatMap.tables = [];
+  if(!seatMap.floorColor) seatMap.floorColor = DEFAULT_FLOOR_COLOR;
+  if(!seatMap.tableColor) seatMap.tableColor = DEFAULT_TABLE_COLOR;
 }
 function saveSeatMap(){
   try{ localStorage.setItem('ww_seatmap', JSON.stringify(seatMap)); }catch(e){}
@@ -6545,7 +6525,8 @@ function renderSeatMap(){
   if(sub) sub.textContent = seatMap.tables.length ? (totalAssigned+' of '+totalSeats+' seats assigned') : '';
   if(fab) fab.style.display = seatMap.tables.length ? 'flex' : 'none';
   if(!seatMap.tables.length){
-    body.innerHTML = '<div class="seatmap-empty">No tables yet.<br><br>Tap <strong>+ Table</strong> above to add your first table, choose how many chairs it has, then tap a chair to seat a guest.</div>';
+    body.innerHTML = seatColorControlsHtml() + '<div class="seatmap-empty">No tables yet.<br><br>Tap <strong>+ Table</strong> above to add your first table, choose how many chairs it has, then tap a chair to seat a guest.</div>';
+    wireFloorColorPicker();
     return;
   }
 
@@ -6556,7 +6537,7 @@ function renderSeatMap(){
     + '<span class="seatmap-summary-pill">'+pending+' pending</span>'
     + '</div>';
 
-  var html = summary + seatMap.tables.map(function(t){
+  var html = seatColorControlsHtml() + summary + seatMap.tables.map(function(t){
     var seatsHtml = '';
     for(var n=1;n<=t.seats;n++){
       var name = seatMap.assignments[seatKey(t.id,n)] || '';
@@ -6601,6 +6582,7 @@ function renderSeatMap(){
       openSeatAssign(this.dataset.table, parseInt(this.dataset.seat,10));
     });
   });
+  wireFloorColorPicker();
 }
 
 /* Give a table a default spot on the floor (staggered grid) if it doesn't
@@ -6659,8 +6641,19 @@ function tableFloorLayout(t){
    clearly against the canvas without anyone having to hunt for a good
    combo. Used both as the first-time default and as what the reset
    buttons restore. */
-var DEFAULT_FLOOR_COLOR = '#1C2430';
-var DEFAULT_TABLE_COLOR = '#C9876A';
+
+/* The canvas-color / table-color swatches + their reset buttons — shown
+   in both the list view and the floor view (previously floor-view only,
+   which is why the reset buttons seemed to be missing: list view is the
+   default view, so they were never on screen unless you'd switched). */
+function seatColorControlsHtml(){
+  return '<div class="seatmap-floor-controls">'
+    + '<input type="color" class="seatmap-color-swatch" id="floorColorPicker" value="'+seatMap.floorColor+'" title="Canvas color">'
+    + '<button type="button" class="seatmap-color-reset" id="floorColorReset" title="Reset canvas color to default">↺</button>'
+    + '<input type="color" class="seatmap-color-swatch" id="tableColorPicker" value="'+seatMap.tableColor+'" title="Table color">'
+    + '<button type="button" class="seatmap-color-reset" id="tableColorReset" title="Reset table color to default">↺</button>'
+    + '</div>';
+}
 
 function renderSeatFloorPlan(){
   var body = document.getElementById('seatmapBody');
@@ -6668,8 +6661,6 @@ function renderSeatFloorPlan(){
   var fab = document.getElementById('seatmapFabAdd');
   if(!body) return;
   if(!seatMap.landmarks) seatMap.landmarks = [];
-  if(!seatMap.floorColor) seatMap.floorColor = DEFAULT_FLOOR_COLOR;
-  if(!seatMap.tableColor) seatMap.tableColor = DEFAULT_TABLE_COLOR;
 
   if(fab) fab.style.display = seatMap.tables.length ? 'flex' : 'none';
 
@@ -6685,11 +6676,8 @@ function renderSeatFloorPlan(){
 
   var controls = '<div class="seatmap-floor-controls">'
     + '<button class="seatmap-floor-add-btn" id="addMarkerBtn">+ Add venue marker</button>'
-    + '<input type="color" class="seatmap-color-swatch" id="floorColorPicker" value="'+seatMap.floorColor+'" title="Canvas color">'
-    + '<button type="button" class="seatmap-color-reset" id="floorColorReset" title="Reset canvas color to default">↺</button>'
-    + '<input type="color" class="seatmap-color-swatch" id="tableColorPicker" value="'+seatMap.tableColor+'" title="Table color">'
-    + '<button type="button" class="seatmap-color-reset" id="tableColorReset" title="Reset table color to default">↺</button>'
     + '</div>'
+    + seatColorControlsHtml()
     + '<div class="seatmap-marker-picker' + (_markerPickerOpen ? ' open' : '') + '" id="markerPicker">'
     + Object.keys(LANDMARK_TYPES).map(function(key){
         var m = LANDMARK_TYPES[key];
@@ -6700,6 +6688,7 @@ function renderSeatFloorPlan(){
   if(!seatMap.tables.length && !seatMap.landmarks.length){
     body.innerHTML = controls + '<div class="seatmap-floor" id="seatmapFloorCanvas" style="'+floorStyle.css+'"><div class="seatmap-floor-empty" style="color:'+floorStyle.emptyColor+'">No tables yet.<br><br>Tap <strong>+ Table</strong> above, then drag it into place here to match your room layout.</div></div>';
     wireFloorAddButtons();
+    wireFloorColorPicker();
     return;
   }
 
@@ -6786,7 +6775,7 @@ function wireFloorColorPicker(){
     picker.addEventListener('change', function(){
       seatMap.floorColor = this.value;
       saveSeatMap();
-      renderSeatFloorPlan();
+      renderSeatMap();
     });
   }
   var tPicker = document.getElementById('tableColorPicker');
@@ -6794,7 +6783,7 @@ function wireFloorColorPicker(){
     tPicker.addEventListener('change', function(){
       seatMap.tableColor = this.value;
       saveSeatMap();
-      renderSeatFloorPlan();
+      renderSeatMap();
     });
   }
   var floorReset = document.getElementById('floorColorReset');
@@ -6802,7 +6791,7 @@ function wireFloorColorPicker(){
     floorReset.addEventListener('click', function(){
       seatMap.floorColor = DEFAULT_FLOOR_COLOR;
       saveSeatMap();
-      renderSeatFloorPlan();
+      renderSeatMap();
     });
   }
   var tableReset = document.getElementById('tableColorReset');
@@ -6810,7 +6799,7 @@ function wireFloorColorPicker(){
     tableReset.addEventListener('click', function(){
       seatMap.tableColor = DEFAULT_TABLE_COLOR;
       saveSeatMap();
-      renderSeatFloorPlan();
+      renderSeatMap();
     });
   }
 }
