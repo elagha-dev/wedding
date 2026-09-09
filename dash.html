@@ -205,14 +205,14 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .f-pill.on-a{background:var(--arina-bg);border-color:var(--arina-border);color:var(--arina-txt)}
 .f-pill.on-e{background:var(--elnur-bg);border-color:var(--elnur-border);color:var(--elnur-txt)}
 .f-pill-open{display:inline-flex;align-items:center;gap:0;padding:0;overflow:hidden}
-.f-pill-open .f-open-label{padding:6px 10px 6px 14px;font-size:10px;font-weight:600;letter-spacing:.06em;white-space:nowrap}
+.f-pill-open .f-open-label{padding:6px 8px 6px 14px;font-size:10px;font-weight:600;letter-spacing:.06em;white-space:nowrap}
 .f-pill-open .f-open-divider{display:none}
-.f-pill-open .f-open-toggles{display:flex;align-items:center;gap:0;padding:0 6px}
-.f-pill-open .f-ae-btn{width:20px;height:20px;border-radius:50%;border:none;background:transparent;font-size:9px;font-weight:800;letter-spacing:.04em;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--ease);color:rgba(255,255,255,.45);font-family:var(--sans);font-variant:small-caps}
-.f-pill-open.on .f-ae-btn{color:rgba(255,255,255,.45)}
-.f-pill-open .f-ae-btn.ae-a.on{background:var(--arina-bg);color:var(--arina-txt)}
-.f-pill-open .f-ae-btn.ae-e.on{background:var(--elnur-bg);color:var(--elnur-txt)}
-.f-pill-open .f-ae-btn:hover{background:rgba(255,255,255,.15)}
+.f-pill-open .f-open-toggles{display:flex;align-items:center;gap:4px;padding:0 8px 0 2px}
+.f-pill-open .f-ae-btn{padding:3px 8px;border-radius:100px;border:none;background:rgba(255,255,255,.6);font-size:8px;font-weight:700;letter-spacing:.02em;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--ease);color:var(--ink2);font-family:var(--sans);white-space:nowrap}
+.f-pill-open.on .f-ae-btn{color:var(--ink2);background:rgba(255,255,255,.75)}
+.f-pill-open .f-ae-btn.ae-a.on{background:var(--arina-bg);color:var(--arina-txt);font-weight:800;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.f-pill-open .f-ae-btn.ae-e.on{background:var(--elnur-bg);color:var(--elnur-txt);font-weight:800;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.f-pill-open .f-ae-btn:hover{filter:brightness(.96)}
 .f-pill-open .f-ae-btn.ae-a.on:hover{filter:brightness(.95)}
 .f-pill-open .f-ae-btn.ae-e.on:hover{filter:brightness(.95)}
 .f-pill-open.on .f-open-label{background:rgba(255,255,255,.2);border-radius:var(--r-pill);padding:4px 10px 4px 10px;margin-left:4px}
@@ -237,12 +237,14 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 #filterRow .f-pill.on-c,#filterRow .f-pill.f-sent-pill.on{background:var(--green);border-color:var(--green);color:#fff;border-bottom-color:var(--green);box-shadow:none}
 #filterRow .f-pill-open{border-radius:9px 9px 0 0}
 #filterRow .f-pill-open.on{border-bottom-color:var(--rose)}
-.search-filter-row{display:flex;gap:8px;margin-bottom:12px;align-items:stretch;flex-wrap:wrap}
+.search-filter-row{display:flex;gap:8px;margin-bottom:8px;align-items:stretch;flex-wrap:wrap}
 .search-wrap{position:relative;flex:1;min-width:0}
 .search-wrap::before{display:none}
-.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none;flex-shrink:0;z-index:1}
-.search-input{font-family:var(--sans);font-size:13px;padding:10px 14px 10px 36px;background:var(--cream);border:1.5px solid var(--parchment);border-radius:var(--r-sm);color:var(--ink);outline:none;width:100%;height:100%;transition:border-color var(--ease),box-shadow var(--ease),padding-left .15s}
-.search-input.has-value{padding-left:14px}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none;flex-shrink:0;z-index:1;transition:opacity var(--ease)}
+.search-input{font-family:var(--sans);font-size:13px;padding:7px 30px 7px 36px;background:var(--cream);border:1.5px solid var(--parchment);border-radius:var(--r-sm);color:var(--ink);outline:none;width:100%;height:100%;transition:border-color var(--ease),box-shadow var(--ease)}
+.search-clear-btn{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:20px;height:20px;border:none;border-radius:50%;background:var(--soft);color:#fff;display:none;align-items:center;justify-content:center;cursor:pointer;padding:0;z-index:1}
+.search-wrap.has-value .search-clear-btn{display:flex}
+.search-clear-btn:hover{background:var(--muted)}
 .search-input:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135,106,.1)}
 .search-input::placeholder{color:var(--soft)}
 .group-sel{padding:0 10px;font-size:12px;font-weight:500;border:1.5px solid var(--parchment);border-radius:var(--r-sm);background:var(--cream);color:var(--muted);cursor:pointer;font-family:var(--sans);outline:none;transition:border-color var(--ease);flex-shrink:0;width:110px;height:auto;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23C4AFA4' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:26px}
@@ -1032,6 +1034,7 @@ body.lite-mode #liteModeTopBtn {
         <div class="search-wrap">
           <svg class="search-icon" width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="5.5" cy="5.5" r="4" stroke="#C4AFA4" stroke-width="1.5"/><path d="M9 9L12 12" stroke="#C4AFA4" stroke-width="1.5" stroke-linecap="round"/></svg>
           <input class="search-input" id="searchInput" type="text" placeholder=""/>
+          <button class="search-clear-btn" id="searchClearBtn" type="button" title="Clear search"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
         </div>
         <select class="group-sel" id="groupSel" style="display:none"><option value="">All groups</option></select>
         <select class="group-sel" id="typeSel" style="width:100px;flex-shrink:0"><option value="">Church + Party</option><option value="church">Church</option><option value="party">Party</option></select>
@@ -1510,8 +1513,9 @@ body.lite-mode #liteModeTopBtn {
       <span style="font-family:var(--sans);font-size:12px;font-weight:700;color:var(--ink2)">Family tree view</span>
       <label class="s-toggle"><input type="checkbox" id="prTreeToggle"/><span class="s-toggle-track"></span></label>
     </div>
-    <div id="pairsReviewSearchWrap" style="padding:0 18px 10px;flex-shrink:0;background:#fff">
-      <input id="pairsReviewSearch" type="text" placeholder="Search a name…" style="width:100%;box-sizing:border-box;padding:8px 10px;border:1.5px solid var(--parchment);border-radius:var(--r-sm);font-family:var(--sans);font-size:12px;color:var(--ink);background:var(--cream)"/>
+    <div id="pairsReviewSearchWrap" style="padding:0 18px 10px;flex-shrink:0;background:#fff;position:relative">
+      <input id="pairsReviewSearch" type="text" placeholder="Search a name…" style="width:100%;box-sizing:border-box;padding:8px 30px 8px 10px;border:1.5px solid var(--parchment);border-radius:var(--r-sm);font-family:var(--sans);font-size:12px;color:var(--ink);background:var(--cream)"/>
+      <button id="pairsReviewSearchClear" type="button" title="Clear search" style="display:none;position:absolute;right:24px;top:50%;transform:translateY(-50%);width:20px;height:20px;border:none;border-radius:50%;background:var(--soft);color:#fff;align-items:center;justify-content:center;cursor:pointer;padding:0"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div id="pairsReviewList" style="overflow-y:auto;padding:6px 12px 16px;flex:1;background:#fff"></div>
   </div>
@@ -2070,8 +2074,8 @@ function renderFilterRow(){
       +'<span class="f-open-label">Open</span>'
       +'<span class="f-open-divider"></span>'
       +'<span class="f-open-toggles">'
-        +'<span class="f-ae-btn ae-a'+(isA?' on':'')+'" id="fBtnA">a</span>'
-        +'<span class="f-ae-btn ae-e'+(isE?' on':'')+'" id="fBtnE">e</span>'
+        +'<span class="f-ae-btn ae-a'+(isA?' on':'')+'" id="fBtnA">Arina</span>'
+        +'<span class="f-ae-btn ae-e'+(isE?' on':'')+'" id="fBtnE">Elnur</span>'
       +'</span>'
     +'</button>'
     +'<button class="f-pill '+fCls+'" data-f="followup">Flag</button>'
@@ -3127,13 +3131,16 @@ function renderPairsReview(){
   var modal=document.getElementById('pairsReviewModal');
   var closeBtn=document.getElementById('pairsReviewClose');
   var searchInput=document.getElementById('pairsReviewSearch');
+  var searchClear=document.getElementById('pairsReviewSearchClear');
   var tabCouples=document.getElementById('prTreeToggle');
-  if(closeBtn)closeBtn.addEventListener('click',function(){modal.style.display='none';searchInput.value='';_pairsReviewQuery='';});
+  if(closeBtn)closeBtn.addEventListener('click',function(){modal.style.display='none';searchInput.value='';_pairsReviewQuery='';if(searchClear)searchClear.style.display='none';});
   if(modal)modal.addEventListener('click',function(e){if(e.target===modal)modal.style.display='none';});
-  if(searchInput)searchInput.addEventListener('input',function(){_pairsReviewQuery=this.value.trim();renderPairsReview();});
+  if(searchInput)searchInput.addEventListener('input',function(){_pairsReviewQuery=this.value.trim();if(searchClear)searchClear.style.display=this.value?'flex':'none';renderPairsReview();});
+  if(searchClear)searchClear.addEventListener('click',function(){searchInput.value='';_pairsReviewQuery='';this.style.display='none';renderPairsReview();searchInput.focus();});
   if(tabCouples)tabCouples.addEventListener('change',function(){
     _pairsReviewTab=this.checked?'tree':'couples';
     searchInput.value='';_pairsReviewQuery='';
+    if(searchClear)searchClear.style.display='none';
     renderPairsReview();
   });
 })();
@@ -4752,6 +4759,15 @@ document.getElementById('searchInput').addEventListener('input',function(){
   this.closest('.search-wrap').classList.toggle('has-value',!!this.value);
   renderGuestList();
 });
+document.getElementById('searchClearBtn').addEventListener('click',function(){
+  var input=document.getElementById('searchInput');
+  input.value='';
+  input.classList.remove('has-value');
+  input.closest('.search-wrap').classList.remove('has-value');
+  searchQuery='';
+  renderGuestList();
+  input.focus();
+});
 
 document.getElementById('clearGuestBtn').addEventListener('click',function(){if(!importQueue.length)return;if(confirm('Clear guest list?')){importQueue=[];selectedIdxs=[];renderGuestList();renderDashboard();document.getElementById('guestArea').style.display='none';}});
 
@@ -5671,7 +5687,8 @@ function showChatNotif(who, text){
     var totalHtml = '<div style="margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--parchment)">'
       + '<div style="position:relative;margin-bottom:8px">'
       + '<svg style="position:absolute;left:9px;top:50%;transform:translateY(-50%);pointer-events:none" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--soft)" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>'
-      + '<input id="rsvpSearchInput" type="text" placeholder="Search…" style="width:100%;font-family:var(--sans);font-size:12px;padding:7px 10px 7px 28px;background:var(--cream2);border:1.5px solid var(--parchment);border-radius:100px;color:var(--ink);outline:none;box-sizing:border-box">'
+      + '<input id="rsvpSearchInput" type="text" placeholder="Search…" style="width:100%;font-family:var(--sans);font-size:12px;padding:7px 30px 7px 28px;background:var(--cream2);border:1.5px solid var(--parchment);border-radius:100px;color:var(--ink);outline:none;box-sizing:border-box">'
+      + '<button id="rsvpSearchClear" type="button" title="Clear search" style="display:none;position:absolute;right:6px;top:50%;transform:translateY(-50%);width:20px;height:20px;border:none;border-radius:50%;background:var(--soft);color:#fff;align-items:center;justify-content:center;cursor:pointer;padding:0"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>'
       + '</div>'
       + '<div style="display:flex;align-items:center;justify-content:flex-end">'
       + entriesCluster(rows.length, yn0.yes, yn0.no)
@@ -5719,13 +5736,26 @@ function showChatNotif(who, text){
 
     // Search filter
     var searchInput = document.getElementById('rsvpSearchInput');
+    var searchClear = document.getElementById('rsvpSearchClear');
+    function applyRsvpSearchFilter(q){
+      body.querySelectorAll('.rsvp-entry').forEach(function(el){
+        var name = el.dataset.name || '';
+        el.style.display = (!q || name.indexOf(q) !== -1) ? '' : 'none';
+      });
+    }
     if(searchInput){
       searchInput.addEventListener('input', function(){
         var q = this.value.toLowerCase();
-        body.querySelectorAll('.rsvp-entry').forEach(function(el){
-          var name = el.dataset.name || '';
-          el.style.display = (!q || name.indexOf(q) !== -1) ? '' : 'none';
-        });
+        if(searchClear) searchClear.style.display = this.value ? 'flex' : 'none';
+        applyRsvpSearchFilter(q);
+      });
+    }
+    if(searchClear){
+      searchClear.addEventListener('click', function(){
+        searchInput.value='';
+        this.style.display='none';
+        applyRsvpSearchFilter('');
+        searchInput.focus();
       });
     }
   }
