@@ -899,10 +899,8 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-summary-pill{font-family:var(--sans);font-size:10.5px;font-weight:700;padding:5px 11px;border-radius:var(--r-pill);background:var(--cream2);color:var(--muted);border:1px solid var(--parchment)}
 .seatmap-view-toggle{flex-shrink:0;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;border:1.5px solid var(--parchment);background:var(--cream2);color:var(--muted);cursor:pointer;padding:0}
 .seatmap-view-toggle.active{background:var(--sky-bg);color:var(--sky);border-color:transparent}
-.seatmap-floor{position:relative;width:100%;height:min(70vh,520px);background:
-    linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px);
-  background-size:24px 24px;background-color:#0f1f3d;border:1.5px solid #1c2f52;border-radius:var(--r-md,14px);margin-bottom:14px;overflow:hidden;touch-action:none}
+.seatmap-floor{position:relative;width:100%;height:min(70vh,520px);
+  background-size:24px 24px;border:1.5px solid rgba(0,0,0,.12);border-radius:var(--r-md,14px);margin-bottom:14px;overflow:hidden;touch-action:none}
 .seatmap-floor-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;color:rgba(255,255,255,.65);font-size:12.5px;padding:24px;line-height:1.6}
 .seatmap-floor-hint{text-align:center;color:var(--muted);font-size:11px;padding:0 2px 12px;font-family:var(--sans)}
 .seatmap-table-node{position:absolute;transform:translate(-50%,-50%);cursor:grab;user-select:none}
@@ -927,6 +925,13 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-marker-chip{font-family:var(--sans);font-size:11.5px;font-weight:700;padding:7px 12px;border-radius:var(--r-pill);border:1.5px solid var(--parchment);background:var(--cream2);color:var(--ink2);cursor:pointer;display:flex;align-items:center;gap:5px}
 .seatmap-floor-controls{display:flex;gap:8px;padding:0 2px 10px;flex-wrap:wrap}
 .seatmap-floor-add-btn{font-family:var(--sans);font-size:11.5px;font-weight:700;padding:7px 13px;border-radius:var(--r-pill);border:1.5px solid var(--parchment);background:var(--cream2);color:var(--ink2);cursor:pointer}
+.seatmap-color-swatch{-webkit-appearance:none;appearance:none;width:32px;height:32px;flex-shrink:0;border-radius:50%;border:1.5px solid var(--parchment);padding:0;cursor:pointer;background:none}
+.seatmap-color-swatch::-webkit-color-swatch-wrapper{padding:2px;border-radius:50%}
+.seatmap-color-swatch::-webkit-color-swatch{border:none;border-radius:50%}
+.seatmap-color-swatch::-moz-color-swatch{border:none;border-radius:50%}
+.seatmap-snap-guide{position:absolute;background:#ff5c8a;pointer-events:none;z-index:6;display:none}
+.seatmap-snap-guide.v{width:1px;top:0;bottom:0}
+.seatmap-snap-guide.h{height:1px;left:0;right:0}
 /* Assign-guest sheet */
 .seat-assign-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:409;opacity:0;pointer-events:none;transition:opacity .2s}
 .seat-assign-overlay.open{opacity:1;pointer-events:all}
@@ -6601,7 +6606,6 @@ function renderSeatMap(){
     return '<div class="seatmap-table-card" data-table-id="'+t.id+'">'
       + '<div class="seatmap-table-hdr">'
         + '<input class="seatmap-table-name" data-table="'+t.id+'" value="'+t.name.replace(/"/g,'&quot;')+'" maxlength="30"/>'
-        + '<button class="seatmap-mini-btn" data-act="shape" data-table="'+t.id+'" title="Switch table shape">'+(t.shape==='rect'?'▭':'●')+'</button>'
         + '<button class="seatmap-mini-btn" data-act="dec" data-table="'+t.id+'" title="Fewer chairs">–</button>'
         + '<span class="seatmap-seat-count">'+t.seats+' chairs</span>'
         + '<button class="seatmap-mini-btn" data-act="inc" data-table="'+t.id+'" title="More chairs">+</button>'
@@ -6623,7 +6627,6 @@ function renderSeatMap(){
       if(!t) return;
       if(act==='inc') setSeatCount(id, t.seats+1);
       else if(act==='dec') setSeatCount(id, t.seats-1);
-      else if(act==='shape'){ t.shape = (t.shape==='rect') ? 'round' : 'rect'; saveSeatMap(); renderSeatMap(); }
       else if(act==='del') removeTable(id);
     });
   });
@@ -6652,20 +6655,24 @@ function defaultTablePos(index){
 function tableFloorLayout(t){
   var seats = t.seats;
   if(t.shape === 'rect'){
-    var top = Math.ceil(seats/2), bottom = seats-top;
-    var perSideMax = Math.max(top, bottom, 1);
-    var rectW = Math.max(70, perSideMax*24 + 14);
-    var rectH = 42;
+    var rotated = t.rotation === 90;
+    var sideA = Math.ceil(seats/2), sideB = seats-sideA;
+    var perSideMax = Math.max(sideA, sideB, 1);
+    var longSide = Math.max(70, perSideMax*24 + 14);
+    var shortSide = 42;
     var pad = 22;
-    var w = rectW + pad*2, h = rectH + pad*2 + 6;
+    var rectW = rotated ? shortSide : longSide;
+    var rectH = rotated ? longSide : shortSide;
+    var w = rectW + pad*2 + (rotated?6:0), h = rectH + pad*2 + (rotated?0:6);
     var cx = w/2, cy = h/2;
     var dots = [];
     var num = 1;
-    for(var i=0;i<top;i++){
-      dots.push({ num:num++, x: cx - rectW/2 + (rectW/(top+1))*(i+1), y: cy - rectH/2 - 13 });
-    }
-    for(var j=0;j<bottom;j++){
-      dots.push({ num:num++, x: cx - rectW/2 + (rectW/(bottom+1))*(j+1), y: cy + rectH/2 + 13 });
+    if(!rotated){
+      for(var i=0;i<sideA;i++) dots.push({ num:num++, x: cx - rectW/2 + (rectW/(sideA+1))*(i+1), y: cy - rectH/2 - 13 });
+      for(var j=0;j<sideB;j++) dots.push({ num:num++, x: cx - rectW/2 + (rectW/(sideB+1))*(j+1), y: cy + rectH/2 + 13 });
+    } else {
+      for(var i2=0;i2<sideA;i2++) dots.push({ num:num++, x: cx - rectW/2 - 13, y: cy - rectH/2 + (rectH/(sideA+1))*(i2+1) });
+      for(var j2=0;j2<sideB;j2++) dots.push({ num:num++, x: cx + rectW/2 + 13, y: cy - rectH/2 + (rectH/(sideB+1))*(j2+1) });
     }
     return { w:w, h:h, shapeW:rectW, shapeH:rectH, shapeCls:'rect', dots:dots };
   }
@@ -6687,6 +6694,7 @@ function renderSeatFloorPlan(){
   var fab = document.getElementById('seatmapFabAdd');
   if(!body) return;
   if(!seatMap.landmarks) seatMap.landmarks = [];
+  if(!seatMap.floorColor) seatMap.floorColor = '#0f1f3d';
 
   if(fab) fab.style.display = seatMap.tables.length ? 'flex' : 'none';
 
@@ -6697,8 +6705,11 @@ function renderSeatFloorPlan(){
   });
   if(sub) sub.textContent = seatMap.tables.length ? (totalAssigned+' of '+totalSeats+' seats assigned') : '';
 
+  var floorStyle = floorCanvasStyle(seatMap.floorColor);
+
   var controls = '<div class="seatmap-floor-controls">'
     + '<button class="seatmap-floor-add-btn" id="addMarkerBtn">+ Add venue marker</button>'
+    + '<input type="color" class="seatmap-color-swatch" id="floorColorPicker" value="'+seatMap.floorColor+'" title="Canvas color">'
     + '</div>'
     + '<div class="seatmap-marker-picker' + (_markerPickerOpen ? ' open' : '') + '" id="markerPicker">'
     + Object.keys(LANDMARK_TYPES).map(function(key){
@@ -6708,7 +6719,7 @@ function renderSeatFloorPlan(){
     + '</div>';
 
   if(!seatMap.tables.length && !seatMap.landmarks.length){
-    body.innerHTML = controls + '<div class="seatmap-floor" id="seatmapFloorCanvas"><div class="seatmap-floor-empty">No tables yet.<br><br>Tap <strong>+ Table</strong> above, then drag it into place here to match your room layout.</div></div>';
+    body.innerHTML = controls + '<div class="seatmap-floor" id="seatmapFloorCanvas" style="'+floorStyle.css+'"><div class="seatmap-floor-empty" style="color:'+floorStyle.emptyColor+'">No tables yet.<br><br>Tap <strong>+ Table</strong> above, then drag it into place here to match your room layout.</div></div>';
     wireFloorAddButtons();
     return;
   }
@@ -6742,11 +6753,46 @@ function renderSeatFloorPlan(){
 
   body.innerHTML = controls
     + '<div class="seatmap-floor-hint">Drag to match your room layout · tap a table to seat guests · tap a marker to remove it</div>'
-    + '<div class="seatmap-floor" id="seatmapFloorCanvas">'+tableNodes+landmarkNodes+'</div>';
+    + '<div class="seatmap-floor" id="seatmapFloorCanvas" style="'+floorStyle.css+'">'+tableNodes+landmarkNodes
+      + '<div class="seatmap-snap-guide v" id="snapGuideV"></div>'
+      + '<div class="seatmap-snap-guide h" id="snapGuideH"></div>'
+    + '</div>';
 
   saveSeatMap();
   wireFloorDrag();
   wireFloorAddButtons();
+  wireFloorColorPicker();
+}
+
+/* Build the canvas background style for a chosen colour, picking grid-line
+   and empty-state text tones that stay readable whether the colour is
+   light or dark. */
+function floorCanvasStyle(hex){
+  var h = (hex||'#0f1f3d').replace('#','');
+  if(h.length===3) h = h.split('').map(function(c){return c+c;}).join('');
+  var r = parseInt(h.substr(0,2),16)||0, g = parseInt(h.substr(2,2),16)||0, b = parseInt(h.substr(4,2),16)||0;
+  var brightness = (r*299 + g*587 + b*114) / 1000;
+  var light = brightness > 150;
+  var gridColor = light ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.06)';
+  var borderColor = light ? 'rgba(0,0,0,.15)' : 'rgba(255,255,255,.12)';
+  var emptyColor = light ? 'rgba(0,0,0,.5)' : 'rgba(255,255,255,.65)';
+  var css = 'background-color:'+hex+';background-image:linear-gradient('+gridColor+' 1px,transparent 1px),linear-gradient(90deg,'+gridColor+' 1px,transparent 1px);border-color:'+borderColor+';';
+  return { css:css, emptyColor:emptyColor };
+}
+
+function wireFloorColorPicker(){
+  var picker = document.getElementById('floorColorPicker');
+  if(!picker) return;
+  picker.addEventListener('input', function(){
+    seatMap.floorColor = this.value;
+    var canvas = document.getElementById('seatmapFloorCanvas');
+    if(canvas) canvas.style.cssText += floorCanvasStyle(this.value).css;
+  });
+  picker.addEventListener('change', function(){
+    seatMap.floorColor = this.value;
+    saveSeatMap();
+    renderSeatFloorPlan();
+  });
 }
 
 /* Venue marker types the person can drop onto the floor plan — an
@@ -6795,9 +6841,29 @@ function removeLandmark(id){
   renderSeatFloorPlan();
 }
 
+/* All other tables' + landmarks' x/y positions (as percentages), used to
+   snap a dragged item into alignment — like the "smart guides" in slide
+   or design apps: drag near another item's left/right/center/top/bottom
+   and it snaps straight, with a thin guide line while you're dragging. */
+function snapTargets(excludeId){
+  var xs = [], ys = [];
+  seatMap.tables.forEach(function(t){
+    if(t.id===excludeId || !t.pos) return;
+    xs.push(t.pos.x); ys.push(t.pos.y);
+  });
+  (seatMap.landmarks||[]).forEach(function(l){
+    if(l.id===excludeId || !l.pos) return;
+    xs.push(l.pos.x); ys.push(l.pos.y);
+  });
+  return { xs:xs, ys:ys };
+}
+var SNAP_THRESHOLD = 2.2;
+
 function wireFloorDrag(){
   var canvas = document.getElementById('seatmapFloorCanvas');
   if(!canvas) return;
+  var guideV = document.getElementById('snapGuideV');
+  var guideH = document.getElementById('snapGuideH');
 
   canvas.querySelectorAll('.seatmap-node-dot').forEach(function(dot){
     dot.addEventListener('pointerdown', function(e){ e.stopPropagation(); });
@@ -6807,7 +6873,7 @@ function wireFloorDrag(){
     });
   });
 
-  canvas.querySelectorAll('.seatmap-table-node').forEach(function(node){
+  function makeDraggable(node, idAttr, excludeId, onEnd){
     var dragging = false, moved = false, startX=0, startY=0;
     node.addEventListener('pointerdown', function(e){
       if(e.target.closest('.seatmap-node-dot')) return;
@@ -6825,6 +6891,17 @@ function wireFloorDrag(){
       var yPct = ((e.clientY - rect.top) / rect.height) * 100;
       xPct = Math.max(4, Math.min(96, xPct));
       yPct = Math.max(6, Math.min(94, yPct));
+
+      var targets = snapTargets(excludeId);
+      var snappedX = null, snappedY = null;
+      targets.xs.forEach(function(cx){ if(Math.abs(xPct-cx) < SNAP_THRESHOLD) snappedX = cx; });
+      targets.ys.forEach(function(cy){ if(Math.abs(yPct-cy) < SNAP_THRESHOLD) snappedY = cy; });
+      if(snappedX !== null) xPct = snappedX;
+      if(snappedY !== null) yPct = snappedY;
+
+      if(guideV){ guideV.style.display = snappedX!==null ? 'block' : 'none'; guideV.style.left = xPct+'%'; }
+      if(guideH){ guideH.style.display = snappedY!==null ? 'block' : 'none'; guideH.style.top = yPct+'%'; }
+
       node.style.left = xPct + '%';
       node.style.top = yPct + '%';
     });
@@ -6832,52 +6909,34 @@ function wireFloorDrag(){
       if(!dragging) return;
       dragging = false;
       node.classList.remove('dragging');
-      var id = node.dataset.tableId;
+      if(guideV) guideV.style.display = 'none';
+      if(guideH) guideH.style.display = 'none';
+      onEnd(moved, node.dataset[idAttr]);
+    }
+    node.addEventListener('pointerup', endDrag);
+    node.addEventListener('pointercancel', endDrag);
+  }
+
+  canvas.querySelectorAll('.seatmap-table-node').forEach(function(node){
+    makeDraggable(node, 'tableId', node.dataset.tableId, function(moved, id){
       var t = seatMap.tables.find(function(x){return x.id===id;});
       if(t){
         t.pos = { x: parseFloat(node.style.left), y: parseFloat(node.style.top) };
         saveSeatMap();
       }
       if(!moved) openTableFromFloor(id);
-    }
-    node.addEventListener('pointerup', endDrag);
-    node.addEventListener('pointercancel', endDrag);
+    });
   });
 
   canvas.querySelectorAll('.seatmap-landmark').forEach(function(node){
-    var dragging = false, moved = false, startX=0, startY=0;
-    node.addEventListener('pointerdown', function(e){
-      dragging = true; moved = false;
-      startX = e.clientX; startY = e.clientY;
-      node.classList.add('dragging');
-      try{ node.setPointerCapture(e.pointerId); }catch(err){}
-    });
-    node.addEventListener('pointermove', function(e){
-      if(!dragging) return;
-      var dx = e.clientX - startX, dy = e.clientY - startY;
-      if(Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
-      var rect = canvas.getBoundingClientRect();
-      var xPct = ((e.clientX - rect.left) / rect.width) * 100;
-      var yPct = ((e.clientY - rect.top) / rect.height) * 100;
-      xPct = Math.max(4, Math.min(96, xPct));
-      yPct = Math.max(6, Math.min(94, yPct));
-      node.style.left = xPct + '%';
-      node.style.top = yPct + '%';
-    });
-    function endDrag(e){
-      if(!dragging) return;
-      dragging = false;
-      node.classList.remove('dragging');
-      var id = node.dataset.landmarkId;
+    makeDraggable(node, 'landmarkId', node.dataset.landmarkId, function(moved, id){
       var l = (seatMap.landmarks||[]).find(function(x){return x.id===id;});
       if(l){
         l.pos = { x: parseFloat(node.style.left), y: parseFloat(node.style.top) };
         saveSeatMap();
       }
       if(!moved && confirm('Remove this marker?')) removeLandmark(id);
-    }
-    node.addEventListener('pointerup', endDrag);
-    node.addEventListener('pointercancel', endDrag);
+    });
   });
 }
 
@@ -6897,7 +6956,12 @@ function openTableFromFloor(tableId){
       + '<span class="seatmap-seat-name">'+(name?name:'+ Add')+'</span>'
       + '</div>';
   }
-  document.getElementById('seatAssignTitle').textContent = t.name;
+  document.getElementById('seatAssignTitle').innerHTML = t.name.replace(/</g,'&lt;')
+    + ' <button id="tableShapeToggle" data-table="'+t.id+'" style="margin-left:8px;font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;border:1.5px solid var(--parchment);background:var(--cream2);color:var(--ink2);cursor:pointer;vertical-align:middle">'
+    + (t.shape==='rect' ? '▭ Rectangular' : '● Round') + ' · tap to switch</button>'
+    + (t.shape==='rect' ? (
+        ' <button id="tableRotateBtn" data-table="'+t.id+'" title="Rotate table" style="margin-left:6px;font-size:11px;font-weight:700;padding:4px 9px;border-radius:999px;border:1.5px solid var(--parchment);background:var(--cream2);color:var(--ink2);cursor:pointer;vertical-align:middle">⟳ Rotate</button>'
+      ) : '');
   document.getElementById('seatAssignSearch').value = '';
   document.getElementById('seatAssignUnassignBtn').style.display = 'none';
   var list = document.getElementById('seatAssignList');
@@ -6907,6 +6971,20 @@ function openTableFromFloor(tableId){
       closeSeatAssign();
       openSeatAssign(this.dataset.table, parseInt(this.dataset.seat,10));
     });
+  });
+  var shapeBtn = document.getElementById('tableShapeToggle');
+  if(shapeBtn) shapeBtn.addEventListener('click', function(){
+    t.shape = (t.shape==='rect') ? 'round' : 'rect';
+    saveSeatMap();
+    openTableFromFloor(tableId);
+    renderSeatFloorPlan();
+  });
+  var rotateBtn = document.getElementById('tableRotateBtn');
+  if(rotateBtn) rotateBtn.addEventListener('click', function(){
+    t.rotation = (t.rotation === 90) ? 0 : 90;
+    saveSeatMap();
+    openTableFromFloor(tableId);
+    renderSeatFloorPlan();
   });
   document.getElementById('seatAssignOverlay').classList.add('open');
   document.getElementById('seatAssignSheet').classList.add('open');
