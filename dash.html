@@ -235,8 +235,11 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 #filterRow .f-pill.on{background:var(--rose);border-color:var(--rose);color:#fff;border-bottom-color:var(--rose);box-shadow:none}
 #filterRow .f-pill.on-f{background:var(--amber-bg);border-color:rgba(176,120,48,.3);color:var(--amber);border-bottom-color:var(--amber-bg)}
 #filterRow .f-pill.on-c,#filterRow .f-pill.f-sent-pill.on{background:var(--green);border-color:var(--green);color:#fff;border-bottom-color:var(--green);box-shadow:none}
-#filterRow .f-pill-open{border-radius:9px 9px 0 0}
-#filterRow .f-pill-open.on{border-bottom-color:var(--rose)}
+/* Arina / Elnur filter pills — solid, high-contrast fill (not the pale
+   badge tint used elsewhere) specifically so "selected" is unmistakable
+   at a glance and never reads the same as "unselected". */
+#filterRow .f-pill.on-a{background:var(--arina-txt);border-color:var(--arina-txt);color:#fff;border-bottom-color:var(--arina-txt);font-weight:800;box-shadow:none}
+#filterRow .f-pill.on-e{background:var(--elnur-txt);border-color:var(--elnur-txt);color:#fff;border-bottom-color:var(--elnur-txt);font-weight:800;box-shadow:none}
 .search-filter-row{display:flex;gap:8px;margin-bottom:8px;align-items:stretch;flex-wrap:wrap}
 .search-wrap{position:relative;flex:1;min-width:0;height:32px}
 .search-wrap::before{display:none}
@@ -2168,49 +2171,21 @@ function renderFilterRow(){
   var isAll = importFilter==='all';
   var isA = importFilter==='Arina';
   var isE = importFilter==='Elnur';
-  var isOpen = isAll||isA||isE;
   var fCls = importFilter==='followup' ? 'on-f' : '';
   var sCls = importFilter==='sent' ? 'on' : '';
   var cCls = importFilter==='confirmed' ? 'on-c' : '';
-  /* Compound Open pill with embedded A/E toggles */
-  var openPillCls = 'f-pill f-pill-open'+(isOpen?' on':'');
+  /* Three separate, unambiguous pills — each one is either clearly ON
+     (solid fill, white text) or clearly OFF (plain cream), same pattern
+     as Flag/Sent/Confirmed, so which sender is being viewed is never in
+     doubt. */
   row.innerHTML = ''
-    +'<button class="'+openPillCls+'" id="fPillOpen" data-f="all">'
-      +'<span class="f-open-label">Open</span>'
-      +'<span class="f-open-divider"></span>'
-      +'<span class="f-open-toggles">'
-        +'<span class="f-ae-btn ae-a'+(isA?' on':'')+'" id="fBtnA">Arina</span>'
-        +'<span class="f-ae-btn ae-e'+(isE?' on':'')+'" id="fBtnE">Elnur</span>'
-      +'</span>'
-    +'</button>'
+    +'<button class="f-pill'+(isAll?' on':'')+'" data-f="all">All</button>'
+    +'<button class="f-pill'+(isA?' on-a':'')+'" data-f="Arina">Arina</button>'
+    +'<button class="f-pill'+(isE?' on-e':'')+'" data-f="Elnur">Elnur</button>'
     +'<button class="f-pill '+fCls+'" data-f="followup">Flag</button>'
     +'<button class="f-pill f-sent-pill '+sCls+'" data-f="sent">Sent</button>'
     +'<button class="f-pill '+cCls+'" data-f="confirmed">Confirmed</button>';
 
-  /* Open pill: click label area → all open */
-  var pillOpen=document.getElementById('fPillOpen');
-  if(pillOpen){
-    pillOpen.addEventListener('click',function(e){
-      /* If click landed on an A/E toggle, let those handlers deal with it */
-      if(e.target.closest('.f-ae-btn')) return;
-      importFilter='all';selectedIdxs=[];renderFilterRow();renderGuestList();
-    });
-  }
-  /* A toggle */
-  var btnA=document.getElementById('fBtnA');
-  if(btnA) btnA.addEventListener('click',function(e){
-    e.stopPropagation();
-    importFilter=(importFilter==='Arina')?'all':'Arina';
-    selectedIdxs=[];renderFilterRow();renderGuestList();
-  });
-  /* E toggle */
-  var btnE=document.getElementById('fBtnE');
-  if(btnE) btnE.addEventListener('click',function(e){
-    e.stopPropagation();
-    importFilter=(importFilter==='Elnur')?'all':'Elnur';
-    selectedIdxs=[];renderFilterRow();renderGuestList();
-  });
-  /* Flag + Sent */
   row.querySelectorAll('[data-f]').forEach(function(b){
     b.addEventListener('click',function(){
       importFilter=this.dataset.f;
