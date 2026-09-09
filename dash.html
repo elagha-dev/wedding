@@ -906,14 +906,14 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-table-node{position:absolute;transform:translate(-50%,-50%);cursor:grab;user-select:none}
 .seatmap-table-node:active{cursor:grabbing}
 .seatmap-table-node.dragging{transition:none}
-.seatmap-node-shape{position:absolute;background:#16294d;border:2px solid rgba(255,255,255,.22);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;box-shadow:0 3px 10px rgba(0,0,0,.35)}
+.seatmap-node-shape{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;box-shadow:0 3px 10px rgba(0,0,0,.35)}
 .seatmap-table-node.dragging .seatmap-node-shape{box-shadow:0 6px 18px rgba(0,0,0,.5)}
 .seatmap-node-shape.round{border-radius:50%}
 .seatmap-node-shape.rect{border-radius:10px}
-.seatmap-node-shape.full{border-color:#5fd393}
-.seatmap-node-shape.full .seatmap-table-node-meta{color:#5fd393}
-.seatmap-table-node-name{font-family:var(--sans);font-size:10.5px;font-weight:800;color:#fff;text-align:center;line-height:1.1;word-break:break-word;max-width:90%;padding:0 3px}
-.seatmap-table-node-meta{font-family:var(--sans);font-size:9px;font-weight:700;color:rgba(255,255,255,.6)}
+.seatmap-node-shape.full{border-color:#5fd393 !important}
+.seatmap-node-shape.full .seatmap-table-node-meta{color:#5fd393 !important}
+.seatmap-table-node-name{font-family:var(--sans);font-size:10.5px;font-weight:800;text-align:center;line-height:1.1;word-break:break-word;max-width:90%;padding:0 3px}
+.seatmap-table-node-meta{font-family:var(--sans);font-size:9px;font-weight:700}
 .seatmap-node-dot{position:absolute;width:11px;height:11px;border-radius:50%;background:rgba(255,255,255,.28);border:1.5px solid rgba(255,255,255,.4);transform:translate(-50%,-50%);cursor:pointer}
 .seatmap-node-dot.rsvp-yes{background:#3A8C5C;border-color:#5fd393}
 .seatmap-node-dot.rsvp-no{background:#b91c1c;border-color:#e57373}
@@ -6500,9 +6500,14 @@ function renderSeatAssignList(query){
   var list = document.getElementById('seatAssignList');
   if(!list) return;
   var q = (query||'').trim().toLowerCase();
+  var currentName = (_assignCtx && seatMap.assignments[seatKey(_assignCtx.tableId,_assignCtx.seatNum)]) || '';
   var guests = (typeof importQueue!=='undefined'?importQueue:[]).filter(function(g){
     if(g.skipped) return false;
     if(typeof isPartyType==='function' && !isPartyType(g)) return false;
+    // Only show guests who are still available to seat — i.e. not already
+    // placed at a table — except the guest currently sitting in this exact
+    // seat, so re-opening a filled seat doesn't make them vanish from view.
+    if(g.name !== currentName && getSeatForGuest(g.name)) return false;
     if(q && g.name.toLowerCase().indexOf(q)===-1) return false;
     return true;
   }).sort(function(a,b){ return a.name.localeCompare(b.name); });
@@ -6695,6 +6700,7 @@ function renderSeatFloorPlan(){
   if(!body) return;
   if(!seatMap.landmarks) seatMap.landmarks = [];
   if(!seatMap.floorColor) seatMap.floorColor = '#0f1f3d';
+  if(!seatMap.tableColor) seatMap.tableColor = '#16294d';
 
   if(fab) fab.style.display = seatMap.tables.length ? 'flex' : 'none';
 
@@ -6706,10 +6712,12 @@ function renderSeatFloorPlan(){
   if(sub) sub.textContent = seatMap.tables.length ? (totalAssigned+' of '+totalSeats+' seats assigned') : '';
 
   var floorStyle = floorCanvasStyle(seatMap.floorColor);
+  var tableStyle = tableNodeStyle(seatMap.tableColor);
 
   var controls = '<div class="seatmap-floor-controls">'
     + '<button class="seatmap-floor-add-btn" id="addMarkerBtn">+ Add venue marker</button>'
     + '<input type="color" class="seatmap-color-swatch" id="floorColorPicker" value="'+seatMap.floorColor+'" title="Canvas color">'
+    + '<input type="color" class="seatmap-color-swatch" id="tableColorPicker" value="'+seatMap.tableColor+'" title="Table color">'
     + '</div>'
     + '<div class="seatmap-marker-picker' + (_markerPickerOpen ? ' open' : '') + '" id="markerPicker">'
     + Object.keys(LANDMARK_TYPES).map(function(key){
@@ -6738,9 +6746,9 @@ function renderSeatFloorPlan(){
     }).join('');
     var shapeCls = 'seatmap-node-shape '+lay.shapeCls+(filled===t.seats && t.seats>0 ? ' full':'');
     return '<div class="seatmap-table-node" data-table-id="'+t.id+'" style="left:'+t.pos.x+'%;top:'+t.pos.y+'%;width:'+lay.w+'px;height:'+lay.h+'px">'
-      + '<div class="'+shapeCls+'" style="width:'+lay.shapeW+'px;height:'+lay.shapeH+'px;left:'+(lay.w-lay.shapeW)/2+'px;top:'+(lay.h-lay.shapeH)/2+'px">'
-        + '<span class="seatmap-table-node-name">'+t.name.replace(/</g,'&lt;')+'</span>'
-        + '<span class="seatmap-table-node-meta">'+filled+'/'+t.seats+'</span>'
+      + '<div class="'+shapeCls+'" style="width:'+lay.shapeW+'px;height:'+lay.shapeH+'px;left:'+(lay.w-lay.shapeW)/2+'px;top:'+(lay.h-lay.shapeH)/2+'px;background:'+tableStyle.bg+';border:2px solid '+tableStyle.border+'">'
+        + '<span class="seatmap-table-node-name" style="color:'+tableStyle.text+'">'+t.name.replace(/</g,'&lt;')+'</span>'
+        + '<span class="seatmap-table-node-meta" style="color:'+tableStyle.meta+'">'+filled+'/'+t.seats+'</span>'
       + '</div>'
       + dotsHtml
       + '</div>';
@@ -6764,6 +6772,22 @@ function renderSeatFloorPlan(){
   wireFloorColorPicker();
 }
 
+/* Build the table-shape style for a chosen colour, picking readable text
+   and border tones whether the colour is light or dark. */
+function tableNodeStyle(hex){
+  var h = (hex||'#16294d').replace('#','');
+  if(h.length===3) h = h.split('').map(function(c){return c+c;}).join('');
+  var r = parseInt(h.substr(0,2),16)||0, g = parseInt(h.substr(2,2),16)||0, b = parseInt(h.substr(4,2),16)||0;
+  var brightness = (r*299 + g*587 + b*114) / 1000;
+  var light = brightness > 150;
+  return {
+    bg: hex,
+    border: light ? 'rgba(0,0,0,.25)' : 'rgba(255,255,255,.22)',
+    text: light ? '#1a1a1a' : '#fff',
+    meta: light ? 'rgba(0,0,0,.55)' : 'rgba(255,255,255,.6)'
+  };
+}
+
 /* Build the canvas background style for a chosen colour, picking grid-line
    and empty-state text tones that stay readable whether the colour is
    light or dark. */
@@ -6782,17 +6806,26 @@ function floorCanvasStyle(hex){
 
 function wireFloorColorPicker(){
   var picker = document.getElementById('floorColorPicker');
-  if(!picker) return;
-  picker.addEventListener('input', function(){
-    seatMap.floorColor = this.value;
-    var canvas = document.getElementById('seatmapFloorCanvas');
-    if(canvas) canvas.style.cssText += floorCanvasStyle(this.value).css;
-  });
-  picker.addEventListener('change', function(){
-    seatMap.floorColor = this.value;
-    saveSeatMap();
-    renderSeatFloorPlan();
-  });
+  if(picker){
+    picker.addEventListener('input', function(){
+      seatMap.floorColor = this.value;
+      var canvas = document.getElementById('seatmapFloorCanvas');
+      if(canvas) canvas.style.cssText += floorCanvasStyle(this.value).css;
+    });
+    picker.addEventListener('change', function(){
+      seatMap.floorColor = this.value;
+      saveSeatMap();
+      renderSeatFloorPlan();
+    });
+  }
+  var tPicker = document.getElementById('tableColorPicker');
+  if(tPicker){
+    tPicker.addEventListener('change', function(){
+      seatMap.tableColor = this.value;
+      saveSeatMap();
+      renderSeatFloorPlan();
+    });
+  }
 }
 
 /* Venue marker types the person can drop onto the floor plan — an
@@ -6958,9 +6991,9 @@ function openTableFromFloor(tableId){
   }
   document.getElementById('seatAssignTitle').innerHTML = t.name.replace(/</g,'&lt;')
     + ' <button id="tableShapeToggle" data-table="'+t.id+'" style="margin-left:8px;font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;border:1.5px solid var(--parchment);background:var(--cream2);color:var(--ink2);cursor:pointer;vertical-align:middle">'
-    + (t.shape==='rect' ? '▭ Rectangular' : '● Round') + ' · tap to switch</button>'
+    + (t.shape==='rect' ? 'Rectangular' : 'Round') + ' · tap to switch</button>'
     + (t.shape==='rect' ? (
-        ' <button id="tableRotateBtn" data-table="'+t.id+'" title="Rotate table" style="margin-left:6px;font-size:11px;font-weight:700;padding:4px 9px;border-radius:999px;border:1.5px solid var(--parchment);background:var(--cream2);color:var(--ink2);cursor:pointer;vertical-align:middle">⟳ Rotate</button>'
+        ' <button id="tableRotateBtn" data-table="'+t.id+'" title="Rotate table" style="margin-left:6px;font-size:11px;font-weight:700;padding:4px 9px;border-radius:999px;border:1.5px solid var(--parchment);background:var(--cream2);color:var(--ink2);cursor:pointer;vertical-align:middle">Rotate</button>'
       ) : '');
   document.getElementById('seatAssignSearch').value = '';
   document.getElementById('seatAssignUnassignBtn').style.display = 'none';
