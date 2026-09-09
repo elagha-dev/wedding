@@ -238,21 +238,21 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 #filterRow .f-pill-open{border-radius:9px 9px 0 0}
 #filterRow .f-pill-open.on{border-bottom-color:var(--rose)}
 .search-filter-row{display:flex;gap:8px;margin-bottom:8px;align-items:stretch;flex-wrap:wrap}
-.search-wrap{position:relative;flex:1;min-width:0}
+.search-wrap{position:relative;flex:1;min-width:0;height:32px}
 .search-wrap::before{display:none}
-.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none;flex-shrink:0;z-index:1;transition:opacity var(--ease)}
-.search-input{font-family:var(--sans);font-size:13px;padding:7px 30px 7px 36px;background:var(--cream);border:1.5px solid var(--parchment);border-radius:var(--r-sm);color:var(--ink);outline:none;width:100%;height:100%;transition:border-color var(--ease),box-shadow var(--ease)}
-.search-clear-btn{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:20px;height:20px;border:none;border-radius:50%;background:var(--soft);color:#fff;display:none;align-items:center;justify-content:center;cursor:pointer;padding:0;z-index:1}
+.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);pointer-events:none;flex-shrink:0;z-index:2;transition:opacity var(--ease)}
+.search-input{box-sizing:border-box;font-family:var(--sans);font-size:13px;padding:0 30px 0 34px;background:var(--cream);border:1.5px solid var(--parchment);border-radius:var(--r-sm);color:var(--ink);outline:none;width:100%;height:100%;line-height:32px;transition:border-color var(--ease),box-shadow var(--ease)}
+.search-clear-btn{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:18px;height:18px;border:none;border-radius:50%;background:var(--soft);color:#fff;display:none;align-items:center;justify-content:center;cursor:pointer;padding:0;z-index:2}
 .search-wrap.has-value .search-clear-btn{display:flex}
 .search-clear-btn:hover{background:var(--muted)}
 .search-input:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135,106,.1)}
 .search-input::placeholder{color:var(--soft)}
-.group-sel{padding:0 10px;font-size:12px;font-weight:500;border:1.5px solid var(--parchment);border-radius:var(--r-sm);background:var(--cream);color:var(--muted);cursor:pointer;font-family:var(--sans);outline:none;transition:border-color var(--ease);flex-shrink:0;width:110px;height:auto;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23C4AFA4' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:26px}
+.group-sel{box-sizing:border-box;padding:0 10px;font-size:12px;font-weight:500;border:1.5px solid var(--parchment);border-radius:var(--r-sm);background:var(--cream);color:var(--muted);cursor:pointer;font-family:var(--sans);outline:none;transition:border-color var(--ease);flex-shrink:0;width:110px;height:32px;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23C4AFA4' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:24px}
 .group-sel:focus{border-color:var(--rose)}
 
 
 /* ── SORT BUTTON ── */
-.sort-btn{flex-shrink:0;padding:0 12px;height:auto;border:1.5px solid var(--parchment);border-radius:var(--r-sm);background:var(--cream);color:var(--muted);font-family:var(--sans);font-size:11px;font-weight:600;cursor:pointer;transition:all var(--ease);white-space:nowrap;display:flex;align-items:center;gap:5px}
+.sort-btn{box-sizing:border-box;flex-shrink:0;padding:0 12px;height:32px;border:1.5px solid var(--parchment);border-radius:var(--r-sm);background:var(--cream);color:var(--muted);font-family:var(--sans);font-size:11px;font-weight:600;cursor:pointer;transition:all var(--ease);white-space:nowrap;display:flex;align-items:center;gap:5px}
 .f-pill-round{flex-shrink:0;width:26px;height:26px;padding:0;border-radius:50%;border:1.5px solid var(--sky);background:var(--sky-bg);color:var(--sky);font-family:var(--sans);font-size:12px;font-weight:800;cursor:pointer;transition:all var(--ease);display:flex;align-items:center;justify-content:center}
 .f-pill-round:hover{background:var(--sky);color:#fff}
 .f-pill-round svg{display:block}
@@ -740,6 +740,15 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .presence-avatar.is-online .presence-dot{background:var(--green)}
 .presence-avatar.is-me .presence-dot{display:none}
 
+/* ── WHO-AM-I INDICATOR (clear, always-visible label next to my avatar) ── */
+#presenceMeGroup .presence-avatar.is-me{box-shadow:0 0 0 2px var(--cream),0 0 0 3.5px var(--soft);transition:box-shadow .2s}
+#presenceMeGroup.who-arina .presence-avatar.is-me{box-shadow:0 0 0 2px var(--cream),0 0 0 3.5px var(--arina-txt)}
+#presenceMeGroup.who-elnur .presence-avatar.is-me{box-shadow:0 0 0 2px var(--cream),0 0 0 3.5px var(--elnur-txt)}
+.presence-me-label{font-family:var(--sans);font-size:10.5px;font-weight:800;letter-spacing:.03em;padding:4px 10px;border-radius:var(--r-pill);background:var(--parchment);color:var(--muted);white-space:nowrap}
+#presenceMeGroup.who-arina .presence-me-label{background:var(--arina-bg);color:var(--arina-txt)}
+#presenceMeGroup.who-elnur .presence-me-label{background:var(--elnur-bg);color:var(--elnur-txt)}
+#presenceMeGroup.who-guest .presence-me-label{background:var(--parchment);color:var(--muted)}
+
 /* ── WHO ARE YOU PICKER ── */
 .who-overlay{position:fixed;inset:0;background:rgba(30,20,10,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px}
 .who-card{background:var(--cream);border-radius:20px;padding:32px 24px 28px;width:100%;max-width:320px;box-shadow:0 24px 60px rgba(0,0,0,.18);text-align:center}
@@ -848,6 +857,61 @@ body.lite-mode #liteModeTopBtn {
 .chat-overlay{position:fixed;inset:0;background:rgba(35,26,20,.35);backdrop-filter:blur(4px);z-index:299;opacity:0;pointer-events:none;transition:opacity .3s}
 .chat-overlay.open{opacity:1;pointer-events:all}
 
+/* ── SETTINGS: relocated switch rows (deploy stamp / lite mode / sending mode) ── */
+.s-switch-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.s-switch-row .s-row-info{flex:1;min-width:0}
+
+/* ── SEAT MAP ── */
+.seatmap-overlay{position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:398;opacity:0;pointer-events:none;transition:opacity .25s}
+.seatmap-overlay.open{opacity:1;pointer-events:all}
+.seatmap-screen{position:fixed;inset:0;z-index:399;background:var(--parchment2,var(--cream));display:flex;flex-direction:column;transform:translateY(100%);transition:transform .28s cubic-bezier(.32,.72,.35,1)}
+.seatmap-screen.open{transform:translateY(0)}
+.seatmap-hdr{flex-shrink:0;display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--cream);border-bottom:1px solid var(--parchment);box-shadow:0 2px 8px rgba(0,0,0,.03)}
+.seatmap-hdr-title{font-family:var(--serif,var(--sans));font-size:17px;font-weight:800;color:var(--ink2);flex:1}
+.seatmap-hdr-sub{font-family:var(--sans);font-size:11px;color:var(--muted);font-weight:600}
+.seatmap-close{width:30px;height:30px;border-radius:50%;border:none;background:var(--cream2);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;line-height:1;flex-shrink:0}
+.seatmap-add-btn{flex-shrink:0;padding:8px 14px;border-radius:var(--r-pill);border:none;background:linear-gradient(135deg,var(--rose),var(--rose-deep));color:#fff;font-family:var(--sans);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
+.seatmap-body{flex:1;overflow-y:auto;padding:14px 14px 100px}
+.seatmap-empty{text-align:center;color:var(--muted);font-size:13px;padding:60px 24px;line-height:1.7}
+.seatmap-table-card{background:var(--cream);border:1.5px solid var(--parchment);border-radius:var(--r-md,14px);padding:12px 12px 14px;margin-bottom:14px;box-shadow:0 2px 10px rgba(0,0,0,.03)}
+.seatmap-table-hdr{display:flex;align-items:center;gap:6px;margin-bottom:10px}
+.seatmap-table-name{flex:1;min-width:0;font-family:var(--sans);font-size:14px;font-weight:800;color:var(--ink2);border:1.5px solid transparent;border-radius:8px;padding:5px 7px;background:transparent;outline:none;transition:border-color .15s,background .15s}
+.seatmap-table-name:focus{border-color:var(--parchment);background:var(--cream2)}
+.seatmap-mini-btn{flex-shrink:0;width:26px;height:26px;border-radius:50%;border:1.5px solid var(--parchment);background:var(--cream2);color:var(--muted);font-family:var(--sans);font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;line-height:1}
+.seatmap-mini-btn:hover{border-color:var(--blush);color:var(--ink2)}
+.seatmap-mini-btn.danger{color:#b91c1c}
+.seatmap-seat-count{font-family:var(--sans);font-size:11px;font-weight:700;color:var(--muted);min-width:44px;text-align:center;flex-shrink:0}
+.seatmap-seats{display:flex;flex-wrap:wrap;gap:7px}
+.seatmap-seat{width:64px;min-height:52px;border-radius:10px;border:1.5px solid var(--parchment);background:var(--cream2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;padding:5px 3px;text-align:center;transition:transform .1s}
+.seatmap-seat:active{transform:scale(.95)}
+.seatmap-seat-num{font-family:var(--sans);font-size:9px;font-weight:800;letter-spacing:.03em;color:var(--soft);text-transform:uppercase}
+.seatmap-seat-name{font-family:var(--sans);font-size:10.5px;font-weight:700;color:var(--ink2);line-height:1.2;word-break:break-word;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.seatmap-seat.empty .seatmap-seat-name{color:var(--soft);font-weight:600}
+.seatmap-seat.rsvp-yes{background:rgba(58,140,92,.14);border-color:rgba(58,140,92,.45)}
+.seatmap-seat.rsvp-yes .seatmap-seat-num{color:#2f7a4d}
+.seatmap-seat.rsvp-no{background:rgba(185,28,28,.10);border-color:rgba(185,28,28,.4)}
+.seatmap-seat.rsvp-no .seatmap-seat-num{color:#b91c1c}
+.seatmap-fab-add{position:fixed;right:18px;bottom:24px;z-index:400;width:52px;height:52px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--rose),var(--rose-deep));color:#fff;font-size:26px;font-weight:400;cursor:pointer;box-shadow:0 8px 24px rgba(160,97,74,.4);display:flex;align-items:center;justify-content:center}
+.seatmap-summary{display:flex;gap:8px;padding:0 2px 12px;flex-wrap:wrap}
+.seatmap-summary-pill{font-family:var(--sans);font-size:10.5px;font-weight:700;padding:5px 11px;border-radius:var(--r-pill);background:var(--cream2);color:var(--muted);border:1px solid var(--parchment)}
+/* Assign-guest sheet */
+.seat-assign-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:409;opacity:0;pointer-events:none;transition:opacity .2s}
+.seat-assign-overlay.open{opacity:1;pointer-events:all}
+.seat-assign-sheet{position:fixed;left:0;right:0;bottom:0;z-index:410;background:var(--cream);border-radius:20px 20px 0 0;max-height:78vh;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .25s cubic-bezier(.32,.72,.35,1);box-shadow:0 -8px 32px rgba(0,0,0,.18)}
+.seat-assign-sheet.open{transform:translateY(0)}
+.seat-assign-hdr{flex-shrink:0;padding:14px 16px 10px;border-bottom:1px solid var(--parchment)}
+.seat-assign-title{font-family:var(--sans);font-size:14px;font-weight:800;color:var(--ink2);margin-bottom:8px}
+.seat-assign-search{width:100%;box-sizing:border-box;font-family:var(--sans);font-size:13px;padding:8px 12px;background:var(--cream2);border:1.5px solid var(--parchment);border-radius:var(--r-sm);outline:none}
+.seat-assign-list{overflow-y:auto;padding:6px 8px 20px}
+.seat-assign-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 10px;border-radius:10px;cursor:pointer}
+.seat-assign-row:active{background:var(--cream2)}
+.seat-assign-row-name{font-family:var(--sans);font-size:13.5px;font-weight:700;color:var(--ink2)}
+.seat-assign-row-meta{font-family:var(--sans);font-size:10.5px;color:var(--muted);margin-top:2px}
+.seat-assign-empty{text-align:center;color:var(--muted);font-size:12.5px;padding:30px 20px}
+.seat-assign-unassign{width:100%;box-sizing:border-box;margin:4px 8px 10px;padding:10px;border-radius:10px;border:1.5px solid rgba(185,28,28,.3);background:rgba(185,28,28,.06);color:#b91c1c;font-family:var(--sans);font-size:12.5px;font-weight:700;cursor:pointer}
+/* Seat badge shown inline next to a guest's name in the main list */
+.g-seat-badge{display:inline-flex;align-items:center;gap:3px;font-family:var(--sans);font-size:9.5px;font-weight:800;letter-spacing:.02em;padding:2px 7px;border-radius:var(--r-pill);background:var(--sky-bg);color:var(--sky);white-space:nowrap;vertical-align:middle}
+
 </style>
 </head>
 <body>
@@ -898,23 +962,14 @@ body.lite-mode #liteModeTopBtn {
 
 <div class="topbar">
  <div class="topbar-inner">
-  <!-- Tiny deploy stamp — lives in the sticky topbar so it's never hidden
-       behind the browser's own bottom toolbar. Tap for last-deployed date/time. -->
-  <button id="deployStampBtn" title="Toggle version info" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:20px;height:32px;border-radius:10px;border:none;background:var(--parchment);cursor:pointer;padding:0;position:relative;transition:background .25s">
-    <span id="deployStampThumb" style="position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.18);transition:transform .25s;display:block"></span>
-  </button>
+  <!-- Deploy stamp / lite mode / sending mode switches now live in
+       Settings → Developer, to keep this bar free of clutter. The buttons
+       themselves (and their IDs) were simply relocated in the DOM — all
+       JS logic still finds them by getElementById, unchanged. -->
   <span id="deployStampLabel" style="display:none"></span>
-  <!-- Lite mode toggle switch -->
-  <button id="liteModeTopBtn" title="Toggle Lite Mode" style="flex-shrink:0;display:none;align-items:center;justify-content:center;width:20px;height:32px;border-radius:10px;border:none;background:var(--parchment);cursor:pointer;padding:0;position:relative;transition:background .25s">
-    <span id="liteModeThumb" style="position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.18);transition:transform .25s;display:block"></span>
-  </button>
   <!-- Hidden session buttons still needed for JS logic -->
   <button class="sess-btn on-a" id="sessA" data-who="Arina" style="display:none">A</button>
   <button class="sess-btn" id="sessE" data-who="Elnur" style="display:none">E</button>
-  <!-- Sending mode toggle (light switch) -->
-  <button id="sendingModeBtn" title="Sending mode — faster Notion checks" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:20px;height:32px;border-radius:10px;border:none;background:var(--parchment);cursor:pointer;padding:0;position:relative;transition:background .25s">
-    <span id="sendingModeThumb" style="position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.18);transition:transform .25s;display:block"></span>
-  </button>
   <!-- Sync -->
   <button class="sync-pill" id="topSyncBtn">
     <span class="sync-dot live" id="syncDot"></span>
@@ -924,6 +979,8 @@ body.lite-mode #liteModeTopBtn {
   <div class="stat-pill total" id="ovTotal" title="Total guests" style="cursor:pointer">0</div>
   <div class="stat-pill sent" id="ovSent" title="Sent" style="cursor:pointer">0</div>
   <button id="reviewPairsBtn" title="Review sent-together pairs" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;border:none;background:var(--amber-bg);color:var(--amber);cursor:pointer;padding:0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></button>
+  <!-- Seat Map -->
+  <button id="seatMapBtn" title="Seat Map" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;border:none;background:var(--sky-bg);color:var(--sky);cursor:pointer;padding:0"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><circle cx="12" cy="3.5" r="1.6" fill="currentColor" stroke="none"/><circle cx="20.5" cy="9" r="1.6" fill="currentColor" stroke="none"/><circle cx="20.5" cy="15" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="20.5" r="1.6" fill="currentColor" stroke="none"/><circle cx="3.5" cy="15" r="1.6" fill="currentColor" stroke="none"/><circle cx="3.5" cy="9" r="1.6" fill="currentColor" stroke="none"/></svg></button>
   <div class="stat-pill new-guests" id="ovNew" title="New since last sync" style="display:none"></div>
   <!-- spacer -->
   <div style="flex:1"></div>
@@ -944,11 +1001,14 @@ body.lite-mode #liteModeTopBtn {
     <span class="presence-dot"></span>
     <span class="chat-unread" id="chatUnread"></span>
   </div>
-  <!-- My avatar → opens settings -->
-  <div class="presence-avatar is-me is-online" id="presenceMe" title="Settings" style="flex-shrink:0;cursor:pointer">
-    <img id="presenceMeImg" src="" alt="">
-    <span class="presence-guest-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
-    <span class="presence-dot"></span>
+  <!-- Who-am-I: avatar + clear name pill, colour-coded per person → opens settings -->
+  <div id="presenceMeGroup" style="flex-shrink:0;display:flex;align-items:center;gap:6px;cursor:pointer">
+    <div class="presence-avatar is-me is-online" id="presenceMe" title="Settings" style="flex-shrink:0">
+      <img id="presenceMeImg" src="" alt="">
+      <span class="presence-guest-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
+      <span class="presence-dot"></span>
+    </div>
+    <span id="presenceMeLabel" class="presence-me-label"></span>
   </div>
   <!-- Settings btn (hidden, triggered by avatar) -->
   <button id="settingsBtn" style="display:none"></button>
@@ -1219,6 +1279,25 @@ body.lite-mode #liteModeTopBtn {
       <div class="s-row">
         <div class="s-row-info"><div class="s-row-title">Dev mode</div><div class="s-row-sub">Highlight layout regions and inspect elements</div></div>
         <button class="dev-btn" id="devBtnSettings" title="Dev mode"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      </div>
+      <!-- Switches moved here from the topbar to keep it uncluttered -->
+      <div class="s-row s-switch-row">
+        <div class="s-row-info"><div class="s-row-title">Version info</div><div class="s-row-sub">Show last-deployed date/time stamp</div></div>
+        <button id="deployStampBtn" title="Toggle version info" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:20px;height:32px;border-radius:10px;border:none;background:var(--parchment);cursor:pointer;padding:0;position:relative;transition:background .25s">
+          <span id="deployStampThumb" style="position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.18);transition:transform .25s;display:block"></span>
+        </button>
+      </div>
+      <div class="s-row s-switch-row">
+        <div class="s-row-info"><div class="s-row-title">Lite Mode</div><div class="s-row-sub">Simplified, faster guest cards</div></div>
+        <button id="liteModeTopBtn" title="Toggle Lite Mode" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:20px;height:32px;border-radius:10px;border:none;background:var(--parchment);cursor:pointer;padding:0;position:relative;transition:background .25s">
+          <span id="liteModeThumb" style="position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.18);transition:transform .25s;display:block"></span>
+        </button>
+      </div>
+      <div class="s-row s-switch-row">
+        <div class="s-row-info"><div class="s-row-title">Sending mode</div><div class="s-row-sub">Faster Notion checks while sending invites</div></div>
+        <button id="sendingModeBtn" title="Sending mode — faster Notion checks" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:20px;height:32px;border-radius:10px;border:none;background:var(--parchment);cursor:pointer;padding:0;position:relative;transition:background .25s">
+          <span id="sendingModeThumb" style="position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.18);transition:transform .25s;display:block"></span>
+        </button>
       </div>
     </div>
 
@@ -1533,6 +1612,32 @@ body.lite-mode #liteModeTopBtn {
     <div id="rolesOverviewList" style="overflow-y:auto;padding:6px 12px 16px;flex:1;background:#fff"></div>
   </div>
 </div>
+<!-- SEAT MAP -->
+<div class="seatmap-overlay" id="seatmapOverlay"></div>
+<div class="seatmap-screen" id="seatmapScreen">
+  <div class="seatmap-hdr">
+    <div>
+      <div class="seatmap-hdr-title">Seat Map</div>
+      <div class="seatmap-hdr-sub" id="seatmapHdrSub"></div>
+    </div>
+    <button class="seatmap-add-btn" id="seatmapAddTableBtn">+ Table</button>
+    <button class="seatmap-close" id="seatmapCloseBtn">✕</button>
+  </div>
+  <div class="seatmap-body" id="seatmapBody"></div>
+  <button class="seatmap-fab-add" id="seatmapFabAdd" title="Add table" style="display:none">+</button>
+</div>
+
+<!-- Assign guest to seat -->
+<div class="seat-assign-overlay" id="seatAssignOverlay"></div>
+<div class="seat-assign-sheet" id="seatAssignSheet">
+  <div class="seat-assign-hdr">
+    <div class="seat-assign-title" id="seatAssignTitle">Assign seat</div>
+    <input class="seat-assign-search" id="seatAssignSearch" type="text" placeholder="Search guests…"/>
+  </div>
+  <button class="seat-assign-unassign" id="seatAssignUnassignBtn" style="display:none">Unassign this seat</button>
+  <div class="seat-assign-list" id="seatAssignList"></div>
+</div>
+
 <!-- VERSION STAMP -->
 
 <script>
@@ -2353,6 +2458,7 @@ function renderGuestList(){
 
   updateBulkBar();
   initSplitBar();
+  if(typeof refreshSeatBadges==='function') refreshSeatBadges();
 }
 
 function buildPairSentCard(g1,g2){
@@ -3564,7 +3670,7 @@ function buildGuestCard(g, mergedPairPos){
         +'<div class="g-inner">'
           +'<div class="g-inner-left">'
             +'<div class="g-main">'
-              +'<div class="g-name-row" style="flex-wrap:wrap"><span class="g-name" style="font-size:15px;flex:0 1 auto">'+g.name+'</span>'+pillWrap+roleChipsHtml(g.role,ri)+parentRefHtml+'</div>'
+              +'<div class="g-name-row" style="flex-wrap:wrap"><span class="g-name" style="font-size:15px;flex:0 1 auto">'+g.name+'</span>'+(typeof seatBadgeHtml==='function'?seatBadgeHtml(g.name):'')+pillWrap+roleChipsHtml(g.role,ri)+parentRefHtml+'</div>'
               +partnerRefHtml
               +debugTag
             +'</div>'
@@ -3584,6 +3690,7 @@ function buildGuestCard(g, mergedPairPos){
           +'<div class="g-main">'
             +'<div class="g-name-row">'
               +'<span class="g-name">'+g.name+'</span>'
+              +(typeof seatBadgeHtml==='function'?seatBadgeHtml(g.name):'')
               +(g.sender?'<span class="g-sender-br '+senderCls+'">'+(g.sender==='Arina'?'a':'e')+'</span>':'')
               +tC+rC
             +'</div>'
@@ -5876,10 +5983,14 @@ window.addEventListener('unhandledrejection', function(e){ e.preventDefault(); }
     var otherImg = document.getElementById('presenceOtherImg');
     var meEl     = document.getElementById('presenceMe');
     var otherEl  = document.getElementById('presenceOther');
+    var meGroup  = document.getElementById('presenceMeGroup');
+    var meLabel  = document.getElementById('presenceMeLabel');
     if (who === 'Guest') {
       if (meEl)  { meEl.classList.add('is-guest'); meEl.title = 'You are in view only mode'; }
       if (meImg) { meImg.src = 'https://www.arinaelnur.de/img/arina.jpg'; meImg.onerror = function(){ this.src='img/elnur.jpg'; }; meImg.alt = 'Guest'; }
       if (otherEl) { otherEl.style.display = 'none'; }
+      if (meGroup) { meGroup.classList.remove('who-arina','who-elnur'); meGroup.classList.add('who-guest'); meGroup.title = 'Viewing as guest'; }
+      if (meLabel) meLabel.textContent = 'Guest view';
     } else {
       if (meEl)    { meEl.classList.remove("is-guest"); meEl.title = who + " — tap for settings"; }
       if (meImg)   { meImg.src = "https://www.arinaelnur.de/img/" + who.toLowerCase() + ".jpg?v=2"; meImg.alt = who; }
@@ -5892,6 +6003,12 @@ window.addEventListener('unhandledrejection', function(e){ e.preventDefault(); }
         otherImg.src = "https://www.arinaelnur.de/img/" + other.toLowerCase() + ".jpg?v=2";
       }
       if (otherEl) { otherEl.style.display = ""; }
+      if (meGroup) {
+        meGroup.classList.remove('who-arina','who-elnur','who-guest');
+        meGroup.classList.add(who === 'Arina' ? 'who-arina' : 'who-elnur');
+        meGroup.title = "You're signed in as " + who + " — tap for settings";
+      }
+      if (meLabel) meLabel.textContent = "You: " + who;
     }
 
 
@@ -5970,8 +6087,9 @@ window.addEventListener('unhandledrejection', function(e){ e.preventDefault(); }
 
   // My avatar opens settings (or shows guest toast)
   var meEl = document.getElementById('presenceMe');
+  var meGroupEl = document.getElementById('presenceMeGroup');
   if (meEl) {
-    meEl.addEventListener('click', function(){
+    (meGroupEl || meEl).addEventListener('click', function(){
       if (who === 'Guest') {
         // Show a small popover on the avatar instead of hijacking the undo toast
         var existing = document.getElementById('guestViewPopover');
@@ -6230,6 +6348,310 @@ window.addEventListener('unhandledrejection', function(e){ e.preventDefault(); }
 
 })();
 
+</script>
+
+<!-- ══════════════════════════════════════════════════════════════
+     SEAT MAP
+     Simple, flexible seating chart. Tables are a plain list (not a
+     spatial canvas) — add a table, set how many chairs it has, tap a
+     chair to assign a guest straight from the guest list. Seats are
+     numbered automatically and colour themselves by RSVP status, using
+     the exact same status the guest list already shows (manual override,
+     then the live RSVP-form match).
+     NOTE: this data is stored locally on this device (localStorage) only —
+     unlike the rest of the dashboard it is not pushed to the shared sync
+     backend yet, so a seating chart built on one phone won't appear on
+     another device until that's wired up.
+     ══════════════════════════════════════════════════════════════ -->
+<script>
+(function(){
+
+var seatMap = {tables:[], assignments:{}};
+
+function loadSeatMap(){
+  try{
+    var raw = localStorage.getItem('ww_seatmap');
+    if(raw){
+      var parsed = JSON.parse(raw);
+      if(parsed && Array.isArray(parsed.tables)) seatMap = parsed;
+    }
+  }catch(e){}
+  if(!seatMap.assignments) seatMap.assignments = {};
+  if(!Array.isArray(seatMap.tables)) seatMap.tables = [];
+}
+function saveSeatMap(){
+  try{ localStorage.setItem('ww_seatmap', JSON.stringify(seatMap)); }catch(e){}
+}
+loadSeatMap();
+
+function seatKey(tableId, n){ return tableId+'-'+n; }
+function uid(){ return 't'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+
+/* RSVP status for a guest — reuses the exact same source of truth the
+   guest list itself uses, so seat colours always match. */
+function seatGuestRsvpState(name){
+  var g = (typeof importQueue!=='undefined'?importQueue:[]).find(function(x){return x.name===name;});
+  if(!g) return 'pending';
+  if(g.manualRsvp==='yes') return 'yes';
+  if(g.manualRsvp==='no') return 'no';
+  try{
+    var partner = (typeof inferPartnerName==='function') ? inferPartnerName(g) : '';
+    var info = (typeof getGuestRsvpInfo==='function') ? getGuestRsvpInfo(g.name, false, partner, '') : null;
+    if(info && info.isYes) return 'yes';
+    if(info && info.isNo) return 'no';
+  }catch(e){}
+  return 'pending';
+}
+
+/* Reverse lookup: where (if anywhere) is this guest seated? */
+function getSeatForGuest(name){
+  for(var i=0;i<seatMap.tables.length;i++){
+    var t = seatMap.tables[i];
+    for(var n=1;n<=t.seats;n++){
+      if(seatMap.assignments[seatKey(t.id,n)]===name) return {table:t, seatNum:n};
+    }
+  }
+  return null;
+}
+
+/* Called from guest-card templates elsewhere in the file */
+window.seatBadgeHtml = function(name){
+  var loc = getSeatForGuest(name);
+  if(!loc) return '';
+  var safe = loc.table.name.replace(/"/g,'&quot;');
+  return '<span class="g-seat-badge" title="'+safe+' • Seat '+loc.seatNum+'">'+safe+' · '+loc.seatNum+'</span>';
+};
+
+/* ── Table CRUD ── */
+function addTable(){
+  seatMap.tables.push({id:uid(), name:'Table '+(seatMap.tables.length+1), seats:8});
+  saveSeatMap();
+  renderSeatMap();
+}
+function removeTable(id){
+  var t = seatMap.tables.find(function(x){return x.id===id;});
+  if(!t) return;
+  if(!confirm('Delete "'+t.name+'"? Anyone seated there will be unassigned.')) return;
+  for(var n=1;n<=t.seats;n++) delete seatMap.assignments[seatKey(id,n)];
+  seatMap.tables = seatMap.tables.filter(function(x){return x.id!==id;});
+  saveSeatMap();
+  renderSeatMap();
+  if(typeof renderGuestList==='function') renderGuestList();
+}
+function renameTable(id, name){
+  var t = seatMap.tables.find(function(x){return x.id===id;});
+  if(!t) return;
+  t.name = (name||'').trim() || t.name;
+  saveSeatMap();
+  if(typeof renderGuestList==='function') renderGuestList();
+}
+function setSeatCount(id, n){
+  var t = seatMap.tables.find(function(x){return x.id===id;});
+  if(!t) return;
+  n = Math.max(1, Math.min(30, n));
+  if(n < t.seats){
+    var displaced = [];
+    for(var i=n+1;i<=t.seats;i++){
+      var k = seatKey(id,i);
+      if(seatMap.assignments[k]) displaced.push(seatMap.assignments[k]);
+    }
+    if(displaced.length && !confirm('Reducing seats will unassign '+displaced.length+' guest(s) ('+displaced.join(', ')+'). Continue?')) return;
+    for(var j=n+1;j<=t.seats;j++) delete seatMap.assignments[seatKey(id,j)];
+  }
+  t.seats = n;
+  saveSeatMap();
+  renderSeatMap();
+  if(typeof renderGuestList==='function') renderGuestList();
+}
+
+/* ── Assignment ── */
+var _assignCtx = null;
+function openSeatAssign(tableId, seatNum){
+  _assignCtx = {tableId:tableId, seatNum:seatNum};
+  var t = seatMap.tables.find(function(x){return x.id===tableId;});
+  if(!t) return;
+  var current = seatMap.assignments[seatKey(tableId,seatNum)] || '';
+  document.getElementById('seatAssignTitle').textContent = t.name+' — Seat '+seatNum;
+  document.getElementById('seatAssignSearch').value = '';
+  document.getElementById('seatAssignUnassignBtn').style.display = current ? 'block' : 'none';
+  renderSeatAssignList('');
+  document.getElementById('seatAssignOverlay').classList.add('open');
+  document.getElementById('seatAssignSheet').classList.add('open');
+  setTimeout(function(){ var s=document.getElementById('seatAssignSearch'); if(s) s.focus(); }, 200);
+}
+function closeSeatAssign(){
+  var ov=document.getElementById('seatAssignOverlay'), sh=document.getElementById('seatAssignSheet');
+  if(ov) ov.classList.remove('open');
+  if(sh) sh.classList.remove('open');
+  _assignCtx = null;
+}
+function renderSeatAssignList(query){
+  var list = document.getElementById('seatAssignList');
+  if(!list) return;
+  var q = (query||'').trim().toLowerCase();
+  var guests = (typeof importQueue!=='undefined'?importQueue:[]).filter(function(g){
+    if(g.skipped) return false;
+    if(q && g.name.toLowerCase().indexOf(q)===-1) return false;
+    return true;
+  }).sort(function(a,b){ return a.name.localeCompare(b.name); });
+
+  if(!guests.length){
+    list.innerHTML = '<div class="seat-assign-empty">No guests found.</div>';
+    return;
+  }
+  list.innerHTML = guests.map(function(g){
+    var loc = getSeatForGuest(g.name);
+    var state = seatGuestRsvpState(g.name);
+    var dot = state==='yes' ? '#3A8C5C' : state==='no' ? '#b91c1c' : '#C4AFA4';
+    var meta = loc ? ('Currently: '+loc.table.name+' · Seat '+loc.seatNum) : (state==='yes'?'Attending':state==='no'?'Not attending':'RSVP pending');
+    return '<div class="seat-assign-row" data-name="'+g.name.replace(/"/g,'&quot;')+'">'
+      + '<div><div class="seat-assign-row-name">'+g.name+'</div><div class="seat-assign-row-meta">'+meta+'</div></div>'
+      + '<span style="width:9px;height:9px;border-radius:50%;background:'+dot+';flex-shrink:0"></span>'
+      + '</div>';
+  }).join('');
+  list.querySelectorAll('.seat-assign-row').forEach(function(row){
+    row.addEventListener('click', function(){
+      if(!_assignCtx) return;
+      assignGuestToSeat(_assignCtx.tableId, _assignCtx.seatNum, this.dataset.name);
+    });
+  });
+}
+function assignGuestToSeat(tableId, seatNum, name){
+  var prev = getSeatForGuest(name);
+  if(prev) delete seatMap.assignments[seatKey(prev.table.id, prev.seatNum)];
+  seatMap.assignments[seatKey(tableId, seatNum)] = name;
+  saveSeatMap();
+  closeSeatAssign();
+  renderSeatMap();
+  if(typeof renderGuestList==='function') renderGuestList();
+}
+function unassignSeat(tableId, seatNum){
+  delete seatMap.assignments[seatKey(tableId, seatNum)];
+  saveSeatMap();
+  closeSeatAssign();
+  renderSeatMap();
+  if(typeof renderGuestList==='function') renderGuestList();
+}
+
+/* ── Render ── */
+function renderSeatMap(){
+  var body = document.getElementById('seatmapBody');
+  var sub = document.getElementById('seatmapHdrSub');
+  var fab = document.getElementById('seatmapFabAdd');
+  if(!body) return;
+
+  var totalSeats=0, totalAssigned=0, yes=0, no=0, pending=0;
+  seatMap.tables.forEach(function(t){
+    totalSeats += t.seats;
+    for(var n=1;n<=t.seats;n++){
+      var name = seatMap.assignments[seatKey(t.id,n)];
+      if(name){
+        totalAssigned++;
+        var st = seatGuestRsvpState(name);
+        if(st==='yes') yes++; else if(st==='no') no++; else pending++;
+      }
+    }
+  });
+  if(sub) sub.textContent = seatMap.tables.length ? (totalAssigned+' of '+totalSeats+' seats assigned') : '';
+  if(fab) fab.style.display = seatMap.tables.length ? 'flex' : 'none';
+
+  if(!seatMap.tables.length){
+    body.innerHTML = '<div class="seatmap-empty">No tables yet.<br><br>Tap <strong>+ Table</strong> above to add your first table, choose how many chairs it has, then tap a chair to seat a guest.</div>';
+    return;
+  }
+
+  var summary = '<div class="seatmap-summary">'
+    + '<span class="seatmap-summary-pill">'+totalAssigned+' seated</span>'
+    + '<span class="seatmap-summary-pill" style="color:#2f7a4d">'+yes+' attending</span>'
+    + '<span class="seatmap-summary-pill" style="color:#b91c1c">'+no+' not attending</span>'
+    + '<span class="seatmap-summary-pill">'+pending+' pending</span>'
+    + '</div>';
+
+  var html = summary + seatMap.tables.map(function(t){
+    var seatsHtml = '';
+    for(var n=1;n<=t.seats;n++){
+      var name = seatMap.assignments[seatKey(t.id,n)] || '';
+      var state = name ? seatGuestRsvpState(name) : '';
+      var cls = 'seatmap-seat'+(name?'':' empty')+(state==='yes'?' rsvp-yes':state==='no'?' rsvp-no':'');
+      seatsHtml += '<div class="'+cls+'" data-table="'+t.id+'" data-seat="'+n+'">'
+        + '<span class="seatmap-seat-num">Seat '+n+'</span>'
+        + '<span class="seatmap-seat-name">'+(name?name:'+ Add')+'</span>'
+        + '</div>';
+    }
+    return '<div class="seatmap-table-card" data-table-id="'+t.id+'">'
+      + '<div class="seatmap-table-hdr">'
+        + '<input class="seatmap-table-name" data-table="'+t.id+'" value="'+t.name.replace(/"/g,'&quot;')+'" maxlength="30"/>'
+        + '<button class="seatmap-mini-btn" data-act="dec" data-table="'+t.id+'" title="Fewer chairs">–</button>'
+        + '<span class="seatmap-seat-count">'+t.seats+' chairs</span>'
+        + '<button class="seatmap-mini-btn" data-act="inc" data-table="'+t.id+'" title="More chairs">+</button>'
+        + '<button class="seatmap-mini-btn danger" data-act="del" data-table="'+t.id+'" title="Delete table">✕</button>'
+      + '</div>'
+      + '<div class="seatmap-seats">'+seatsHtml+'</div>'
+    + '</div>';
+  }).join('');
+
+  body.innerHTML = html;
+
+  body.querySelectorAll('.seatmap-table-name').forEach(function(inp){
+    inp.addEventListener('change', function(){ renameTable(this.dataset.table, this.value); });
+  });
+  body.querySelectorAll('.seatmap-mini-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var id = this.dataset.table, act = this.dataset.act;
+      var t = seatMap.tables.find(function(x){return x.id===id;});
+      if(!t) return;
+      if(act==='inc') setSeatCount(id, t.seats+1);
+      else if(act==='dec') setSeatCount(id, t.seats-1);
+      else if(act==='del') removeTable(id);
+    });
+  });
+  body.querySelectorAll('.seatmap-seat').forEach(function(seat){
+    seat.addEventListener('click', function(){
+      openSeatAssign(this.dataset.table, parseInt(this.dataset.seat,10));
+    });
+  });
+}
+
+/* Called after every renderGuestList() so the seat map, if open, always
+   reflects the latest RSVP status — this is what makes seat colours
+   "auto-update" when someone's RSVP changes anywhere in the app. */
+window.refreshSeatBadges = function(){
+  var screen = document.getElementById('seatmapScreen');
+  if(screen && screen.classList.contains('open')) renderSeatMap();
+};
+
+function openSeatMap(){
+  renderSeatMap();
+  document.getElementById('seatmapOverlay').classList.add('open');
+  document.getElementById('seatmapScreen').classList.add('open');
+}
+function closeSeatMapScreen(){
+  document.getElementById('seatmapOverlay').classList.remove('open');
+  document.getElementById('seatmapScreen').classList.remove('open');
+}
+
+/* Wiring — this script tag sits at the very end of <body>, so every
+   element it references already exists in the DOM by the time this runs. */
+var _smBtn = document.getElementById('seatMapBtn');
+if(_smBtn) _smBtn.addEventListener('click', openSeatMap);
+var _smClose = document.getElementById('seatmapCloseBtn');
+if(_smClose) _smClose.addEventListener('click', closeSeatMapScreen);
+var _smOverlay = document.getElementById('seatmapOverlay');
+if(_smOverlay) _smOverlay.addEventListener('click', closeSeatMapScreen);
+var _smAdd = document.getElementById('seatmapAddTableBtn');
+if(_smAdd) _smAdd.addEventListener('click', addTable);
+var _smFab = document.getElementById('seatmapFabAdd');
+if(_smFab) _smFab.addEventListener('click', addTable);
+var _saOverlay = document.getElementById('seatAssignOverlay');
+if(_saOverlay) _saOverlay.addEventListener('click', closeSeatAssign);
+var _saSearch = document.getElementById('seatAssignSearch');
+if(_saSearch) _saSearch.addEventListener('input', function(){ renderSeatAssignList(this.value); });
+var _saUnassign = document.getElementById('seatAssignUnassignBtn');
+if(_saUnassign) _saUnassign.addEventListener('click', function(){
+  if(_assignCtx) unassignSeat(_assignCtx.tableId, _assignCtx.seatNum);
+});
+
+})();
 </script>
 </body>
 </html>
