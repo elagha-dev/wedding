@@ -619,6 +619,8 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .rsvp-count-btn{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#FF7A1A,#FF6B00);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--ease);font-family:var(--sans);box-shadow:0 2px 8px rgba(255,107,0,.3);align-self:center;box-sizing:border-box;padding:0}
 .rsvp-count-btn:hover{background:linear-gradient(135deg,#FF8C30,#FF7A1A);transform:translateY(-1px);box-shadow:0 4px 14px rgba(255,107,0,.45)}
 .rsvp-count-btn .rc-num{font-size:12px;font-weight:800;line-height:1}
+.seatmap-count-btn{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#2F8CFF,#0066FF);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--ease);font-family:var(--sans);box-shadow:0 2px 8px rgba(0,102,255,.35);align-self:center;box-sizing:border-box;padding:0;margin-right:8px}
+.seatmap-count-btn:hover{background:linear-gradient(135deg,#57A4FF,#2F8CFF);transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,102,255,.5)}
 #rsvpDrawer{position:fixed;top:0;right:0;bottom:0;width:320px;max-width:95vw;background:var(--cream);z-index:300;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);border-left:1px solid var(--parchment);display:flex;flex-direction:column;box-shadow:-4px 0 24px rgba(0,0,0,.08)}
 #rsvpDrawer.open{transform:translateX(0)}
 .rsvp-drawer-hdr{padding:14px 16px;border-bottom:1px solid var(--parchment);display:flex;align-items:center;gap:10px;flex-shrink:0}
@@ -885,7 +887,7 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-mini-btn.danger{color:#b91c1c}
 .seatmap-seat-count{font-family:var(--sans);font-size:11px;font-weight:700;color:var(--muted);min-width:44px;text-align:center;flex-shrink:0}
 .seatmap-seats{display:flex;flex-wrap:wrap;gap:7px}
-.seatmap-seat{width:64px;min-height:52px;border-radius:10px;border:1.5px solid var(--parchment);background:var(--cream2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;padding:5px 3px;text-align:center;transition:transform .1s}
+.seatmap-seat{width:64px;min-height:52px;border-radius:10px;border:1.5px solid var(--parchment);background:var(--cream2);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2px;cursor:pointer;padding:8px 3px 5px;text-align:center;transition:transform .1s}
 .seatmap-seat:active{transform:scale(.95)}
 .seatmap-seat-num{font-family:var(--sans);font-size:9px;font-weight:800;letter-spacing:.03em;color:var(--soft);text-transform:uppercase}
 .seatmap-seat-name{font-family:var(--sans);font-size:10.5px;font-weight:700;color:var(--ink2);line-height:1.2;word-break:break-word;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
@@ -894,11 +896,14 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-seat.rsvp-yes .seatmap-seat-num{color:#2f7a4d}
 .seatmap-seat.rsvp-no{background:rgba(185,28,28,.10);border-color:rgba(185,28,28,.4)}
 .seatmap-seat.rsvp-no .seatmap-seat-num{color:#b91c1c}
-.seatmap-fab-add{position:fixed;right:18px;bottom:24px;z-index:400;width:52px;height:52px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--rose),var(--rose-deep));color:#fff;font-size:26px;font-weight:400;cursor:pointer;box-shadow:0 8px 24px rgba(160,97,74,.4);display:flex;align-items:center;justify-content:center}
 .seatmap-summary{display:flex;gap:8px;padding:0 2px 12px;flex-wrap:wrap}
 .seatmap-summary-pill{font-family:var(--sans);font-size:10.5px;font-weight:700;padding:5px 11px;border-radius:var(--r-pill);background:var(--cream2);color:var(--muted);border:1px solid var(--parchment)}
 .seatmap-view-toggle{flex-shrink:0;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;border:1.5px solid var(--parchment);background:var(--cream2);color:var(--muted);cursor:pointer;padding:0}
 .seatmap-view-toggle.active{background:var(--sky-bg);color:var(--sky);border-color:transparent}
+.seatmap-fab-add{position:fixed;right:18px;bottom:24px;z-index:400;width:52px;height:52px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--rose),var(--rose-deep));color:#fff;font-size:26px;font-weight:400;cursor:pointer;box-shadow:0 8px 24px rgba(160,97,74,.4);display:flex;align-items:center;justify-content:center}
+.seatmap-trash{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(30px) scale(.85);z-index:401;width:56px;height:56px;border-radius:50%;background:rgba(40,40,40,.88);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .18s,transform .18s,background .15s}
+.seatmap-trash.visible{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
+.seatmap-trash.armed{background:#b91c1c;transform:translateX(-50%) translateY(0) scale(1.15)}
 .seatmap-floor{position:relative;width:100%;height:min(70vh,520px);
   background-size:24px 24px;border:1.5px solid rgba(0,0,0,.12);border-radius:var(--r-md,14px);margin-bottom:14px;overflow:hidden;touch-action:none}
 .seatmap-floor-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;color:rgba(255,255,255,.65);font-size:12.5px;padding:24px;line-height:1.6}
@@ -1017,11 +1022,11 @@ body.lite-mode #liteModeTopBtn {
   <div class="stat-pill total" id="ovTotal" title="Total guests" style="cursor:pointer">0</div>
   <div class="stat-pill sent" id="ovSent" title="Sent" style="cursor:pointer">0</div>
   <button id="reviewPairsBtn" title="Review sent-together pairs" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;border:none;background:var(--amber-bg);color:var(--amber);cursor:pointer;padding:0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></button>
-  <!-- Seat Map -->
-  <button id="seatMapBtn" title="Seat Map" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;border:none;background:var(--sky-bg);color:var(--sky);cursor:pointer;padding:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 11V5.5A1.5 1.5 0 0 1 6.5 4h11A1.5 1.5 0 0 1 19 5.5V11"/><path d="M4 11h16a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1z"/><path d="M5 15v4"/><path d="M19 15v4"/></svg></button>
   <div class="stat-pill new-guests" id="ovNew" title="New since last sync" style="display:none"></div>
   <!-- spacer -->
   <div style="flex:1"></div>
+  <!-- Seat Map — sits right before RSVP, same pill styling, bright blue -->
+  <button class="seatmap-count-btn" id="seatMapBtn" title="Seat Map"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 11V5.5A1.5 1.5 0 0 1 6.5 4h11A1.5 1.5 0 0 1 19 5.5V11"/><path d="M4 11h16a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1z"/><path d="M5 15v4"/><path d="M19 15v4"/></svg></button>
   <!-- RSVP -->
   <button class="rsvp-count-btn" id="rsvpCountBtn" title="RSVP Responses">
     <span class="rc-num" id="rsvpCountNum">—</span>
@@ -1131,7 +1136,7 @@ body.lite-mode #liteModeTopBtn {
       <div class="search-filter-row">
         <div class="search-wrap">
           <svg class="search-icon" width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="5.5" cy="5.5" r="4" stroke="#C4AFA4" stroke-width="1.5"/><path d="M9 9L12 12" stroke="#C4AFA4" stroke-width="1.5" stroke-linecap="round"/></svg>
-          <input class="search-input" id="searchInput" type="text" placeholder=""/>
+          <input class="search-input" id="searchInput" type="text" placeholder="" name="mainGuestSearchField" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"/>
           <button class="search-clear-btn" id="searchClearBtn" type="button" title="Clear search"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
         </div>
         <select class="group-sel" id="groupSel" style="display:none"><option value="">All groups</option></select>
@@ -1210,46 +1215,6 @@ body.lite-mode #liteModeTopBtn {
         </div>
       </div>
     </div>
-
-    <!-- MANUAL GENERATOR -->
-    <div class="sec" style="margin-top:14px">Manual Generator</div>
-    <div class="card">
-      <div class="card-hdr" id="genToggle">
-        <span class="card-hdr-title">Manual Generator</span>
-        <div class="card-hdr-right">
-          <span style="font-size:9px;color:var(--soft);letter-spacing:.06em;font-family:var(--sans)">fallback · use + for quick send</span>
-          <span id="genChevron" class="chevron">▼</span>
-        </div>
-      </div>
-      <div id="genBody" style="display:none">
-        <div class="card-divider"></div>
-        <div class="card-body">
-          <div class="row2">
-            <div class="fg"><label for="p1">First Guest * <span style="font-size:9px;color:var(--soft);font-weight:400;text-transform:none;letter-spacing:0">(press N)</span></label><input id="p1" type="text" placeholder="e.g. Sarah"/></div>
-            <div class="fg"><label for="p2">Second Guest</label><input id="p2" type="text" placeholder="optional"/></div>
-          </div>
-          <div class="row2" style="margin-bottom:16px">
-            <div class="fg"><label for="waPhone">WhatsApp Number</label><input id="waPhone" type="tel" placeholder="+49 176 123 456"/></div>
-            <div class="fg"><label>Sender</label><div class="sender-row"><button class="s-btn arina on" data-s="Arina">Arina</button><button class="s-btn elnur" data-s="Elnur">Elnur</button></div></div>
-          </div>
-          <div class="sec" style="margin:0 0 10px">Invite Type</div>
-          <div class="type-grid">
-            <button class="t-btn on" data-type="ceremony-single"><div class="t-btn-title">Single · Church</div><div class="t-btn-desc">Church only</div></button>
-            <button class="t-btn" data-type="couple-ceremony"><div class="t-btn-title">Couple · Church</div><div class="t-btn-desc">Church only</div></button>
-            <button class="t-btn" data-type="ceremony-party-single"><div class="t-btn-title">Single · Party</div><div class="t-btn-desc">Church + evening</div></button>
-            <button class="t-btn" data-type="couple-party"><div class="t-btn-title">Couple · Party</div><div class="t-btn-desc">Church + evening</div></button>
-          </div>
-          <div class="sec" style="margin:0 0 10px">Language</div>
-          <div class="lang-row">
-            <button class="l-btn on" data-lang="en">English</button>
-            <button class="l-btn" data-lang="de">Deutsch</button>
-            <button class="l-btn" data-lang="ru">Русский</button>
-          </div>
-          <button class="btn-primary" id="genBtn">Generate Invite →</button>
-        </div>
-      </div>
-    </div>
-
 
 
   </div><!-- /toolsDrawer -->
@@ -1631,7 +1596,7 @@ body.lite-mode #liteModeTopBtn {
       <label class="s-toggle"><input type="checkbox" id="prTreeToggle"/><span class="s-toggle-track"></span></label>
     </div>
     <div id="pairsReviewSearchWrap" style="padding:0 18px 10px;flex-shrink:0;background:#fff;position:relative">
-      <input id="pairsReviewSearch" type="text" placeholder="Search a name…" style="width:100%;box-sizing:border-box;padding:8px 30px 8px 10px;border:1.5px solid var(--parchment);border-radius:var(--r-sm);font-family:var(--sans);font-size:12px;color:var(--ink);background:var(--cream)"/>
+      <input id="pairsReviewSearch" type="text" placeholder="Search a name…" name="pairsReviewSearchField" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" style="width:100%;box-sizing:border-box;padding:8px 30px 8px 10px;border:1.5px solid var(--parchment);border-radius:var(--r-sm);font-family:var(--sans);font-size:12px;color:var(--ink);background:var(--cream)"/>
       <button id="pairsReviewSearchClear" type="button" title="Clear search" style="display:none;position:absolute;right:24px;top:50%;transform:translateY(-50%);width:20px;height:20px;border:none;border-radius:50%;background:var(--soft);color:#fff;align-items:center;justify-content:center;cursor:pointer;padding:0"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div id="pairsReviewList" style="overflow-y:auto;padding:6px 12px 16px;flex:1;background:#fff"></div>
@@ -1664,6 +1629,7 @@ body.lite-mode #liteModeTopBtn {
   </div>
   <div class="seatmap-body" id="seatmapBody"></div>
   <button class="seatmap-fab-add" id="seatmapFabAdd" title="Add table" style="display:none">+</button>
+  <div class="seatmap-trash" id="seatmapTrash"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></div>
 </div>
 
 <!-- Assign guest to seat -->
@@ -1671,7 +1637,7 @@ body.lite-mode #liteModeTopBtn {
 <div class="seat-assign-sheet" id="seatAssignSheet">
   <div class="seat-assign-hdr">
     <div class="seat-assign-title" id="seatAssignTitle">Assign seat</div>
-    <input class="seat-assign-search" id="seatAssignSearch" type="text" placeholder="Search guests…"/>
+    <input class="seat-assign-search" id="seatAssignSearch" type="text" placeholder="Search guests…" name="seatAssignSearchField" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"/>
   </div>
   <button class="seat-assign-unassign" id="seatAssignUnassignBtn" style="display:none">Unassign this seat</button>
   <div class="seat-assign-list" id="seatAssignList"></div>
@@ -2885,7 +2851,7 @@ function renderPairsReview(){
           +'<button data-pr-action="relink" data-pr="'+idx+'" title="Relink to…" style="flex:1;min-width:0;padding:7px 4px;border-radius:8px;border:1px solid var(--parchment);background:#fff;color:var(--ink2);font-family:var(--sans);font-size:10.5px;font-weight:700;cursor:pointer">Relink</button>'
         +'</div>'
         +'<div class="pr-relink-wrap" data-pr-relink="'+idx+'" style="display:none;margin-top:6px;background:#fbf7f3;border-radius:8px;padding:8px">'
-          +'<input type="text" class="pr-relink-input" data-pr-input="'+idx+'" placeholder="Type correct partner\'s name…" style="width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);font-family:var(--sans);font-size:12px;box-sizing:border-box;background:#fff;color:var(--ink)">'
+          +'<input type="text" class="pr-relink-input" data-pr-input="'+idx+'" placeholder="Type correct partner\'s name…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);font-family:var(--sans);font-size:12px;box-sizing:border-box;background:#fff;color:var(--ink)">'
           +'<div class="pr-relink-results" data-pr-results="'+idx+'" style="margin-top:4px"></div>'
           +'<button data-pr-action="cancel-relink" data-pr="'+idx+'" style="margin-top:6px;width:100%;padding:6px;border-radius:8px;border:1px solid var(--parchment);background:#fff;color:var(--muted);font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer">Cancel</button>'
         +'</div>';
@@ -2924,7 +2890,7 @@ function renderPairsReview(){
           +'<div style="font-size:10px;color:var(--muted);font-family:var(--sans);margin-bottom:3px">'+(slot===1?'First guest':'Second guest')+'</div>'
           +(picked
             ? '<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);background:#fff;font-family:var(--sans);font-size:12px;color:var(--ink)"><span>'+picked+'</span><button data-manual-clear="'+slot+'" style="border:none;background:none;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;padding:0 2px">×</button></div>'
-            : '<input type="text" class="pairs-manual-input" data-manual-slot="'+slot+'" placeholder="Search, or pick from the list below…" style="width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);font-family:var(--sans);font-size:12px;box-sizing:border-box;background:#fff;color:var(--ink)">'
+            : '<input type="text" class="pairs-manual-input" data-manual-slot="'+slot+'" placeholder="Search, or pick from the list below…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);font-family:var(--sans);font-size:12px;box-sizing:border-box;background:#fff;color:var(--ink)">'
               +'<div class="pairs-manual-results" data-manual-results="'+slot+'" style="margin-top:4px;max-height:140px;overflow-y:auto">'+renderManualPickList('',slot)+'</div>')
         +'</div>';
       });
@@ -2945,7 +2911,7 @@ function renderPairsReview(){
         manualHtml+='<div style="margin-top:3px;display:flex;align-items:center;justify-content:space-between;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);background:#fff;font-family:var(--sans);font-size:12px;color:var(--ink)"><span>'+kn+'</span><button data-kid-remove="'+kn.replace(/"/g,'&quot;')+'" style="border:none;background:none;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;padding:0 2px">×</button></div>';
       });
       manualHtml+='<div style="margin-top:3px">'
-        +'<input type="text" id="kidPickInput" placeholder="'+(_parentLinkKids.length?'Add another kid…':'Search, or pick from the list below…')+'" style="width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);font-family:var(--sans);font-size:12px;box-sizing:border-box;background:#fff;color:var(--ink)">'
+        +'<input type="text" id="kidPickInput" placeholder="'+(_parentLinkKids.length?'Add another kid…':'Search, or pick from the list below…')+'" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);font-family:var(--sans);font-size:12px;box-sizing:border-box;background:#fff;color:var(--ink)">'
         +'<div id="kidPickResults" style="margin-top:4px;max-height:140px;overflow-y:auto">'+renderKidPickList('')+'</div>'
       +'</div>';
       // Progressive: parent picker only appears once at least one kid is chosen.
@@ -2955,7 +2921,7 @@ function renderPairsReview(){
         manualHtml+='<div style="margin-top:3px;display:flex;align-items:center;justify-content:space-between;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);background:#fff;font-family:var(--sans);font-size:12px;color:var(--ink)"><span>'+pn+'</span><button data-parent-remove="'+pn.replace(/"/g,'&quot;')+'" style="border:none;background:none;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;padding:0 2px">×</button></div>';
       });
       manualHtml+='<div style="margin-top:3px">'
-        +'<input type="text" id="parentPickInput" placeholder="'+(_parentLinkParents.length?'Add another parent/guardian…':'Search a parent\'s name…')+'" style="width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);font-family:var(--sans);font-size:12px;box-sizing:border-box;background:#fff;color:var(--ink)">'
+        +'<input type="text" id="parentPickInput" placeholder="'+(_parentLinkParents.length?'Add another parent/guardian…':'Search a parent\'s name…')+'" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);font-family:var(--sans);font-size:12px;box-sizing:border-box;background:#fff;color:var(--ink)">'
         +'<div id="parentPickResults" style="margin-top:4px"></div>'
       +'</div>';
       }
@@ -4373,17 +4339,6 @@ document.getElementById('qfSend').addEventListener('click',function(){
   closeQuickForm();
 });
 
-/* ══ KEYBOARD N ══════════════════════════════ */
-document.addEventListener('keydown',function(e){
-  if(e.key==='n'||e.key==='N'){
-    if(document.activeElement&&['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName))return;
-    var genBody=document.getElementById('genBody');
-    if(genBody.style.display==='none'){genBody.style.display='';document.getElementById('genChevron').classList.add('open');}
-    document.getElementById('p1').focus();
-    document.getElementById('p1').scrollIntoView({behavior:'smooth',block:'center'});
-  }
-});
-
 /* ══ PHONE MODAL ═════════════════════════════ */
 var phoneModal=document.getElementById('phoneModal');
 function showPhonePicker(guests,cb){
@@ -4888,46 +4843,6 @@ document.getElementById('searchClearBtn').addEventListener('click',function(){
 });
 
 document.getElementById('clearGuestBtn').addEventListener('click',function(){if(!importQueue.length)return;if(confirm('Clear guest list?')){importQueue=[];selectedIdxs=[];renderGuestList();renderDashboard();document.getElementById('guestArea').style.display='none';}});
-
-/* ══ GENERATOR ═══════════════════════════════ */
-document.getElementById('genToggle').addEventListener('click',function(){var b=document.getElementById('genBody'),c=document.getElementById('genChevron');var open=b.style.display!=='none';b.style.display=open?'none':'';c.classList.toggle('open',!open);});
-document.querySelectorAll('.t-btn').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('.t-btn').forEach(function(x){x.classList.remove('on');});b.classList.add('on');selType=b.dataset.type;saveLastSettings();});});
-document.querySelectorAll('.l-btn').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('.l-btn').forEach(function(x){x.classList.remove('on');});b.classList.add('on');selLang=b.dataset.lang;saveLastSettings();});});
-document.querySelectorAll('.s-btn').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('.s-btn').forEach(function(x){x.classList.remove('on');});b.classList.add('on');selSender=b.dataset.s;saveLastSettings();});});
-
-// Apply restored settings to UI
-(function(){
-  document.querySelectorAll('.t-btn').forEach(function(b){b.classList.toggle('on',b.dataset.type===selType);});
-  document.querySelectorAll('.l-btn').forEach(function(b){b.classList.toggle('on',b.dataset.lang===selLang);});
-})();
-
-document.getElementById('genBtn').addEventListener('click',function(){
-  var p1=toTitleCase(document.getElementById('p1').value.trim()),p2=toTitleCase(document.getElementById('p2').value.trim()),phone=document.getElementById('waPhone').value.trim();
-  if(!p1){var el=document.getElementById('p1');el.style.borderColor='var(--red)';el.focus();setTimeout(function(){el.style.borderColor='';},1500);return;}
-  var isCouple=selType==='couple-ceremony'||selType==='couple-party',hasParty=selType==='ceremony-party-single'||selType==='couple-party';
-  var name=isCouple&&p2?p1+' & '+p2:p1;
-  var url=buildUrl(p1,p2,selType,selLang);
-  var dName=isCouple&&p2?firstName(p1)+' & '+firstName(p2):firstName(p1);
-  var msg=buildMsg(dName,selType,selLang,url,isCouple&&!!p2,p1,p2);
-  var ll={en:'EN',de:'DE',ru:'RU'};
-  var idx=mem.findIndex(function(h){return h.url===url;});var entry;
-  if(idx>-1){entry=mem[idx];entry.msg=msg;if(phone)entry.phone=phone;}
-  else{entry={id:Date.now(),name:name,type:selType,lang:selLang,ll:ll[selLang]||'EN',url:url,msg:msg,phone:phone,isCouple:isCouple,hasParty:hasParty,sender:selSender,created:dt(),tracked:{linkCopied:null,msgCopied:null,waSent:null}};mem.unshift(entry);}
-  cur=entry;save();renderTracker();
-  var oc=document.getElementById('outCard'),ob=document.getElementById('outBody');
-  oc.style.display='block';ob.style.display='';document.getElementById('outChevron').classList.add('open');
-  document.getElementById('outBadge').innerHTML='<div class="out-badge">'+name+(hasParty?' · Party':' · Church')+' · '+(ll[selLang]||'EN')+'</div>';
-  document.getElementById('urlTxt').textContent=url;
-  document.getElementById('previewLink').href=url;
-  document.getElementById('msgBox').value=msg;
-  var slb=document.getElementById('sentBtn');
-  if(entry.tracked.waSent){slb.textContent='✓ Sent';slb.classList.add('ok');}else{slb.textContent='Mark Sent';slb.classList.remove('ok');}
-  document.getElementById('copyLinkBtn').textContent='Copy';document.getElementById('copyLinkBtn').classList.remove('ok');
-  document.getElementById('copyMsgBtn').textContent='Copy Message';document.getElementById('copyMsgBtn').classList.remove('ok');
-  oc.scrollIntoView({behavior:'smooth',block:'nearest'});
-  document.getElementById('msgBox').oninput=function(){if(cur)cur.msg=this.value;};
-  saveLastSettings();
-});
 
 /* ══ OUTPUT ══════════════════════════════════ */
 document.getElementById('outToggle').addEventListener('click',function(){var b=document.getElementById('outBody'),c=document.getElementById('outChevron');var open=b.style.display!=='none';b.style.display=open?'none':'';c.classList.toggle('open',!open);});
@@ -5805,7 +5720,7 @@ function showChatNotif(who, text){
     var totalHtml = '<div style="margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--parchment)">'
       + '<div style="position:relative;margin-bottom:8px">'
       + '<svg style="position:absolute;left:9px;top:50%;transform:translateY(-50%);pointer-events:none" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--soft)" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>'
-      + '<input id="rsvpSearchInput" type="text" placeholder="Search…" style="width:100%;font-family:var(--sans);font-size:12px;padding:7px 30px 7px 28px;background:var(--cream2);border:1.5px solid var(--parchment);border-radius:100px;color:var(--ink);outline:none;box-sizing:border-box">'
+      + '<input id="rsvpSearchInput" type="text" placeholder="Search…" name="rsvpSearchField" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" style="width:100%;font-family:var(--sans);font-size:12px;padding:7px 30px 7px 28px;background:var(--cream2);border:1.5px solid var(--parchment);border-radius:100px;color:var(--ink);outline:none;box-sizing:border-box">'
       + '<button id="rsvpSearchClear" type="button" title="Clear search" style="display:none;position:absolute;right:6px;top:50%;transform:translateY(-50%);width:20px;height:20px;border:none;border-radius:50%;background:var(--soft);color:#fff;align-items:center;justify-content:center;cursor:pointer;padding:0"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>'
       + '</div>'
       + '<div style="display:flex;align-items:center;justify-content:flex-end">'
@@ -6396,6 +6311,13 @@ function saveSeatMap(){
 loadSeatMap();
 
 function seatKey(tableId, n){ return tableId+'-'+n; }
+/* Seat buttons only have room for a short label — show just the first
+   name there, while the full name is still available via the title
+   tooltip and everywhere else (search list, badges, etc). */
+function seatFirstName(name){
+  if(!name) return '';
+  return name.trim().split(/\s+/)[0];
+}
 function uid(){ return 't'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
 
 /* RSVP status for a guest — reuses the exact same source of truth the
@@ -6493,7 +6415,7 @@ function openSeatAssign(tableId, seatNum){
 function closeSeatAssign(){
   var ov=document.getElementById('seatAssignOverlay'), sh=document.getElementById('seatAssignSheet');
   if(ov) ov.classList.remove('open');
-  if(sh) sh.classList.remove('open');
+  if(sh){ sh.classList.remove('open'); sh.style.bottom=''; sh.style.maxHeight=''; }
   _assignCtx = null;
 }
 function renderSeatAssignList(query){
@@ -6584,7 +6506,6 @@ function renderSeatMap(){
   });
   if(sub) sub.textContent = seatMap.tables.length ? (totalAssigned+' of '+totalSeats+' seats assigned') : '';
   if(fab) fab.style.display = seatMap.tables.length ? 'flex' : 'none';
-
   if(!seatMap.tables.length){
     body.innerHTML = '<div class="seatmap-empty">No tables yet.<br><br>Tap <strong>+ Table</strong> above to add your first table, choose how many chairs it has, then tap a chair to seat a guest.</div>';
     return;
@@ -6603,9 +6524,9 @@ function renderSeatMap(){
       var name = seatMap.assignments[seatKey(t.id,n)] || '';
       var state = name ? seatGuestRsvpState(name) : '';
       var cls = 'seatmap-seat'+(name?'':' empty')+(state==='yes'?' rsvp-yes':state==='no'?' rsvp-no':'');
-      seatsHtml += '<div class="'+cls+'" data-table="'+t.id+'" data-seat="'+n+'">'
+      seatsHtml += '<div class="'+cls+'" data-table="'+t.id+'" data-seat="'+n+'"'+(name?' title="'+name.replace(/"/g,'&quot;')+'"':'')+'>'
         + '<span class="seatmap-seat-num">Seat '+n+'</span>'
-        + '<span class="seatmap-seat-name">'+(name?name:'+ Add')+'</span>'
+        + '<span class="seatmap-seat-name">'+(name?seatFirstName(name):'+ Add')+'</span>'
         + '</div>';
     }
     return '<div class="seatmap-table-card" data-table-id="'+t.id+'">'
@@ -6722,7 +6643,7 @@ function renderSeatFloorPlan(){
     + '<div class="seatmap-marker-picker' + (_markerPickerOpen ? ' open' : '') + '" id="markerPicker">'
     + Object.keys(LANDMARK_TYPES).map(function(key){
         var m = LANDMARK_TYPES[key];
-        return '<button class="seatmap-marker-chip" data-mtype="'+key+'">'+m.icon+' '+m.label+'</button>';
+        return '<button class="seatmap-marker-chip" data-mtype="'+key+'">'+m.label+'</button>';
       }).join('')
     + '</div>';
 
@@ -6756,11 +6677,10 @@ function renderSeatFloorPlan(){
 
   var landmarkNodes = seatMap.landmarks.map(function(l){
     var m = LANDMARK_TYPES[l.type] || LANDMARK_TYPES.buffet;
-    return '<div class="seatmap-landmark" data-ltype="'+l.type+'" data-landmark-id="'+l.id+'" style="left:'+l.pos.x+'%;top:'+l.pos.y+'%;background:'+m.bg+';border:2px solid '+m.border+';color:'+m.color+'"><span>'+m.icon+'</span><span>'+m.label+'</span></div>';
+    return '<div class="seatmap-landmark" data-ltype="'+l.type+'" data-landmark-id="'+l.id+'" style="left:'+l.pos.x+'%;top:'+l.pos.y+'%;background:'+m.bg+';border:2px solid '+m.border+';color:'+m.color+'"><span>'+m.label+'</span></div>';
   }).join('');
 
   body.innerHTML = controls
-    + '<div class="seatmap-floor-hint">Drag to match your room layout · tap a table to seat guests · tap a marker to remove it</div>'
     + '<div class="seatmap-floor" id="seatmapFloorCanvas" style="'+floorStyle.css+'">'+tableNodes+landmarkNodes
       + '<div class="seatmap-snap-guide v" id="snapGuideV"></div>'
       + '<div class="seatmap-snap-guide h" id="snapGuideH"></div>'
@@ -6831,15 +6751,15 @@ function wireFloorColorPicker(){
 /* Venue marker types the person can drop onto the floor plan — an
    approximate, drag-to-place stand-in for where each thing will be. */
 var LANDMARK_TYPES = {
-  buffet:     { icon:'🍽️', label:'Buffet',      bg:'#5b3a12', border:'#c9873f', color:'#ffd9a0' },
-  bar:        { icon:'🍸', label:'Bar',          bg:'#1a3a3a', border:'#4fc9c9', color:'#b7f5f5' },
-  dancefloor: { icon:'💃', label:'Dance Floor',  bg:'#3a1a4a', border:'#b06fd6', color:'#eec7ff' },
-  dj:         { icon:'🎧', label:'DJ / Band',    bg:'#1a2a4a', border:'#6f9ed6', color:'#c7dcff' },
-  entrance:   { icon:'🚪', label:'Entrance',     bg:'#3a2a1a', border:'#d6a06f', color:'#ffe0c7' },
-  gifts:      { icon:'🎁', label:'Gift Table',   bg:'#4a1a2a', border:'#d66f9e', color:'#ffc7dc' },
-  cake:       { icon:'🎂', label:'Cake Table',   bg:'#4a3a1a', border:'#d6c06f', color:'#fff0c7' },
-  restrooms:  { icon:'🚻', label:'Restrooms',    bg:'#2a2a2a', border:'#9e9e9e', color:'#e0e0e0' },
-  photobooth: { icon:'📸', label:'Photo Booth',  bg:'#1a3a2a', border:'#6fd6a0', color:'#c7ffe0' }
+  buffet:     { label:'Buffet',      bg:'#5b3a12', border:'#c9873f', color:'#ffd9a0' },
+  bar:        { label:'Bar',          bg:'#1a3a3a', border:'#4fc9c9', color:'#b7f5f5' },
+  dancefloor: { label:'Dance Floor',  bg:'#3a1a4a', border:'#b06fd6', color:'#eec7ff' },
+  dj:         { label:'DJ / Band',    bg:'#1a2a4a', border:'#6f9ed6', color:'#c7dcff' },
+  entrance:   { label:'Entrance',     bg:'#3a2a1a', border:'#d6a06f', color:'#ffe0c7' },
+  gifts:      { label:'Gift Table',   bg:'#4a1a2a', border:'#d66f9e', color:'#ffc7dc' },
+  cake:       { label:'Cake Table',   bg:'#4a3a1a', border:'#d6c06f', color:'#fff0c7' },
+  restrooms:  { label:'Restrooms',    bg:'#2a2a2a', border:'#9e9e9e', color:'#e0e0e0' },
+  photobooth: { label:'Photo Booth',  bg:'#1a3a2a', border:'#6fd6a0', color:'#c7ffe0' }
 };
 var _markerPickerOpen = false;
 
@@ -6906,8 +6826,9 @@ function wireFloorDrag(){
     });
   });
 
-  function makeDraggable(node, idAttr, excludeId, onEnd){
+  function makeDraggable(node, idAttr, excludeId, onEnd, onDelete){
     var dragging = false, moved = false, startX=0, startY=0;
+    var trash = document.getElementById('seatmapTrash');
     node.addEventListener('pointerdown', function(e){
       if(e.target.closest('.seatmap-node-dot')) return;
       dragging = true; moved = false;
@@ -6919,6 +6840,21 @@ function wireFloorDrag(){
       if(!dragging) return;
       var dx = e.clientX - startX, dy = e.clientY - startY;
       if(Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
+      if(moved && trash && onDelete) trash.classList.add('visible');
+
+      var overTrash = false;
+      if(moved && trash && onDelete){
+        var trect = trash.getBoundingClientRect();
+        overTrash = e.clientX>=trect.left && e.clientX<=trect.right && e.clientY>=trect.top && e.clientY<=trect.bottom;
+        trash.classList.toggle('armed', overTrash);
+        node.style.opacity = overTrash ? '.3' : '';
+      }
+      if(overTrash){
+        if(guideV) guideV.style.display = 'none';
+        if(guideH) guideH.style.display = 'none';
+        return;
+      }
+
       var rect = canvas.getBoundingClientRect();
       var xPct = ((e.clientX - rect.left) / rect.width) * 100;
       var yPct = ((e.clientY - rect.top) / rect.height) * 100;
@@ -6942,8 +6878,15 @@ function wireFloorDrag(){
       if(!dragging) return;
       dragging = false;
       node.classList.remove('dragging');
+      node.style.opacity = '';
       if(guideV) guideV.style.display = 'none';
       if(guideH) guideH.style.display = 'none';
+      var droppedOnTrash = !!(trash && trash.classList.contains('armed'));
+      if(trash){ trash.classList.remove('visible'); trash.classList.remove('armed'); }
+      if(droppedOnTrash && onDelete){
+        onDelete(node.dataset[idAttr]);
+        return;
+      }
       onEnd(moved, node.dataset[idAttr]);
     }
     node.addEventListener('pointerup', endDrag);
@@ -6958,6 +6901,10 @@ function wireFloorDrag(){
         saveSeatMap();
       }
       if(!moved) openTableFromFloor(id);
+    }, function(id){
+      // removeTable() already confirms and re-renders — dragging a table
+      // onto the trash bin is the deliberate "let go to delete" gesture.
+      removeTable(id);
     });
   });
 
@@ -6969,6 +6916,8 @@ function wireFloorDrag(){
         saveSeatMap();
       }
       if(!moved && confirm('Remove this marker?')) removeLandmark(id);
+    }, function(id){
+      removeLandmark(id);
     });
   });
 }
@@ -6984,9 +6933,9 @@ function openTableFromFloor(tableId){
     var name = seatMap.assignments[seatKey(t.id,n)] || '';
     var state = name ? seatGuestRsvpState(name) : '';
     var cls = 'seatmap-seat'+(name?'':' empty')+(state==='yes'?' rsvp-yes':state==='no'?' rsvp-no':'');
-    seatsHtml += '<div class="'+cls+'" data-table="'+t.id+'" data-seat="'+n+'">'
+    seatsHtml += '<div class="'+cls+'" data-table="'+t.id+'" data-seat="'+n+'"'+(name?' title="'+name.replace(/"/g,'&quot;')+'"':'')+'>'
       + '<span class="seatmap-seat-num">Seat '+n+'</span>'
-      + '<span class="seatmap-seat-name">'+(name?name:'+ Add')+'</span>'
+      + '<span class="seatmap-seat-name">'+(name?seatFirstName(name):'+ Add')+'</span>'
       + '</div>';
   }
   document.getElementById('seatAssignTitle').innerHTML = t.name.replace(/</g,'&lt;')
@@ -7063,6 +7012,27 @@ var _saOverlay = document.getElementById('seatAssignOverlay');
 if(_saOverlay) _saOverlay.addEventListener('click', closeSeatAssign);
 var _saSearch = document.getElementById('seatAssignSearch');
 if(_saSearch) _saSearch.addEventListener('input', function(){ renderSeatAssignList(this.value); });
+
+/* iOS Safari anchors position:fixed elements to the *layout* viewport, not
+   the visual one — so once the keyboard opens, a bottom-fixed sheet like
+   #seatAssignSheet can end up sitting partly (or fully) behind the keyboard,
+   which is what made the guest list look like it "shows nothing". Nudge the
+   sheet up by exactly the keyboard's height using the visualViewport API,
+   which does track the real visible area. */
+(function(){
+  var sheet = document.getElementById('seatAssignSheet');
+  if(!sheet || !window.visualViewport) return;
+  function reposition(){
+    if(!sheet.classList.contains('open')) return;
+    var vv = window.visualViewport;
+    var gap = window.innerHeight - vv.height - vv.offsetTop;
+    sheet.style.bottom = Math.max(0, gap) + 'px';
+    sheet.style.maxHeight = Math.min(vv.height * 0.92, vv.height - 16) + 'px';
+  }
+  window.visualViewport.addEventListener('resize', reposition);
+  window.visualViewport.addEventListener('scroll', reposition);
+  if(_saSearch) _saSearch.addEventListener('focus', function(){ setTimeout(reposition, 60); });
+})();
 var _saUnassign = document.getElementById('seatAssignUnassignBtn');
 if(_saUnassign) _saUnassign.addEventListener('click', function(){
   if(_assignCtx) unassignSeat(_assignCtx.tableId, _assignCtx.seatNum);
