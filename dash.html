@@ -619,8 +619,10 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .rsvp-count-btn{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#FF7A1A,#FF6B00);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--ease);font-family:var(--sans);box-shadow:0 2px 8px rgba(255,107,0,.3);align-self:center;box-sizing:border-box;padding:0}
 .rsvp-count-btn:hover{background:linear-gradient(135deg,#FF8C30,#FF7A1A);transform:translateY(-1px);box-shadow:0 4px 14px rgba(255,107,0,.45)}
 .rsvp-count-btn .rc-num{font-size:12px;font-weight:800;line-height:1}
-.seatmap-count-btn{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#2F8CFF,#0066FF);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--ease);font-family:var(--sans);box-shadow:0 2px 8px rgba(0,102,255,.35);align-self:center;box-sizing:border-box;padding:0;margin-right:8px}
-.seatmap-count-btn:hover{background:linear-gradient(135deg,#57A4FF,#2F8CFF);transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,102,255,.5)}
+.seatmap-count-btn{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#FFE9A8,#E8B84B 45%,#C6892A);border:none;color:#5b3a12;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--ease);font-family:var(--sans);box-shadow:0 2px 8px rgba(198,137,42,.45);align-self:center;box-sizing:border-box;padding:0;position:relative;overflow:hidden}
+.seatmap-count-btn::after{content:'';position:absolute;inset:0;border-radius:50%;background-image:radial-gradient(circle at 22% 28%,rgba(255,255,255,.95) 0 1px,transparent 1.6px),radial-gradient(circle at 68% 22%,rgba(255,255,255,.85) 0 1px,transparent 1.5px),radial-gradient(circle at 78% 62%,rgba(255,255,255,.75) 0 1px,transparent 1.4px),radial-gradient(circle at 35% 72%,rgba(255,255,255,.7) 0 1px,transparent 1.3px),radial-gradient(circle at 55% 50%,rgba(255,255,255,.6) 0 1px,transparent 1.2px);pointer-events:none}
+.seatmap-count-btn:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(198,137,42,.6)}
+.seatmap-count-btn svg{position:relative;z-index:1}
 #rsvpDrawer{position:fixed;top:0;right:0;bottom:0;width:320px;max-width:95vw;background:var(--cream);z-index:300;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);border-left:1px solid var(--parchment);display:flex;flex-direction:column;box-shadow:-4px 0 24px rgba(0,0,0,.08)}
 #rsvpDrawer.open{transform:translateX(0)}
 .rsvp-drawer-hdr{padding:14px 16px;border-bottom:1px solid var(--parchment);display:flex;align-items:center;gap:10px;flex-shrink:0}
@@ -940,10 +942,11 @@ body.lite-mode #liteModeTopBtn {
 /* Assign-guest sheet */
 .seat-assign-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:409;opacity:0;pointer-events:none;transition:opacity .2s}
 .seat-assign-overlay.open{opacity:1;pointer-events:all}
-.seat-assign-sheet{position:fixed;left:0;right:0;bottom:0;z-index:410;background:var(--cream);border-radius:20px 20px 0 0;max-height:78vh;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .25s cubic-bezier(.32,.72,.35,1);box-shadow:0 -8px 32px rgba(0,0,0,.18)}
+.seat-assign-sheet{position:fixed;left:0;right:0;bottom:0;z-index:410;background:var(--cream);border-radius:20px 20px 0 0;height:78vh;max-height:78vh;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .25s cubic-bezier(.32,.72,.35,1);box-shadow:0 -8px 32px rgba(0,0,0,.18)}
 .seat-assign-sheet.open{transform:translateY(0)}
 .seat-assign-hdr{flex-shrink:0;padding:14px 16px 10px;border-bottom:1px solid var(--parchment)}
 .seat-assign-title{font-family:var(--sans);font-size:14px;font-weight:800;color:var(--ink2);margin-bottom:8px}
+.seat-assign-close{flex-shrink:0;width:28px;height:28px;border-radius:50%;border:none;background:var(--cream2);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;line-height:1;padding:0}
 .seat-assign-search{width:100%;box-sizing:border-box;font-family:var(--sans);font-size:13px;padding:8px 12px;background:var(--cream2);border:1.5px solid var(--parchment);border-radius:var(--r-sm);outline:none}
 .seat-assign-list{overflow-y:auto;padding:6px 8px 20px}
 .seat-assign-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 10px;border-radius:10px;cursor:pointer}
@@ -1025,7 +1028,7 @@ body.lite-mode #liteModeTopBtn {
   <div class="stat-pill new-guests" id="ovNew" title="New since last sync" style="display:none"></div>
   <!-- spacer -->
   <div style="flex:1"></div>
-  <!-- Seat Map — sits right before RSVP, same pill styling, bright blue -->
+  <!-- Seat Map — sits right before RSVP, matching pill styling, warm gold gradient -->
   <button class="seatmap-count-btn" id="seatMapBtn" title="Seat Map"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 11V5.5A1.5 1.5 0 0 1 6.5 4h11A1.5 1.5 0 0 1 19 5.5V11"/><path d="M4 11h16a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1z"/><path d="M5 15v4"/><path d="M19 15v4"/></svg></button>
   <!-- RSVP -->
   <button class="rsvp-count-btn" id="rsvpCountBtn" title="RSVP Responses">
@@ -1636,7 +1639,10 @@ body.lite-mode #liteModeTopBtn {
 <div class="seat-assign-overlay" id="seatAssignOverlay"></div>
 <div class="seat-assign-sheet" id="seatAssignSheet">
   <div class="seat-assign-hdr">
-    <div class="seat-assign-title" id="seatAssignTitle">Assign seat</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px">
+      <div class="seat-assign-title" id="seatAssignTitle" style="margin-bottom:0">Assign seat</div>
+      <button class="seat-assign-close" id="seatAssignCloseBtn" title="Close" aria-label="Close">✕</button>
+    </div>
     <input class="seat-assign-search" id="seatAssignSearch" type="text" placeholder="Search guests…" name="seatAssignSearchField" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"/>
   </div>
   <button class="seat-assign-unassign" id="seatAssignUnassignBtn" style="display:none">Unassign this seat</button>
@@ -7010,6 +7016,8 @@ var _smFab = document.getElementById('seatmapFabAdd');
 if(_smFab) _smFab.addEventListener('click', addTable);
 var _saOverlay = document.getElementById('seatAssignOverlay');
 if(_saOverlay) _saOverlay.addEventListener('click', closeSeatAssign);
+var _saCloseBtn = document.getElementById('seatAssignCloseBtn');
+if(_saCloseBtn) _saCloseBtn.addEventListener('click', closeSeatAssign);
 var _saSearch = document.getElementById('seatAssignSearch');
 if(_saSearch) _saSearch.addEventListener('input', function(){ renderSeatAssignList(this.value); });
 
