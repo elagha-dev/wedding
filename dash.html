@@ -1818,6 +1818,16 @@ var msgs={
 function toTitleCase(s){return(s||'').trim().replace(/\S+/g,function(w){return w.charAt(0).toUpperCase()+w.slice(1).toLowerCase();});}
 function firstName(n){var w=(n||'').trim().split(/[\s&]+/)[0];if(!w)return'';return w.charAt(0).toUpperCase()+w.slice(1).toLowerCase();}
 function lastName(n){var parts=(n||'').trim().split(/\s+/);return parts.length>1?parts[parts.length-1]:'';}
+// A guest's role field is one comma-separated string (e.g. "Bridesmaid,
+// Bring & Share") but each value should read as its own small tag, not one
+// long chip with everything jammed together. Every value opens the same
+// role-edit modal on tap, same as before.
+function roleChipsHtml(role,ri){
+  if(!role)return'';
+  return role.split(',').map(function(r){return r.trim();}).filter(Boolean).map(function(r){
+    return '<span class="chip chip-role" data-action="role" data-qi="'+ri+'">'+r+'</span>';
+  }).join('');
+}
 function pairDisplayName(n1,n2){var ln1=lastName(n1),ln2=lastName(n2);if(ln1&&ln2&&ln1.toLowerCase()===ln2.toLowerCase())return firstName(n1)+' & '+firstName(n2)+' '+ln1;return n1+' & '+n2;}
 function fmtSentAt(s){if(!s)return'';try{var d=new Date(s);if(isNaN(d))return s;var day=String(d.getDate()).padStart(2,'0'),mon=String(d.getMonth()+1).padStart(2,'0');return day+'.'+mon;}catch(e){return s;}}
 function buildUrl(p1,p2,type,lang){var n1=firstName(p1),n2=p2?firstName(p2):'';var isP=type==='ceremony-party-single'||type==='couple-party';var q=new URLSearchParams();q.set('p1',n1);if(n2)q.set('p2',n2);if(isP)q.set('party','1');if(lang&&lang!=='en')q.set('lang',lang);return BASE+'?'+q.toString();}
@@ -3461,7 +3471,7 @@ function buildGuestCard(g, mergedPairPos){
   var lC=g.lang&&g.lang!=='en'?'<span class="chip chip-lang">'+(g.lang==='de'?'DE':'RU')+'</span>':'';
   var rC=g.confirmed?'<span class="chip chip-rsvp">RSVP</span>':'';
   var cC=g.isChild?'<span class="chip chip-child">Child</span>':'';
-  var roleC=g.role?'<span class="chip chip-role" data-action="role" data-qi="'+ri+'">'+g.role+'</span>':'';
+  var roleC=roleChipsHtml(g.role,ri);
   var claimC=claimedBy?('<span class="claim-badge claim-badge-'+(claimedBy==='Arina'?'a':'e')+'"><span class="claim-dot claim-dot-'+(claimedBy==='Arina'?'a':'e')+'"></span>'+(claimedByMe?'You':''+claimedBy)+'</span>'):'';
   var sentBy=g.sentBy?g.sentBy:'';var sentLetter=sentBy==='Arina'?'a':sentBy==='Elnur'?'e':'';var sentTime=g.sent&&g.sentAt?'<span class="g-sent-time">'+fmtSentAt(g.sentAt)+(sentLetter?' · '+sentLetter:'')+'</span>':'';
 
@@ -3547,7 +3557,7 @@ function buildGuestCard(g, mergedPairPos){
         +'<div class="g-inner">'
           +'<div class="g-inner-left">'
             +'<div class="g-main">'
-              +'<div class="g-name-row" style="flex-wrap:wrap"><span class="g-name" style="font-size:15px;flex:0 1 auto">'+g.name+'</span>'+pillWrap+(g.role?'<span class="chip chip-role" data-action="role" data-qi="'+ri+'">'+g.role+'</span>':'')+parentRefHtml+'</div>'
+              +'<div class="g-name-row" style="flex-wrap:wrap"><span class="g-name" style="font-size:15px;flex:0 1 auto">'+g.name+'</span>'+pillWrap+roleChipsHtml(g.role,ri)+parentRefHtml+'</div>'
               +partnerRefHtml
               +debugTag
             +'</div>'
