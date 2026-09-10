@@ -6782,10 +6782,36 @@ function flashLastAddedTable(container){
    land in open space with a consistent breathing room and never overlap.
    Only ever runs once per table — after that its position is just
    whatever's saved (including drags), same as before. */
+/* Grid-cell offsets in clockwise spiral order starting at the center cell:
+   right, down, left, up, with each leg growing by one cell every two turns
+   — the standard clockwise spiral-fill pattern. Used so every new table's
+   CENTER lands on the same fixed grid (rows and columns always line up)
+   instead of a raw-pixel spiral that drifts out of alignment. */
+function spiralGridOffsets(n){
+  var offsets = [{r:0,c:0}];
+  var r=0, c=0, dirs=[[1,0],[0,1],[-1,0],[0,-1]], dirIdx=0, steps=1, produced=1;
+  while(produced<n){
+    for(var rep=0; rep<2 && produced<n; rep++){
+      var d = dirs[dirIdx%4];
+      for(var s=0; s<steps && produced<n; s++){
+        c += d[0]; r += d[1];
+        offsets.push({r:r,c:c});
+        produced++;
+      }
+      dirIdx++;
+    }
+    steps++;
+  }
+  return offsets;
+}
 function defaultTablePos(placed, canvasW, canvasH, lay){
   var gap = 24, marginX = 18, marginY = 18;
   var w = (lay && lay.w) || 120, h = (lay && lay.h) || 120;
   var cx0 = canvasW/2, cy0 = canvasH/2;
+  // Fixed grid pitch — independent of any one table's own size — so every
+  // table's center lines up on the same rows/columns no matter how big or
+  // small that particular table is.
+  var pitchX = 180, pitchY = 180;
 
   function fitsInCanvas(cx, cy){
     return cx - w/2 >= marginX && cx + w/2 <= canvasW - marginX
@@ -6805,30 +6831,26 @@ function defaultTablePos(placed, canvasW, canvasH, lay){
   }
 
   if(!placed.length){
-    // First table: dead center, clamped so it still fully fits if the
-    // canvas happens to be smaller than the table itself.
-    var ccx = Math.min(Math.max(cx0, marginX+w/2), Math.max(marginX+w/2, canvasW-marginX-w/2));
-    var ccy = Math.min(Math.max(cy0, marginY+h/2), Math.max(marginY+h/2, canvasH-marginY-h/2));
-    return { x: ccx/canvasW*100, y: ccy/canvasH*100 };
+    // First table: dead center of the grid — every later table's offset
+    // is measured from here, so this is also the grid's origin cell.
+    return { x: cx0/canvasW*100, y: cy0/canvasH*100 };
   }
 
-  // Spiral outward from the canvas center, ring by ring, testing points
-  // around each ring until we find one that both fits on the canvas and
-  // doesn't overlap (with the gap) any already-placed table.
-  var step = 14;
-  var maxRadius = Math.sqrt(canvasW*canvasW + canvasH*canvasH);
-  for(var radius=step; radius<=maxRadius; radius+=step){
-    var steps = Math.max(10, Math.round(radius/9));
-    for(var a=0; a<steps; a++){
-      var angle = (a/steps) * Math.PI*2;
-      var cx = cx0 + radius*Math.cos(angle);
-      var cy = cy0 + radius*Math.sin(angle);
-      if(fitsInCanvas(cx, cy) && !overlapsAny(cx, cy)){
-        return { x: cx/canvasW*100, y: cy/canvasH*100 };
-      }
+  // Walk the clockwise spiral of GRID CELLS (not raw pixels) outward from
+  // the center, taking the first cell whose table both fits the canvas and
+  // doesn't overlap anything already placed. Because every candidate point
+  // sits on the same fixed pitch, tables end up in clean aligned rows and
+  // columns, filled in clockwise order, instead of drifting to wherever a
+  // pixel-spiral first found room.
+  var offsets = spiralGridOffsets(400);
+  for(var i=1;i<offsets.length;i++){
+    var cx = cx0 + offsets[i].c*pitchX;
+    var cy = cy0 + offsets[i].r*pitchY;
+    if(fitsInCanvas(cx, cy) && !overlapsAny(cx, cy)){
+      return { x: cx/canvasW*100, y: cy/canvasH*100 };
     }
   }
-  // Fallback (canvas is completely packed): stack below everything else,
+  // Fallback (grid is completely packed): stack below everything else,
   // still horizontally centered, so it's at least never on top of another
   // table even if it spills past the visible canvas height.
   var maxBottom = marginY;
