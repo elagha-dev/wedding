@@ -6788,40 +6788,21 @@ function flashLastAddedTable(container){
 
 /* Give a table a default spot on the floor if it doesn't have a saved
    position yet. Positions are stored in fixed PIXELS (stable regardless
-   of how tall/wide the canvas grows later — a % would drift every time
-   a table gets added and the canvas is re-measured).
-   Tables pack left-to-right in a row first, same as chairs around a real
-   room, wrapping to a new row only once one wouldn't fit within the
-   canvas width — instead of stacking every table into a single column,
-   which made long guest lists turn into one very tall, hard-to-scan
-   strip. Each table's REAL footprint (which differs by shape/seat count
-   AND by horizontal vs. vertical orientation) is checked against every
-   already-placed table so nothing new ever lands on top of something
-   already there, including manually dragged tables. */
+   of how tall the canvas grows later — a % would drift every time a
+   table gets added and the canvas is re-measured).
+   Tables default to a single vertical column, stacked top to bottom —
+   each new table lands in the clear strip below whatever's already on
+   the floor, left-aligned, using its REAL footprint (which differs by
+   shape/seat count) so nothing new ever lands on top of something
+   already there, including manually dragged tables. Always draggable
+   afterward if you want a different arrangement. */
 function defaultTablePos(placed, canvasW, canvasH, lay){
   var gap = 28, marginX = 18, marginY = 18;
   var w = (lay && lay.w) || 120, h = (lay && lay.h) || 120;
 
-  if(!placed.length){
-    return { x: marginX + w/2, y: marginY + h/2 };
-  }
-
-  // "Current row" = the trailing run of already-placed tables that share
-  // roughly the same vertical center as the most recently placed one.
-  var last = placed[placed.length-1];
-  var rowY = last.cy, rowBottom = last.cy + last.h/2, cursorRight = marginX;
-  for(var i=placed.length-1;i>=0;i--){
-    if(Math.abs(placed[i].cy - rowY) > 6) break;
-    rowBottom = Math.max(rowBottom, placed[i].cy + placed[i].h/2);
-    cursorRight = Math.max(cursorRight, placed[i].cx + placed[i].w/2);
-  }
-  var cx = cursorRight + gap + w/2, cy = rowY;
-  if(cx + w/2 > canvasW - marginX){
-    // Doesn't fit at the end of this row — wrap to a new row below it.
-    cx = marginX + w/2;
-    cy = rowBottom + gap + h/2;
-  }
-  return { x: cx, y: cy };
+  var maxBottom = marginY - gap;
+  placed.forEach(function(p){ maxBottom = Math.max(maxBottom, p.cy + p.h/2); });
+  return { x: marginX + w/2, y: maxBottom + gap + h/2 };
 }
 
 /* Compute the seat-dot layout for one table on the floor plan: how big
@@ -7067,10 +7048,21 @@ function floorCanvasStyle(hex){
   var r = parseInt(h.substr(0,2),16)||0, g = parseInt(h.substr(2,2),16)||0, b = parseInt(h.substr(4,2),16)||0;
   var brightness = (r*299 + g*587 + b*114) / 1000;
   var light = brightness > 150;
-  var gridColor = light ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.06)';
+  var gridRgb = light ? '0,0,0' : '255,255,255';
+  var gridOpacity = light ? 0.08 : 0.06;
   var borderColor = light ? 'rgba(0,0,0,.15)' : 'rgba(255,255,255,.12)';
   var emptyColor = light ? 'rgba(0,0,0,.5)' : 'rgba(255,255,255,.65)';
-  var css = 'background-color:'+hex+';background-image:linear-gradient('+gridColor+' 1px,transparent 1px),linear-gradient(90deg,'+gridColor+' 1px,transparent 1px);border-color:'+borderColor+';';
+  // The grid used to be two overlapping 1px linear-gradients tiled via
+  // background-size — a classic WebKit trap: hairline gradients like that
+  // shimmer/seam on repaint (scrolling, dragging, any transform), no
+  // matter how clean the tile size math is, which is why the artifact
+  // came back regardless of zoom level. A small tiled SVG line-grid is a
+  // real rasterized image instead of an interpolated gradient, so it has
+  // nothing to seam.
+  var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">'
+    + '<path d="M24 0H0V24" fill="none" stroke="rgba('+gridRgb+','+gridOpacity+')" stroke-width="1"/>'
+    + '</svg>';
+  var css = 'background-color:'+hex+';background-image:url(\'data:image/svg+xml,'+encodeURIComponent(svg)+'\');background-repeat:repeat;border-color:'+borderColor+';';
   return { css:css, emptyColor:emptyColor };
 }
 
