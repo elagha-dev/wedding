@@ -973,8 +973,12 @@ body.lite-mode #liteModeTopBtn {
 .seat-assign-row-meta{font-family:var(--sans);font-size:10.5px;color:var(--muted);margin-top:2px}
 .seat-assign-empty{text-align:center;color:var(--muted);font-size:12.5px;padding:30px 20px}
 .seat-assign-unassign{width:100%;box-sizing:border-box;margin:4px 8px 10px;padding:10px;border-radius:10px;border:1.5px solid rgba(185,28,28,.3);background:rgba(185,28,28,.06);color:#b91c1c;font-family:var(--sans);font-size:12.5px;font-weight:700;cursor:pointer}
-/* Seat badge shown inline next to a guest's name in the main list */
-.g-seat-badge{display:inline-flex;align-items:center;gap:3px;font-family:var(--sans);font-size:9.5px;font-weight:800;letter-spacing:.02em;padding:2px 7px;border-radius:var(--r-pill);background:var(--sky-bg);color:var(--sky);white-space:nowrap;vertical-align:middle}
+/* Seat badge shown inline next to a guest's name in the main list —
+   colored per table (hashed from the table's id, so it's consistent
+   every time, not just a plain repeated text label) so at a glance you
+   can tell who's sharing a table without reading every name. */
+.g-seat-badge{display:inline-flex;align-items:center;gap:5px;font-family:var(--sans);font-size:9.5px;font-weight:800;letter-spacing:.02em;padding:3px 9px 3px 7px;border-radius:var(--r-pill);white-space:nowrap;vertical-align:middle;border:1px solid transparent}
+.g-seat-badge-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;box-shadow:0 0 0 2px rgba(255,255,255,.5) inset}
 
 </style>
 </head>
@@ -2336,7 +2340,13 @@ function renderGuestList(){
       // Pairs you've explicitly confirmed in Review Pairs collapse into one
       // merged card — everyone else (pending / unreviewed / suspicious)
       // stays as two separate cards so anything unresolved stays visible.
+      // Split into two buckets by invite type: church-only (ceremony, no
+      // reception) get their own subsection below the main list, so
+      // scrolling the Sent list makes it obvious at a glance who's
+      // ceremony-only vs. invited to the full celebration.
+      function isChurchOnly(g){ return (g.type||'').indexOf('party')===-1; }
       var mergedSeen={};
+      var partyHtml='', churchHtml='', churchCount=0;
       sentGuests.forEach(function(g){
         var ri=importQueue.indexOf(g);
         if(mergedSeen[ri])return;
@@ -2345,14 +2355,21 @@ function renderGuestList(){
         var partnerInSentList=partnerObj&&sentGuests.indexOf(partnerObj)!==-1;
         var pKey=partnerObj?pairKey(g.name,partnerObj.name):null;
         var isConfirmedPair=partnerInSentList&&pKey&&_confirmedPairs[pKey];
+        var cardHtml;
         if(isConfirmedPair){
           var partnerRi=importQueue.indexOf(partnerObj);
           mergedSeen[partnerRi]=true;
-          html+=mergedPairWithKids('<div class="g-pair-merged">'+buildGuestCard(g,'top')+buildGuestCard(partnerObj,'bottom')+'</div>',[g.name,partnerObj.name]);
+          cardHtml=mergedPairWithKids('<div class="g-pair-merged">'+buildGuestCard(g,'top')+buildGuestCard(partnerObj,'bottom')+'</div>',[g.name,partnerObj.name]);
         } else {
-          html+=mergedPairWithKids(buildGuestCard(g),[g.name]);
+          cardHtml=mergedPairWithKids(buildGuestCard(g),[g.name]);
         }
+        if(isChurchOnly(g)){ churchHtml+=cardHtml; churchCount++; }
+        else { partyHtml+=cardHtml; }
       });
+      html+=partyHtml;
+      if(churchHtml){
+        html+='<div class="g-group-hdr church-only-hdr" style="color:#7C4DBB;border-color:rgba(124,77,187,.2)"><span style="margin-right:5px">&#x26EA;</span>Church only <span style="opacity:.4">('+churchCount+')</span></div>'+churchHtml;
+      }
       html+='<button class="show-sent-btn" id="showSentBtn">Hide '+sentHdrLabel.toLowerCase()+'</button>';
     } else {
       html+='<button class="show-sent-btn" id="showSentBtn">Show '+sentGuests.length+' '+(importFilter==='confirmed'?'confirmed':'sent')+'</button>';
@@ -6421,13 +6438,34 @@ function getSeatForGuest(name){
   return null;
 }
 
-/* Called from guest-card templates elsewhere in the file */
+/* Called from guest-card templates elsewhere in the file.
+   Table name only now — no seat number, since which table someone's at
+   is what actually matters when scanning the list; the exact chair is
+   still there in the seat map itself, untouched.
+   Each table gets a consistent color hashed from its id, so the same
+   table always reads the same color everywhere it shows up in the
+   guest list — a real visual grouping instead of a plain text label. */
+var SEAT_BADGE_PALETTE = ['#C9876A','#4A6EA8','#3A8C5C','#B45309','#7C4DBB','#C0402E','#0E7C86','#A0614A'];
+function seatBadgeColor(tableId){
+  var hash = 0;
+  for(var i=0;i<tableId.length;i++){ hash = (hash*31 + tableId.charCodeAt(i)) >>> 0; }
+  return SEAT_BADGE_PALETTE[hash % SEAT_BADGE_PALETTE.length];
+}
+function _hexToRgba(hex, alpha){
+  var h = hex.replace('#','');
+  var r = parseInt(h.substring(0,2),16), g = parseInt(h.substring(2,4),16), b = parseInt(h.substring(4,6),16);
+  return 'rgba('+r+','+g+','+b+','+alpha+')';
+}
 window.seatBadgeHtml = function(name){
   var loc = getSeatForGuest(name);
   if(!loc) return '';
   var safe = loc.table.name.replace(/"/g,'&quot;');
-  return '<span class="g-seat-badge" title="'+safe+' • Seat '+loc.seatNum+'">'+safe+' · '+loc.seatNum+'</span>';
+  var color = seatBadgeColor(loc.table.id);
+  var style = 'color:'+color+';background:'+_hexToRgba(color,0.14)+';border-color:'+_hexToRgba(color,0.32);
+  return '<span class="g-seat-badge" style="'+style+'" title="Seated at '+safe+'">'
+    + '<span class="g-seat-badge-dot" style="background:'+color+'"></span>'+safe+'</span>';
 };
+
 
 /* ── Table CRUD ── */
 function addTable(){
