@@ -205,14 +205,14 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .f-pill.on-a{background:var(--arina-bg);border-color:var(--arina-border);color:var(--arina-txt)}
 .f-pill.on-e{background:var(--elnur-bg);border-color:var(--elnur-border);color:var(--elnur-txt)}
 .f-pill-open{display:inline-flex;align-items:center;gap:0;padding:0;overflow:hidden}
-.f-pill-open .f-open-label{padding:6px 8px 6px 14px;font-size:10px;font-weight:600;letter-spacing:.06em;white-space:nowrap}
+.f-pill-open .f-open-label{padding:6px 10px 6px 14px;font-size:10px;font-weight:600;letter-spacing:.06em;white-space:nowrap}
 .f-pill-open .f-open-divider{display:none}
-.f-pill-open .f-open-toggles{display:flex;align-items:center;gap:4px;padding:0 8px 0 2px}
-.f-pill-open .f-ae-btn{padding:3px 8px;border-radius:100px;border:none;background:rgba(255,255,255,.6);font-size:8px;font-weight:700;letter-spacing:.02em;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--ease);color:var(--ink2);font-family:var(--sans);white-space:nowrap}
-.f-pill-open.on .f-ae-btn{color:var(--ink2);background:rgba(255,255,255,.75)}
-.f-pill-open .f-ae-btn.ae-a.on{background:var(--arina-bg);color:var(--arina-txt);font-weight:800;box-shadow:0 1px 3px rgba(0,0,0,.15)}
-.f-pill-open .f-ae-btn.ae-e.on{background:var(--elnur-bg);color:var(--elnur-txt);font-weight:800;box-shadow:0 1px 3px rgba(0,0,0,.15)}
-.f-pill-open .f-ae-btn:hover{filter:brightness(.96)}
+.f-pill-open .f-open-toggles{display:flex;align-items:center;gap:0;padding:0 6px}
+.f-pill-open .f-ae-btn{width:20px;height:20px;border-radius:50%;border:none;background:transparent;font-size:9px;font-weight:800;letter-spacing:.04em;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--ease);color:rgba(255,255,255,.45);font-family:var(--sans);font-variant:small-caps}
+.f-pill-open.on .f-ae-btn{color:rgba(255,255,255,.45)}
+.f-pill-open .f-ae-btn.ae-a.on{background:var(--arina-bg);color:var(--arina-txt)}
+.f-pill-open .f-ae-btn.ae-e.on{background:var(--elnur-bg);color:var(--elnur-txt)}
+.f-pill-open .f-ae-btn:hover{background:rgba(255,255,255,.15)}
 .f-pill-open .f-ae-btn.ae-a.on:hover{filter:brightness(.95)}
 .f-pill-open .f-ae-btn.ae-e.on:hover{filter:brightness(.95)}
 .f-pill-open.on .f-open-label{background:rgba(255,255,255,.2);border-radius:var(--r-pill);padding:4px 10px 4px 10px;margin-left:4px}
@@ -235,27 +235,22 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 #filterRow .f-pill.on{background:var(--rose);border-color:var(--rose);color:#fff;border-bottom-color:var(--rose);box-shadow:none}
 #filterRow .f-pill.on-f{background:var(--amber-bg);border-color:rgba(176,120,48,.3);color:var(--amber);border-bottom-color:var(--amber-bg)}
 #filterRow .f-pill.on-c,#filterRow .f-pill.f-sent-pill.on{background:var(--green);border-color:var(--green);color:#fff;border-bottom-color:var(--green);box-shadow:none}
-/* Arina / Elnur filter pills — solid, high-contrast fill (not the pale
-   badge tint used elsewhere) specifically so "selected" is unmistakable
-   at a glance and never reads the same as "unselected". */
-#filterRow .f-pill.on-a{background:var(--arina-txt);border-color:var(--arina-txt);color:#fff;border-bottom-color:var(--arina-txt);font-weight:800;box-shadow:none}
-#filterRow .f-pill.on-e{background:var(--elnur-txt);border-color:var(--elnur-txt);color:#fff;border-bottom-color:var(--elnur-txt);font-weight:800;box-shadow:none}
-.search-filter-row{display:flex;gap:8px;margin-bottom:8px;align-items:stretch;flex-wrap:wrap}
-.search-wrap{position:relative;flex:1;min-width:0;height:32px}
+#filterRow .f-pill-open{border-radius:9px 9px 0 0}
+#filterRow .f-pill-open.on{border-bottom-color:var(--rose)}
+.search-filter-row{display:flex;gap:8px;margin-bottom:12px;align-items:stretch;flex-wrap:wrap}
+.search-wrap{position:relative;flex:1;min-width:0}
 .search-wrap::before{display:none}
-.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);pointer-events:none;flex-shrink:0;z-index:2;transition:opacity var(--ease)}
-.search-input{box-sizing:border-box;font-family:var(--sans);font-size:16px;padding:0 30px 0 34px;background:var(--cream);border:1.5px solid var(--parchment);border-radius:var(--r-sm);color:var(--ink);outline:none;width:100%;height:100%;line-height:32px;transition:border-color var(--ease),box-shadow var(--ease)}
-.search-clear-btn{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:18px;height:18px;border:none;border-radius:50%;background:var(--soft);color:#fff;display:none;align-items:center;justify-content:center;cursor:pointer;padding:0;z-index:2}
-.search-wrap.has-value .search-clear-btn{display:flex}
-.search-clear-btn:hover{background:var(--muted)}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none;flex-shrink:0;z-index:1}
+.search-input{font-family:var(--sans);font-size:13px;padding:10px 14px 10px 36px;background:var(--cream);border:1.5px solid var(--parchment);border-radius:var(--r-sm);color:var(--ink);outline:none;width:100%;height:100%;transition:border-color var(--ease),box-shadow var(--ease),padding-left .15s}
+.search-input.has-value{padding-left:14px}
 .search-input:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135,106,.1)}
 .search-input::placeholder{color:var(--soft)}
-.group-sel{box-sizing:border-box;padding:0 10px;font-size:12px;font-weight:500;border:1.5px solid var(--parchment);border-radius:var(--r-sm);background:var(--cream);color:var(--muted);cursor:pointer;font-family:var(--sans);outline:none;transition:border-color var(--ease);flex-shrink:0;width:110px;height:32px;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23C4AFA4' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:24px}
+.group-sel{padding:0 10px;font-size:12px;font-weight:500;border:1.5px solid var(--parchment);border-radius:var(--r-sm);background:var(--cream);color:var(--muted);cursor:pointer;font-family:var(--sans);outline:none;transition:border-color var(--ease);flex-shrink:0;width:110px;height:auto;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23C4AFA4' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:26px}
 .group-sel:focus{border-color:var(--rose)}
 
 
 /* ── SORT BUTTON ── */
-.sort-btn{box-sizing:border-box;flex-shrink:0;padding:0 12px;height:32px;border:1.5px solid var(--parchment);border-radius:var(--r-sm);background:var(--cream);color:var(--muted);font-family:var(--sans);font-size:11px;font-weight:600;cursor:pointer;transition:all var(--ease);white-space:nowrap;display:flex;align-items:center;gap:5px}
+.sort-btn{flex-shrink:0;padding:0 12px;height:auto;border:1.5px solid var(--parchment);border-radius:var(--r-sm);background:var(--cream);color:var(--muted);font-family:var(--sans);font-size:11px;font-weight:600;cursor:pointer;transition:all var(--ease);white-space:nowrap;display:flex;align-items:center;gap:5px}
 .f-pill-round{flex-shrink:0;width:26px;height:26px;padding:0;border-radius:50%;border:1.5px solid var(--sky);background:var(--sky-bg);color:var(--sky);font-family:var(--sans);font-size:12px;font-weight:800;cursor:pointer;transition:all var(--ease);display:flex;align-items:center;justify-content:center}
 .f-pill-round:hover{background:var(--sky);color:#fff}
 .f-pill-round svg{display:block}
@@ -480,7 +475,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-sender-br.a{background:var(--arina-bg);color:var(--arina-txt)}
 .g-sender-br.e{background:var(--elnur-bg);color:var(--elnur-txt)}
 .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none;flex-shrink:0;z-index:1;transition:opacity .15s}
-.search-input.has-value ~ .search-icon, .search-wrap.has-value .search-icon, .search-wrap.is-focused .search-icon{opacity:0}
+.search-input.has-value ~ .search-icon, .search-wrap.has-value .search-icon{opacity:0}
 .g-confirm{display:flex;align-items:center;gap:7px;padding:9px 16px;background:linear-gradient(135deg,#FDF0E8,var(--blush));border-top:1px solid var(--rose-soft);flex-wrap:wrap}
 .g-confirm-msg{font-size:11px;font-weight:500;color:var(--rose-deep);flex:1;min-width:100px}
 .g-confirm-yes{padding:5px 14px;border-radius:var(--r-pill);background:var(--rose);color:#fff;border:none;font-family:var(--sans);font-size:9.5px;font-weight:700;cursor:pointer}
@@ -619,8 +614,6 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .rsvp-count-btn{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#FF7A1A,#FF6B00);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--ease);font-family:var(--sans);box-shadow:0 2px 8px rgba(255,107,0,.3);align-self:center;box-sizing:border-box;padding:0}
 .rsvp-count-btn:hover{background:linear-gradient(135deg,#FF8C30,#FF7A1A);transform:translateY(-1px);box-shadow:0 4px 14px rgba(255,107,0,.45)}
 .rsvp-count-btn .rc-num{font-size:12px;font-weight:800;line-height:1}
-.seatmap-toolbar-btn{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6EC6FF,#2196F3);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--ease);font-family:var(--sans);box-shadow:0 2px 8px rgba(33,150,243,.4);align-self:center;box-sizing:border-box;padding:0}
-.seatmap-toolbar-btn:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(33,150,243,.55)}
 #rsvpDrawer{position:fixed;top:0;right:0;bottom:0;width:320px;max-width:95vw;background:var(--cream);z-index:300;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);border-left:1px solid var(--parchment);display:flex;flex-direction:column;box-shadow:-4px 0 24px rgba(0,0,0,.08)}
 #rsvpDrawer.open{transform:translateX(0)}
 .rsvp-drawer-hdr{padding:14px 16px;border-bottom:1px solid var(--parchment);display:flex;align-items:center;gap:10px;flex-shrink:0}
@@ -745,15 +738,6 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .presence-avatar.is-online .presence-dot{background:var(--green)}
 .presence-avatar.is-me .presence-dot{display:none}
 
-/* ── WHO-AM-I INDICATOR (clear, always-visible label next to my avatar) ── */
-#presenceMeGroup .presence-avatar.is-me{box-shadow:0 0 0 2px var(--cream),0 0 0 3.5px var(--soft);transition:box-shadow .2s}
-#presenceMeGroup.who-arina .presence-avatar.is-me{box-shadow:0 0 0 2px var(--cream),0 0 0 3.5px var(--arina-txt)}
-#presenceMeGroup.who-elnur .presence-avatar.is-me{box-shadow:0 0 0 2px var(--cream),0 0 0 3.5px var(--elnur-txt)}
-.presence-me-label{font-family:var(--sans);font-size:10.5px;font-weight:800;letter-spacing:.03em;padding:4px 10px;border-radius:var(--r-pill);background:var(--parchment);color:var(--muted);white-space:nowrap}
-#presenceMeGroup.who-arina .presence-me-label{background:var(--arina-bg);color:var(--arina-txt)}
-#presenceMeGroup.who-elnur .presence-me-label{background:var(--elnur-bg);color:var(--elnur-txt)}
-#presenceMeGroup.who-guest .presence-me-label{background:var(--parchment);color:var(--muted)}
-
 /* ── WHO ARE YOU PICKER ── */
 .who-overlay{position:fixed;inset:0;background:rgba(30,20,10,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px}
 .who-card{background:var(--cream);border-radius:20px;padding:32px 24px 28px;width:100%;max-width:320px;box-shadow:0 24px 60px rgba(0,0,0,.18);text-align:center}
@@ -801,6 +785,8 @@ body.lite-mode .update-banner,
 body.lite-mode .split-bar,
 body.lite-mode #syncInfoBanner,
 body.lite-mode #rsvpChangeBanner,
+body.lite-mode #toolsDrawer,
+body.lite-mode #toolsToggleBtn,
 body.lite-mode .kb-hint,
 body.lite-mode .g-swipe-action-right,
 body.lite-mode .g-swipe-action-left { display: none !important; }
@@ -860,170 +846,6 @@ body.lite-mode #liteModeTopBtn {
 .chat-overlay{position:fixed;inset:0;background:rgba(35,26,20,.35);backdrop-filter:blur(4px);z-index:299;opacity:0;pointer-events:none;transition:opacity .3s}
 .chat-overlay.open{opacity:1;pointer-events:all}
 
-/* ── SETTINGS: relocated switch rows (deploy stamp / lite mode / sending mode) ── */
-.s-switch-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.s-switch-row .s-row-info{flex:1;min-width:0}
-
-/* ── SEAT MAP ── */
-.seatmap-overlay{position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:398;opacity:0;pointer-events:none;transition:opacity .25s}
-.seatmap-overlay.open{opacity:1;pointer-events:all}
-.seatmap-screen{position:fixed;inset:0;z-index:399;background:var(--parchment2,var(--cream));display:flex;flex-direction:column;transform:translateY(100%);transition:transform .28s cubic-bezier(.32,.72,.35,1)}
-.seatmap-screen.open{transform:translateY(0)}
-.seatmap-hdr{flex-shrink:0;display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--cream);border-bottom:1px solid var(--parchment);box-shadow:0 2px 8px rgba(0,0,0,.03)}
-.seatmap-hdr-title{font-family:var(--serif,var(--sans));font-size:17px;font-weight:800;color:var(--ink2);flex:1}
-.seatmap-hdr-sub{font-family:var(--sans);font-size:11px;color:var(--muted);font-weight:600}
-.seatmap-close{width:30px;height:30px;border-radius:50%;border:none;background:var(--cream2);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;line-height:1;flex-shrink:0}
-.seatmap-add-btn{flex-shrink:0;padding:8px 14px;border-radius:var(--r-pill);border:none;background:linear-gradient(135deg,var(--rose),var(--rose-deep));color:#fff;font-family:var(--sans);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
-.seatmap-body{flex:1;overflow-y:auto;padding:14px 14px 100px}
-.seatmap-empty{text-align:center;color:var(--muted);font-size:13px;padding:60px 24px;line-height:1.7}
-.seatmap-table-card{background:var(--cream);border:1.5px solid var(--parchment);border-radius:var(--r-md,14px);padding:12px 12px 14px;margin-bottom:14px;box-shadow:0 2px 10px rgba(0,0,0,.03)}
-.seatmap-table-hdr{display:flex;align-items:center;gap:6px;margin-bottom:10px}
-.seatmap-table-name{flex:1;min-width:0;font-family:var(--sans);font-size:14px;font-weight:800;color:var(--ink2);border:1.5px solid transparent;border-radius:8px;padding:5px 7px;background:transparent;outline:none;transition:border-color .15s,background .15s}
-.seatmap-table-name:focus{border-color:var(--parchment);background:var(--cream2)}
-.seatmap-mini-btn{flex-shrink:0;width:26px;height:26px;border-radius:50%;border:1.5px solid var(--parchment);background:var(--cream2);color:var(--muted);font-family:var(--sans);font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;line-height:1}
-.seatmap-mini-btn:hover{border-color:var(--blush);color:var(--ink2)}
-.seatmap-mini-btn.danger{color:#b91c1c}
-.seatmap-seat-count{font-family:var(--sans);font-size:11px;font-weight:700;color:var(--muted);min-width:44px;text-align:center;flex-shrink:0}
-.seatmap-seats{display:flex;flex-wrap:wrap;gap:7px}
-.seatmap-seat{width:64px;min-height:52px;border-radius:10px;border:1.5px solid var(--parchment);background:var(--cream2);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2px;cursor:pointer;padding:8px 3px 5px;text-align:center;transition:transform .1s}
-.seatmap-seat:active{transform:scale(.95)}
-.seatmap-seat-num{font-family:var(--sans);font-size:9px;font-weight:800;letter-spacing:.03em;color:var(--soft);text-transform:uppercase}
-.seatmap-seat-name{font-family:var(--sans);font-size:10.5px;font-weight:700;color:var(--ink2);line-height:1.2;word-break:break-word;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
-.seatmap-seat.empty .seatmap-seat-name{color:var(--soft);font-weight:600}
-/* Strong, saturated fills for the three RSVP states — confirmed / declined
-   / pending need to read at a glance without squinting at a pale tint. */
-.seatmap-seat.rsvp-yes{background:#16A34A;border-color:#15803D}
-.seatmap-seat.rsvp-yes .seatmap-seat-num{color:rgba(255,255,255,.85)}
-.seatmap-seat.rsvp-yes .seatmap-seat-name{color:#fff;font-weight:800}
-.seatmap-seat.rsvp-no{background:#DC2626;border-color:#B91C1C}
-.seatmap-seat.rsvp-no .seatmap-seat-num{color:rgba(255,255,255,.85)}
-.seatmap-seat.rsvp-no .seatmap-seat-name{color:#fff;font-weight:800}
-.seatmap-seat.rsvp-pending{background:#F59E0B;border-color:#B45309}
-.seatmap-seat.rsvp-pending .seatmap-seat-num{color:rgba(255,255,255,.85)}
-.seatmap-seat.rsvp-pending .seatmap-seat-name{color:#fff;font-weight:800}
-/* Bride & groom's own seats — gold gradient + sparkle so they stand out
-   from every other seat at a glance, with the name tinted in each
-   person's existing accent color so the two are still told apart. */
-.seatmap-seat.is-couple{background:linear-gradient(135deg,#FFE9A8,#E8B84B 45%,#C6892A)!important;border-color:#C6892A!important;position:relative;overflow:hidden}
-.seatmap-seat.is-couple::after{content:'';position:absolute;inset:0;border-radius:inherit;background-image:radial-gradient(circle at 22% 24%,rgba(255,255,255,.95) 0 1px,transparent 1.6px),radial-gradient(circle at 70% 20%,rgba(255,255,255,.85) 0 1px,transparent 1.5px),radial-gradient(circle at 80% 60%,rgba(255,255,255,.75) 0 1px,transparent 1.4px),radial-gradient(circle at 32% 74%,rgba(255,255,255,.7) 0 1px,transparent 1.3px),radial-gradient(circle at 55% 48%,rgba(255,255,255,.6) 0 1px,transparent 1.2px);pointer-events:none}
-.seatmap-seat.is-couple .seatmap-seat-num{color:#5b3a12!important;position:relative;z-index:1}
-.seatmap-seat.is-couple .seatmap-seat-name{font-weight:800!important;position:relative;z-index:1}
-.seatmap-seat.is-couple.bride .seatmap-seat-name{color:var(--arina-txt)!important}
-.seatmap-seat.is-couple.groom .seatmap-seat-name{color:var(--elnur-txt)!important}
-.seatmap-summary{display:flex;gap:8px;padding:0 2px 12px;flex-wrap:wrap}
-.seatmap-summary-pill{font-family:var(--sans);font-size:10.5px;font-weight:700;padding:5px 11px;border-radius:var(--r-pill);background:var(--cream2);color:var(--muted);border:1px solid var(--parchment)}
-.seatmap-view-toggle{flex-shrink:0;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;border:1.5px solid var(--parchment);background:var(--cream2);color:var(--muted);cursor:pointer;padding:0}
-.seatmap-view-toggle.active{background:var(--sky-bg);color:var(--sky);border-color:transparent}
-.seatmap-fab-add{position:fixed;right:18px;bottom:24px;z-index:400;width:52px;height:52px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--rose),var(--rose-deep));color:#fff;font-size:26px;font-weight:400;cursor:pointer;box-shadow:0 8px 24px rgba(160,97,74,.4);display:flex;align-items:center;justify-content:center}
-.seatmap-trash{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(30px) scale(.85);z-index:401;width:56px;height:56px;border-radius:50%;background:rgba(40,40,40,.88);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .18s,transform .18s,background .15s}
-.seatmap-trash.visible{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
-.seatmap-trash.armed{background:#b91c1c;transform:translateX(-50%) translateY(0) scale(1.15)}
-.seatmap-floor{position:relative;width:100%;height:min(70vh,520px);
-  background-size:24px 24px;border:1.5px solid rgba(0,0,0,.12);border-radius:var(--r-md,14px);margin-bottom:14px;overflow:hidden;touch-action:none}
-.seatmap-floor-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;color:rgba(255,255,255,.65);font-size:12.5px;padding:24px;line-height:1.6}
-.seatmap-floor-hint{text-align:center;color:var(--muted);font-size:11px;padding:0 2px 12px;font-family:var(--sans)}
-.seatmap-table-node{position:absolute;transform:translate(-50%,-50%);cursor:grab;user-select:none}
-.seatmap-table-node:active{cursor:grabbing}
-.seatmap-table-node.dragging{transition:none}
-.seatmap-node-shape{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;box-shadow:0 3px 10px rgba(0,0,0,.35)}
-.seatmap-table-node.dragging .seatmap-node-shape{box-shadow:0 6px 18px rgba(0,0,0,.5)}
-.seatmap-node-shape.round{border-radius:50%}
-.seatmap-node-shape.rect{border-radius:10px}
-.seatmap-node-shape.square{border-radius:6px}
-.seatmap-node-shape.full{border-color:#5fd393 !important}
-.seatmap-node-shape.full .seatmap-table-node-meta{color:#5fd393 !important}
-.seatmap-table-node-name{font-family:var(--sans);font-size:10.5px;font-weight:800;text-align:center;line-height:1.1;word-break:break-word;max-width:90%;padding:0 3px}
-.seatmap-table-node-meta{font-family:var(--sans);font-size:9px;font-weight:700}
-.seatmap-node-dot{position:absolute;width:11px;height:11px;border-radius:50%;background:rgba(255,255,255,.28);border:1.5px solid rgba(255,255,255,.4);transform:translate(-50%,-50%);cursor:pointer}
-.seatmap-node-dot.rsvp-yes{background:#3A8C5C;border-color:#5fd393}
-.seatmap-node-dot.rsvp-no{background:#b91c1c;border-color:#e57373}
-.seatmap-node-dot.rsvp-pending{background:rgba(176,120,48,.65);border-color:#B07830}
-.seatmap-node-dot.is-couple{width:13px;height:13px;background:radial-gradient(circle at 35% 30%,#FFF6DC,#E8B84B 55%,#C6892A);border-width:2px}
-.seatmap-node-dot.is-couple.bride{border-color:var(--arina-txt);box-shadow:0 0 6px rgba(230,180,80,.9)}
-.seatmap-node-dot.is-couple.groom{border-color:var(--elnur-txt);box-shadow:0 0 6px rgba(230,180,80,.9)}
-/* Chair +/- controls on a floor-plan table node itself, so seats can be
-   added/removed right from the visual overview without opening the sheet. */
-.seatmap-node-chairs{position:absolute;left:50%;bottom:-11px;transform:translateX(-50%);display:flex;gap:4px;z-index:2}
-.seatmap-node-chair-btn{width:20px;height:20px;border-radius:50%;border:1.5px solid rgba(255,255,255,.5);background:rgba(0,0,0,.55);color:#fff;font-family:var(--sans);font-size:13px;font-weight:800;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;touch-action:manipulation}
-.seatmap-node-chair-btn:active{background:rgba(0,0,0,.75)}
-/* Brief highlight so a newly added table is unmistakable, whether it lands
-   in the visible area or has to be scrolled to. */
-@keyframes seatmapJustAdded{0%,100%{box-shadow:0 3px 10px rgba(0,0,0,.35)}40%{box-shadow:0 0 0 6px rgba(201,135,106,.55)}}
-.seatmap-table-node.just-added .seatmap-node-shape{animation:seatmapJustAdded 1.6s ease}
-.seatmap-table-card.just-added{animation:seatmapCardJustAdded 1.6s ease}
-@keyframes seatmapCardJustAdded{0%,100%{box-shadow:none}40%{box-shadow:0 0 0 3px rgba(201,135,106,.55)}}
-.seatmap-landmark{position:absolute;transform:translate(-50%,-50%);display:flex;align-items:center;gap:6px;padding:9px 14px;border-radius:var(--r-pill);cursor:grab;user-select:none;box-shadow:0 3px 10px rgba(0,0,0,.35);font-family:var(--sans);font-size:12px;font-weight:800;white-space:nowrap}
-.seatmap-landmark:active{cursor:grabbing}
-.seatmap-landmark.dragging{transition:none}
-.seatmap-marker-picker{display:none;flex-wrap:wrap;gap:8px;padding:2px 2px 12px}
-.seatmap-marker-picker.open{display:flex}
-.seatmap-marker-chip{font-family:var(--sans);font-size:11.5px;font-weight:700;padding:7px 12px;border-radius:var(--r-pill);border:1.5px solid var(--parchment);background:var(--cream2);color:var(--ink2);cursor:pointer;display:flex;align-items:center;gap:5px}
-.seatmap-floor-controls{display:flex;gap:8px;padding:0 2px 10px;flex-wrap:wrap}
-.seatmap-floor-add-btn{font-family:var(--sans);font-size:11.5px;font-weight:700;padding:7px 13px;border-radius:var(--r-pill);border:1.5px solid var(--parchment);background:var(--cream2);color:var(--ink2);cursor:pointer}
-.seatmap-color-swatch{-webkit-appearance:none;appearance:none;width:32px;height:32px;flex-shrink:0;border-radius:50%;border:1.5px solid var(--parchment);padding:0;cursor:pointer;background:none}
-.seatmap-color-swatch::-webkit-color-swatch-wrapper{padding:2px;border-radius:50%}
-.seatmap-color-swatch::-webkit-color-swatch{border:none;border-radius:50%}
-.seatmap-color-swatch::-moz-color-swatch{border:none;border-radius:50%}
-.seatmap-color-reset{-webkit-appearance:none;appearance:none;flex-shrink:0;width:32px;height:32px;border-radius:50%;border:1.5px solid var(--parchment);background:var(--cream2);color:var(--muted);font-size:15px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;margin-left:-4px}
-.seatmap-color-reset:hover{border-color:var(--blush);color:var(--ink2)}
-.seatmap-snap-guide{position:absolute;background:#ff5c8a;pointer-events:none;z-index:6;display:none}
-.seatmap-snap-guide.v{width:1px;top:0;bottom:0}
-.seatmap-snap-guide.h{height:1px;left:0;right:0}
-/* Assign-guest sheet */
-.seat-assign-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:409;opacity:0;pointer-events:none;transition:opacity .2s}
-.seat-assign-overlay.open{opacity:1;pointer-events:all}
-/* Compact by default (table-view: shape/rotate + seat grid) so the floor
-   plan stays visible behind it — only the guest-search view (.tall,
-   added when actually assigning a seat) needs the taller sheet. */
-.seat-assign-sheet{position:fixed;left:0;right:0;bottom:0;z-index:410;background:var(--cream);border-radius:20px 20px 0 0;height:auto;max-height:44vh;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .25s cubic-bezier(.32,.72,.35,1);box-shadow:0 -8px 32px rgba(0,0,0,.18)}
-.seat-assign-sheet.tall{max-height:78vh}
-.seat-assign-sheet.open{transform:translateY(0)}
-.seat-assign-hdr{flex-shrink:0;padding:14px 16px 10px;border-bottom:1px solid var(--parchment)}
-.seat-assign-title{font-family:var(--sans);font-size:14px;font-weight:800;color:var(--ink2);margin-bottom:8px}
-.seat-assign-close{flex-shrink:0;width:28px;height:28px;border-radius:50%;border:none;background:var(--cream2);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;line-height:1;padding:0}
-.seat-assign-search{width:100%;box-sizing:border-box;font-family:var(--sans);font-size:16px;padding:8px 12px;background:var(--cream2);border:1.5px solid var(--parchment);border-radius:var(--r-sm);outline:none}
-.seat-assign-list{overflow-y:auto;padding:6px 8px 20px}
-.seat-assign-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 10px;border-radius:10px;cursor:pointer}
-.seat-assign-row:active{background:var(--cream2)}
-.seat-assign-row-name{font-family:var(--sans);font-size:13.5px;font-weight:700;color:var(--ink2)}
-.seat-assign-row-meta{font-family:var(--sans);font-size:10.5px;color:var(--muted);margin-top:2px}
-.seat-assign-empty{text-align:center;color:var(--muted);font-size:12.5px;padding:30px 20px}
-.seat-assign-unassign{width:100%;box-sizing:border-box;margin:4px 8px 10px;padding:10px;border-radius:10px;border:1.5px solid rgba(185,28,28,.3);background:rgba(185,28,28,.06);color:#b91c1c;font-family:var(--sans);font-size:12.5px;font-weight:700;cursor:pointer}
-
-/* Table shape picker — tapping the pill drops a small popover with both
-   shapes previewed, instead of silently cycling on every tap. */
-.ts-wrap{position:relative;display:inline-block;margin-left:8px;vertical-align:middle}
-.ts-btn{display:inline-flex;align-items:center;gap:6px;font-family:var(--sans);font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;border:1.5px solid var(--parchment);background:var(--cream2);color:var(--ink2);cursor:pointer}
-.ts-icon{display:inline-block;width:12px;height:9px;border:1.6px solid currentColor;flex-shrink:0}
-.ts-icon.round{width:10px;height:10px;border-radius:50%}
-.ts-icon.rect{border-radius:2px}
-.ts-icon.square{width:10px;height:10px;border-radius:2px}
-.ts-chev{opacity:.55;flex-shrink:0}
-.ts-pop{position:absolute;top:calc(100% + 6px);left:0;z-index:20;min-width:150px;background:var(--cream);border:1.5px solid var(--parchment);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.16);padding:5px;display:none}
-.ts-pop.open{display:block}
-.ts-opt{display:flex;align-items:center;gap:9px;width:100%;box-sizing:border-box;padding:8px 10px;border:none;background:none;border-radius:8px;font-family:var(--sans);font-size:12.5px;font-weight:700;color:var(--ink2);cursor:pointer;text-align:left}
-.ts-opt:active{background:var(--cream2)}
-.ts-opt.active{color:var(--sky)}
-.ts-opt.active .ts-icon{border-color:var(--sky)}
-.ts-rotate-btn{margin-left:6px;font-size:11px;font-weight:700;padding:4px 9px;border-radius:999px;border:1.5px solid var(--parchment);background:var(--cream2);color:var(--ink2);cursor:pointer;vertical-align:middle}
-.ts-chairs-bar{display:flex;align-items:center;justify-content:center;gap:12px;padding:10px 2px 12px;border-bottom:1px solid var(--parchment);margin-bottom:8px}
-/* Seat badge shown inline next to a guest's name in the main list —
-   colored per table (hashed from the table's id, so it's consistent
-   every time, not just a plain repeated text label) so at a glance you
-   can tell who's sharing a table without reading every name. */
-.g-seat-badge{display:inline-flex;align-items:center;gap:5px;font-family:var(--sans);font-size:9.5px;font-weight:800;letter-spacing:.02em;padding:3px 9px 3px 7px;border-radius:var(--r-pill);white-space:nowrap;vertical-align:middle;border:1px solid transparent}
-.g-seat-badge-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;box-shadow:0 0 0 2px rgba(255,255,255,.5) inset}
-/* The badge's hashed color reads fine on the default white/cream card, but
-   disappears against the solid green/red/orange "sent" card backgrounds —
-   override to a translucent white pill there instead, same treatment the
-   partner-unlink chip already uses in the pending state. */
-.g-swipe-wrap.rsvp-yes .g-card.sent .g-seat-badge,
-.g-swipe-wrap.rsvp-no .g-card.sent .g-seat-badge,
-.g-swipe-wrap.rsvp-pending .g-card.sent .g-seat-badge{background:rgba(255,255,255,.22)!important;border-color:rgba(255,255,255,.4)!important;color:#fff!important}
-.g-swipe-wrap.rsvp-yes .g-card.sent .g-seat-badge-dot,
-.g-swipe-wrap.rsvp-no .g-card.sent .g-seat-badge-dot,
-.g-swipe-wrap.rsvp-pending .g-card.sent .g-seat-badge-dot{background:#fff!important}
-
 </style>
 </head>
 <body>
@@ -1074,14 +896,23 @@ body.lite-mode #liteModeTopBtn {
 
 <div class="topbar">
  <div class="topbar-inner">
-  <!-- Deploy stamp / lite mode / sending mode switches now live in
-       Settings → Developer, to keep this bar free of clutter. The buttons
-       themselves (and their IDs) were simply relocated in the DOM — all
-       JS logic still finds them by getElementById, unchanged. -->
+  <!-- Tiny deploy stamp — lives in the sticky topbar so it's never hidden
+       behind the browser's own bottom toolbar. Tap for last-deployed date/time. -->
+  <button id="deployStampBtn" title="Toggle version info" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:20px;height:32px;border-radius:10px;border:none;background:var(--parchment);cursor:pointer;padding:0;position:relative;transition:background .25s">
+    <span id="deployStampThumb" style="position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.18);transition:transform .25s;display:block"></span>
+  </button>
   <span id="deployStampLabel" style="display:none"></span>
+  <!-- Lite mode toggle switch -->
+  <button id="liteModeTopBtn" title="Toggle Lite Mode" style="flex-shrink:0;display:none;align-items:center;justify-content:center;width:20px;height:32px;border-radius:10px;border:none;background:var(--parchment);cursor:pointer;padding:0;position:relative;transition:background .25s">
+    <span id="liteModeThumb" style="position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.18);transition:transform .25s;display:block"></span>
+  </button>
   <!-- Hidden session buttons still needed for JS logic -->
   <button class="sess-btn on-a" id="sessA" data-who="Arina" style="display:none">A</button>
   <button class="sess-btn" id="sessE" data-who="Elnur" style="display:none">E</button>
+  <!-- Sending mode toggle (light switch) -->
+  <button id="sendingModeBtn" title="Sending mode — faster Notion checks" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:20px;height:32px;border-radius:10px;border:none;background:var(--parchment);cursor:pointer;padding:0;position:relative;transition:background .25s">
+    <span id="sendingModeThumb" style="position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.18);transition:transform .25s;display:block"></span>
+  </button>
   <!-- Sync -->
   <button class="sync-pill" id="topSyncBtn">
     <span class="sync-dot live" id="syncDot"></span>
@@ -1094,8 +925,6 @@ body.lite-mode #liteModeTopBtn {
   <div class="stat-pill new-guests" id="ovNew" title="New since last sync" style="display:none"></div>
   <!-- spacer -->
   <div style="flex:1"></div>
-  <!-- Seat Map — sits right before RSVP, matching pill styling, bright light blue -->
-  <button class="seatmap-toolbar-btn" id="seatMapBtn" title="Seat Map"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 11V5.5A1.5 1.5 0 0 1 6.5 4h11A1.5 1.5 0 0 1 19 5.5V11"/><path d="M4 11h16a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1z"/><path d="M5 15v4"/><path d="M19 15v4"/></svg></button>
   <!-- RSVP -->
   <button class="rsvp-count-btn" id="rsvpCountBtn" title="RSVP Responses">
     <span class="rc-num" id="rsvpCountNum">—</span>
@@ -1113,14 +942,11 @@ body.lite-mode #liteModeTopBtn {
     <span class="presence-dot"></span>
     <span class="chat-unread" id="chatUnread"></span>
   </div>
-  <!-- Who-am-I: avatar + clear name pill, colour-coded per person → opens settings -->
-  <div id="presenceMeGroup" style="flex-shrink:0;display:flex;align-items:center;gap:6px;cursor:pointer">
-    <div class="presence-avatar is-me is-online" id="presenceMe" title="Settings" style="flex-shrink:0">
-      <img id="presenceMeImg" src="" alt="">
-      <span class="presence-guest-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
-      <span class="presence-dot"></span>
-    </div>
-    <span id="presenceMeLabel" class="presence-me-label" style="display:none"></span>
+  <!-- My avatar → opens settings -->
+  <div class="presence-avatar is-me is-online" id="presenceMe" title="Settings" style="flex-shrink:0;cursor:pointer">
+    <img id="presenceMeImg" src="" alt="">
+    <span class="presence-guest-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
+    <span class="presence-dot"></span>
   </div>
   <!-- Settings btn (hidden, triggered by avatar) -->
   <button id="settingsBtn" style="display:none"></button>
@@ -1205,8 +1031,7 @@ body.lite-mode #liteModeTopBtn {
       <div class="search-filter-row">
         <div class="search-wrap">
           <svg class="search-icon" width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="5.5" cy="5.5" r="4" stroke="#C4AFA4" stroke-width="1.5"/><path d="M9 9L12 12" stroke="#C4AFA4" stroke-width="1.5" stroke-linecap="round"/></svg>
-          <input class="search-input" id="searchInput" type="text" placeholder="" name="mainGuestSearchField" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"/>
-          <button class="search-clear-btn" id="searchClearBtn" type="button" title="Clear search"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+          <input class="search-input" id="searchInput" type="text" placeholder=""/>
         </div>
         <select class="group-sel" id="groupSel" style="display:none"><option value="">All groups</option></select>
         <select class="group-sel" id="typeSel" style="width:100px;flex-shrink:0"><option value="">Church + Party</option><option value="church">Church</option><option value="party">Party</option></select>
@@ -1255,6 +1080,78 @@ body.lite-mode #liteModeTopBtn {
       </div>
     </div>
   </div>
+
+  <!-- TOOLS DRAWER -->
+  <div style="display:flex;justify-content:center;margin:24px 0 8px">
+    <button id="toolsToggleBtn" style="display:flex;align-items:center;gap:7px;padding:9px 20px;background:var(--cream2);border:1.5px solid var(--parchment);border-radius:var(--r-pill);font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);cursor:pointer;transition:all var(--ease)">
+      <svg id="toolsChevronIcon" width="10" height="10" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      Extra
+    </button>
+  </div>
+  <div id="toolsDrawer" style="display:none">
+
+    <!-- TRACKER -->
+    <div class="sec">Manual History</div>
+    <div class="card">
+      <div class="card-hdr" id="trackerToggle">
+        <span class="card-hdr-title">Invite Tracker</span>
+        <div class="card-hdr-right">
+          <button style="font-size:10px;color:var(--soft);background:none;border:none;cursor:pointer;font-family:var(--sans)" id="clearTrackerBtn" onclick="event.stopPropagation()">Clear all</button>
+          <span id="trackerChevron" class="chevron">▼</span>
+        </div>
+      </div>
+      <div id="trackerBody" style="display:none">
+        <div class="card-divider"></div>
+        <div class="card-body">
+          <div id="trackerSummary"></div>
+          <div class="filter-row" id="trackerFilterBar" style="margin-bottom:14px"></div>
+          <div id="trackList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MANUAL GENERATOR -->
+    <div class="sec" style="margin-top:14px">Manual Generator</div>
+    <div class="card">
+      <div class="card-hdr" id="genToggle">
+        <span class="card-hdr-title">Manual Generator</span>
+        <div class="card-hdr-right">
+          <span style="font-size:9px;color:var(--soft);letter-spacing:.06em;font-family:var(--sans)">fallback · use + for quick send</span>
+          <span id="genChevron" class="chevron">▼</span>
+        </div>
+      </div>
+      <div id="genBody" style="display:none">
+        <div class="card-divider"></div>
+        <div class="card-body">
+          <div class="row2">
+            <div class="fg"><label for="p1">First Guest * <span style="font-size:9px;color:var(--soft);font-weight:400;text-transform:none;letter-spacing:0">(press N)</span></label><input id="p1" type="text" placeholder="e.g. Sarah"/></div>
+            <div class="fg"><label for="p2">Second Guest</label><input id="p2" type="text" placeholder="optional"/></div>
+          </div>
+          <div class="row2" style="margin-bottom:16px">
+            <div class="fg"><label for="waPhone">WhatsApp Number</label><input id="waPhone" type="tel" placeholder="+49 176 123 456"/></div>
+            <div class="fg"><label>Sender</label><div class="sender-row"><button class="s-btn arina on" data-s="Arina">Arina</button><button class="s-btn elnur" data-s="Elnur">Elnur</button></div></div>
+          </div>
+          <div class="sec" style="margin:0 0 10px">Invite Type</div>
+          <div class="type-grid">
+            <button class="t-btn on" data-type="ceremony-single"><div class="t-btn-title">Single · Church</div><div class="t-btn-desc">Church only</div></button>
+            <button class="t-btn" data-type="couple-ceremony"><div class="t-btn-title">Couple · Church</div><div class="t-btn-desc">Church only</div></button>
+            <button class="t-btn" data-type="ceremony-party-single"><div class="t-btn-title">Single · Party</div><div class="t-btn-desc">Church + evening</div></button>
+            <button class="t-btn" data-type="couple-party"><div class="t-btn-title">Couple · Party</div><div class="t-btn-desc">Church + evening</div></button>
+          </div>
+          <div class="sec" style="margin:0 0 10px">Language</div>
+          <div class="lang-row">
+            <button class="l-btn on" data-lang="en">English</button>
+            <button class="l-btn" data-lang="de">Deutsch</button>
+            <button class="l-btn" data-lang="ru">Русский</button>
+          </div>
+          <button class="btn-primary" id="genBtn">Generate Invite →</button>
+        </div>
+      </div>
+    </div>
+
+
+
+  </div><!-- /toolsDrawer -->
 
 </div>
 
@@ -1319,25 +1216,6 @@ body.lite-mode #liteModeTopBtn {
       <div class="s-row">
         <div class="s-row-info"><div class="s-row-title">Dev mode</div><div class="s-row-sub">Highlight layout regions and inspect elements</div></div>
         <button class="dev-btn" id="devBtnSettings" title="Dev mode"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
-      </div>
-      <!-- Switches moved here from the topbar to keep it uncluttered -->
-      <div class="s-row s-switch-row">
-        <div class="s-row-info"><div class="s-row-title">Version info</div><div class="s-row-sub">Show last-deployed date/time stamp</div></div>
-        <button id="deployStampBtn" title="Toggle version info" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:20px;height:32px;border-radius:10px;border:none;background:var(--parchment);cursor:pointer;padding:0;position:relative;transition:background .25s">
-          <span id="deployStampThumb" style="position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.18);transition:transform .25s;display:block"></span>
-        </button>
-      </div>
-      <div class="s-row s-switch-row">
-        <div class="s-row-info"><div class="s-row-title">Lite Mode</div><div class="s-row-sub">Simplified, faster guest cards</div></div>
-        <button id="liteModeTopBtn" title="Toggle Lite Mode" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:20px;height:32px;border-radius:10px;border:none;background:var(--parchment);cursor:pointer;padding:0;position:relative;transition:background .25s">
-          <span id="liteModeThumb" style="position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.18);transition:transform .25s;display:block"></span>
-        </button>
-      </div>
-      <div class="s-row s-switch-row">
-        <div class="s-row-info"><div class="s-row-title">Sending mode</div><div class="s-row-sub">Faster Notion checks while sending invites</div></div>
-        <button id="sendingModeBtn" title="Sending mode — faster Notion checks" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:20px;height:32px;border-radius:10px;border:none;background:var(--parchment);cursor:pointer;padding:0;position:relative;transition:background .25s">
-          <span id="sendingModeThumb" style="position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.18);transition:transform .25s;display:block"></span>
-        </button>
       </div>
     </div>
 
@@ -1632,9 +1510,8 @@ body.lite-mode #liteModeTopBtn {
       <span style="font-family:var(--sans);font-size:12px;font-weight:700;color:var(--ink2)">Family tree view</span>
       <label class="s-toggle"><input type="checkbox" id="prTreeToggle"/><span class="s-toggle-track"></span></label>
     </div>
-    <div id="pairsReviewSearchWrap" style="padding:0 18px 10px;flex-shrink:0;background:#fff;position:relative">
-      <input id="pairsReviewSearch" type="text" placeholder="Search a name…" name="pairsReviewSearchField" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" style="width:100%;box-sizing:border-box;padding:8px 30px 8px 10px;border:1.5px solid var(--parchment);border-radius:var(--r-sm);font-family:var(--sans);font-size:16px;color:var(--ink);background:var(--cream)"/>
-      <button id="pairsReviewSearchClear" type="button" title="Clear search" style="display:none;position:absolute;right:24px;top:50%;transform:translateY(-50%);width:20px;height:20px;border:none;border-radius:50%;background:var(--soft);color:#fff;align-items:center;justify-content:center;cursor:pointer;padding:0"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    <div id="pairsReviewSearchWrap" style="padding:0 18px 10px;flex-shrink:0;background:#fff">
+      <input id="pairsReviewSearch" type="text" placeholder="Search a name…" style="width:100%;box-sizing:border-box;padding:8px 10px;border:1.5px solid var(--parchment);border-radius:var(--r-sm);font-family:var(--sans);font-size:12px;color:var(--ink);background:var(--cream)"/>
     </div>
     <div id="pairsReviewList" style="overflow-y:auto;padding:6px 12px 16px;flex:1;background:#fff"></div>
   </div>
@@ -1652,37 +1529,6 @@ body.lite-mode #liteModeTopBtn {
     <div id="rolesOverviewList" style="overflow-y:auto;padding:6px 12px 16px;flex:1;background:#fff"></div>
   </div>
 </div>
-<!-- SEAT MAP -->
-<div class="seatmap-overlay" id="seatmapOverlay"></div>
-<div class="seatmap-screen" id="seatmapScreen">
-  <div class="seatmap-hdr">
-    <div>
-      <div class="seatmap-hdr-title">Seat Map</div>
-      <div class="seatmap-hdr-sub" id="seatmapHdrSub"></div>
-    </div>
-    <button class="seatmap-view-toggle" id="seatmapViewToggle" title="Floor plan view"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></button>
-    <button class="seatmap-add-btn" id="seatmapAddTableBtn">+ Table</button>
-    <button class="seatmap-close" id="seatmapCloseBtn">✕</button>
-  </div>
-  <div class="seatmap-body" id="seatmapBody"></div>
-  <button class="seatmap-fab-add" id="seatmapFabAdd" title="Add table" style="display:none">+</button>
-  <div class="seatmap-trash" id="seatmapTrash"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></div>
-</div>
-
-<!-- Assign guest to seat -->
-<div class="seat-assign-overlay" id="seatAssignOverlay"></div>
-<div class="seat-assign-sheet" id="seatAssignSheet">
-  <div class="seat-assign-hdr">
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px">
-      <div class="seat-assign-title" id="seatAssignTitle" style="margin-bottom:0">Assign seat</div>
-      <button class="seat-assign-close" id="seatAssignCloseBtn" title="Close" aria-label="Close">✕</button>
-    </div>
-    <input class="seat-assign-search" id="seatAssignSearch" type="text" placeholder="Search guests…" name="seatAssignSearchField" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"/>
-  </div>
-  <button class="seat-assign-unassign" id="seatAssignUnassignBtn" style="display:none">Unassign this seat</button>
-  <div class="seat-assign-list" id="seatAssignList"></div>
-</div>
-
 <!-- VERSION STAMP -->
 
 <script>
@@ -1972,16 +1818,6 @@ var msgs={
 function toTitleCase(s){return(s||'').trim().replace(/\S+/g,function(w){return w.charAt(0).toUpperCase()+w.slice(1).toLowerCase();});}
 function firstName(n){var w=(n||'').trim().split(/[\s&]+/)[0];if(!w)return'';return w.charAt(0).toUpperCase()+w.slice(1).toLowerCase();}
 function lastName(n){var parts=(n||'').trim().split(/\s+/);return parts.length>1?parts[parts.length-1]:'';}
-// A guest's role field is one comma-separated string (e.g. "Bridesmaid,
-// Bring & Share") but each value should read as its own small tag, not one
-// long chip with everything jammed together. Every value opens the same
-// role-edit modal on tap, same as before.
-function roleChipsHtml(role,ri){
-  if(!role)return'';
-  return role.split(',').map(function(r){return r.trim();}).filter(Boolean).map(function(r){
-    return '<span class="chip chip-role" data-action="role" data-qi="'+ri+'">'+r+'</span>';
-  }).join('');
-}
 function pairDisplayName(n1,n2){var ln1=lastName(n1),ln2=lastName(n2);if(ln1&&ln2&&ln1.toLowerCase()===ln2.toLowerCase())return firstName(n1)+' & '+firstName(n2)+' '+ln1;return n1+' & '+n2;}
 function fmtSentAt(s){if(!s)return'';try{var d=new Date(s);if(isNaN(d))return s;var day=String(d.getDate()).padStart(2,'0'),mon=String(d.getMonth()+1).padStart(2,'0');return day+'.'+mon;}catch(e){return s;}}
 function buildUrl(p1,p2,type,lang){var n1=firstName(p1),n2=p2?firstName(p2):'';var isP=type==='ceremony-party-single'||type==='couple-party';var q=new URLSearchParams();q.set('p1',n1);if(n2)q.set('p2',n2);if(isP)q.set('party','1');if(lang&&lang!=='en')q.set('lang',lang);return BASE+'?'+q.toString();}
@@ -2213,21 +2049,49 @@ function renderFilterRow(){
   var isAll = importFilter==='all';
   var isA = importFilter==='Arina';
   var isE = importFilter==='Elnur';
+  var isOpen = isAll||isA||isE;
   var fCls = importFilter==='followup' ? 'on-f' : '';
   var sCls = importFilter==='sent' ? 'on' : '';
   var cCls = importFilter==='confirmed' ? 'on-c' : '';
-  /* Three separate, unambiguous pills — each one is either clearly ON
-     (solid fill, white text) or clearly OFF (plain cream), same pattern
-     as Flag/Sent/Confirmed, so which sender is being viewed is never in
-     doubt. */
+  /* Compound Open pill with embedded A/E toggles */
+  var openPillCls = 'f-pill f-pill-open'+(isOpen?' on':'');
   row.innerHTML = ''
-    +'<button class="f-pill'+(isAll?' on':'')+'" data-f="all">All</button>'
-    +'<button class="f-pill'+(isA?' on-a':'')+'" data-f="Arina">Arina</button>'
-    +'<button class="f-pill'+(isE?' on-e':'')+'" data-f="Elnur">Elnur</button>'
+    +'<button class="'+openPillCls+'" id="fPillOpen" data-f="all">'
+      +'<span class="f-open-label">Open</span>'
+      +'<span class="f-open-divider"></span>'
+      +'<span class="f-open-toggles">'
+        +'<span class="f-ae-btn ae-a'+(isA?' on':'')+'" id="fBtnA">a</span>'
+        +'<span class="f-ae-btn ae-e'+(isE?' on':'')+'" id="fBtnE">e</span>'
+      +'</span>'
+    +'</button>'
     +'<button class="f-pill '+fCls+'" data-f="followup">Flag</button>'
     +'<button class="f-pill f-sent-pill '+sCls+'" data-f="sent">Sent</button>'
     +'<button class="f-pill '+cCls+'" data-f="confirmed">Confirmed</button>';
 
+  /* Open pill: click label area → all open */
+  var pillOpen=document.getElementById('fPillOpen');
+  if(pillOpen){
+    pillOpen.addEventListener('click',function(e){
+      /* If click landed on an A/E toggle, let those handlers deal with it */
+      if(e.target.closest('.f-ae-btn')) return;
+      importFilter='all';selectedIdxs=[];renderFilterRow();renderGuestList();
+    });
+  }
+  /* A toggle */
+  var btnA=document.getElementById('fBtnA');
+  if(btnA) btnA.addEventListener('click',function(e){
+    e.stopPropagation();
+    importFilter=(importFilter==='Arina')?'all':'Arina';
+    selectedIdxs=[];renderFilterRow();renderGuestList();
+  });
+  /* E toggle */
+  var btnE=document.getElementById('fBtnE');
+  if(btnE) btnE.addEventListener('click',function(e){
+    e.stopPropagation();
+    importFilter=(importFilter==='Elnur')?'all':'Elnur';
+    selectedIdxs=[];renderFilterRow();renderGuestList();
+  });
+  /* Flag + Sent */
   row.querySelectorAll('[data-f]').forEach(function(b){
     b.addEventListener('click',function(){
       importFilter=this.dataset.f;
@@ -2384,13 +2248,7 @@ function renderGuestList(){
       // Pairs you've explicitly confirmed in Review Pairs collapse into one
       // merged card — everyone else (pending / unreviewed / suspicious)
       // stays as two separate cards so anything unresolved stays visible.
-      // Split into two buckets by invite type: church-only (ceremony, no
-      // reception) get their own subsection below the main list, so
-      // scrolling the Sent list makes it obvious at a glance who's
-      // ceremony-only vs. invited to the full celebration.
-      function isChurchOnly(g){ return (g.type||'').indexOf('party')===-1; }
       var mergedSeen={};
-      var partyHtml='', churchHtml='', churchCount=0;
       sentGuests.forEach(function(g){
         var ri=importQueue.indexOf(g);
         if(mergedSeen[ri])return;
@@ -2399,21 +2257,14 @@ function renderGuestList(){
         var partnerInSentList=partnerObj&&sentGuests.indexOf(partnerObj)!==-1;
         var pKey=partnerObj?pairKey(g.name,partnerObj.name):null;
         var isConfirmedPair=partnerInSentList&&pKey&&_confirmedPairs[pKey];
-        var cardHtml;
         if(isConfirmedPair){
           var partnerRi=importQueue.indexOf(partnerObj);
           mergedSeen[partnerRi]=true;
-          cardHtml=mergedPairWithKids('<div class="g-pair-merged">'+buildGuestCard(g,'top')+buildGuestCard(partnerObj,'bottom')+'</div>',[g.name,partnerObj.name]);
+          html+=mergedPairWithKids('<div class="g-pair-merged">'+buildGuestCard(g,'top')+buildGuestCard(partnerObj,'bottom')+'</div>',[g.name,partnerObj.name]);
         } else {
-          cardHtml=mergedPairWithKids(buildGuestCard(g),[g.name]);
+          html+=mergedPairWithKids(buildGuestCard(g),[g.name]);
         }
-        if(isChurchOnly(g)){ churchHtml+=cardHtml; churchCount++; }
-        else { partyHtml+=cardHtml; }
       });
-      html+=partyHtml;
-      if(churchHtml){
-        html+='<div class="g-group-hdr church-only-hdr" style="color:#7C4DBB;border-color:rgba(124,77,187,.2)"><span style="margin-right:5px">&#x26EA;</span>Church only <span style="opacity:.4">('+churchCount+')</span></div>'+churchHtml;
-      }
       html+='<button class="show-sent-btn" id="showSentBtn">Hide '+sentHdrLabel.toLowerCase()+'</button>';
     } else {
       html+='<button class="show-sent-btn" id="showSentBtn">Show '+sentGuests.length+' '+(importFilter==='confirmed'?'confirmed':'sent')+'</button>';
@@ -2488,7 +2339,6 @@ function renderGuestList(){
 
   updateBulkBar();
   initSplitBar();
-  if(typeof refreshSeatBadges==='function') refreshSeatBadges();
 }
 
 function buildPairSentCard(g1,g2){
@@ -2904,7 +2754,7 @@ function renderPairsReview(){
           +'<button data-pr-action="relink" data-pr="'+idx+'" title="Relink to…" style="flex:1;min-width:0;padding:7px 4px;border-radius:8px;border:1px solid var(--parchment);background:#fff;color:var(--ink2);font-family:var(--sans);font-size:10.5px;font-weight:700;cursor:pointer">Relink</button>'
         +'</div>'
         +'<div class="pr-relink-wrap" data-pr-relink="'+idx+'" style="display:none;margin-top:6px;background:#fbf7f3;border-radius:8px;padding:8px">'
-          +'<input type="text" class="pr-relink-input" data-pr-input="'+idx+'" placeholder="Type correct partner\'s name…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);font-family:var(--sans);font-size:12px;box-sizing:border-box;background:#fff;color:var(--ink)">'
+          +'<input type="text" class="pr-relink-input" data-pr-input="'+idx+'" placeholder="Type correct partner\'s name…" style="width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);font-family:var(--sans);font-size:12px;box-sizing:border-box;background:#fff;color:var(--ink)">'
           +'<div class="pr-relink-results" data-pr-results="'+idx+'" style="margin-top:4px"></div>'
           +'<button data-pr-action="cancel-relink" data-pr="'+idx+'" style="margin-top:6px;width:100%;padding:6px;border-radius:8px;border:1px solid var(--parchment);background:#fff;color:var(--muted);font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer">Cancel</button>'
         +'</div>';
@@ -2943,7 +2793,7 @@ function renderPairsReview(){
           +'<div style="font-size:10px;color:var(--muted);font-family:var(--sans);margin-bottom:3px">'+(slot===1?'First guest':'Second guest')+'</div>'
           +(picked
             ? '<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);background:#fff;font-family:var(--sans);font-size:12px;color:var(--ink)"><span>'+picked+'</span><button data-manual-clear="'+slot+'" style="border:none;background:none;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;padding:0 2px">×</button></div>'
-            : '<input type="text" class="pairs-manual-input" data-manual-slot="'+slot+'" placeholder="Search, or pick from the list below…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);font-family:var(--sans);font-size:12px;box-sizing:border-box;background:#fff;color:var(--ink)">'
+            : '<input type="text" class="pairs-manual-input" data-manual-slot="'+slot+'" placeholder="Search, or pick from the list below…" style="width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);font-family:var(--sans);font-size:12px;box-sizing:border-box;background:#fff;color:var(--ink)">'
               +'<div class="pairs-manual-results" data-manual-results="'+slot+'" style="margin-top:4px;max-height:140px;overflow-y:auto">'+renderManualPickList('',slot)+'</div>')
         +'</div>';
       });
@@ -2964,7 +2814,7 @@ function renderPairsReview(){
         manualHtml+='<div style="margin-top:3px;display:flex;align-items:center;justify-content:space-between;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);background:#fff;font-family:var(--sans);font-size:12px;color:var(--ink)"><span>'+kn+'</span><button data-kid-remove="'+kn.replace(/"/g,'&quot;')+'" style="border:none;background:none;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;padding:0 2px">×</button></div>';
       });
       manualHtml+='<div style="margin-top:3px">'
-        +'<input type="text" id="kidPickInput" placeholder="'+(_parentLinkKids.length?'Add another kid…':'Search, or pick from the list below…')+'" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);font-family:var(--sans);font-size:12px;box-sizing:border-box;background:#fff;color:var(--ink)">'
+        +'<input type="text" id="kidPickInput" placeholder="'+(_parentLinkKids.length?'Add another kid…':'Search, or pick from the list below…')+'" style="width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);font-family:var(--sans);font-size:12px;box-sizing:border-box;background:#fff;color:var(--ink)">'
         +'<div id="kidPickResults" style="margin-top:4px;max-height:140px;overflow-y:auto">'+renderKidPickList('')+'</div>'
       +'</div>';
       // Progressive: parent picker only appears once at least one kid is chosen.
@@ -2974,7 +2824,7 @@ function renderPairsReview(){
         manualHtml+='<div style="margin-top:3px;display:flex;align-items:center;justify-content:space-between;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);background:#fff;font-family:var(--sans);font-size:12px;color:var(--ink)"><span>'+pn+'</span><button data-parent-remove="'+pn.replace(/"/g,'&quot;')+'" style="border:none;background:none;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;padding:0 2px">×</button></div>';
       });
       manualHtml+='<div style="margin-top:3px">'
-        +'<input type="text" id="parentPickInput" placeholder="'+(_parentLinkParents.length?'Add another parent/guardian…':'Search a parent\'s name…')+'" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);font-family:var(--sans);font-size:12px;box-sizing:border-box;background:#fff;color:var(--ink)">'
+        +'<input type="text" id="parentPickInput" placeholder="'+(_parentLinkParents.length?'Add another parent/guardian…':'Search a parent\'s name…')+'" style="width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);font-family:var(--sans);font-size:12px;box-sizing:border-box;background:#fff;color:var(--ink)">'
         +'<div id="parentPickResults" style="margin-top:4px"></div>'
       +'</div>';
       }
@@ -3267,16 +3117,13 @@ function renderPairsReview(){
   var modal=document.getElementById('pairsReviewModal');
   var closeBtn=document.getElementById('pairsReviewClose');
   var searchInput=document.getElementById('pairsReviewSearch');
-  var searchClear=document.getElementById('pairsReviewSearchClear');
   var tabCouples=document.getElementById('prTreeToggle');
-  if(closeBtn)closeBtn.addEventListener('click',function(){modal.style.display='none';searchInput.value='';_pairsReviewQuery='';if(searchClear)searchClear.style.display='none';});
+  if(closeBtn)closeBtn.addEventListener('click',function(){modal.style.display='none';searchInput.value='';_pairsReviewQuery='';});
   if(modal)modal.addEventListener('click',function(e){if(e.target===modal)modal.style.display='none';});
-  if(searchInput)searchInput.addEventListener('input',function(){_pairsReviewQuery=this.value.trim();if(searchClear)searchClear.style.display=this.value?'flex':'none';renderPairsReview();});
-  if(searchClear)searchClear.addEventListener('click',function(){searchInput.value='';_pairsReviewQuery='';this.style.display='none';renderPairsReview();searchInput.focus();});
+  if(searchInput)searchInput.addEventListener('input',function(){_pairsReviewQuery=this.value.trim();renderPairsReview();});
   if(tabCouples)tabCouples.addEventListener('change',function(){
     _pairsReviewTab=this.checked?'tree':'couples';
     searchInput.value='';_pairsReviewQuery='';
-    if(searchClear)searchClear.style.display='none';
     renderPairsReview();
   });
 })();
@@ -3484,8 +3331,8 @@ function getGuestRsvpPill(name, isCouple, knownPartnerName, manualOverride){
         :'<span style="background:#fde8e8;color:#b91c1c;border-radius:100px;padding:2px 8px;font-size:8px;font-weight:800;letter-spacing:.06em;flex-shrink:0">'+p.name+'</span>';
     }).join('');
   }
-  if(info.isYes) return '<span style="width:16px;height:16px;background:var(--green-bg);color:var(--green);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0" title="RSVP: Yes"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>';
-  if(info.isNo)  return '<span style="width:16px;height:16px;background:var(--red-bg);color:var(--red);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0" title="RSVP: No"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>';
+  if(info.isYes) return '<span style="background:var(--green-bg);color:var(--green);border-radius:6px;padding:2px 8px;font-size:8px;font-weight:700;letter-spacing:.04em;flex-shrink:0">RSVP</span>';
+  if(info.isNo)  return '<span style="background:var(--red-bg);color:var(--red);border-radius:6px;padding:2px 8px;font-size:8px;font-weight:700;letter-spacing:.04em;flex-shrink:0">RSVP</span>';
   return '<span style="background:var(--cream2);color:var(--muted);border-radius:100px;padding:2px 8px;font-size:8px;font-weight:700;letter-spacing:.06em;flex-shrink:0">RSVP ?</span>';
 }
 
@@ -3614,7 +3461,7 @@ function buildGuestCard(g, mergedPairPos){
   var lC=g.lang&&g.lang!=='en'?'<span class="chip chip-lang">'+(g.lang==='de'?'DE':'RU')+'</span>':'';
   var rC=g.confirmed?'<span class="chip chip-rsvp">RSVP</span>':'';
   var cC=g.isChild?'<span class="chip chip-child">Child</span>':'';
-  var roleC=roleChipsHtml(g.role,ri);
+  var roleC=g.role?'<span class="chip chip-role" data-action="role" data-qi="'+ri+'">'+g.role+'</span>':'';
   var claimC=claimedBy?('<span class="claim-badge claim-badge-'+(claimedBy==='Arina'?'a':'e')+'"><span class="claim-dot claim-dot-'+(claimedBy==='Arina'?'a':'e')+'"></span>'+(claimedByMe?'You':''+claimedBy)+'</span>'):'';
   var sentBy=g.sentBy?g.sentBy:'';var sentLetter=sentBy==='Arina'?'a':sentBy==='Elnur'?'e':'';var sentTime=g.sent&&g.sentAt?'<span class="g-sent-time">'+fmtSentAt(g.sentAt)+(sentLetter?' · '+sentLetter:'')+'</span>':'';
 
@@ -3700,7 +3547,7 @@ function buildGuestCard(g, mergedPairPos){
         +'<div class="g-inner">'
           +'<div class="g-inner-left">'
             +'<div class="g-main">'
-              +'<div class="g-name-row" style="flex-wrap:wrap"><span class="g-name" style="font-size:15px;flex:0 1 auto">'+g.name+'</span>'+(typeof seatBadgeHtml==='function'?seatBadgeHtml(g.name):'')+pillWrap+roleChipsHtml(g.role,ri)+parentRefHtml+'</div>'
+              +'<div class="g-name-row" style="flex-wrap:wrap"><span class="g-name" style="font-size:15px;flex:0 1 auto">'+g.name+'</span>'+pillWrap+(g.role?'<span class="chip chip-role" data-action="role" data-qi="'+ri+'">'+g.role+'</span>':'')+parentRefHtml+'</div>'
               +partnerRefHtml
               +debugTag
             +'</div>'
@@ -3720,7 +3567,6 @@ function buildGuestCard(g, mergedPairPos){
           +'<div class="g-main">'
             +'<div class="g-name-row">'
               +'<span class="g-name">'+g.name+'</span>'
-              +(typeof seatBadgeHtml==='function'?seatBadgeHtml(g.name):'')
               +(g.sender?'<span class="g-sender-br '+senderCls+'">'+(g.sender==='Arina'?'a':'e')+'</span>':'')
               +tC+rC
             +'</div>'
@@ -4392,6 +4238,17 @@ document.getElementById('qfSend').addEventListener('click',function(){
   closeQuickForm();
 });
 
+/* ══ KEYBOARD N ══════════════════════════════ */
+document.addEventListener('keydown',function(e){
+  if(e.key==='n'||e.key==='N'){
+    if(document.activeElement&&['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName))return;
+    var genBody=document.getElementById('genBody');
+    if(genBody.style.display==='none'){genBody.style.display='';document.getElementById('genChevron').classList.add('open');}
+    document.getElementById('p1').focus();
+    document.getElementById('p1').scrollIntoView({behavior:'smooth',block:'center'});
+  }
+});
+
 /* ══ PHONE MODAL ═════════════════════════════ */
 var phoneModal=document.getElementById('phoneModal');
 function showPhonePicker(guests,cb){
@@ -4885,25 +4742,48 @@ document.getElementById('searchInput').addEventListener('input',function(){
   this.closest('.search-wrap').classList.toggle('has-value',!!this.value);
   renderGuestList();
 });
-/* Hide the magnifying glass the moment the field is tapped, not just once
-   text has been typed — otherwise it sits right where the cursor blinks. */
-document.getElementById('searchInput').addEventListener('focus',function(){
-  this.closest('.search-wrap').classList.add('is-focused');
-});
-document.getElementById('searchInput').addEventListener('blur',function(){
-  this.closest('.search-wrap').classList.remove('is-focused');
-});
-document.getElementById('searchClearBtn').addEventListener('click',function(){
-  var input=document.getElementById('searchInput');
-  input.value='';
-  input.classList.remove('has-value');
-  input.closest('.search-wrap').classList.remove('has-value');
-  searchQuery='';
-  renderGuestList();
-  input.focus();
-});
 
 document.getElementById('clearGuestBtn').addEventListener('click',function(){if(!importQueue.length)return;if(confirm('Clear guest list?')){importQueue=[];selectedIdxs=[];renderGuestList();renderDashboard();document.getElementById('guestArea').style.display='none';}});
+
+/* ══ GENERATOR ═══════════════════════════════ */
+document.getElementById('genToggle').addEventListener('click',function(){var b=document.getElementById('genBody'),c=document.getElementById('genChevron');var open=b.style.display!=='none';b.style.display=open?'none':'';c.classList.toggle('open',!open);});
+document.querySelectorAll('.t-btn').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('.t-btn').forEach(function(x){x.classList.remove('on');});b.classList.add('on');selType=b.dataset.type;saveLastSettings();});});
+document.querySelectorAll('.l-btn').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('.l-btn').forEach(function(x){x.classList.remove('on');});b.classList.add('on');selLang=b.dataset.lang;saveLastSettings();});});
+document.querySelectorAll('.s-btn').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('.s-btn').forEach(function(x){x.classList.remove('on');});b.classList.add('on');selSender=b.dataset.s;saveLastSettings();});});
+
+// Apply restored settings to UI
+(function(){
+  document.querySelectorAll('.t-btn').forEach(function(b){b.classList.toggle('on',b.dataset.type===selType);});
+  document.querySelectorAll('.l-btn').forEach(function(b){b.classList.toggle('on',b.dataset.lang===selLang);});
+})();
+
+document.getElementById('genBtn').addEventListener('click',function(){
+  var p1=toTitleCase(document.getElementById('p1').value.trim()),p2=toTitleCase(document.getElementById('p2').value.trim()),phone=document.getElementById('waPhone').value.trim();
+  if(!p1){var el=document.getElementById('p1');el.style.borderColor='var(--red)';el.focus();setTimeout(function(){el.style.borderColor='';},1500);return;}
+  var isCouple=selType==='couple-ceremony'||selType==='couple-party',hasParty=selType==='ceremony-party-single'||selType==='couple-party';
+  var name=isCouple&&p2?p1+' & '+p2:p1;
+  var url=buildUrl(p1,p2,selType,selLang);
+  var dName=isCouple&&p2?firstName(p1)+' & '+firstName(p2):firstName(p1);
+  var msg=buildMsg(dName,selType,selLang,url,isCouple&&!!p2,p1,p2);
+  var ll={en:'EN',de:'DE',ru:'RU'};
+  var idx=mem.findIndex(function(h){return h.url===url;});var entry;
+  if(idx>-1){entry=mem[idx];entry.msg=msg;if(phone)entry.phone=phone;}
+  else{entry={id:Date.now(),name:name,type:selType,lang:selLang,ll:ll[selLang]||'EN',url:url,msg:msg,phone:phone,isCouple:isCouple,hasParty:hasParty,sender:selSender,created:dt(),tracked:{linkCopied:null,msgCopied:null,waSent:null}};mem.unshift(entry);}
+  cur=entry;save();renderTracker();
+  var oc=document.getElementById('outCard'),ob=document.getElementById('outBody');
+  oc.style.display='block';ob.style.display='';document.getElementById('outChevron').classList.add('open');
+  document.getElementById('outBadge').innerHTML='<div class="out-badge">'+name+(hasParty?' · Party':' · Church')+' · '+(ll[selLang]||'EN')+'</div>';
+  document.getElementById('urlTxt').textContent=url;
+  document.getElementById('previewLink').href=url;
+  document.getElementById('msgBox').value=msg;
+  var slb=document.getElementById('sentBtn');
+  if(entry.tracked.waSent){slb.textContent='✓ Sent';slb.classList.add('ok');}else{slb.textContent='Mark Sent';slb.classList.remove('ok');}
+  document.getElementById('copyLinkBtn').textContent='Copy';document.getElementById('copyLinkBtn').classList.remove('ok');
+  document.getElementById('copyMsgBtn').textContent='Copy Message';document.getElementById('copyMsgBtn').classList.remove('ok');
+  oc.scrollIntoView({behavior:'smooth',block:'nearest'});
+  document.getElementById('msgBox').oninput=function(){if(cur)cur.msg=this.value;};
+  saveLastSettings();
+});
 
 /* ══ OUTPUT ══════════════════════════════════ */
 document.getElementById('outToggle').addEventListener('click',function(){var b=document.getElementById('outBody'),c=document.getElementById('outChevron');var open=b.style.display!=='none';b.style.display=open?'none':'';c.classList.toggle('open',!open);});
@@ -4928,20 +4808,11 @@ document.getElementById('waSendBtn').addEventListener('click',function(){
 });
 
 /* ══ TRACKER ═════════════════════════════════ */
-/* The "Manual History" tracker card lived in the removed "Extra"
-   section — its markup no longer exists, so these are guarded to quietly
-   no-op instead of throwing (mem/save/cur bookkeeping elsewhere still
-   works fine without a tracker UI to render into). */
 var trackerFilter='all';
-(function(){
-  var toggleBtn=document.getElementById('trackerToggle');
-  if(toggleBtn) toggleBtn.addEventListener('click',function(){var b=document.getElementById('trackerBody'),c=document.getElementById('trackerChevron');var open=b.style.display!=='none';b.style.display=open?'none':'';c.classList.toggle('open',!open);});
-  var clearBtn=document.getElementById('clearTrackerBtn');
-  if(clearBtn) clearBtn.addEventListener('click',function(){if(!mem.length)return;if(confirm('Clear all tracker history?')){mem=[];cur=null;save();renderTracker();document.getElementById('outCard').style.display='none';}});
-})();
+document.getElementById('trackerToggle').addEventListener('click',function(){var b=document.getElementById('trackerBody'),c=document.getElementById('trackerChevron');var open=b.style.display!=='none';b.style.display=open?'none':'';c.classList.toggle('open',!open);});
+document.getElementById('clearTrackerBtn').addEventListener('click',function(){if(!mem.length)return;if(confirm('Clear all tracker history?')){mem=[];cur=null;save();renderTracker();document.getElementById('outCard').style.display='none';}});
 function renderTracker(){
   var list=document.getElementById('trackList'),sumEl=document.getElementById('trackerSummary'),fbBar=document.getElementById('trackerFilterBar');
-  if(!list||!sumEl||!fbBar) return;
   if(!mem.length){list.innerHTML='<div class="empty-state">No manual invites yet.</div>';sumEl.innerHTML='';fbBar.innerHTML='';return;}
   fbBar.innerHTML=['all','Arina','Elnur'].map(function(s){return'<button class="f-pill'+(trackerFilter===s?' on':'')+'" data-f="'+s+'">'+(s==='all'?'All':s)+'</button>';}).join('');
   fbBar.querySelectorAll('.f-pill').forEach(function(b){b.addEventListener('click',function(){trackerFilter=this.dataset.f;renderTracker();});});
@@ -5472,7 +5343,19 @@ function showChatNotif(who, text){
 
 
 /* ── TOOLS DRAWER TOGGLE ── */
-/* (removed along with the "Extra" section / tools drawer) */
+(function(){
+  var btn=document.getElementById('toolsToggleBtn');
+  var drawer=document.getElementById('toolsDrawer');
+  var icon=document.getElementById('toolsChevronIcon');
+  var open=false;
+  btn.addEventListener('click',function(){
+    open=!open;
+    drawer.style.display=open?'':'none';
+    icon.style.transform=open?'rotate(180deg)':'';
+    btn.style.color=open?'var(--rose-deep)':'';
+    btn.style.borderColor=open?'var(--rose-soft)':'';
+  });
+})();
 
 
 
@@ -5778,8 +5661,7 @@ function showChatNotif(who, text){
     var totalHtml = '<div style="margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--parchment)">'
       + '<div style="position:relative;margin-bottom:8px">'
       + '<svg style="position:absolute;left:9px;top:50%;transform:translateY(-50%);pointer-events:none" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--soft)" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>'
-      + '<input id="rsvpSearchInput" type="text" placeholder="Search…" name="rsvpSearchField" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" style="width:100%;font-family:var(--sans);font-size:16px;padding:7px 30px 7px 28px;background:var(--cream2);border:1.5px solid var(--parchment);border-radius:100px;color:var(--ink);outline:none;box-sizing:border-box">'
-      + '<button id="rsvpSearchClear" type="button" title="Clear search" style="display:none;position:absolute;right:6px;top:50%;transform:translateY(-50%);width:20px;height:20px;border:none;border-radius:50%;background:var(--soft);color:#fff;align-items:center;justify-content:center;cursor:pointer;padding:0"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>'
+      + '<input id="rsvpSearchInput" type="text" placeholder="Search…" style="width:100%;font-family:var(--sans);font-size:12px;padding:7px 10px 7px 28px;background:var(--cream2);border:1.5px solid var(--parchment);border-radius:100px;color:var(--ink);outline:none;box-sizing:border-box">'
       + '</div>'
       + '<div style="display:flex;align-items:center;justify-content:flex-end">'
       + entriesCluster(rows.length, yn0.yes, yn0.no)
@@ -5827,26 +5709,13 @@ function showChatNotif(who, text){
 
     // Search filter
     var searchInput = document.getElementById('rsvpSearchInput');
-    var searchClear = document.getElementById('rsvpSearchClear');
-    function applyRsvpSearchFilter(q){
-      body.querySelectorAll('.rsvp-entry').forEach(function(el){
-        var name = el.dataset.name || '';
-        el.style.display = (!q || name.indexOf(q) !== -1) ? '' : 'none';
-      });
-    }
     if(searchInput){
       searchInput.addEventListener('input', function(){
         var q = this.value.toLowerCase();
-        if(searchClear) searchClear.style.display = this.value ? 'flex' : 'none';
-        applyRsvpSearchFilter(q);
-      });
-    }
-    if(searchClear){
-      searchClear.addEventListener('click', function(){
-        searchInput.value='';
-        this.style.display='none';
-        applyRsvpSearchFilter('');
-        searchInput.focus();
+        body.querySelectorAll('.rsvp-entry').forEach(function(el){
+          var name = el.dataset.name || '';
+          el.style.display = (!q || name.indexOf(q) !== -1) ? '' : 'none';
+        });
       });
     }
   }
@@ -5967,14 +5836,10 @@ window.addEventListener('unhandledrejection', function(e){ e.preventDefault(); }
     var otherImg = document.getElementById('presenceOtherImg');
     var meEl     = document.getElementById('presenceMe');
     var otherEl  = document.getElementById('presenceOther');
-    var meGroup  = document.getElementById('presenceMeGroup');
-    var meLabel  = document.getElementById('presenceMeLabel');
     if (who === 'Guest') {
       if (meEl)  { meEl.classList.add('is-guest'); meEl.title = 'You are in view only mode'; }
       if (meImg) { meImg.src = 'https://www.arinaelnur.de/img/arina.jpg'; meImg.onerror = function(){ this.src='img/elnur.jpg'; }; meImg.alt = 'Guest'; }
       if (otherEl) { otherEl.style.display = 'none'; }
-      if (meGroup) { meGroup.classList.remove('who-arina','who-elnur'); meGroup.classList.add('who-guest'); meGroup.title = 'Viewing as guest'; }
-      if (meLabel) meLabel.textContent = 'Guest view';
     } else {
       if (meEl)    { meEl.classList.remove("is-guest"); meEl.title = who + " — tap for settings"; }
       if (meImg)   { meImg.src = "https://www.arinaelnur.de/img/" + who.toLowerCase() + ".jpg?v=2"; meImg.alt = who; }
@@ -5987,12 +5852,6 @@ window.addEventListener('unhandledrejection', function(e){ e.preventDefault(); }
         otherImg.src = "https://www.arinaelnur.de/img/" + other.toLowerCase() + ".jpg?v=2";
       }
       if (otherEl) { otherEl.style.display = ""; }
-      if (meGroup) {
-        meGroup.classList.remove('who-arina','who-elnur','who-guest');
-        meGroup.classList.add(who === 'Arina' ? 'who-arina' : 'who-elnur');
-        meGroup.title = "You're signed in as " + who + " — tap for settings";
-      }
-      if (meLabel) meLabel.textContent = "You: " + who;
     }
 
 
@@ -6071,9 +5930,8 @@ window.addEventListener('unhandledrejection', function(e){ e.preventDefault(); }
 
   // My avatar opens settings (or shows guest toast)
   var meEl = document.getElementById('presenceMe');
-  var meGroupEl = document.getElementById('presenceMeGroup');
   if (meEl) {
-    (meGroupEl || meEl).addEventListener('click', function(){
+    meEl.addEventListener('click', function(){
       if (who === 'Guest') {
         // Show a small popover on the avatar instead of hijacking the undo toast
         var existing = document.getElementById('guestViewPopover');
@@ -6332,1127 +6190,6 @@ window.addEventListener('unhandledrejection', function(e){ e.preventDefault(); }
 
 })();
 
-</script>
-
-<!-- ══════════════════════════════════════════════════════════════
-     SEAT MAP
-     Simple, flexible seating chart. Tables are a plain list (not a
-     spatial canvas) — add a table, set how many chairs it has, tap a
-     chair to assign a guest straight from the guest list. Seats are
-     numbered automatically and colour themselves by RSVP status, using
-     the exact same status the guest list already shows (manual override,
-     then the live RSVP-form match).
-     Synced with the other device via the Worker's /seatmap endpoint
-     (same shared-KV pattern as /chat): localStorage is kept as an
-     instant local cache, but every change is pushed to the backend and
-     the screen polls for the other person's edits while it's open.
-     ══════════════════════════════════════════════════════════════ -->
-<script>
-(function(){
-
-var seatMap = {tables:[], assignments:{}};
-
-/* Nice, high-contrast defaults for the floor plan — a warm charcoal room
-   with rose-gold tables, matching the site's own palette, so tables read
-   clearly against the canvas without anyone having to hunt for a good
-   combo. Used both as the first-time default and as what the reset
-   buttons restore. Declared up here (not just where the floor plan
-   renders) so they're already set no matter which seat-map view — list
-   or floor — is opened first. */
-var DEFAULT_FLOOR_COLOR = '#1C2430';
-var DEFAULT_TABLE_COLOR = '#C9876A';
-
-/* Id of the table most recently added this session — used to give it a
-   brief highlight + scroll-into-view right after render, so adding a table
-   is never invisible/uncertain even if it lands off the visible area. */
-var _lastAddedTableId = null;
-
-function loadSeatMap(){
-  try{
-    var raw = localStorage.getItem('ww_seatmap');
-    if(raw){
-      var parsed = JSON.parse(raw);
-      if(parsed && Array.isArray(parsed.tables)) seatMap = parsed;
-    }
-  }catch(e){}
-  if(!seatMap.assignments) seatMap.assignments = {};
-  if(!Array.isArray(seatMap.tables)) seatMap.tables = [];
-  if(!seatMap.floorColor) seatMap.floorColor = DEFAULT_FLOOR_COLOR;
-  if(!seatMap.tableColor) seatMap.tableColor = DEFAULT_TABLE_COLOR;
-  // Anchor shape for new tables — whatever shape was deliberately chosen
-  // (starting with table 1's, if this is existing data from before this
-  // field existed) so a run of new tables stays consistent with it instead
-  // of quietly drifting back to round.
-  if(!seatMap.defaultShape) seatMap.defaultShape = (seatMap.tables[0] && seatMap.tables[0].shape) || 'round';
-}
-function saveSeatMap(){
-  try{ localStorage.setItem('ww_seatmap', JSON.stringify(seatMap)); }catch(e){}
-  pushSeatMap();
-}
-loadSeatMap();
-
-/* ── SEAT MAP SYNC ──
-   Same shared-blob pattern as the /chat feature: GET /seatmap returns
-   {seatMap, updatedAt, updatedBy}, POST replaces it. localStorage stays
-   the instant local cache so the screen never feels laggy; the network
-   round-trip only decides who "wins" when both devices have edited. */
-function seatMapWho(){ return (typeof sessionSender !== 'undefined') ? sessionSender : ''; }
-function seatMapWorkerBase(){ return (typeof workerUrl !== 'undefined' && workerUrl) ? workerUrl.replace(/\/$/, '') : 'https://guestlist.elnur-agha.workers.dev'; }
-
-var _seatMapLastUpdatedAt = 0;
-var _seatMapPushTimer = null;
-var _seatMapPollTimer = null;
-var SEATMAP_POLL_MS = 8000;
-
-function pullSeatMap(notifyIfRemote){
-  fetch(seatMapWorkerBase() + '/seatmap', {cache:'no-store'})
-    .then(function(r){ return r.ok ? r.json() : null; })
-    .then(function(data){
-      if(!data || !data.seatMap) return;
-      if(!data.updatedAt || data.updatedAt <= _seatMapLastUpdatedAt) return; // nothing newer than what we have
-      var remote = data.seatMap;
-      if(!remote.assignments) remote.assignments = {};
-      if(!Array.isArray(remote.tables)) remote.tables = [];
-      if(!remote.floorColor) remote.floorColor = DEFAULT_FLOOR_COLOR;
-      if(!remote.tableColor) remote.tableColor = DEFAULT_TABLE_COLOR;
-      seatMap = remote;
-      _seatMapLastUpdatedAt = data.updatedAt || Date.now();
-      try{ localStorage.setItem('ww_seatmap', JSON.stringify(seatMap)); }catch(e){}
-      var screen = document.getElementById('seatmapScreen');
-      if(screen && screen.classList.contains('open')) renderSeatMap();
-      if(notifyIfRemote && data.updatedBy && data.updatedBy !== seatMapWho() && typeof showActivityToast === 'function'){
-        showActivityToast('Seating chart updated by ' + data.updatedBy + ' on another device');
-      }
-    })
-    .catch(function(){});
-}
-
-function pushSeatMap(){
-  if(_seatMapPushTimer) clearTimeout(_seatMapPushTimer);
-  // Debounce so a drag or a burst of clicks becomes one network write, not dozens.
-  _seatMapPushTimer = setTimeout(function(){
-    var payload = { seatMap: seatMap, updatedBy: seatMapWho(), ts: Date.now() };
-    fetch(seatMapWorkerBase() + '/seatmap', {
-      method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload)
-    })
-      .then(function(r){ return r.ok ? r.json() : null; })
-      .then(function(data){ if(data && data.updatedAt) _seatMapLastUpdatedAt = data.updatedAt; })
-      .catch(function(){});
-  }, 500);
-}
-
-function startSeatMapPoll(){ stopSeatMapPoll(); _seatMapPollTimer = setInterval(function(){ pullSeatMap(true); }, SEATMAP_POLL_MS); }
-function stopSeatMapPoll(){ if(_seatMapPollTimer){ clearInterval(_seatMapPollTimer); _seatMapPollTimer = null; } }
-
-pullSeatMap(false); // catch up with whatever the other device last saved
-
-function seatKey(tableId, n){ return tableId+'-'+n; }
-/* Seat buttons only have room for a short label — show just the first
-   name there, while the full name is still available via the title
-   tooltip and everywhere else (search list, badges, etc). */
-function seatFirstName(name){
-  if(!name) return '';
-  return name.trim().split(/\s+/)[0];
-}
-function uid(){ return 't'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
-
-/* RSVP status for a guest — reuses the exact same source of truth the
-   guest list itself uses, so seat colours always match. */
-function seatGuestRsvpState(name){
-  var g = (typeof importQueue!=='undefined'?importQueue:[]).find(function(x){return x.name===name;});
-  if(!g) return 'pending';
-  if(g.manualRsvp==='yes') return 'yes';
-  if(g.manualRsvp==='no') return 'no';
-  try{
-    var partner = (typeof inferPartnerName==='function') ? inferPartnerName(g) : '';
-    var info = (typeof getGuestRsvpInfo==='function') ? getGuestRsvpInfo(g.name, false, partner, '') : null;
-    if(info && info.isYes) return 'yes';
-    if(info && info.isNo) return 'no';
-  }catch(e){}
-  return 'pending';
-}
-
-/* Is this seat's occupant the bride or groom? Mirrors the exact same
-   name check the guest list already uses for its "Bride"/"Groom" chip,
-   so the seat map and guest list always agree on who the couple is. */
-function seatCoupleRole(name){
-  if(name==='Arina') return 'bride';
-  if(name==='Elnur') return 'groom';
-  return '';
-}
-
-/* Reverse lookup: where (if anywhere) is this guest seated? */
-function getSeatForGuest(name){
-  for(var i=0;i<seatMap.tables.length;i++){
-    var t = seatMap.tables[i];
-    for(var n=1;n<=t.seats;n++){
-      if(seatMap.assignments[seatKey(t.id,n)]===name) return {table:t, seatNum:n};
-    }
-  }
-  return null;
-}
-
-/* Called from guest-card templates elsewhere in the file.
-   Table name only now — no seat number, since which table someone's at
-   is what actually matters when scanning the list; the exact chair is
-   still there in the seat map itself, untouched.
-   Each table gets a consistent color hashed from its id, so the same
-   table always reads the same color everywhere it shows up in the
-   guest list — a real visual grouping instead of a plain text label. */
-var SEAT_BADGE_PALETTE = ['#C9876A','#4A6EA8','#3A8C5C','#B45309','#7C4DBB','#C0402E','#0E7C86','#A0614A'];
-function seatBadgeColor(tableId){
-  var hash = 0;
-  for(var i=0;i<tableId.length;i++){ hash = (hash*31 + tableId.charCodeAt(i)) >>> 0; }
-  return SEAT_BADGE_PALETTE[hash % SEAT_BADGE_PALETTE.length];
-}
-function _hexToRgba(hex, alpha){
-  var h = hex.replace('#','');
-  var r = parseInt(h.substring(0,2),16), g = parseInt(h.substring(2,4),16), b = parseInt(h.substring(4,6),16);
-  return 'rgba('+r+','+g+','+b+','+alpha+')';
-}
-window.seatBadgeHtml = function(name){
-  var loc = getSeatForGuest(name);
-  if(!loc) return '';
-  var safe = loc.table.name.replace(/"/g,'&quot;');
-  var color = seatBadgeColor(loc.table.id);
-  var style = 'color:'+color+';background:'+_hexToRgba(color,0.14)+';border-color:'+_hexToRgba(color,0.32);
-  return '<span class="g-seat-badge" style="'+style+'" title="Seated at '+safe+'">'
-    + '<span class="g-seat-badge-dot" style="background:'+color+'"></span>'+safe+'</span>';
-};
-
-
-/* ── Table CRUD ── */
-function addTable(){
-  // New tables pick up seatMap.defaultShape — the shape you last
-  // deliberately chose (e.g. via the shape picker), starting from table 1's
-  // shape — so a run of tables stays visually consistent instead of
-  // quietly defaulting back to round.
-  var shape = seatMap.defaultShape || 'round';
-  var t = {id:uid(), name:'Table '+(seatMap.tables.length+1), seats:8, shape:shape};
-  seatMap.tables.push(t);
-  _lastAddedTableId = t.id;
-  saveSeatMap();
-  renderSeatMap();
-}
-function removeTable(id){
-  var t = seatMap.tables.find(function(x){return x.id===id;});
-  if(!t) return;
-  if(!confirm('Delete "'+t.name+'"? Anyone seated there will be unassigned.')) return;
-  for(var n=1;n<=t.seats;n++) delete seatMap.assignments[seatKey(id,n)];
-  seatMap.tables = seatMap.tables.filter(function(x){return x.id!==id;});
-  saveSeatMap();
-  renderSeatMap();
-  if(typeof renderGuestList==='function') renderGuestList();
-}
-function renameTable(id, name){
-  var t = seatMap.tables.find(function(x){return x.id===id;});
-  if(!t) return;
-  t.name = (name||'').trim() || t.name;
-  saveSeatMap();
-  if(typeof renderGuestList==='function') renderGuestList();
-}
-function setSeatCount(id, n){
-  var t = seatMap.tables.find(function(x){return x.id===id;});
-  if(!t) return;
-  n = Math.max(1, Math.min(30, n));
-  if(n < t.seats){
-    var displaced = [];
-    for(var i=n+1;i<=t.seats;i++){
-      var k = seatKey(id,i);
-      if(seatMap.assignments[k]) displaced.push(seatMap.assignments[k]);
-    }
-    if(displaced.length && !confirm('Reducing seats will unassign '+displaced.length+' guest(s) ('+displaced.join(', ')+'). Continue?')) return;
-    for(var j=n+1;j<=t.seats;j++) delete seatMap.assignments[seatKey(id,j)];
-  }
-  t.seats = n;
-  saveSeatMap();
-  renderSeatMap();
-  if(typeof renderGuestList==='function') renderGuestList();
-}
-
-/* ── Assignment ── */
-var _assignCtx = null;
-function openSeatAssign(tableId, seatNum){
-  _assignCtx = {tableId:tableId, seatNum:seatNum};
-  var t = seatMap.tables.find(function(x){return x.id===tableId;});
-  if(!t) return;
-  var current = seatMap.assignments[seatKey(tableId,seatNum)] || '';
-  document.getElementById('seatAssignTitle').textContent = t.name+' — Seat '+seatNum;
-  var srch = document.getElementById('seatAssignSearch');
-  srch.style.display = '';
-  srch.value = '';
-  document.getElementById('seatAssignUnassignBtn').style.display = current ? 'block' : 'none';
-  renderSeatAssignList('');
-  document.getElementById('seatAssignOverlay').classList.add('open');
-  document.getElementById('seatAssignSheet').classList.add('open','tall');
-  setTimeout(function(){ if(srch) srch.focus(); }, 200);
-}
-function closeSeatAssign(){
-  var ov=document.getElementById('seatAssignOverlay'), sh=document.getElementById('seatAssignSheet');
-  if(ov) ov.classList.remove('open');
-  if(sh){ sh.classList.remove('open'); sh.classList.remove('tall'); sh.style.bottom=''; sh.style.maxHeight=''; }
-  _assignCtx = null;
-}
-function renderSeatAssignList(query){
-  var list = document.getElementById('seatAssignList');
-  if(!list) return;
-  var q = (query||'').trim().toLowerCase();
-  var currentName = (_assignCtx && seatMap.assignments[seatKey(_assignCtx.tableId,_assignCtx.seatNum)]) || '';
-  var guests = (typeof importQueue!=='undefined'?importQueue:[]).filter(function(g){
-    if(g.skipped) return false;
-    if(typeof isPartyType==='function' && !isPartyType(g)) return false;
-    // Only show guests who are still available to seat — i.e. not already
-    // placed at a table — except the guest currently sitting in this exact
-    // seat, so re-opening a filled seat doesn't make them vanish from view.
-    if(g.name !== currentName && getSeatForGuest(g.name)) return false;
-    if(q && g.name.toLowerCase().indexOf(q)===-1) return false;
-    return true;
-  }).sort(function(a,b){ return a.name.localeCompare(b.name); });
-
-  if(!guests.length){
-    list.innerHTML = '<div class="seat-assign-empty">No guests found.</div>';
-    return;
-  }
-  list.innerHTML = guests.map(function(g){
-    var loc = getSeatForGuest(g.name);
-    var state = seatGuestRsvpState(g.name);
-    var dot = state==='yes' ? '#3A8C5C' : state==='no' ? '#b91c1c' : '#C4AFA4';
-    var meta = loc ? ('Currently: '+loc.table.name+' · Seat '+loc.seatNum) : (state==='yes'?'Attending':state==='no'?'Not attending':'RSVP pending');
-    return '<div class="seat-assign-row" data-name="'+g.name.replace(/"/g,'&quot;')+'">'
-      + '<div><div class="seat-assign-row-name">'+g.name+'</div><div class="seat-assign-row-meta">'+meta+'</div></div>'
-      + '<span style="width:9px;height:9px;border-radius:50%;background:'+dot+';flex-shrink:0"></span>'
-      + '</div>';
-  }).join('');
-  list.querySelectorAll('.seat-assign-row').forEach(function(row){
-    row.addEventListener('click', function(){
-      if(!_assignCtx) return;
-      assignGuestToSeat(_assignCtx.tableId, _assignCtx.seatNum, this.dataset.name);
-    });
-  });
-}
-function assignGuestToSeat(tableId, seatNum, name){
-  var prev = getSeatForGuest(name);
-  if(prev) delete seatMap.assignments[seatKey(prev.table.id, prev.seatNum)];
-  seatMap.assignments[seatKey(tableId, seatNum)] = name;
-  saveSeatMap();
-  closeSeatAssign();
-  renderSeatMap();
-  if(typeof renderGuestList==='function') renderGuestList();
-}
-function unassignSeat(tableId, seatNum){
-  delete seatMap.assignments[seatKey(tableId, seatNum)];
-  saveSeatMap();
-  closeSeatAssign();
-  renderSeatMap();
-  if(typeof renderGuestList==='function') renderGuestList();
-}
-
-/* ── View mode: 'list' (default cards) or 'floor' (drag-to-arrange plan) ── */
-var seatMapView = (function(){
-  try{ return localStorage.getItem('ww_seatmap_view') === 'floor' ? 'floor' : 'list'; }catch(e){ return 'list'; }
-})();
-function setSeatMapView(v){
-  seatMapView = v;
-  try{ localStorage.setItem('ww_seatmap_view', v); }catch(e){}
-  var btn = document.getElementById('seatmapViewToggle');
-  if(btn) btn.classList.toggle('active', v==='floor');
-  renderSeatMap();
-}
-
-/* ── Render ── */
-function renderSeatMap(){
-  if(seatMapView === 'floor') return renderSeatFloorPlan();
-  var body = document.getElementById('seatmapBody');
-  var sub = document.getElementById('seatmapHdrSub');
-  var fab = document.getElementById('seatmapFabAdd');
-  if(!body) return;
-
-  var totalSeats=0, totalAssigned=0, yes=0, no=0, pending=0;
-  seatMap.tables.forEach(function(t){
-    totalSeats += t.seats;
-    for(var n=1;n<=t.seats;n++){
-      var name = seatMap.assignments[seatKey(t.id,n)];
-      if(name){
-        totalAssigned++;
-        var st = seatGuestRsvpState(name);
-        if(st==='yes') yes++; else if(st==='no') no++; else pending++;
-      }
-    }
-  });
-  if(sub) sub.textContent = seatMap.tables.length ? (seatMap.tables.length+(seatMap.tables.length===1?' table · ':' tables · ')+totalAssigned+' of '+totalSeats+' seats assigned') : '';
-  if(fab) fab.style.display = seatMap.tables.length ? 'flex' : 'none';
-  if(!seatMap.tables.length){
-    body.innerHTML = seatColorControlsHtml() + '<div class="seatmap-empty">No tables yet.<br><br>Tap <strong>+ Table</strong> above to add your first table, choose how many chairs it has, then tap a chair to seat a guest.</div>';
-    wireFloorColorPicker();
-    return;
-  }
-
-  var summary = '<div class="seatmap-summary">'
-    + '<span class="seatmap-summary-pill">'+totalAssigned+' seated</span>'
-    + '<span class="seatmap-summary-pill" style="color:#2f7a4d">'+yes+' attending</span>'
-    + '<span class="seatmap-summary-pill" style="color:#b91c1c">'+no+' not attending</span>'
-    + '<span class="seatmap-summary-pill">'+pending+' pending</span>'
-    + '</div>';
-
-  var html = seatColorControlsHtml() + summary + seatMap.tables.map(function(t){
-    var seatsHtml = '';
-    for(var n=1;n<=t.seats;n++){
-      var name = seatMap.assignments[seatKey(t.id,n)] || '';
-      var state = name ? seatGuestRsvpState(name) : '';
-      var role = name ? seatCoupleRole(name) : '';
-      var stateCls = role ? ' is-couple '+role : !name ? '' : (state==='yes'?' rsvp-yes':state==='no'?' rsvp-no':' rsvp-pending');
-      var cls = 'seatmap-seat'+(name?'':' empty')+stateCls;
-      seatsHtml += '<div class="'+cls+'" data-table="'+t.id+'" data-seat="'+n+'"'+(name?' title="'+name.replace(/"/g,'&quot;')+'"':'')+'>'
-        + '<span class="seatmap-seat-num">Seat '+n+'</span>'
-        + '<span class="seatmap-seat-name">'+(name?seatFirstName(name):'+ Add')+'</span>'
-        + '</div>';
-    }
-    // One extra tile right after the last seat — tap it to add the next
-    // chair in place, without needing the +/- counter up in the header.
-    seatsHtml += '<div class="seatmap-seat add-seat" data-table="'+t.id+'" title="Add a chair">'
-      + '<span class="seatmap-seat-plus">+</span>'
-      + '</div>';
-    return '<div class="seatmap-table-card" data-table-id="'+t.id+'">'
-      + '<div class="seatmap-table-hdr">'
-        + '<input class="seatmap-table-name" data-table="'+t.id+'" value="'+t.name.replace(/"/g,'&quot;')+'" maxlength="30"/>'
-        + '<button class="seatmap-mini-btn" data-act="dec" data-table="'+t.id+'" title="Fewer chairs">–</button>'
-        + '<span class="seatmap-seat-count">'+t.seats+' chairs</span>'
-        + '<button class="seatmap-mini-btn" data-act="inc" data-table="'+t.id+'" title="More chairs">+</button>'
-        + '<button class="seatmap-mini-btn danger" data-act="del" data-table="'+t.id+'" title="Delete table">✕</button>'
-      + '</div>'
-      + '<div class="seatmap-seats">'+seatsHtml+'</div>'
-    + '</div>';
-  }).join('');
-
-  body.innerHTML = html;
-
-  body.querySelectorAll('.seatmap-table-name').forEach(function(inp){
-    inp.addEventListener('change', function(){ renameTable(this.dataset.table, this.value); });
-  });
-  body.querySelectorAll('.seatmap-mini-btn').forEach(function(btn){
-    btn.addEventListener('click', function(){
-      var id = this.dataset.table, act = this.dataset.act;
-      var t = seatMap.tables.find(function(x){return x.id===id;});
-      if(!t) return;
-      if(act==='inc') setSeatCount(id, t.seats+1);
-      else if(act==='dec') setSeatCount(id, t.seats-1);
-      else if(act==='del') removeTable(id);
-    });
-  });
-  body.querySelectorAll('.seatmap-seat:not(.add-seat)').forEach(function(seat){
-    seat.addEventListener('click', function(){
-      openSeatAssign(this.dataset.table, parseInt(this.dataset.seat,10));
-    });
-  });
-  body.querySelectorAll('.seatmap-seat.add-seat').forEach(function(tile){
-    tile.addEventListener('click', function(){
-      var id = this.dataset.table;
-      var t = seatMap.tables.find(function(x){return x.id===id;});
-      if(!t) return;
-      setSeatCount(id, t.seats+1);
-    });
-  });
-  wireFloorColorPicker();
-  flashLastAddedTable(body);
-}
-
-/* Scrolls the just-added table into view and gives it a brief highlight
-   pulse — the visible confirmation that tapping "+ Table" actually did
-   something, instead of a new card/node silently appearing off-screen or
-   blending into the rest. Fires once per add, in whichever view is open. */
-function flashLastAddedTable(container){
-  if(!_lastAddedTableId) return;
-  var id = _lastAddedTableId;
-  _lastAddedTableId = null;
-  setTimeout(function(){
-    var el = container.querySelector('[data-table-id="'+id+'"]');
-    if(!el) return;
-    el.scrollIntoView({behavior:'smooth', block:'center', inline:'center'});
-    el.classList.add('just-added');
-    setTimeout(function(){ el.classList.remove('just-added'); }, 1600);
-  }, 30);
-}
-
-/* Give a table a default spot on the floor if it doesn't have a saved
-   position yet. The first table always lands dead-center on the canvas;
-   every table after that spirals outward from the center, checking its
-   REAL footprint (which differs by shape/seat count AND by horizontal vs.
-   vertical orientation) against every already-placed table (including
-   manually dragged ones) plus a fixed logical gap, so new tables always
-   land in open space with a consistent breathing room and never overlap.
-   Only ever runs once per table — after that its position is just
-   whatever's saved (including drags), same as before. */
-/* Grid-cell offsets in clockwise spiral order starting at the center cell:
-   right, down, left, up, with each leg growing by one cell every two turns
-   — the standard clockwise spiral-fill pattern. Used so every new table's
-   CENTER lands on the same fixed grid (rows and columns always line up)
-   instead of a raw-pixel spiral that drifts out of alignment. */
-function spiralGridOffsets(n){
-  var offsets = [{r:0,c:0}];
-  var r=0, c=0, dirs=[[1,0],[0,1],[-1,0],[0,-1]], dirIdx=0, steps=1, produced=1;
-  while(produced<n){
-    for(var rep=0; rep<2 && produced<n; rep++){
-      var d = dirs[dirIdx%4];
-      for(var s=0; s<steps && produced<n; s++){
-        c += d[0]; r += d[1];
-        offsets.push({r:r,c:c});
-        produced++;
-      }
-      dirIdx++;
-    }
-    steps++;
-  }
-  return offsets;
-}
-function defaultTablePos(placed, canvasW, canvasH, lay){
-  var gap = 24, marginX = 18, marginY = 18;
-  var w = (lay && lay.w) || 120, h = (lay && lay.h) || 120;
-  var cx0 = canvasW/2, cy0 = canvasH/2;
-  // Fixed grid pitch — independent of any one table's own size — so every
-  // table's center lines up on the same rows/columns no matter how big or
-  // small that particular table is.
-  var pitchX = 180, pitchY = 180;
-
-  function fitsInCanvas(cx, cy){
-    return cx - w/2 >= marginX && cx + w/2 <= canvasW - marginX
-        && cy - h/2 >= marginY && cy + h/2 <= canvasH - marginY;
-  }
-  // Axis-aligned bounding-box check, padded by `gap` on every side, so
-  // two tables always keep at least `gap` px of clear space between them
-  // regardless of how their footprints differ (round vs. rect, rotated
-  // vs. not).
-  function overlapsAny(cx, cy){
-    for(var i=0;i<placed.length;i++){
-      var p = placed[i];
-      var minDx = (w + p.w)/2 + gap, minDy = (h + p.h)/2 + gap;
-      if(Math.abs(cx - p.cx) < minDx && Math.abs(cy - p.cy) < minDy) return true;
-    }
-    return false;
-  }
-
-  if(!placed.length){
-    // First table: dead center of the grid — every later table's offset
-    // is measured from here, so this is also the grid's origin cell.
-    return { x: cx0/canvasW*100, y: cy0/canvasH*100 };
-  }
-
-  // Walk the clockwise spiral of GRID CELLS (not raw pixels) outward from
-  // the center, taking the first cell whose table both fits the canvas and
-  // doesn't overlap anything already placed. Because every candidate point
-  // sits on the same fixed pitch, tables end up in clean aligned rows and
-  // columns, filled in clockwise order, instead of drifting to wherever a
-  // pixel-spiral first found room.
-  var offsets = spiralGridOffsets(400);
-  for(var i=1;i<offsets.length;i++){
-    var cx = cx0 + offsets[i].c*pitchX;
-    var cy = cy0 + offsets[i].r*pitchY;
-    if(fitsInCanvas(cx, cy) && !overlapsAny(cx, cy)){
-      return { x: cx/canvasW*100, y: cy/canvasH*100 };
-    }
-  }
-  // Fallback (grid is completely packed): stack below everything else,
-  // still horizontally centered, so it's at least never on top of another
-  // table even if it spills past the visible canvas height.
-  var maxBottom = marginY;
-  placed.forEach(function(p){ maxBottom = Math.max(maxBottom, p.cy + p.h/2); });
-  return { x: cx0/canvasW*100, y: (maxBottom+gap+h/2)/canvasH*100 };
-}
-
-/* Compute the seat-dot layout for one table on the floor plan: how big
-   the table body should be, and where each numbered seat's dot sits
-   around it. Round tables get seats spaced evenly around the circle;
-   rectangular tables get seats split evenly between a top row and a
-   bottom row (e.g. 8 seats -> 4 and 4, 7 seats -> 4 and 3) — no manual
-   per-side setup needed. */
-function shapeLabel(sh){ return sh==='rect' ? 'Rectangular' : sh==='square' ? 'Square' : 'Round'; }
-function tableFloorLayout(t){
-  var seats = t.seats;
-  if(t.shape === 'rect'){
-    var rotated = t.rotation === 90;
-    var sideA = Math.ceil(seats/2), sideB = seats-sideA;
-    var perSideMax = Math.max(sideA, sideB, 1);
-    var longSide = Math.max(70, perSideMax*24 + 14);
-    var shortSide = 42;
-    var pad = 22;
-    var rectW = rotated ? shortSide : longSide;
-    var rectH = rotated ? longSide : shortSide;
-    var w = rectW + pad*2 + (rotated?6:0), h = rectH + pad*2 + (rotated?0:6);
-    var cx = w/2, cy = h/2;
-    var dots = [];
-    var num = 1;
-    if(!rotated){
-      for(var i=0;i<sideA;i++) dots.push({ num:num++, x: cx - rectW/2 + (rectW/(sideA+1))*(i+1), y: cy - rectH/2 - 13 });
-      for(var j=0;j<sideB;j++) dots.push({ num:num++, x: cx - rectW/2 + (rectW/(sideB+1))*(j+1), y: cy + rectH/2 + 13 });
-    } else {
-      for(var i2=0;i2<sideA;i2++) dots.push({ num:num++, x: cx - rectW/2 - 13, y: cy - rectH/2 + (rectH/(sideA+1))*(i2+1) });
-      for(var j2=0;j2<sideB;j2++) dots.push({ num:num++, x: cx + rectW/2 + 13, y: cy - rectH/2 + (rectH/(sideB+1))*(j2+1) });
-    }
-    return { w:w, h:h, shapeW:rectW, shapeH:rectH, shapeCls:'rect', dots:dots };
-  }
-  if(t.shape === 'square'){
-    // Seats spread evenly across all four sides (round-robin top/right/
-    // bottom/left) since a square table seats people all the way around,
-    // unlike the long rectangular table's two rows.
-    var perSide = Math.ceil(seats/4);
-    var sq = Math.max(56, perSide*24 + 14);
-    var pad2 = 22;
-    var w2 = sq + pad2*2, h2 = sq + pad2*2;
-    var cx2 = w2/2, cy2 = h2/2;
-    var counts = [0,0,0,0];
-    for(var s=0;s<seats;s++) counts[s%4]++;
-    var dots2 = [], num2 = 1;
-    for(var t0=0;t0<counts[0];t0++) dots2.push({ num:num2++, x: cx2 - sq/2 + (sq/(counts[0]+1))*(t0+1), y: cy2 - sq/2 - 13 }); // top
-    for(var r0=0;r0<counts[1];r0++) dots2.push({ num:num2++, x: cx2 + sq/2 + 13, y: cy2 - sq/2 + (sq/(counts[1]+1))*(r0+1) }); // right
-    for(var b0=0;b0<counts[2];b0++) dots2.push({ num:num2++, x: cx2 + sq/2 - (sq/(counts[2]+1))*(b0+1), y: cy2 + sq/2 + 13 }); // bottom
-    for(var l0=0;l0<counts[3];l0++) dots2.push({ num:num2++, x: cx2 - sq/2 - 13, y: cy2 + sq/2 - (sq/(counts[3]+1))*(l0+1) }); // left
-    return { w:w2, h:h2, shapeW:sq, shapeH:sq, shapeCls:'square', dots:dots2 };
-  }
-  var d = Math.max(56, Math.min(92, 44 + seats*3));
-  var r = d/2 + 15;
-  var w = r*2 + 22, h = w;
-  var cx = w/2, cy = h/2;
-  var dots = [];
-  for(var k=0;k<seats;k++){
-    var angle = -Math.PI/2 + k*(2*Math.PI/seats);
-    dots.push({ num:k+1, x: cx + r*Math.cos(angle), y: cy + r*Math.sin(angle) });
-  }
-  return { w:w, h:h, shapeW:d, shapeH:d, shapeCls:'round', dots:dots };
-}
-
-/* Nice, high-contrast defaults for the floor plan — a warm charcoal room
-   with rose-gold tables, matching the site's own palette, so tables read
-   clearly against the canvas without anyone having to hunt for a good
-   combo. Used both as the first-time default and as what the reset
-   buttons restore. */
-
-/* The canvas-color / table-color swatches + their reset buttons — shown
-   in both the list view and the floor view (previously floor-view only,
-   which is why the reset buttons seemed to be missing: list view is the
-   default view, so they were never on screen unless you'd switched). */
-function seatColorControlsHtml(){
-  return '<div class="seatmap-floor-controls">'
-    + '<input type="color" class="seatmap-color-swatch" id="floorColorPicker" value="'+seatMap.floorColor+'" title="Canvas color">'
-    + '<button type="button" class="seatmap-color-reset" id="floorColorReset" title="Reset canvas color to default">↺</button>'
-    + '<input type="color" class="seatmap-color-swatch" id="tableColorPicker" value="'+seatMap.tableColor+'" title="Table color">'
-    + '<button type="button" class="seatmap-color-reset" id="tableColorReset" title="Reset table color to default">↺</button>'
-    + '</div>';
-}
-
-function renderSeatFloorPlan(){
-  var body = document.getElementById('seatmapBody');
-  var sub = document.getElementById('seatmapHdrSub');
-  var fab = document.getElementById('seatmapFabAdd');
-  if(!body) return;
-  if(!seatMap.landmarks) seatMap.landmarks = [];
-
-  if(fab) fab.style.display = seatMap.tables.length ? 'flex' : 'none';
-
-  var totalSeats=0, totalAssigned=0;
-  seatMap.tables.forEach(function(t){
-    totalSeats += t.seats;
-    for(var n=1;n<=t.seats;n++) if(seatMap.assignments[seatKey(t.id,n)]) totalAssigned++;
-  });
-  if(sub) sub.textContent = seatMap.tables.length ? (seatMap.tables.length+(seatMap.tables.length===1?' table · ':' tables · ')+totalAssigned+' of '+totalSeats+' seats assigned') : '';
-
-  var floorStyle = floorCanvasStyle(seatMap.floorColor);
-  var tableStyle = tableNodeStyle(seatMap.tableColor);
-
-  var controls = '<div class="seatmap-floor-controls">'
-    + '<button class="seatmap-floor-add-btn" id="addMarkerBtn">+ Add venue marker</button>'
-    + '</div>'
-    + seatColorControlsHtml()
-    + '<div class="seatmap-marker-picker' + (_markerPickerOpen ? ' open' : '') + '" id="markerPicker">'
-    + Object.keys(LANDMARK_TYPES).map(function(key){
-        var m = LANDMARK_TYPES[key];
-        return '<button class="seatmap-marker-chip" data-mtype="'+key+'">'+m.label+'</button>';
-      }).join('')
-    + '</div>';
-
-  if(!seatMap.tables.length && !seatMap.landmarks.length){
-    body.innerHTML = controls + '<div class="seatmap-floor" id="seatmapFloorCanvas" style="'+floorStyle.css+'"><div class="seatmap-floor-empty" style="color:'+floorStyle.emptyColor+'"><span>No tables yet.<br><br>Tap <strong>+ Table</strong> above, then drag it into place here to match your room layout.</span></div></div>';
-    wireFloorAddButtons();
-    wireFloorColorPicker();
-    return;
-  }
-
-  var tableNodes = [];
-  var canvasPxW = body.clientWidth || 340;
-  var canvasPxH = Math.min(window.innerHeight * 0.7, 520);
-  var placedFootprints = [];
-  seatMap.tables.forEach(function(t, i){
-    if(!t.shape) t.shape = 'round';
-    var lay = tableFloorLayout(t);
-    if(!t.pos) t.pos = defaultTablePos(placedFootprints, canvasPxW, canvasPxH, lay);
-    placedFootprints.push({ cx: t.pos.x/100*canvasPxW, cy: t.pos.y/100*canvasPxH, w: lay.w, h: lay.h });
-    var filled = 0;
-    var dotsHtml = lay.dots.map(function(d){
-      var name = seatMap.assignments[seatKey(t.id,d.num)] || '';
-      var state = name ? seatGuestRsvpState(name) : '';
-      var role = name ? seatCoupleRole(name) : '';
-      if(name) filled++;
-      var dcls = 'seatmap-node-dot'+(role ? ' is-couple '+role : !name ? '' : (state==='yes'?' rsvp-yes':state==='no'?' rsvp-no':' rsvp-pending'));
-      return '<div class="'+dcls+'" data-table="'+t.id+'" data-seat="'+d.num+'" title="'+(name?name.replace(/"/g,'&quot;'):'Seat '+d.num)+'" style="left:'+d.x+'px;top:'+d.y+'px"></div>';
-    }).join('');
-    var shapeCls = 'seatmap-node-shape '+lay.shapeCls+(filled===t.seats && t.seats>0 ? ' full':'');
-    // Chair +/- controls right on the node, so seats can be added/removed
-    // straight from the visual overview without opening the table sheet.
-    var chairCtrls = '<div class="seatmap-node-chairs">'
-      + '<button class="seatmap-node-chair-btn" data-act="dec" data-table="'+t.id+'" title="Fewer chairs">–</button>'
-      + '<button class="seatmap-node-chair-btn" data-act="inc" data-table="'+t.id+'" title="More chairs">+</button>'
-      + '</div>';
-    tableNodes.push('<div class="seatmap-table-node" data-table-id="'+t.id+'" style="left:'+t.pos.x+'%;top:'+t.pos.y+'%;width:'+lay.w+'px;height:'+lay.h+'px">'
-      + '<div class="'+shapeCls+'" style="width:'+lay.shapeW+'px;height:'+lay.shapeH+'px;left:'+(lay.w-lay.shapeW)/2+'px;top:'+(lay.h-lay.shapeH)/2+'px;background:'+tableStyle.bg+';border:2px solid '+tableStyle.border+'">'
-        + '<span class="seatmap-table-node-name" style="color:'+tableStyle.text+'">'+t.name.replace(/</g,'&lt;')+'</span>'
-        + '<span class="seatmap-table-node-meta" style="color:'+tableStyle.meta+'">'+filled+'/'+t.seats+'</span>'
-      + '</div>'
-      + dotsHtml
-      + chairCtrls
-      + '</div>');
-  });
-
-  var landmarkNodes = seatMap.landmarks.map(function(l){
-    var m = LANDMARK_TYPES[l.type] || LANDMARK_TYPES.buffet;
-    return '<div class="seatmap-landmark" data-ltype="'+l.type+'" data-landmark-id="'+l.id+'" style="left:'+l.pos.x+'%;top:'+l.pos.y+'%;background:'+m.bg+';border:2px solid '+m.border+';color:'+m.color+'"><span>'+m.label+'</span></div>';
-  }).join('');
-
-  body.innerHTML = controls
-    + '<div class="seatmap-floor" id="seatmapFloorCanvas" style="'+floorStyle.css+'">'+tableNodes.join('')+landmarkNodes
-      + '<div class="seatmap-snap-guide v" id="snapGuideV"></div>'
-      + '<div class="seatmap-snap-guide h" id="snapGuideH"></div>'
-    + '</div>';
-
-  saveSeatMap();
-  wireFloorDrag();
-  wireFloorAddButtons();
-  wireFloorColorPicker();
-  body.querySelectorAll('.seatmap-node-chair-btn').forEach(function(btn){
-    btn.addEventListener('click', function(e){
-      e.stopPropagation();
-      var id = this.dataset.table, act = this.dataset.act;
-      var t = seatMap.tables.find(function(x){return x.id===id;});
-      if(!t) return;
-      if(act==='inc') setSeatCount(id, t.seats+1);
-      else if(act==='dec') setSeatCount(id, t.seats-1);
-    });
-  });
-  flashLastAddedTable(document.getElementById('seatmapFloorCanvas') || body);
-}
-
-/* Build the table-shape style for a chosen colour, picking readable text
-   and border tones whether the colour is light or dark. */
-function tableNodeStyle(hex){
-  var h = (hex||DEFAULT_TABLE_COLOR).replace('#','');
-  if(h.length===3) h = h.split('').map(function(c){return c+c;}).join('');
-  var r = parseInt(h.substr(0,2),16)||0, g = parseInt(h.substr(2,2),16)||0, b = parseInt(h.substr(4,2),16)||0;
-  var brightness = (r*299 + g*587 + b*114) / 1000;
-  var light = brightness > 150;
-  return {
-    bg: hex,
-    border: light ? 'rgba(0,0,0,.25)' : 'rgba(255,255,255,.22)',
-    text: light ? '#1a1a1a' : '#fff',
-    meta: light ? 'rgba(0,0,0,.55)' : 'rgba(255,255,255,.6)'
-  };
-}
-
-/* Build the canvas background style for a chosen colour, picking grid-line
-   and empty-state text tones that stay readable whether the colour is
-   light or dark. */
-function floorCanvasStyle(hex){
-  var h = (hex||DEFAULT_FLOOR_COLOR).replace('#','');
-  if(h.length===3) h = h.split('').map(function(c){return c+c;}).join('');
-  var r = parseInt(h.substr(0,2),16)||0, g = parseInt(h.substr(2,2),16)||0, b = parseInt(h.substr(4,2),16)||0;
-  var brightness = (r*299 + g*587 + b*114) / 1000;
-  var light = brightness > 150;
-  var gridColor = light ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.06)';
-  var borderColor = light ? 'rgba(0,0,0,.15)' : 'rgba(255,255,255,.12)';
-  var emptyColor = light ? 'rgba(0,0,0,.5)' : 'rgba(255,255,255,.65)';
-  var css = 'background-color:'+hex+';background-image:linear-gradient('+gridColor+' 1px,transparent 1px),linear-gradient(90deg,'+gridColor+' 1px,transparent 1px);border-color:'+borderColor+';';
-  return { css:css, emptyColor:emptyColor };
-}
-
-function wireFloorColorPicker(){
-  var picker = document.getElementById('floorColorPicker');
-  if(picker){
-    picker.addEventListener('input', function(){
-      seatMap.floorColor = this.value;
-      var canvas = document.getElementById('seatmapFloorCanvas');
-      if(canvas) canvas.style.cssText += floorCanvasStyle(this.value).css;
-    });
-    picker.addEventListener('change', function(){
-      seatMap.floorColor = this.value;
-      saveSeatMap();
-      renderSeatMap();
-    });
-  }
-  var tPicker = document.getElementById('tableColorPicker');
-  if(tPicker){
-    tPicker.addEventListener('change', function(){
-      seatMap.tableColor = this.value;
-      saveSeatMap();
-      renderSeatMap();
-    });
-  }
-  var floorReset = document.getElementById('floorColorReset');
-  if(floorReset){
-    floorReset.addEventListener('click', function(){
-      seatMap.floorColor = DEFAULT_FLOOR_COLOR;
-      saveSeatMap();
-      renderSeatMap();
-    });
-  }
-  var tableReset = document.getElementById('tableColorReset');
-  if(tableReset){
-    tableReset.addEventListener('click', function(){
-      seatMap.tableColor = DEFAULT_TABLE_COLOR;
-      saveSeatMap();
-      renderSeatMap();
-    });
-  }
-}
-
-/* Venue marker types the person can drop onto the floor plan — an
-   approximate, drag-to-place stand-in for where each thing will be. */
-var LANDMARK_TYPES = {
-  buffet:     { label:'Buffet',      bg:'#5b3a12', border:'#c9873f', color:'#ffd9a0' },
-  bar:        { label:'Bar',          bg:'#1a3a3a', border:'#4fc9c9', color:'#b7f5f5' },
-  dancefloor: { label:'Dance Floor',  bg:'#3a1a4a', border:'#b06fd6', color:'#eec7ff' },
-  dj:         { label:'DJ / Band',    bg:'#1a2a4a', border:'#6f9ed6', color:'#c7dcff' },
-  entrance:   { label:'Entrance',     bg:'#3a2a1a', border:'#d6a06f', color:'#ffe0c7' },
-  gifts:      { label:'Gift Table',   bg:'#4a1a2a', border:'#d66f9e', color:'#ffc7dc' },
-  cake:       { label:'Cake Table',   bg:'#4a3a1a', border:'#d6c06f', color:'#fff0c7' },
-  restrooms:  { label:'Restrooms',    bg:'#2a2a2a', border:'#9e9e9e', color:'#e0e0e0' },
-  photobooth: { label:'Photo Booth',  bg:'#1a3a2a', border:'#6fd6a0', color:'#c7ffe0' }
-};
-var _markerPickerOpen = false;
-
-function wireFloorAddButtons(){
-  var b = document.getElementById('addMarkerBtn');
-  if(b) b.addEventListener('click', function(){
-    _markerPickerOpen = !_markerPickerOpen;
-    var picker = document.getElementById('markerPicker');
-    if(picker) picker.classList.toggle('open', _markerPickerOpen);
-  });
-  var picker = document.getElementById('markerPicker');
-  if(picker){
-    picker.querySelectorAll('.seatmap-marker-chip').forEach(function(chip){
-      chip.addEventListener('click', function(){
-        addLandmark(this.dataset.mtype);
-        _markerPickerOpen = false;
-      });
-    });
-  }
-}
-
-function addLandmark(type){
-  if(!seatMap.landmarks) seatMap.landmarks = [];
-  var count = seatMap.landmarks.filter(function(l){return l.type===type;}).length;
-  seatMap.landmarks.push({ id: uid(), type: type, pos: { x: 50 + count*6, y: 50 + count*6 } });
-  saveSeatMap();
-  renderSeatFloorPlan();
-}
-function removeLandmark(id){
-  seatMap.landmarks = (seatMap.landmarks||[]).filter(function(l){return l.id!==id;});
-  saveSeatMap();
-  renderSeatFloorPlan();
-}
-
-/* All other tables' + landmarks' x/y positions (as percentages), used to
-   snap a dragged item into alignment — like the "smart guides" in slide
-   or design apps: drag near another item's left/right/center/top/bottom
-   and it snaps straight, with a thin guide line while you're dragging. */
-function snapTargets(excludeId){
-  var xs = [], ys = [];
-  seatMap.tables.forEach(function(t){
-    if(t.id===excludeId || !t.pos) return;
-    xs.push(t.pos.x); ys.push(t.pos.y);
-  });
-  (seatMap.landmarks||[]).forEach(function(l){
-    if(l.id===excludeId || !l.pos) return;
-    xs.push(l.pos.x); ys.push(l.pos.y);
-  });
-  return { xs:xs, ys:ys };
-}
-var SNAP_THRESHOLD = 2.2;
-
-function wireFloorDrag(){
-  var canvas = document.getElementById('seatmapFloorCanvas');
-  if(!canvas) return;
-  var guideV = document.getElementById('snapGuideV');
-  var guideH = document.getElementById('snapGuideH');
-
-  canvas.querySelectorAll('.seatmap-node-dot').forEach(function(dot){
-    dot.addEventListener('pointerdown', function(e){ e.stopPropagation(); });
-    dot.addEventListener('click', function(e){
-      e.stopPropagation();
-      openSeatAssign(this.dataset.table, parseInt(this.dataset.seat,10));
-    });
-  });
-
-  function makeDraggable(node, idAttr, excludeId, onEnd, onDelete){
-    var dragging = false, moved = false, startX=0, startY=0;
-    var trash = document.getElementById('seatmapTrash');
-    node.addEventListener('pointerdown', function(e){
-      if(e.target.closest('.seatmap-node-dot') || e.target.closest('.seatmap-node-chair-btn')) return;
-      dragging = true; moved = false;
-      startX = e.clientX; startY = e.clientY;
-      node.classList.add('dragging');
-      try{ node.setPointerCapture(e.pointerId); }catch(err){}
-    });
-    node.addEventListener('pointermove', function(e){
-      if(!dragging) return;
-      var dx = e.clientX - startX, dy = e.clientY - startY;
-      if(Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
-      if(moved && trash && onDelete) trash.classList.add('visible');
-
-      var overTrash = false;
-      if(moved && trash && onDelete){
-        var trect = trash.getBoundingClientRect();
-        overTrash = e.clientX>=trect.left && e.clientX<=trect.right && e.clientY>=trect.top && e.clientY<=trect.bottom;
-        trash.classList.toggle('armed', overTrash);
-        node.style.opacity = overTrash ? '.3' : '';
-      }
-      if(overTrash){
-        if(guideV) guideV.style.display = 'none';
-        if(guideH) guideH.style.display = 'none';
-        return;
-      }
-
-      var rect = canvas.getBoundingClientRect();
-      var xPct = ((e.clientX - rect.left) / rect.width) * 100;
-      var yPct = ((e.clientY - rect.top) / rect.height) * 100;
-      xPct = Math.max(4, Math.min(96, xPct));
-      yPct = Math.max(6, Math.min(94, yPct));
-
-      var targets = snapTargets(excludeId);
-      var snappedX = null, snappedY = null;
-      targets.xs.forEach(function(cx){ if(Math.abs(xPct-cx) < SNAP_THRESHOLD) snappedX = cx; });
-      targets.ys.forEach(function(cy){ if(Math.abs(yPct-cy) < SNAP_THRESHOLD) snappedY = cy; });
-      if(snappedX !== null) xPct = snappedX;
-      if(snappedY !== null) yPct = snappedY;
-
-      if(guideV){ guideV.style.display = snappedX!==null ? 'block' : 'none'; guideV.style.left = xPct+'%'; }
-      if(guideH){ guideH.style.display = snappedY!==null ? 'block' : 'none'; guideH.style.top = yPct+'%'; }
-
-      node.style.left = xPct + '%';
-      node.style.top = yPct + '%';
-    });
-    function endDrag(e){
-      if(!dragging) return;
-      dragging = false;
-      node.classList.remove('dragging');
-      node.style.opacity = '';
-      if(guideV) guideV.style.display = 'none';
-      if(guideH) guideH.style.display = 'none';
-      var droppedOnTrash = !!(trash && trash.classList.contains('armed'));
-      if(trash){ trash.classList.remove('visible'); trash.classList.remove('armed'); }
-      if(droppedOnTrash && onDelete){
-        onDelete(node.dataset[idAttr]);
-        return;
-      }
-      onEnd(moved, node.dataset[idAttr]);
-    }
-    node.addEventListener('pointerup', endDrag);
-    node.addEventListener('pointercancel', endDrag);
-  }
-
-  canvas.querySelectorAll('.seatmap-table-node').forEach(function(node){
-    makeDraggable(node, 'tableId', node.dataset.tableId, function(moved, id){
-      var t = seatMap.tables.find(function(x){return x.id===id;});
-      if(t){
-        t.pos = { x: parseFloat(node.style.left), y: parseFloat(node.style.top) };
-        saveSeatMap();
-      }
-      if(!moved) openTableFromFloor(id);
-    }, function(id){
-      // removeTable() already confirms and re-renders — dragging a table
-      // onto the trash bin is the deliberate "let go to delete" gesture.
-      removeTable(id);
-    });
-  });
-
-  canvas.querySelectorAll('.seatmap-landmark').forEach(function(node){
-    makeDraggable(node, 'landmarkId', node.dataset.landmarkId, function(moved, id){
-      var l = (seatMap.landmarks||[]).find(function(x){return x.id===id;});
-      if(l){
-        l.pos = { x: parseFloat(node.style.left), y: parseFloat(node.style.top) };
-        saveSeatMap();
-      }
-      if(!moved && confirm('Remove this marker?')) removeLandmark(id);
-    }, function(id){
-      removeLandmark(id);
-    });
-  });
-}
-
-/* Tapping (not dragging) a table on the floor plan opens the same seats
-   list used in list view, in a lightweight sheet, so guests can still be
-   assigned without leaving the spatial layout. */
-function openTableFromFloor(tableId){
-  var t = seatMap.tables.find(function(x){return x.id===tableId;});
-  if(!t) return;
-  var seatsHtml = '';
-  for(var n=1;n<=t.seats;n++){
-    var name = seatMap.assignments[seatKey(t.id,n)] || '';
-    var state = name ? seatGuestRsvpState(name) : '';
-    var role = name ? seatCoupleRole(name) : '';
-    var stateCls = role ? ' is-couple '+role : !name ? '' : (state==='yes'?' rsvp-yes':state==='no'?' rsvp-no':' rsvp-pending');
-    var cls = 'seatmap-seat'+(name?'':' empty')+stateCls;
-    seatsHtml += '<div class="'+cls+'" data-table="'+t.id+'" data-seat="'+n+'"'+(name?' title="'+name.replace(/"/g,'&quot;')+'"':'')+'>'
-      + '<span class="seatmap-seat-num">Seat '+n+'</span>'
-      + '<span class="seatmap-seat-name">'+(name?seatFirstName(name):'+ Add')+'</span>'
-      + '</div>';
-  }
-  document.getElementById('seatAssignTitle').innerHTML = t.name.replace(/</g,'&lt;')
-    + '<span class="ts-wrap">'
-      + '<button id="tableShapeToggle" class="ts-btn" data-table="'+t.id+'">'
-        + '<span class="ts-icon '+t.shape+'"></span>'
-        + shapeLabel(t.shape)
-        + '<svg class="ts-chev" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>'
-      + '</button>'
-      + '<div class="ts-pop" id="tableShapePop">'
-        + ['rect','square','round'].map(function(sh){
-            return '<button class="ts-opt'+(t.shape===sh?' active':'')+'" data-shape="'+sh+'"><span class="ts-icon '+sh+'"></span>'+shapeLabel(sh)+'</button>';
-          }).join('')
-      + '</div>'
-    + '</span>'
-    + (t.shape==='rect' ? ' <button id="tableRotateBtn" data-table="'+t.id+'" title="Rotate table" class="ts-rotate-btn">Rotate</button>' : '');
-  var srch = document.getElementById('seatAssignSearch');
-  srch.style.display = 'none'; // not relevant in table view — search only applies to assigning a single seat
-  srch.value = '';
-  document.getElementById('seatAssignUnassignBtn').style.display = 'none';
-  var list = document.getElementById('seatAssignList');
-  var chairsBar = '<div class="ts-chairs-bar">'
-    + '<button class="seatmap-mini-btn" id="tsChairsDec" title="Fewer chairs">–</button>'
-    + '<span class="seatmap-seat-count">'+t.seats+' chairs</span>'
-    + '<button class="seatmap-mini-btn" id="tsChairsInc" title="More chairs">+</button>'
-    + '</div>';
-  list.innerHTML = chairsBar + '<div class="seatmap-seats" style="padding:2px 2px 14px">'+seatsHtml+'</div>';
-  list.querySelectorAll('.seatmap-seat').forEach(function(seat){
-    seat.addEventListener('click', function(){
-      closeSeatAssign();
-      openSeatAssign(this.dataset.table, parseInt(this.dataset.seat,10));
-    });
-  });
-  var chairsDec = document.getElementById('tsChairsDec');
-  var chairsInc = document.getElementById('tsChairsInc');
-  if(chairsDec) chairsDec.addEventListener('click', function(){ setSeatCount(tableId, t.seats-1); openTableFromFloor(tableId); });
-  if(chairsInc) chairsInc.addEventListener('click', function(){ setSeatCount(tableId, t.seats+1); openTableFromFloor(tableId); });
-  var shapeToggle = document.getElementById('tableShapeToggle');
-  var shapePop = document.getElementById('tableShapePop');
-  if(shapeToggle && shapePop){
-    shapeToggle.addEventListener('click', function(e){
-      e.stopPropagation();
-      shapePop.classList.toggle('open');
-    });
-    shapePop.querySelectorAll('.ts-opt').forEach(function(opt){
-      opt.addEventListener('click', function(e){
-        e.stopPropagation();
-        shapePop.classList.remove('open');
-        var newShape = this.dataset.shape;
-        if(newShape === t.shape) return;
-        t.shape = newShape;
-        seatMap.defaultShape = newShape; // future "+ Table" taps match this
-        saveSeatMap();
-        openTableFromFloor(tableId);
-        renderSeatFloorPlan();
-      });
-    });
-  }
-  var rotateBtn = document.getElementById('tableRotateBtn');
-  if(rotateBtn) rotateBtn.addEventListener('click', function(){
-    t.rotation = (t.rotation === 90) ? 0 : 90;
-    saveSeatMap();
-    openTableFromFloor(tableId);
-    renderSeatFloorPlan();
-  });
-  document.getElementById('seatAssignSheet').classList.remove('tall'); // compact: floor plan stays visible behind it
-  document.getElementById('seatAssignOverlay').classList.add('open');
-  document.getElementById('seatAssignSheet').classList.add('open');
-}
-
-/* Called after every renderGuestList() so the seat map, if open, always
-   reflects the latest RSVP status — this is what makes seat colours
-   "auto-update" when someone's RSVP changes anywhere in the app. */
-window.refreshSeatBadges = function(){
-  var screen = document.getElementById('seatmapScreen');
-  if(screen && screen.classList.contains('open')) renderSeatMap();
-};
-
-function openSeatMap(){
-  var btn = document.getElementById('seatmapViewToggle');
-  if(btn) btn.classList.toggle('active', seatMapView==='floor');
-  renderSeatMap();
-  document.getElementById('seatmapOverlay').classList.add('open');
-  document.getElementById('seatmapScreen').classList.add('open');
-  pullSeatMap(true); // grab anything the other device saved since our last pull
-  startSeatMapPoll();
-}
-function closeSeatMapScreen(){
-  document.getElementById('seatmapOverlay').classList.remove('open');
-  document.getElementById('seatmapScreen').classList.remove('open');
-  stopSeatMapPoll();
-}
-
-/* Wiring — this script tag sits at the very end of <body>, so every
-   element it references already exists in the DOM by the time this runs. */
-var _smBtn = document.getElementById('seatMapBtn');
-if(_smBtn) _smBtn.addEventListener('click', openSeatMap);
-var _smClose = document.getElementById('seatmapCloseBtn');
-if(_smClose) _smClose.addEventListener('click', closeSeatMapScreen);
-var _smOverlay = document.getElementById('seatmapOverlay');
-if(_smOverlay) _smOverlay.addEventListener('click', closeSeatMapScreen);
-var _smAdd = document.getElementById('seatmapAddTableBtn');
-if(_smAdd) _smAdd.addEventListener('click', addTable);
-var _smViewToggle = document.getElementById('seatmapViewToggle');
-if(_smViewToggle) _smViewToggle.addEventListener('click', function(){
-  setSeatMapView(seatMapView==='floor' ? 'list' : 'floor');
-});
-var _smFab = document.getElementById('seatmapFabAdd');
-if(_smFab) _smFab.addEventListener('click', addTable);
-var _saOverlay = document.getElementById('seatAssignOverlay');
-if(_saOverlay) _saOverlay.addEventListener('click', closeSeatAssign);
-var _saCloseBtn = document.getElementById('seatAssignCloseBtn');
-if(_saCloseBtn) _saCloseBtn.addEventListener('click', closeSeatAssign);
-var _saSearch = document.getElementById('seatAssignSearch');
-if(_saSearch) _saSearch.addEventListener('input', function(){ renderSeatAssignList(this.value); });
-
-/* iOS Safari anchors position:fixed elements to the *layout* viewport, not
-   the visual one — so once the keyboard opens, a bottom-fixed sheet like
-   #seatAssignSheet can end up sitting partly (or fully) behind the keyboard,
-   which is what made the guest list look like it "shows nothing". Nudge the
-   sheet up by exactly the keyboard's height using the visualViewport API,
-   which does track the real visible area. */
-(function(){
-  var sheet = document.getElementById('seatAssignSheet');
-  if(!sheet || !window.visualViewport) return;
-  function reposition(){
-    if(!sheet.classList.contains('open')) return;
-    var vv = window.visualViewport;
-    var gap = window.innerHeight - vv.height - vv.offsetTop;
-    sheet.style.bottom = Math.max(0, gap) + 'px';
-    // Only the tall (guest-search) sheet needs to claim viewport height to
-    // dodge the keyboard — leave the compact table-view sheet's own CSS
-    // max-height alone so it doesn't balloon back up on every scroll/resize.
-    sheet.style.maxHeight = sheet.classList.contains('tall')
-      ? Math.min(vv.height * 0.92, vv.height - 16) + 'px'
-      : '';
-  }
-  window.visualViewport.addEventListener('resize', reposition);
-  window.visualViewport.addEventListener('scroll', reposition);
-  if(_saSearch) _saSearch.addEventListener('focus', function(){ setTimeout(reposition, 60); });
-})();
-var _saUnassign = document.getElementById('seatAssignUnassignBtn');
-if(_saUnassign) _saUnassign.addEventListener('click', function(){
-  if(_assignCtx) unassignSeat(_assignCtx.tableId, _assignCtx.seatNum);
-});
-// Close the table-shape popover when tapping anywhere else on the sheet
-document.addEventListener('click', function(e){
-  if(!e.target.closest('.ts-wrap')){
-    document.querySelectorAll('.ts-pop.open').forEach(function(p){ p.classList.remove('open'); });
-  }
-});
-
-})();
 </script>
 </body>
 </html>
