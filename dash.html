@@ -929,6 +929,7 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-table-node.dragging .seatmap-node-shape{box-shadow:0 6px 18px rgba(0,0,0,.5)}
 .seatmap-node-shape.round{border-radius:50%}
 .seatmap-node-shape.rect{border-radius:10px}
+.seatmap-node-shape.square{border-radius:6px}
 .seatmap-node-shape.full{border-color:#5fd393 !important}
 .seatmap-node-shape.full .seatmap-table-node-meta{color:#5fd393 !important}
 .seatmap-table-node-name{font-family:var(--sans);font-size:10.5px;font-weight:800;text-align:center;line-height:1.1;word-break:break-word;max-width:90%;padding:0 3px}
@@ -985,6 +986,7 @@ body.lite-mode #liteModeTopBtn {
 .ts-icon{display:inline-block;width:12px;height:9px;border:1.6px solid currentColor;flex-shrink:0}
 .ts-icon.round{width:10px;height:10px;border-radius:50%}
 .ts-icon.rect{border-radius:2px}
+.ts-icon.square{width:10px;height:10px;border-radius:2px}
 .ts-chev{opacity:.55;flex-shrink:0}
 .ts-pop{position:absolute;top:calc(100% + 6px);left:0;z-index:20;min-width:150px;background:var(--cream);border:1.5px solid var(--parchment);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.16);padding:5px;display:none}
 .ts-pop.open{display:block}
@@ -999,6 +1001,16 @@ body.lite-mode #liteModeTopBtn {
    can tell who's sharing a table without reading every name. */
 .g-seat-badge{display:inline-flex;align-items:center;gap:5px;font-family:var(--sans);font-size:9.5px;font-weight:800;letter-spacing:.02em;padding:3px 9px 3px 7px;border-radius:var(--r-pill);white-space:nowrap;vertical-align:middle;border:1px solid transparent}
 .g-seat-badge-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;box-shadow:0 0 0 2px rgba(255,255,255,.5) inset}
+/* The badge's hashed color reads fine on the default white/cream card, but
+   disappears against the solid green/red/orange "sent" card backgrounds —
+   override to a translucent white pill there instead, same treatment the
+   partner-unlink chip already uses in the pending state. */
+.g-swipe-wrap.rsvp-yes .g-card.sent .g-seat-badge,
+.g-swipe-wrap.rsvp-no .g-card.sent .g-seat-badge,
+.g-swipe-wrap.rsvp-pending .g-card.sent .g-seat-badge{background:rgba(255,255,255,.22)!important;border-color:rgba(255,255,255,.4)!important;color:#fff!important}
+.g-swipe-wrap.rsvp-yes .g-card.sent .g-seat-badge-dot,
+.g-swipe-wrap.rsvp-no .g-card.sent .g-seat-badge-dot,
+.g-swipe-wrap.rsvp-pending .g-card.sent .g-seat-badge-dot{background:#fff!important}
 
 </style>
 </head>
@@ -6716,6 +6728,7 @@ function defaultTablePos(index){
    rectangular tables get seats split evenly between a top row and a
    bottom row (e.g. 8 seats -> 4 and 4, 7 seats -> 4 and 3) — no manual
    per-side setup needed. */
+function shapeLabel(sh){ return sh==='rect' ? 'Rectangular' : sh==='square' ? 'Square' : 'Round'; }
 function tableFloorLayout(t){
   var seats = t.seats;
   if(t.shape === 'rect'){
@@ -6739,6 +6752,24 @@ function tableFloorLayout(t){
       for(var j2=0;j2<sideB;j2++) dots.push({ num:num++, x: cx + rectW/2 + 13, y: cy - rectH/2 + (rectH/(sideB+1))*(j2+1) });
     }
     return { w:w, h:h, shapeW:rectW, shapeH:rectH, shapeCls:'rect', dots:dots };
+  }
+  if(t.shape === 'square'){
+    // Seats spread evenly across all four sides (round-robin top/right/
+    // bottom/left) since a square table seats people all the way around,
+    // unlike the long rectangular table's two rows.
+    var perSide = Math.ceil(seats/4);
+    var sq = Math.max(56, perSide*24 + 14);
+    var pad2 = 22;
+    var w2 = sq + pad2*2, h2 = sq + pad2*2;
+    var cx2 = w2/2, cy2 = h2/2;
+    var counts = [0,0,0,0];
+    for(var s=0;s<seats;s++) counts[s%4]++;
+    var dots2 = [], num2 = 1;
+    for(var t0=0;t0<counts[0];t0++) dots2.push({ num:num2++, x: cx2 - sq/2 + (sq/(counts[0]+1))*(t0+1), y: cy2 - sq/2 - 13 }); // top
+    for(var r0=0;r0<counts[1];r0++) dots2.push({ num:num2++, x: cx2 + sq/2 + 13, y: cy2 - sq/2 + (sq/(counts[1]+1))*(r0+1) }); // right
+    for(var b0=0;b0<counts[2];b0++) dots2.push({ num:num2++, x: cx2 + sq/2 - (sq/(counts[2]+1))*(b0+1), y: cy2 + sq/2 + 13 }); // bottom
+    for(var l0=0;l0<counts[3];l0++) dots2.push({ num:num2++, x: cx2 - sq/2 - 13, y: cy2 + sq/2 - (sq/(counts[3]+1))*(l0+1) }); // left
+    return { w:w2, h:h2, shapeW:sq, shapeH:sq, shapeCls:'square', dots:dots2 };
   }
   var d = Math.max(56, Math.min(92, 44 + seats*3));
   var r = d/2 + 15;
@@ -7115,13 +7146,14 @@ function openTableFromFloor(tableId){
   document.getElementById('seatAssignTitle').innerHTML = t.name.replace(/</g,'&lt;')
     + '<span class="ts-wrap">'
       + '<button id="tableShapeToggle" class="ts-btn" data-table="'+t.id+'">'
-        + '<span class="ts-icon '+(t.shape==='rect'?'rect':'round')+'"></span>'
-        + (t.shape==='rect' ? 'Rectangular' : 'Round')
+        + '<span class="ts-icon '+t.shape+'"></span>'
+        + shapeLabel(t.shape)
         + '<svg class="ts-chev" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>'
       + '</button>'
       + '<div class="ts-pop" id="tableShapePop">'
-        + '<button class="ts-opt'+(t.shape==='rect'?' active':'')+'" data-shape="rect"><span class="ts-icon rect"></span>Rectangular</button>'
-        + '<button class="ts-opt'+(t.shape!=='rect'?' active':'')+'" data-shape="round"><span class="ts-icon round"></span>Round</button>'
+        + ['rect','square','round'].map(function(sh){
+            return '<button class="ts-opt'+(t.shape===sh?' active':'')+'" data-shape="'+sh+'"><span class="ts-icon '+sh+'"></span>'+shapeLabel(sh)+'</button>';
+          }).join('')
       + '</div>'
     + '</span>'
     + (t.shape==='rect' ? ' <button id="tableRotateBtn" data-table="'+t.id+'" title="Rotate table" class="ts-rotate-btn">Rotate</button>' : '');
