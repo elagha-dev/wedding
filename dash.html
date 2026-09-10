@@ -918,11 +918,17 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-trash{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(30px) scale(.85);z-index:401;width:56px;height:56px;border-radius:50%;background:rgba(40,40,40,.88);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .18s,transform .18s,background .15s}
 .seatmap-trash.visible{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
 .seatmap-trash.armed{background:#b91c1c;transform:translateX(-50%) translateY(0) scale(1.15)}
-.seatmap-floor{position:relative;width:100%;height:min(70vh,520px);
-  background-size:24px 24px;border:1.5px solid rgba(0,0,0,.12);border-radius:var(--r-md,14px);margin-bottom:14px;overflow:hidden;touch-action:none}
+.seatmap-floor-wrap{position:relative;width:100%;height:min(70vh,520px);border:1.5px solid rgba(0,0,0,.12);border-radius:var(--r-md,14px);margin-bottom:14px;overflow:auto;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y}
+.seatmap-floor-sizer{position:relative}
+.seatmap-floor{position:absolute;left:0;top:0;
+  background-size:24px 24px}
+.seatmap-zoom-controls{position:sticky;top:8px;margin:0 8px 0 auto;width:-webkit-fit-content;width:fit-content;z-index:6;display:flex;align-items:center;gap:2px;background:rgba(0,0,0,.55);padding:4px;border-radius:20px;backdrop-filter:blur(3px)}
+.seatmap-zoom-btn{width:26px;height:26px;border-radius:50%;border:none;background:rgba(255,255,255,.15);color:#fff;font-family:var(--sans);font-size:15px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;line-height:1}
+.seatmap-zoom-btn:active{background:rgba(255,255,255,.3)}
+.seatmap-zoom-pct{font-family:var(--sans);font-size:10.5px;font-weight:700;color:#fff;min-width:32px;text-align:center;user-select:none}
 .seatmap-floor-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;color:rgba(255,255,255,.65);font-size:12.5px;padding:24px;line-height:1.6}
 .seatmap-floor-hint{text-align:center;color:var(--muted);font-size:11px;padding:0 2px 12px;font-family:var(--sans)}
-.seatmap-table-node{position:absolute;transform:translate(-50%,-50%);cursor:grab;user-select:none}
+.seatmap-table-node{position:absolute;transform:translate(-50%,-50%);cursor:grab;user-select:none;touch-action:none}
 .seatmap-table-node:active{cursor:grabbing}
 .seatmap-table-node.dragging{transition:none}
 .seatmap-node-shape{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;box-shadow:0 3px 10px rgba(0,0,0,.35)}
@@ -952,7 +958,7 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-table-node.just-added .seatmap-node-shape{animation:seatmapJustAdded 1.6s ease}
 .seatmap-table-card.just-added{animation:seatmapCardJustAdded 1.6s ease}
 @keyframes seatmapCardJustAdded{0%,100%{box-shadow:none}40%{box-shadow:0 0 0 3px rgba(201,135,106,.55)}}
-.seatmap-landmark{position:absolute;transform:translate(-50%,-50%);display:flex;align-items:center;gap:6px;padding:9px 14px;border-radius:var(--r-pill);cursor:grab;user-select:none;box-shadow:0 3px 10px rgba(0,0,0,.35);font-family:var(--sans);font-size:12px;font-weight:800;white-space:nowrap}
+.seatmap-landmark{position:absolute;transform:translate(-50%,-50%);display:flex;align-items:center;gap:6px;padding:9px 14px;border-radius:var(--r-pill);cursor:grab;user-select:none;box-shadow:0 3px 10px rgba(0,0,0,.35);font-family:var(--sans);font-size:12px;font-weight:800;white-space:nowrap;touch-action:none}
 .seatmap-landmark:active{cursor:grabbing}
 .seatmap-landmark.dragging{transition:none}
 .seatmap-marker-picker{display:none;flex-wrap:wrap;gap:8px;padding:2px 2px 12px}
@@ -6351,6 +6357,8 @@ window.addEventListener('unhandledrejection', function(e){ e.preventDefault(); }
 (function(){
 
 var seatMap = {tables:[], assignments:{}};
+var seatMapZoom = 1;
+var SEATMAP_ZOOM_MIN = 0.5, SEATMAP_ZOOM_MAX = 2.5;
 
 /* Nice, high-contrast defaults for the floor plan — a warm charcoal room
    with rose-gold tables, matching the site's own palette, so tables read
@@ -6969,7 +6977,7 @@ function renderSeatFloorPlan(){
     + '</div>';
 
   if(!seatMap.tables.length && !seatMap.landmarks.length){
-    body.innerHTML = controls + '<div class="seatmap-floor" id="seatmapFloorCanvas" style="'+floorStyle.css+'"><div class="seatmap-floor-empty" style="color:'+floorStyle.emptyColor+'"><span>No tables yet.<br><br>Tap <strong>+ Table</strong> above, then drag it into place here to match your room layout.</span></div></div>';
+    body.innerHTML = controls + '<div class="seatmap-floor-wrap"><div class="seatmap-floor" id="seatmapFloorCanvas" style="'+floorStyle.css+';position:relative;width:100%;height:100%"><div class="seatmap-floor-empty" style="color:'+floorStyle.emptyColor+'"><span>No tables yet.<br><br>Tap <strong>+ Table</strong> above, then drag it into place here to match your room layout.</span></div></div></div>';
     wireFloorAddButtons();
     wireFloorColorPicker();
     return;
@@ -7015,16 +7023,34 @@ function renderSeatFloorPlan(){
     return '<div class="seatmap-landmark" data-ltype="'+l.type+'" data-landmark-id="'+l.id+'" style="left:'+l.pos.x+'%;top:'+l.pos.y+'%;background:'+m.bg+';border:2px solid '+m.border+';color:'+m.color+'"><span>'+m.label+'</span></div>';
   }).join('');
 
+  // The canvas grows to fit every placed table/marker (instead of clipping
+  // anything that lands below the visible fold) — the wrap div below is
+  // what actually scrolls, and zoom scales the whole thing via transform.
+  var contentH = canvasPxH;
+  placedFootprints.forEach(function(p){ contentH = Math.max(contentH, p.cy + p.h/2 + 24); });
+  (seatMap.landmarks||[]).forEach(function(l){ contentH = Math.max(contentH, (l.pos.y/100*canvasPxH) + 40); });
+  var z = seatMapZoom;
+
   body.innerHTML = controls
-    + '<div class="seatmap-floor" id="seatmapFloorCanvas" style="'+floorStyle.css+'">'+tableNodes.join('')+landmarkNodes
-      + '<div class="seatmap-snap-guide v" id="snapGuideV"></div>'
-      + '<div class="seatmap-snap-guide h" id="snapGuideH"></div>'
+    + '<div class="seatmap-floor-wrap" id="seatmapFloorWrap">'
+      + '<div class="seatmap-zoom-controls">'
+        + '<button class="seatmap-zoom-btn" id="seatmapZoomOut" title="Zoom out">–</button>'
+        + '<span class="seatmap-zoom-pct" id="seatmapZoomPct">'+Math.round(z*100)+'%</span>'
+        + '<button class="seatmap-zoom-btn" id="seatmapZoomIn" title="Zoom in">+</button>'
+      + '</div>'
+      + '<div class="seatmap-floor-sizer" style="width:'+(canvasPxW*z)+'px;height:'+(contentH*z)+'px">'
+        + '<div class="seatmap-floor" id="seatmapFloorCanvas" style="'+floorStyle.css+';width:'+canvasPxW+'px;height:'+contentH+'px;transform:scale('+z+');transform-origin:0 0">'+tableNodes.join('')+landmarkNodes
+          + '<div class="seatmap-snap-guide v" id="snapGuideV"></div>'
+          + '<div class="seatmap-snap-guide h" id="snapGuideH"></div>'
+        + '</div>'
+      + '</div>'
     + '</div>';
 
   saveSeatMap();
   wireFloorDrag();
   wireFloorAddButtons();
   wireFloorColorPicker();
+  wireFloorZoom();
   body.querySelectorAll('.seatmap-node-chair-btn').forEach(function(btn){
     btn.addEventListener('click', function(e){
       e.stopPropagation();
@@ -7173,6 +7199,55 @@ function snapTargets(excludeId){
   return { xs:xs, ys:ys };
 }
 var SNAP_THRESHOLD = 2.2;
+
+/* Zoom controls (+/- buttons and pinch) for the floor-plan canvas. Zoom is
+   just a CSS transform:scale on the canvas element sized inside a bigger
+   "sizer" div, so the wrap's native scrollbars/pinning already reach every
+   part of it — no custom pan code needed. */
+function setSeatMapZoom(z){
+  seatMapZoom = Math.max(SEATMAP_ZOOM_MIN, Math.min(SEATMAP_ZOOM_MAX, z));
+  renderSeatFloorPlan();
+}
+function wireFloorZoom(){
+  var wrap = document.getElementById('seatmapFloorWrap');
+  var outBtn = document.getElementById('seatmapZoomOut');
+  var inBtn = document.getElementById('seatmapZoomIn');
+  if(outBtn) outBtn.addEventListener('click', function(){ setSeatMapZoom(seatMapZoom - 0.25); });
+  if(inBtn) inBtn.addEventListener('click', function(){ setSeatMapZoom(seatMapZoom + 0.25); });
+  if(!wrap) return;
+
+  // Two-finger pinch: track the distance between touches and scale the
+  // zoom proportionally. Single-finger touches are left alone so the
+  // wrap's native scrolling and table-node dragging keep working.
+  var pinchStartDist = null, pinchStartZoom = 1;
+  wrap.addEventListener('touchstart', function(e){
+    if(e.touches.length === 2){
+      pinchStartDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+      pinchStartZoom = seatMapZoom;
+    }
+  }, {passive:true});
+  wrap.addEventListener('touchmove', function(e){
+    if(e.touches.length === 2 && pinchStartDist){
+      e.preventDefault();
+      var dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+      var z = pinchStartZoom * (dist / pinchStartDist);
+      seatMapZoom = Math.max(SEATMAP_ZOOM_MIN, Math.min(SEATMAP_ZOOM_MAX, z));
+      var canvas = document.getElementById('seatmapFloorCanvas');
+      var sizer = wrap.querySelector('.seatmap-floor-sizer');
+      var pct = document.getElementById('seatmapZoomPct');
+      if(canvas) canvas.style.transform = 'scale('+seatMapZoom+')';
+      if(sizer) sizer.style.width = (canvas.offsetWidth*seatMapZoom)+'px';
+      if(sizer) sizer.style.height = (canvas.offsetHeight*seatMapZoom)+'px';
+      if(pct) pct.textContent = Math.round(seatMapZoom*100)+'%';
+    }
+  }, {passive:false});
+  wrap.addEventListener('touchend', function(e){
+    if(e.touches.length < 2){
+      pinchStartDist = null;
+      saveSeatMap();
+    }
+  });
+}
 
 function wireFloorDrag(){
   var canvas = document.getElementById('seatmapFloorCanvas');
