@@ -35,7 +35,6 @@
   --green:#3A8C5C;--green-bg:#E8F5EE;
   --amber:#B07830;--amber-bg:#FEF3E0;
   --red:#C0402E;--red-bg:#FDECEA;
-  --sky:#5E85A8;--sky-bg:#EAF1F7;
   --arina-bg:#FDE8EE;--arina-txt:#9B1A44;
   --arina-border:rgba(155,26,68,.3);
   --elnur-bg:#FEF0DA;--elnur-txt:#8A4A00;
@@ -221,23 +220,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .f-pill.on-a{background:var(--arina-bg);border-color:var(--arina-border);color:var(--arina-txt)}
 .f-pill.on-e{background:var(--elnur-bg);border-color:var(--elnur-border);color:var(--elnur-txt)}
 .f-pill.f-sent-pill.on{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 2px 8px rgba(58,140,92,.25)}
-.f-pill.on-c{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 2px 8px rgba(58,140,92,.25)}
-/* Guest-list filter row restyled as browser-style tabs: flat top corners,
-   sitting on a shared baseline rule; the active tab's own bottom border
-   overwrites that line in its accent color, so it reads as "attached" to
-   the content below — same idea as the pairs-modal "Link & roles" tab,
-   adapted for a row of mutually-exclusive filters instead of a single
-   toggle. Scoped to #filterRow so the tracker's reused .f-pill filter
-   bar elsewhere keeps its original pill look. */
-#filterRow{border-bottom:1.5px solid var(--parchment);margin-bottom:10px;padding-bottom:0;gap:3px}
-#filterRow .f-pill{border-radius:9px 9px 0 0;-webkit-mask-image:none;border:1.5px solid var(--parchment);background:var(--cream2);box-shadow:none;margin-bottom:-1.5px;border-bottom-color:var(--parchment)}
-#filterRow .f-pill:hover{border-color:var(--blush);border-bottom-color:var(--blush)}
-#filterRow .f-pill.on{background:var(--rose);border-color:var(--rose);color:#fff;border-bottom-color:var(--rose);box-shadow:none}
-#filterRow .f-pill.on-f{background:var(--amber-bg);border-color:rgba(176,120,48,.3);color:var(--amber);border-bottom-color:var(--amber-bg)}
-#filterRow .f-pill.on-c,#filterRow .f-pill.f-sent-pill.on{background:var(--green);border-color:var(--green);color:#fff;border-bottom-color:var(--green);box-shadow:none}
-#filterRow .f-pill-open{border-radius:9px 9px 0 0}
-#filterRow .f-pill-open.on{border-bottom-color:var(--rose)}
-.search-filter-row{display:flex;gap:8px;margin-bottom:12px;align-items:stretch;flex-wrap:wrap}
+.search-filter-row{display:flex;gap:8px;margin-bottom:12px;align-items:stretch}
 .search-wrap{position:relative;flex:1;min-width:0}
 .search-wrap::before{display:none}
 .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none;flex-shrink:0;z-index:1}
@@ -251,9 +234,6 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 
 /* ── SORT BUTTON ── */
 .sort-btn{flex-shrink:0;padding:0 12px;height:auto;border:1.5px solid var(--parchment);border-radius:var(--r-sm);background:var(--cream);color:var(--muted);font-family:var(--sans);font-size:11px;font-weight:600;cursor:pointer;transition:all var(--ease);white-space:nowrap;display:flex;align-items:center;gap:5px}
-.f-pill-round{flex-shrink:0;width:26px;height:26px;padding:0;border-radius:50%;border:1.5px solid var(--sky);background:var(--sky-bg);color:var(--sky);font-family:var(--sans);font-size:12px;font-weight:800;cursor:pointer;transition:all var(--ease);display:flex;align-items:center;justify-content:center}
-.f-pill-round:hover{background:var(--sky);color:#fff}
-.f-pill-round svg{display:block}
 .sort-btn:hover{border-color:var(--blush);color:var(--ink2)}
 .sort-btn.on{border-color:var(--rose);color:var(--rose-deep);background:var(--rose-soft)}
 /* ── BULK BAR ── */
@@ -267,14 +247,6 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 
 /* ── GUEST CARD ── */
 .guest-list{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
-/* Confirmed-pair merge: two guest cards drawn as one unit, divided by a
-   hairline instead of the usual gap+shadow+rounded-corners-on-both. */
-.g-pair-merged{display:flex;flex-direction:column;border-radius:var(--r-sm);overflow:hidden;box-shadow:var(--shadow-sm)}
-.g-pair-merged-wrap{position:relative;margin-bottom:0}
-.g-pair-merged-wrap .g-pair-merged{margin-bottom:0}
-.g-pair-merged .g-swipe-wrap{box-shadow:none;border-radius:0}
-.g-pair-merged .g-swipe-wrap .g-card{border-radius:0}
-.g-pair-merged .g-swipe-wrap:last-child{border-top:1px solid rgba(0,0,0,.06)}
 .g-group-hdr{font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);padding:6px 2px 5px;display:flex;align-items:center;gap:8px;scroll-margin-top:200px}
 .g-group-hdr::after{content:'';flex:1;height:1px;background:var(--parchment)}
 .guest-list{padding-top:2px;margin-top:0}
@@ -297,42 +269,15 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-swipe-wrap.sw-open-left .g-swipe-action-right{display:flex;pointer-events:all}
 .g-swipe-wrap.sw-open-right .g-swipe-action-left{display:flex;pointer-events:all}
 
-/* Sent-card swipe reveals: right-swipe (panel appears on the left) = sender/time
-   info + undo/delete; left-swipe (panel appears on the right) = quick RSVP
-   override. Both panels are plain white, not tinted/gradient. */
-.g-swipe-action-left.sw-info{background:#fff;flex-direction:column;gap:4px;box-shadow:inset 1px 0 0 rgba(0,0,0,.06)}
-.g-swipe-action-left.sw-info .g-sender-br{opacity:1;background:var(--parchment)!important;color:var(--ink2)!important}
-.g-swipe-action-left.sw-info .g-sent-time{color:var(--muted)!important;font-size:9px;font-weight:600}
-.g-swipe-info-actions{display:flex;align-items:center;gap:10px;margin-top:3px}
-.g-swipe-info-actions .g-undo-btn,.g-swipe-info-actions .g-del{width:20px;height:20px}
-.g-swipe-info-actions .g-undo-btn svg,.g-swipe-info-actions .g-del svg{width:14px;height:14px}
-/* Deep-swipe-to-delete: dragging the sent-card panel past DELETE_ARM_X (see
-   attachSwipe) adds .sw-delete-ready to the wrap, which turns this panel red
-   and swaps its content for the delete hint below. Releasing while armed
-   deletes the guest (with an undo toast); releasing short of it just snaps
-   back to the normal undo/role panel. */
-.g-swipe-delete-hint{display:none;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#fff;width:100%;height:100%}
-.g-swipe-delete-hint span{font-size:8px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-align:center;line-height:1.2}
-.g-swipe-wrap.sw-delete-ready .g-swipe-action-left.sw-info{background:linear-gradient(135deg,#e74c3c,#c0392b)!important}
-.g-swipe-wrap.sw-delete-ready .g-swipe-action-left.sw-info .g-swipe-info-actions,
-.g-swipe-wrap.sw-delete-ready .g-swipe-action-left.sw-info .g-sender-br,
-.g-swipe-wrap.sw-delete-ready .g-swipe-action-left.sw-info .g-sent-time{display:none!important}
-.g-swipe-wrap.sw-delete-ready .g-swipe-action-left.sw-info .g-swipe-delete-hint{display:flex}
-.g-swipe-action-right.sw-rsvp{background:#fff;flex-direction:row;gap:8px;box-shadow:inset -1px 0 0 rgba(0,0,0,.06)}
-.g-swipe-action-right.sw-rsvp .swipe-rsvp-btn{width:32px;height:32px;border-radius:50%;background:var(--cream2);border:1.5px solid var(--parchment);color:var(--muted);pointer-events:all}
+/* Sent-card swipe reveals: right-swipe = sender/time info, left-swipe = quick RSVP override */
+.g-swipe-action-left.sw-info{background:linear-gradient(135deg,#9AA5B1,#7C8794);flex-direction:column;gap:3px}
+.g-swipe-action-left.sw-info .g-sender-br{opacity:1;background:rgba(255,255,255,.28)!important;color:#fff!important}
+.g-swipe-action-left.sw-info .g-sent-time{color:rgba(255,255,255,.92)!important;font-size:9px;font-weight:600}
+.g-swipe-action-right.sw-rsvp{background:linear-gradient(135deg,#EFEAE4,#E4DCD3);flex-direction:row;gap:8px}
+.g-swipe-action-right.sw-rsvp .swipe-rsvp-btn{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.75);color:var(--muted);pointer-events:all}
 .g-swipe-action-right.sw-rsvp .swipe-rsvp-btn svg{width:15px;height:15px}
 .g-swipe-action-right.sw-rsvp .swipe-rsvp-btn.ga-btn-rsvp-yes.active{background:var(--green);color:#fff}
 .g-swipe-action-right.sw-rsvp .swipe-rsvp-btn.ga-btn-rsvp-no.active{background:var(--red);color:#fff}
-/* Deep-swipe-to-remind: dragging a not-yet-responded sent card's RSVP panel
-   past REMINDER_ARM_X (see attachSwipe) adds .sw-reminder-ready to the
-   wrap, turning this panel blue and swapping its content for the reminder
-   hint below — the same two-stage pattern as delete on the other side.
-   Only wired up for cards with data-rsvp-state="" (see hasReminderPanel). */
-.g-swipe-reminder-hint{display:none;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#fff;width:100%;height:100%}
-.g-swipe-reminder-hint span{font-size:8px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-align:center;line-height:1.2}
-.g-swipe-wrap.sw-reminder-ready .g-swipe-action-right.sw-rsvp{background:linear-gradient(135deg,#4A90D9,#3B78BD)!important}
-.g-swipe-wrap.sw-reminder-ready .g-swipe-action-right.sw-rsvp .g-swipe-action-inner{display:none!important}
-.g-swipe-wrap.sw-reminder-ready .g-swipe-action-right.sw-rsvp .g-swipe-reminder-hint{display:flex}
 
 /* Card sits above panels, slides to reveal them */
 .g-card{background:#fff;border-radius:var(--r-sm);border:none;box-shadow:none;overflow:visible;cursor:pointer;transition:border-color var(--ease),box-shadow var(--ease);position:relative;z-index:1;touch-action:pan-y;will-change:transform}
@@ -342,48 +287,24 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-swipe-wrap:has(.g-card.sel){box-shadow:0 0 0 3px rgba(201,135,106,.18)}
 .g-swipe-wrap:has(.g-card.fup){box-shadow:inset 3px 0 0 var(--amber),var(--shadow-sm)}
 .g-swipe-wrap:has(.g-card.sent) .g-card{background:#fafafa}
-/* Sent cards: RSVP status reads as a full solid color fill — the original
-   green/red treatment, restored. */
 .g-swipe-wrap.rsvp-yes{box-shadow:inset 3px 0 0 #3A8C5C!important}
 .g-swipe-wrap.rsvp-yes .g-card.sent{background:#1a7a4a!important}
 .g-swipe-wrap.rsvp-yes .g-card.sent .g-name{color:#fff!important;font-weight:800!important}
 .g-swipe-wrap.rsvp-yes .g-card.sent .g-sent-time{color:rgba(255,255,255,.7)!important}
+.g-swipe-wrap.rsvp-yes .g-card.sent .g-undo-btn,.g-swipe-wrap.rsvp-yes .g-card.sent .g-del{color:rgba(255,255,255,.6)!important}
 .g-swipe-wrap.rsvp-yes .g-card.sent .g-sender-br{opacity:.8!important}
 .g-swipe-wrap.rsvp-no{box-shadow:inset 3px 0 0 #b91c1c!important}
 .g-swipe-wrap.rsvp-no .g-card.sent{background:#b91c1c!important}
 .g-swipe-wrap.rsvp-no .g-card.sent .g-name{color:#fff!important;font-weight:800!important}
 .g-swipe-wrap.rsvp-no .g-card.sent .g-sent-time{color:rgba(255,255,255,.7)!important}
+.g-swipe-wrap.rsvp-no .g-card.sent .g-undo-btn,.g-swipe-wrap.rsvp-no .g-card.sent .g-del{color:rgba(255,255,255,.6)!important}
 .g-swipe-wrap.rsvp-no .g-card.sent .g-sender-br{opacity:.8!important}
 .g-swipe-wrap.rsvp-pending{box-shadow:inset 3px 0 0 var(--amber)!important}
 .g-swipe-wrap.rsvp-pending .g-card.sent{background:#f59e0b!important}
 .g-swipe-wrap.rsvp-pending .g-card.sent .g-name{color:#fff!important;font-weight:800!important}
 .g-swipe-wrap.rsvp-pending .g-card.sent .g-sent-time{color:rgba(255,255,255,.7)!important}
+.g-swipe-wrap.rsvp-pending .g-card.sent .g-undo-btn,.g-swipe-wrap.rsvp-pending .g-card.sent .g-del{color:rgba(255,255,255,.6)!important}
 .g-swipe-wrap:has(.g-card.pending-sent){box-shadow:inset 3px 0 0 var(--rose),var(--shadow-sm)}
-/* When a card is swiped open, the left action panel sits flush against this
-   same edge — the colored accent line then peeks out behind/around it and
-   looks like a stray sliver. Drop it while swiped open. */
-.g-swipe-wrap.sw-open-left,.g-swipe-wrap.sw-open-right{box-shadow:none!important}
-.g-partner-ref-wrap{display:inline-flex;align-items:center;gap:6px;margin-top:2px;max-width:100%}
-.g-partner-ref-wrap .g-partner-ref{margin-top:0;flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.g-partner-unlink{flex-shrink:0;width:14px;height:14px;border-radius:50%;border:none;background:rgba(0,0,0,.08);color:var(--muted);font-size:8px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
-.g-swipe-wrap.rsvp-yes .g-card.sent .g-partner-unlink,
-.g-swipe-wrap.rsvp-no .g-card.sent .g-partner-unlink,
-.g-swipe-wrap.rsvp-pending .g-card.sent .g-partner-unlink{background:rgba(255,255,255,.25);color:#fff}
-.g-partner-ref{font-size:9.5px;color:var(--muted);margin-top:2px;cursor:pointer;display:flex;align-items:center;gap:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.g-partner-ref:hover{text-decoration:underline}
-.g-swipe-wrap.rsvp-yes .g-card.sent .g-partner-ref{color:rgba(255,255,255,.7)!important}
-.g-swipe-wrap.rsvp-no .g-card.sent .g-partner-ref{color:rgba(255,255,255,.7)!important}
-.g-swipe-wrap.rsvp-pending .g-card.sent .g-partner-ref{color:rgba(255,255,255,.7)!important}
-.g-partner-ref .g-partner-status-yes{color:#1a7a4a;font-weight:800}
-.g-partner-ref .g-partner-status-no{color:#b91c1c;font-weight:800}
-.g-swipe-wrap.rsvp-yes .g-card.sent .g-partner-ref .g-partner-status-yes,
-.g-swipe-wrap.rsvp-yes .g-card.sent .g-partner-ref .g-partner-status-no,
-.g-swipe-wrap.rsvp-no .g-card.sent .g-partner-ref .g-partner-status-yes,
-.g-swipe-wrap.rsvp-no .g-card.sent .g-partner-ref .g-partner-status-no,
-.g-swipe-wrap.rsvp-pending .g-card.sent .g-partner-ref .g-partner-status-yes,
-.g-swipe-wrap.rsvp-pending .g-card.sent .g-partner-ref .g-partner-status-no{color:#fff!important;text-decoration:underline}
-@keyframes gPartnerFlash{0%,100%{box-shadow:none}30%{box-shadow:0 0 0 3px rgba(201,135,106,.55)}}
-.g-flash-ref{animation:gPartnerFlash 1.1s ease}
 /* Unsent guests that already have a matched RSVP: light tint (full color reserved for sent cards) */
 .g-swipe-wrap.rsvp-yes .g-card:not(.sent){background:rgba(26,122,74,.10)}
 .g-swipe-wrap.rsvp-no .g-card:not(.sent){background:rgba(185,28,28,.10)}
@@ -392,6 +313,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-inner{padding:0;display:flex;align-items:stretch}
 .g-inner-left{flex:1;min-width:0;padding:11px 12px 11px 16px;display:flex;align-items:center;gap:11px}
 .g-inner-right{display:flex;align-items:center;gap:6px;padding:0 12px 0 10px;background:var(--cream2);flex-shrink:0}
+.g-swipe-wrap.rsvp-yes .g-card.sent .g-inner-right,.g-swipe-wrap.rsvp-no .g-card.sent .g-inner-right,.g-swipe-wrap.rsvp-pending .g-card.sent .g-inner-right{background:rgba(0,0,0,.12)}
 .g-ring{width:20px;height:20px;border:1.5px solid var(--parchment);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px;color:#fff;background:transparent;transition:all var(--ease)}
 .g-card.sel .g-ring{background:var(--rose);border-color:var(--rose)}
 .g-main{flex:1;min-width:0}
@@ -413,49 +335,6 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .chip-lang{background:var(--parchment);color:var(--muted)}
 .chip-rsvp{background:var(--green-bg);color:var(--green)}
 .chip-child{background:#EAF0FA;color:#4A6EA8}.is-child .g-inner-right .ga-btn-wa,.is-child .g-inner-right .g-del{display:none!important}
-.chip-role{background:#F0E6F7;color:#6B3FA0;cursor:pointer}
-.chip-role-empty{background:transparent;color:var(--soft);border:1.5px dashed var(--soft)}
-.ga-btn-role{color:#8B5FBF}.ga-btn-role.has-role{color:#6B3FA0;background:#F0E6F7}
-.role-preset-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
-.role-preset-chip{padding:5px 11px;border-radius:var(--r-pill);font-size:10.5px;font-weight:600;border:1.5px solid var(--parchment);background:var(--cream);color:var(--muted);cursor:pointer;font-family:var(--sans)}
-.role-preset-chip:hover{border-color:#8B5FBF;color:#6B3FA0}
-/* ── FAMILY POD: kids nest under their parent as one visual unit, joined by
-   a real curved branch line (not a straight tick, not an elbow-plus-dot).
-   Kids otherwise use the exact same solid green/red/amber fill as any other
-   sent card — so status is unmistakable and text contrast is guaranteed
-   regardless of which parent they're grouped under. ── */
-.g-family-pod{--pod-accent:rgba(74,110,168,.5);margin:0 0 10px 21px;padding-left:20px;position:relative;display:flex;flex-direction:column;gap:8px}
-.g-family-pod::before{content:'';position:absolute;left:0;top:-9px;bottom:24px;width:1.5px;background:linear-gradient(to bottom,var(--pod-accent),var(--pod-accent) 75%,transparent)}
-/* Each kid is wrapped in a plain (non-overflow-hidden) item so its curve
-   isn't clipped by .g-swipe-wrap's own overflow:hidden (needed there to
-   mask the swipe panels). True curve: a quarter-circle arc — large
-   border-radius on an invisible box — sweeping down from the trunk line
-   into the top-left of the card. No elbow corner, no dot. */
-.g-family-pod-item{position:relative}
-.g-family-pod-toggle{margin:3px auto 8px;padding:4px 11px;display:flex;align-items:center;justify-content:center;gap:5px;font-size:11px;font-weight:700;color:var(--pod-accent);border:1.5px solid var(--pod-accent);border-radius:999px;cursor:pointer;background:#fff;width:fit-content;box-shadow:var(--shadow-sm)}
-.g-family-pod-toggle:hover{background:rgba(255,255,255,.95)}
-.g-family-pod-toggle-icon{flex-shrink:0;transition:transform .15s ease}
-.g-family-pod-toggle.is-open .g-family-pod-toggle-icon{transform:rotate(45deg)}
-.g-family-pod-item::before{content:'';position:absolute;left:-20px;top:-8px;width:20px;height:30px;border-left:1.5px solid var(--pod-accent);border-bottom:1.5px solid var(--pod-accent);border-bottom-left-radius:20px;pointer-events:none}
-.g-child-tag{font-size:9.5px;color:#7A8FB8;margin-top:1px;font-style:italic}
-.g-swipe-wrap.rsvp-yes .g-card.sent .g-child-tag,
-.g-swipe-wrap.rsvp-no .g-card.sent .g-child-tag,
-.g-swipe-wrap.rsvp-pending .g-card.sent .g-child-tag{color:rgba(255,255,255,.75)!important}
-/* Couple frame — two partners share one bordered card instead of floating
-   as separate rows, in either the unsent or sent list. */
-.g-pair-merged{border:1.5px solid var(--parchment)}
-/* ── THE COUPLE: Arina & Elnur get their own card treatment, not a generic
-   RSVP-colored guest row — a soft brand-color wash plus a role badge. ── */
-.chip-couple-role{gap:4px;padding:2px 9px}
-.chip-couple-role.bride{background:linear-gradient(120deg,var(--arina-bg),#fff);color:var(--arina-txt);box-shadow:inset 0 0 0 1px rgba(155,26,68,.18)}
-.chip-couple-role.groom{background:linear-gradient(120deg,var(--elnur-bg),#fff);color:var(--elnur-txt);box-shadow:inset 0 0 0 1px rgba(138,74,0,.18)}
-.g-swipe-wrap.is-couple-wrap .g-card.sent{box-shadow:none}
-.g-swipe-wrap.is-couple-wrap.bride .g-card.sent{background:linear-gradient(120deg,var(--arina-bg) 0%,#fff 65%)!important}
-.g-swipe-wrap.is-couple-wrap.groom .g-card.sent{background:linear-gradient(120deg,var(--elnur-bg) 0%,#fff 65%)!important}
-.g-swipe-wrap.is-couple-wrap .g-card.sent .g-name{color:var(--ink)!important;font-weight:700!important}
-.g-swipe-wrap.is-couple-wrap.bride .g-card.sent .g-name::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--arina-txt);margin-right:7px;vertical-align:middle}
-.g-swipe-wrap.is-couple-wrap.groom .g-card.sent .g-name::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--elnur-txt);margin-right:7px;vertical-align:middle}
-.g-swipe-wrap.is-couple-wrap .g-card.sent .g-inner-right{background:rgba(0,0,0,.04)}
 .ga-btn-rsvp-yes:hover{color:var(--green);background:rgba(58,140,92,.12)}.ga-btn-rsvp-yes.active{color:#fff;background:var(--green)}
 .ga-btn-rsvp-no:hover{color:var(--red);background:rgba(192,64,46,.12)}.ga-btn-rsvp-no.active{color:#fff;background:var(--red)}
 /* Manual RSVP buttons stay visible for children even though other action buttons are hidden for them */
@@ -501,7 +380,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .list-btn:hover{border-color:var(--rose);color:var(--rose)}.list-btn.dng:hover{border-color:var(--red);color:var(--red)}.list-btn.grow{flex:1}
 
 /* ── FAB ── */
-.fab{position:fixed;bottom:24px;right:37px;z-index:90;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+.fab{position:fixed;bottom:34px;right:46px;z-index:90;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
 .fab-main{width:52px;height:52px;border-radius:50%;background:var(--ink2);border:none;color:#fff;font-size:24px;cursor:pointer;box-shadow:0 4px 20px rgba(35,26,20,.4);transition:all var(--ease),opacity .25s ease,transform .25s ease;display:flex;align-items:center;justify-content:center;line-height:1;opacity:0;pointer-events:none;transform:translateY(8px)}
 .fab-main:hover{transform:scale(1.08);box-shadow:0 6px 26px rgba(35,26,20,.5)}
 .fab-main:active{transform:scale(.96)}
@@ -678,20 +557,6 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .s-toggle input:checked + .s-toggle-track{background:var(--green)}
 .s-toggle input:checked + .s-toggle-track::after{transform:translateX(18px)}
 
-/* Family tree (Sent-together pairs modal) */
-.ft-family{margin-bottom:10px;padding:16px 18px;border-radius:10px;background:#fff;border:1px solid var(--parchment)}
-.ft-parents{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;font-family:var(--serif)}
-.ft-parent-name{font-size:14.5px;font-weight:600;color:var(--ink);letter-spacing:.005em}
-.ft-heart{color:var(--soft);font-size:12px;flex-shrink:0;font-weight:400}
-.ft-kids-wrap{display:flex;justify-content:center}
-.ft-trunk{width:1px;height:10px;background:var(--parchment)}
-.ft-kids{display:flex;flex-wrap:wrap;justify-content:center;padding-top:8px;margin-top:2px;border-top:1px solid var(--parchment)}
-.ft-kid{padding:2px 11px;color:var(--muted);font-family:var(--sans);font-size:11px;font-weight:500;letter-spacing:.01em;border-right:1px solid var(--parchment);line-height:1.6}
-.ft-kid:last-child{border-right:none}
-.ft-stray-hdr{font-family:var(--sans);font-weight:700;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:16px 2px 3px}
-.ft-stray-sub{font-family:var(--sans);font-size:10.5px;color:var(--soft);margin:0 2px 8px}
-.ft-stray-row{display:flex;align-items:center;gap:6px;padding:9px 12px;margin-bottom:6px;border-radius:8px;background:#fff;border:1px solid var(--parchment);font-family:var(--sans);font-size:12px;color:var(--ink)}
-
 /* Groups */
 .s-groups-list{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
 .s-group-row{display:flex;align-items:center;gap:8px}
@@ -717,10 +582,6 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .worker-ref-row input{flex:1;font-size:12px;padding:8px 12px;background:#fff;border:1.5px solid var(--parchment);border-radius:var(--r-sm);color:var(--muted);font-family:monospace;outline:none;transition:border-color var(--ease)}
 .worker-ref-row input:focus{border-color:var(--rose)}
 .worker-ref-save{padding:8px 14px;border-radius:var(--r-sm);background:var(--rose);color:#fff;border:none;font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.08em;cursor:pointer;white-space:nowrap;transition:background var(--ease)}.worker-ref-save:hover{background:var(--rose-deep)}.worker-ref-save.ok{background:var(--green)}
-
-/* ── VERSION INFO POPUP (toggled by deployStampBtn, doesn't shift topbar layout) ── */
-.deploy-info-popup{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(12px);z-index:500;background:var(--ink);color:var(--cream);font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.02em;padding:9px 16px;border-radius:var(--r-pill);box-shadow:0 8px 28px rgba(0,0,0,.28);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;white-space:nowrap}
-.deploy-info-popup.vis{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:all}
 
 /* ── QUICK ADD ── */
 .quickadd-btn{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--rose),var(--rose-deep));border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--ease);box-shadow:0 2px 8px rgba(160,97,74,.35)}
@@ -896,12 +757,6 @@ body.lite-mode #liteModeTopBtn {
 
 <div class="topbar">
  <div class="topbar-inner">
-  <!-- Tiny deploy stamp — lives in the sticky topbar so it's never hidden
-       behind the browser's own bottom toolbar. Tap for last-deployed date/time. -->
-  <button id="deployStampBtn" title="Toggle version info" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:20px;height:32px;border-radius:10px;border:none;background:var(--parchment);cursor:pointer;padding:0;position:relative;transition:background .25s">
-    <span id="deployStampThumb" style="position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.18);transition:transform .25s;display:block"></span>
-  </button>
-  <span id="deployStampLabel" style="display:none"></span>
   <!-- Lite mode toggle switch -->
   <button id="liteModeTopBtn" title="Toggle Lite Mode" style="flex-shrink:0;display:none;align-items:center;justify-content:center;width:20px;height:32px;border-radius:10px;border:none;background:var(--parchment);cursor:pointer;padding:0;position:relative;transition:background .25s">
     <span id="liteModeThumb" style="position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.18);transition:transform .25s;display:block"></span>
@@ -921,7 +776,6 @@ body.lite-mode #liteModeTopBtn {
   <!-- Stats -->
   <div class="stat-pill total" id="ovTotal" title="Total guests" style="cursor:pointer">0</div>
   <div class="stat-pill sent" id="ovSent" title="Sent" style="cursor:pointer">0</div>
-  <button id="reviewPairsBtn" title="Review sent-together pairs" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;border:none;background:var(--amber-bg);color:var(--amber);cursor:pointer;padding:0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></button>
   <div class="stat-pill new-guests" id="ovNew" title="New since last sync" style="display:none"></div>
   <!-- spacer -->
   <div style="flex:1"></div>
@@ -929,8 +783,10 @@ body.lite-mode #liteModeTopBtn {
   <button class="rsvp-count-btn" id="rsvpCountBtn" title="RSVP Responses">
     <span class="rc-num" id="rsvpCountNum">—</span>
   </button>
-  <!-- Quick add moved to Settings → Developer → Manual sending -->
-  <button class="quickadd-btn" id="quickAddBtn" title="New invite (N)" style="display:none"></button>
+  <!-- Quick add / new invite (moved off the old bottom + button) -->
+  <button class="quickadd-btn" id="quickAddBtn" title="New invite (N)">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  </button>
   <!-- Deploy (keep hidden, still needed) -->
   <button class="deploy-btn" id="deployBtn" title="Deploy to GitHub" style="display:none"></button>
   <!-- Dev mode -->
@@ -953,9 +809,6 @@ body.lite-mode #liteModeTopBtn {
  </div>
 </div>
 
-
-<!-- VERSION INFO POPUP -->
-<div id="deployInfoPopup" class="deploy-info-popup"></div>
 
 <!-- SYNC INFO BANNER -->
 <div id="syncInfoBanner" style="display:flex;background:linear-gradient(135deg,#F2D8CC,#EDD5C5);color:var(--ink2);padding:9px 14px 9px 16px;font-family:var(--sans);font-size:11.5px;font-weight:500;line-height:1.4;align-items:center;gap:10px;border-bottom:1px solid rgba(201,135,106,.2)">
@@ -1034,7 +887,6 @@ body.lite-mode #liteModeTopBtn {
           <input class="search-input" id="searchInput" type="text" placeholder=""/>
         </div>
         <select class="group-sel" id="groupSel" style="display:none"><option value="">All groups</option></select>
-        <select class="group-sel" id="typeSel" style="width:100px;flex-shrink:0"><option value="">Church + Party</option><option value="church">Church</option><option value="party">Party</option></select>
         <button class="sort-btn" id="sortBtn" title="Sort">A–Z</button>
       </div>
     </div>
@@ -1202,23 +1054,6 @@ body.lite-mode #liteModeTopBtn {
   </div>
   <div class="settings-body">
 
-    <!-- SECTION: Developer (manual sending lives here, shown first) -->
-    <div class="s-section">
-      <div class="s-section-label">Developer</div>
-      <div class="s-row">
-        <div class="s-row-info"><div class="s-row-title">Manual sending</div><div class="s-row-sub">Add a single guest or couple by hand</div></div>
-        <button class="s-btn-small" id="sManualSendBtn">New invite</button>
-      </div>
-      <div class="s-row">
-        <div class="s-row-info"><div class="s-row-title">Last deployed</div><div class="s-row-sub">When this file was last pushed to GitHub</div></div>
-        <span id="sAppVersion" style="font-family:var(--sans);font-size:11px;font-weight:700;color:var(--muted);background:var(--parchment);padding:5px 10px;border-radius:var(--r-pill)"></span>
-      </div>
-      <div class="s-row">
-        <div class="s-row-info"><div class="s-row-title">Dev mode</div><div class="s-row-sub">Highlight layout regions and inspect elements</div></div>
-        <button class="dev-btn" id="devBtnSettings" title="Dev mode"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
-      </div>
-    </div>
-
     <!-- SECTION: People -->
     <div class="s-section">
       <div class="s-section-label">People</div>
@@ -1374,6 +1209,15 @@ body.lite-mode #liteModeTopBtn {
       </div>
     </div>
 
+    <!-- SECTION: Developer -->
+    <div class="s-section">
+      <div class="s-section-label">Developer</div>
+      <div class="s-row">
+        <div class="s-row-info"><div class="s-row-title">Dev mode</div><div class="s-row-sub">Highlight layout regions and inspect elements</div></div>
+        <button class="dev-btn" id="devBtnSettings" title="Dev mode"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      </div>
+    </div>
+
     <!-- SECTION: Danger -->
     <div class="s-section">
       <div class="s-section-label" style="color:var(--red)">Danger Zone</div>
@@ -1477,88 +1321,25 @@ body.lite-mode #liteModeTopBtn {
   </div>
 </div>
 
-<!-- Role modal -->
-<div class="note-modal-bg" id="roleModalBg" style="display:none;z-index:10001">
-  <div class="note-modal">
-    <h3 id="roleModalTitle">Role</h3>
-    <div class="role-preset-row" id="rolePresetRow"></div>
-    <textarea id="roleModalTA" placeholder="e.g. Usher, Best Man, Photographer…" style="min-height:44px"></textarea>
-    <div class="note-acts">
-      <button class="note-cancel" id="roleModalClear">Clear</button>
-      <button class="note-cancel" id="roleModalCancel">Cancel</button>
-      <button class="note-save" id="roleModalSave">Save Role</button>
-    </div>
-  </div>
-</div>
-
 <!-- UNDO TOAST -->
-<div class="modal-bg" id="pairsReviewModal" style="display:none;z-index:9999">
-  <div class="modal" style="max-width:520px;width:94vw;max-height:82vh;display:flex;flex-direction:column;padding:0;overflow:hidden;background:#fff">
-    <div style="padding:16px 18px 10px;border-bottom:1px solid var(--parchment);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:#fff">
-      <div style="font-family:var(--sans);font-weight:800;font-size:14px;color:var(--ink)">Sent-together pairs</div>
-      <button id="pairsReviewClose" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);line-height:1;padding:0 4px">×</button>
-    </div>
-    <div id="pairsReviewSub" style="padding:8px 18px 0;font-family:var(--sans);font-size:11px;color:var(--muted);flex-shrink:0;background:#fff"></div>
-    <div style="padding:8px 18px 0;flex-shrink:0;background:#fff;display:flex;gap:4px">
-      <button id="pairsMatchTab" style="padding:7px 14px;border:1px solid var(--parchment);border-bottom:none;border-radius:10px 10px 0 0;background:var(--cream);color:var(--ink2);font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Link &amp; roles</button>
-    </div>
-    <!-- Tab content: manual couple/kid linking + roles overview. Hidden
-         until the "Link & roles" tab above is tapped, instead of always
-         sitting fixed on screen. -->
-    <div id="pairsReviewManualFixed" style="display:none;padding:10px 18px 0;flex-shrink:0;background:#fff;max-height:42vh;overflow-y:auto;border:1px solid var(--parchment);border-radius:0 10px 10px 10px;margin:0 18px"></div>
-    <div id="pairsReviewTabs" style="display:flex;align-items:center;justify-content:space-between;padding:10px 18px 10px;flex-shrink:0;background:#fff">
-      <span style="font-family:var(--sans);font-size:12px;font-weight:700;color:var(--ink2)">Family tree view</span>
-      <label class="s-toggle"><input type="checkbox" id="prTreeToggle"/><span class="s-toggle-track"></span></label>
-    </div>
-    <div id="pairsReviewSearchWrap" style="padding:0 18px 10px;flex-shrink:0;background:#fff">
-      <input id="pairsReviewSearch" type="text" placeholder="Search a name…" style="width:100%;box-sizing:border-box;padding:8px 10px;border:1.5px solid var(--parchment);border-radius:var(--r-sm);font-family:var(--sans);font-size:12px;color:var(--ink);background:var(--cream)"/>
-    </div>
-    <div id="pairsReviewList" style="overflow-y:auto;padding:6px 12px 16px;flex:1;background:#fff"></div>
-  </div>
-</div>
 <div id="undoToast"><span id="undoToastMsg">Marked as sent</span><button id="undoToastBtn">Undo</button></div>
-
-<!-- Roles overview modal — "who's doing what" across all guests -->
-<div class="modal-bg" id="rolesOverviewModal" style="display:none;z-index:10000">
-  <div class="modal" style="max-width:480px;width:92vw;max-height:78vh;display:flex;flex-direction:column;padding:0;overflow:hidden;background:#fff">
-    <div style="padding:16px 18px 10px;border-bottom:1px solid var(--parchment);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:#fff">
-      <div style="font-family:var(--sans);font-weight:800;font-size:14px;color:var(--ink)">Who's doing what</div>
-      <button id="rolesOverviewClose" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);line-height:1;padding:0 4px">×</button>
-    </div>
-    <div id="rolesOverviewSub" style="padding:8px 18px;font-family:var(--sans);font-size:11px;color:var(--muted);flex-shrink:0;background:#fff"></div>
-    <div id="rolesOverviewList" style="overflow-y:auto;padding:6px 12px 16px;flex:1;background:#fff"></div>
-  </div>
-</div>
 <!-- VERSION STAMP -->
 
 <script>
 /* ══ CONFIG ══════════════════════════════════ */
 var BASE='https://www.arinaelnur.de/';
-var APP_VERSION='2026.09.06.2';
+var APP_VERSION='2026.06.09.9';
 var APP_UPDATE_URL='https://www.arinaelnur.de/dash.html';
-/* Stamped with the real push time by deployToGitHub() just before it sends
-   the file — so this always reflects exactly when THIS copy went live,
-   not when the code was last edited locally. Blank until the first deploy. */
-var APP_DEPLOYED_AT='';
-function formatDeployStamp(iso){
-  if(!iso)return 'v'+APP_VERSION+' (not yet deployed)';
-  var d=new Date(iso);
-  if(isNaN(d))return 'v'+APP_VERSION;
-  var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  var hh=d.getHours(),mm=d.getMinutes();
-  return months[d.getMonth()]+' '+d.getDate()+', '+(hh<10?'0':'')+hh+':'+(mm<10?'0':'')+mm;
-}
 
 /* ══ STATE ═══════════════════════════════════ */
 var selType='ceremony-single',selLang='en',selSender='Arina',cur=null;
 var sortMode=(function(){try{return sessionStorage.getItem('ww_sort')||'default';}catch(e){return'default';}})();
-var mem=[],importQueue=[],selectedIdxs=[],importFilter='all',searchQuery='',groupFilter='',typeFilter='';
+var mem=[],importQueue=[],selectedIdxs=[],importFilter='all',searchQuery='',groupFilter='';
 var sessionSender='Arina'; // active session
 var todayCount=0; // sent this session
 // Unique per-tab ID so the poller can ignore events this tab generated
 var deviceId=(function(){try{var d=sessionStorage.getItem('ww_device');if(!d){d=Math.random().toString(36).slice(2)+Date.now().toString(36);sessionStorage.setItem('ww_device',d);}return d;}catch(e){return Math.random().toString(36).slice(2);}})();
 var showSent=true; // collapse sent guests
-var expandedFamilyPods={}; // host guest name -> true if their nested kids are expanded
 
 /* ══ CLAIM LOCKS ══════════════════════════════ */
 var claims={}; // {guestName: 'Arina'|'Elnur'}
@@ -1642,7 +1423,7 @@ function saveGuestMeta(){
   try{
     var m={};
     importQueue.forEach(function(g){
-      m[g.name]={note:g.note||'',role:g.role||'',followup:!!g.followup,skipped:!!g.skipped,pendingSent:!!g.pendingSent,sent:!!g.sent,sentAt:g.sentAt||'',sentBy:g.sentBy||'',msgLang:g.msgLang||'',bulkWith:g.bulkWith||'',sentGroupId:g.sentGroupId||'',sender:g.sender||'',phone:g.phone||'',type:g.type||'',lang:g.lang||'',group:g.group||'',manualRsvp:g.manualRsvp||'',parentNames:g.parentNames||''};
+      m[g.name]={note:g.note||'',followup:!!g.followup,skipped:!!g.skipped,pendingSent:!!g.pendingSent,sent:!!g.sent,sentAt:g.sentAt||'',sentBy:g.sentBy||'',msgLang:g.msgLang||'',bulkWith:g.bulkWith||'',sentGroupId:g.sentGroupId||'',sender:g.sender||'',phone:g.phone||'',type:g.type||'',lang:g.lang||'',group:g.group||'',manualRsvp:g.manualRsvp||''};
     });
     localStorage.setItem('ww_gm',JSON.stringify(m));
     if(importQueue.length)localStorage.setItem('ww_pending',JSON.stringify(importQueue));
@@ -1653,16 +1434,9 @@ var _retryQueue=[];
 (function(){try{var s=localStorage.getItem('ww_retry');if(s)_retryQueue=JSON.parse(s);}catch(e){}_retryQueue=_retryQueue||[];})();
 function _saveRetryQueue(){try{localStorage.setItem('ww_retry',JSON.stringify(_retryQueue.slice(0,40)));}catch(e){}}
 function _pushWithRetry(endpoint,payload,retryKey){
-  var url=workerUrl;if(!url)return Promise.resolve();
+  var url=workerUrl;if(!url)return;
   var body=JSON.stringify(Object.assign({},payload,{by:sessionSender,deviceId:deviceId}));
-  // Returns a promise that ALWAYS resolves (never rejects) — callers use
-  // this to sequence two related writes (e.g. both sides of a bulkWith
-  // pair) so the second request only fires after the first has actually
-  // landed on the server. Firing both at once let two saves race: if the
-  // worker does a read-current-state → patch → write-back per request,
-  // whichever write's read happened before the other's write commits will
-  // clobber it on save, silently reverting one guest's half of the pair.
-  return fetch(url.replace(/\/$/,'')+endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:body})
+  fetch(url.replace(/\/$/,'')+endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:body})
     .then(function(r){
       if(!r.ok)throw new Error('HTTP '+r.status);
       // success — remove from retry queue if present
@@ -1691,23 +1465,14 @@ function _flushRetryQueue(){
   });
 }
 
-// Push followup/note/manualRsvp/bulkWith/sentGroupId changes for a single
-// guest to worker KV. bulkWith/sentGroupId were missing from this payload
-// before — meaning unlink/relink actions updated the screen locally but
-// never told the server, so a background poll a few seconds later would
-// see the server's still-old value and silently restore it. Now every
-// field this function touches gets pushed, including clearing to "".
+// Push followup/note/manualRsvp changes for a single guest to worker KV
 function pushMetaToWorker(g){
-  if(!workerUrl||!g||!g.name)return Promise.resolve();
+  if(!workerUrl||!g||!g.name)return;
   _localWrites[g.name]=_localWrites[g.name]||{};
   _localWrites[g.name].followup=!!g.followup;
   _localWrites[g.name].note=g.note||'';
-  _localWrites[g.name].role=g.role||'';
   _localWrites[g.name].manualRsvp=g.manualRsvp||'';
-  _localWrites[g.name].bulkWith=g.bulkWith||'';
-  _localWrites[g.name].sentGroupId=g.sentGroupId||'';
-  _localWrites[g.name].parentNames=g.parentNames||'';
-  return _pushWithRetry('/meta',{name:g.name,followup:!!g.followup,note:g.note||'',role:g.role||'',manualRsvp:g.manualRsvp||'',bulkWith:g.bulkWith||'',sentGroupId:g.sentGroupId||'',parentNames:g.parentNames||''},'meta:'+g.name);
+  _pushWithRetry('/meta',{name:g.name,followup:!!g.followup,note:g.note||'',manualRsvp:g.manualRsvp||''},'meta:'+g.name);
 }
 function pushSentToWorker(name){
   if(!workerUrl||!name)return;
@@ -1732,19 +1497,14 @@ function applyGuestMeta(){
       // sent/sentAt/sentBy: use whichever has a value (cache may be the only thing we have on first load)
       if(!g.sent&&d.sent){g.sent=!!d.sent;g.sentAt=d.sentAt||'';g.sentBy=d.sentBy||'';}
       if(!g.note&&d.note)g.note=d.note;
-      if(!g.role&&d.role)g.role=d.role;
       if(!g.followup&&d.followup)g.followup=!!d.followup;
       // local-only fields always from local:
       g.skipped=!!d.skipped;
       g.pendingSent=!!d.pendingSent;
       g.msgLang=d.msgLang||'';
-      // bulkWith/sentGroupId/manualRsvp are meaningful links/overrides once set —
-      // an empty cached copy (e.g. read before they were saved, or from a stale
-      // session) must never silently erase a value already in memory.
-      if(d.bulkWith)g.bulkWith=d.bulkWith;
-      if(d.sentGroupId)g.sentGroupId=d.sentGroupId;
-      if(d.manualRsvp)g.manualRsvp=d.manualRsvp;
-      if(d.parentNames)g.parentNames=d.parentNames;
+      g.bulkWith=d.bulkWith||'';
+      g.sentGroupId=d.sentGroupId||'';
+      g.manualRsvp=d.manualRsvp||'';
       // locally-edited fields — only override if local has a value
       if(d.sender)g.sender=d.sender;
       if(d.phone)g.phone=d.phone;
@@ -1792,25 +1552,19 @@ var msgs={
     get ceremony(){var t=timePhrase('en');return"{n} 💛\n\n*We're getting married 🕺🏻💃🏻*\n\n"+t+". We would be so happy to have you with us for the ceremony and share this special moment together. 😍\n\n📅 16 October 2026\n🕐 Church Ceremony starts at 14:00 sharp (Please arrive by 13:30)\n📍 Schlosskirche Düsseldorf\n\nPlease let us know via the link by 14 Sep:\n{u}\n\nWith love,\nArina & Elnur ❤️";},
     get party(){return"{n} 💛\n\n*We're getting married 🕺🏻💃🏻*\n\nFinally, the invites are going out! With just two months to go, it’s all starting to feel very real. 🤯 We’d absolutely love to have you there to celebrate and share this special day with us. 😍\n\n📅 16 October 2026\n\n💒 Ceremony starts at 14:00 sharp (Please arrive by 13:30)\n📍 Schlosskirche Düsseldorf\n\n🥂 Evening reception from 17:00\n📍 Rheinliebe am Deich, Düsseldorf\n\nWe’d love to know if you can make it or not via the link below by 14.09. ❤️\n{u}\n\nPlease also keep us in your prayers during these final weeks of preparations and planning, and pray for beautiful weather on the day. 🙏🏼\n\nWith love,\nArina & Elnur ❤️";},
     get ceremony_plural(){var t=timePhrase('en');return"{n} 💛\n\n*We're getting married 🕺🏻💃🏻*\n\n"+t+". We would be so happy to have you both with us for the ceremony and share this special moment together. 😍\n\n📅 16 October 2026\n🕐 Church Ceremony starts at 14:00 sharp (Please arrive by 13:30)\n📍 Schlosskirche Düsseldorf\n\nPlease let us know via the link by 14 Sep:\n{u}\n\nWith love,\nArina & Elnur ❤️";},
-    get party_plural(){return"{n} 💛\n\n*We're getting married 🕺🏻💃🏻*\n\nFinally, the invites are going out! With just two months to go, it’s all starting to feel very real. 🤯 We’d absolutely love to have you both there to celebrate and share this special day with us. 😍\n\n📅 16 October 2026\n\n💒 Ceremony starts at 14:00 sharp (Please arrive by 13:30)\n📍 Schlosskirche Düsseldorf\n\n🥂 Evening reception from 17:00\n📍 Rheinliebe am Deich, Düsseldorf\n\nWe’d love to know if you can make it or not via the link below by 14.09. ❤️\n{u}\n\nPlease also keep us in your prayers during these final weeks of preparations and planning, and pray for beautiful weather on the day. 🙏🏼\n\nWith love,\nArina & Elnur ❤️";},
-    get reminder(){return"{n} 💛\n\nJust a little nudge from us — we haven't heard back from you yet and we'd love to know whether you can join us. 🥰 No pressure at all, we just want to make sure your spot (and a seat at the table!) is counted for.\n\nWhenever you get a moment, you can let us know here:\n{u}\n\nWith love,\nArina & Elnur ❤️";},
-    get reminder_plural(){return"{n} 💛\n\nJust a little nudge from us — we haven't heard back from you both yet and we'd love to know whether you can join us. 🥰 No pressure at all, we just want to make sure your spots (and seats at the table!) are counted for.\n\nWhenever you get a moment, you can let us know here:\n{u}\n\nWith love,\nArina & Elnur ❤️";}
+    get party_plural(){return"{n} 💛\n\n*We're getting married 🕺🏻💃🏻*\n\nFinally, the invites are going out! With just two months to go, it’s all starting to feel very real. 🤯 We’d absolutely love to have you both there to celebrate and share this special day with us. 😍\n\n📅 16 October 2026\n\n💒 Ceremony starts at 14:00 sharp (Please arrive by 13:30)\n📍 Schlosskirche Düsseldorf\n\n🥂 Evening reception from 17:00\n📍 Rheinliebe am Deich, Düsseldorf\n\nWe’d love to know if you can make it or not via the link below by 14.09. ❤️\n{u}\n\nPlease also keep us in your prayers during these final weeks of preparations and planning, and pray for beautiful weather on the day. 🙏🏼\n\nWith love,\nArina & Elnur ❤️";}
   },
   de:{
     get ceremony(){var t=timePhrase('de');return"{n} 💛\n\n*Wir heiraten 🕺🏻💃🏻*\n\nEs sind "+t+". Wir würden uns riesig freuen, wenn du bei unserer Trauung dabei bist und diesen besonderen Moment mit uns teilst. 😍\n\n📅 16. Oktober 2026\n🕐 Bitte sei bis 13:30 Uhr da — Beginn ist pünktlich um 14:00 Uhr\n📍 Schlosskirche Düsseldorf\n\nBitte gib uns bis 14.09 über den Link Bescheid:\n{u}\n\nLiebe Grüße\nArina & Elnur ❤️";},
     get party(){return"{n} 💛\n\nWir heiraten 🕺🏻💃🏻\n\nEndlich gehen die Einladungen raus! Nur noch zwei Monate, und langsam wird es richtig real. 🤯 Wir würden uns riesig freuen, wenn du dabei bist und diesen besonderen Tag mit uns feierst. 😍\n\n📅 16. Oktober 2026\n💒 Kirchliche Trauung beginnt pünktlich um 14:00 Uhr (bitte bis 13:30 Uhr da sein)\n📍 Schlosskirche Düsseldorf\n🥂 Abendliche Feier ab 17:00 Uhr\n📍 Rheinliebe am Deich, Düsseldorf\n\nBitte gib uns bis zum 14.09. über den Link unten Bescheid, ob du dabei sein kannst. ❤️\n{u}\n\nBitte bete auch für uns in diesen letzten Wochen der Vorbereitung und Planung, und für schönes Wetter am großen Tag. 🙏🏼\n\nMit Liebe,\nArina & Elnur ❤️";},
     get ceremony_plural(){var t=timePhrase('de');return"{n} 💛\n\n*Wir heiraten 🕺🏻💃🏻*\n\nEs sind "+t+". Wir würden uns riesig freuen, wenn ihr bei unserer Trauung dabei seid und diesen besonderen Moment mit uns teilt. 😍\n\n📅 16. Oktober 2026\n🕐 Bitte seid bis 13:30 Uhr da — Beginn ist pünktlich um 14:00 Uhr\n📍 Schlosskirche Düsseldorf\n\nBitte gebt uns bis 14.09 über den Link Bescheid:\n{u}\n\nLiebe Grüße\nArina & Elnur ❤️";},
-    get party_plural(){return"{n} 💛\n\nWir heiraten 🕺🏻💃🏻\n\nEndlich gehen die Einladungen raus! Nur noch zwei Monate, und langsam wird es richtig real. 🤯 Wir würden uns riesig freuen, wenn ihr dabei seid und diesen besonderen Tag mit uns feiert. 😍\n\n📅 16. Oktober 2026\n💒 Kirchliche Trauung beginnt pünktlich um 14:00 Uhr (bitte bis 13:30 Uhr da sein)\n📍 Schlosskirche Düsseldorf\n🥂 Abendliche Feier ab 17:00 Uhr\n📍 Rheinliebe am Deich, Düsseldorf\n\nBitte gebt uns bis zum 14.09. über den Link unten Bescheid, ob ihr dabei sein könnt. ❤️\n{u}\n\nBitet bitte auch für uns in diesen letzten Wochen der Vorbereitung und Planung, und für schönes Wetter am großen Tag. 🙏🏼\n\nMit Liebe,\nArina & Elnur ❤️";},
-    get reminder(){return"{n} 💛\n\nNur eine kleine Erinnerung von uns — wir haben noch nichts von dir gehört und würden uns riesig freuen zu wissen, ob du dabei sein kannst. 🥰 Kein Stress, wir möchten nur sichergehen, dass ein Platz für dich eingeplant ist.\n\nWann immer du einen Moment hast, kannst du uns hier Bescheid geben:\n{u}\n\nLiebe Grüße\nArina & Elnur ❤️";},
-    get reminder_plural(){return"{n} 💛\n\nNur eine kleine Erinnerung von uns — wir haben noch nichts von euch gehört und würden uns riesig freuen zu wissen, ob ihr dabei sein könnt. 🥰 Kein Stress, wir möchten nur sichergehen, dass Plätze für euch eingeplant sind.\n\nWann immer ihr einen Moment habt, könnt ihr uns hier Bescheid geben:\n{u}\n\nLiebe Grüße\nArina & Elnur ❤️";}
+    get party_plural(){return"{n} 💛\n\nWir heiraten 🕺🏻💃🏻\n\nEndlich gehen die Einladungen raus! Nur noch zwei Monate, und langsam wird es richtig real. 🤯 Wir würden uns riesig freuen, wenn ihr dabei seid und diesen besonderen Tag mit uns feiert. 😍\n\n📅 16. Oktober 2026\n💒 Kirchliche Trauung beginnt pünktlich um 14:00 Uhr (bitte bis 13:30 Uhr da sein)\n📍 Schlosskirche Düsseldorf\n🥂 Abendliche Feier ab 17:00 Uhr\n📍 Rheinliebe am Deich, Düsseldorf\n\nBitte gebt uns bis zum 14.09. über den Link unten Bescheid, ob ihr dabei sein könnt. ❤️\n{u}\n\nBitet bitte auch für uns in diesen letzten Wochen der Vorbereitung und Planung, und für schönes Wetter am großen Tag. 🙏🏼\n\nMit Liebe,\nArina & Elnur ❤️";}
   },
   ru:{
     get ceremony(){var t=timePhrase('ru');return"{n} 💛\n\n*Мы женимся 🕺🏻💃🏻*\n\n"+t+". Мы будем безумно рады, если ты будешь рядом на нашей церемонии и разделишь с нами этот особенный момент. 😍\n\n📅 16 октября 2026\n🕐 Пожалуйста, приходи до 13:30 — начало в 14:00\n📍 Schlosskirche Düsseldorf\n\nДай нам знать по ссылке до 14.09:\n{u}\n\nС любовью\nАрина & Эльнур ❤️";},
     get party(){var t=timePhrase('ru');return"{n} 💛\n\n*Мы женимся 🕺🏻💃🏻*\n\n"+t+". Мы будем безумно рады, если ты проведёшь с нами весь день и разделишь этот особенный момент. 😍\n\n📅 16 октября 2026\n🕐 Пожалуйста, приходи до 13:30 — начало в 14:00\n📍 Schlosskirche Düsseldorf\n🎉 Вечерний приём с 17:00\n📍 Rheinliebe am Deich, Düsseldorf\n\nДай нам знать по ссылке до 14.09:\n{u}\n\nС любовью\nАрина & Эльнур ❤️";},
     get ceremony_plural(){var t=timePhrase('ru');return"{n} 💛\n\n*Мы женимся 🕺🏻💃🏻*\n\n"+t+". Мы будем безумно рады, если вы будете рядом на нашей церемонии и разделите с нами этот особенный момент. 😍\n\n📅 16 октября 2026\n🕐 Пожалуйста, приходите до 13:30 — начало в 14:00\n📍 Schlosskirche Düsseldorf\n\nДайте нам знать по ссылке до 14.09:\n{u}\n\nС любовью\nАрина & Эльнур ❤️";},
-    get party_plural(){var t=timePhrase('ru');return"{n} 💛\n\n*Мы женимся 🕺🏻💃🏻*\n\n"+t+". Мы будем безумно рады, если вы проведёте с нами весь день и разделите этот особенный момент. 😍\n\n📅 16 октября 2026\n🕐 Пожалуйста, приходите до 13:30 — начало в 14:00\n📍 Schlosskirche Düsseldorf\n🎉 Вечерний приём с 17:00\n📍 Rheinliebe am Deich, Düsseldorf\n\nДайте нам знать по ссылке до 14.09:\n{u}\n\nС любовью\nАрина & Эльнур ❤️";},
-    get reminder(){return"{n} 💛\n\nНебольшое напоминание от нас — мы пока не получили от тебя ответ и очень хотим узнать, сможешь ли ты быть с нами. 🥰 Никакого давления, просто хотим быть уверены, что место для тебя учтено.\n\nКак будет удобно, дай нам знать по ссылке:\n{u}\n\nС любовью\nАрина & Эльнур ❤️";},
-    get reminder_plural(){return"{n} 💛\n\nНебольшое напоминание от нас — мы пока не получили от вас ответ и очень хотим узнать, сможете ли вы быть с нами. 🥰 Никакого давления, просто хотим быть уверены, что места для вас учтены.\n\nКак будет удобно, дайте нам знать по ссылке:\n{u}\n\nС любовью\nАрина & Эльнур ❤️";}
+    get party_plural(){var t=timePhrase('ru');return"{n} 💛\n\n*Мы женимся 🕺🏻💃🏻*\n\n"+t+". Мы будем безумно рады, если вы проведёте с нами весь день и разделите этот особенный момент. 😍\n\n📅 16 октября 2026\n🕐 Пожалуйста, приходите до 13:30 — начало в 14:00\n📍 Schlosskirche Düsseldorf\n🎉 Вечерний приём с 17:00\n📍 Rheinliebe am Deich, Düsseldorf\n\nДайте нам знать по ссылке до 14.09:\n{u}\n\nС любовью\nАрина & Эльнур ❤️";}
   }
 };
 
@@ -1826,15 +1580,6 @@ function buildMsg(name,type,lang,url,isPlural,p1,p2){
   var isP=type==='ceremony-party-single'||type==='couple-party';
   var l=msgs[lang]||msgs.en;
   var tpl=isPlural?(isP?(l.party_plural||l.party):(l.ceremony_plural||l.ceremony)):(isP?l.party:l.ceremony);
-  var displayName=name;
-  if(isPlural&&p1&&p2){var ln1=lastName(p1),ln2=lastName(p2);if(ln1&&ln2&&ln1.toLowerCase()===ln2.toLowerCase()){displayName=(FAMILY_WORD[lang]||FAMILY_WORD.en)+' '+ln1;}}
-  return tpl.replace('{n}',displayName).replace('{u}',url);
-}
-// Same shape as buildMsg, but pulls from the reminder/reminder_plural
-// templates — a gentle nudge rather than the original invite copy.
-function buildReminderMsg(name,lang,url,isPlural,p1,p2){
-  var l=msgs[lang]||msgs.en;
-  var tpl=isPlural?(l.reminder_plural||l.reminder):l.reminder;
   var displayName=name;
   if(isPlural&&p1&&p2){var ln1=lastName(p1),ln2=lastName(p2);if(ln1&&ln2&&ln1.toLowerCase()===ln2.toLowerCase()){displayName=(FAMILY_WORD[lang]||FAMILY_WORD.en)+' '+ln1;}}
   return tpl.replace('{n}',displayName).replace('{u}',url);
@@ -1970,48 +1715,6 @@ document.getElementById('ovTotal').addEventListener('click',function(){
   var ga=document.getElementById('guestArea');if(ga.style.display==='none')return;
   importFilter='unsent';showSent=false;renderFilterRow();renderGuestList();
 });
-(function(){
-  var reviewBtn=document.getElementById('reviewPairsBtn');
-  var reviewModal=document.getElementById('pairsReviewModal');
-  if(reviewBtn&&reviewModal)reviewBtn.addEventListener('click',function(){_pairsReviewTab='couples';_matchTabOpen=false;renderPairsReview();reviewModal.style.display='flex';});
-  var matchTab=document.getElementById('pairsMatchTab');
-  if(matchTab)matchTab.addEventListener('click',function(){_matchTabOpen=!_matchTabOpen;renderPairsReview();});
-})();
-(function(){
-  var stampBtn=document.getElementById('deployStampBtn');
-  var stampThumb=document.getElementById('deployStampThumb');
-  var stampLabel=document.getElementById('deployStampLabel');
-  var popup=document.getElementById('deployInfoPopup');
-  if(!stampBtn)return;
-  stampBtn.title='Toggle version info';
-  function refreshStampLabel(){if(stampLabel)stampLabel.textContent=formatDeployStamp(APP_DEPLOYED_AT);}
-  refreshStampLabel();
-  window._deployInfoOpen=false;
-  var hideTimer=null;
-  stampBtn.addEventListener('click',function(){
-    var showing=window._deployInfoOpen;
-    if(showing){
-      window._deployInfoOpen=false;
-      if(popup)popup.classList.remove('vis');
-      stampBtn.style.background='var(--parchment)';
-      if(stampThumb)stampThumb.style.transform='';
-      if(hideTimer){clearTimeout(hideTimer);hideTimer=null;}
-    } else {
-      refreshStampLabel();
-      window._deployInfoOpen=true;
-      if(popup){popup.textContent=stampLabel?stampLabel.textContent:'';popup.classList.add('vis');}
-      stampBtn.style.background='var(--rose)';
-      if(stampThumb)stampThumb.style.transform='translateY(14px)';
-      if(hideTimer)clearTimeout(hideTimer);
-      hideTimer=setTimeout(function(){
-        window._deployInfoOpen=false;
-        if(popup)popup.classList.remove('vis');
-        stampBtn.style.background='var(--parchment)';
-        if(stampThumb)stampThumb.style.transform='';
-      },4000);
-    }
-  });
-})();
 document.getElementById('ovSent').addEventListener('click',function(){
   var ga=document.getElementById('guestArea');if(ga.style.display==='none')return;
   importFilter='sent';showSent=true;renderFilterRow();renderGuestList();
@@ -2052,7 +1755,6 @@ function renderFilterRow(){
   var isOpen = isAll||isA||isE;
   var fCls = importFilter==='followup' ? 'on-f' : '';
   var sCls = importFilter==='sent' ? 'on' : '';
-  var cCls = importFilter==='confirmed' ? 'on-c' : '';
   /* Compound Open pill with embedded A/E toggles */
   var openPillCls = 'f-pill f-pill-open'+(isOpen?' on':'');
   row.innerHTML = ''
@@ -2065,8 +1767,7 @@ function renderFilterRow(){
       +'</span>'
     +'</button>'
     +'<button class="f-pill '+fCls+'" data-f="followup">Flag</button>'
-    +'<button class="f-pill f-sent-pill '+sCls+'" data-f="sent">Sent</button>'
-    +'<button class="f-pill '+cCls+'" data-f="confirmed">Confirmed</button>';
+    +'<button class="f-pill f-sent-pill '+sCls+'" data-f="sent">Sent</button>';
 
   /* Open pill: click label area → all open */
   var pillOpen=document.getElementById('fPillOpen');
@@ -2101,8 +1802,6 @@ function renderFilterRow(){
 }
 
 /* ══ GUEST LIST ══════════════════════════════ */
-function isPartyType(g){ return g.type==='ceremony-party-single'||g.type==='couple-party'; }
-
 function getFiltered(){
   return importQueue.filter(function(g){
     if(g.skipped)return false;
@@ -2111,11 +1810,9 @@ function getFiltered(){
     if(importFilter==='followup')return g.followup;
     if(importFilter==='pending')return!g.sent;
     if(importFilter==='sent')return g.sent;
-    if(importFilter==='confirmed')return g.sent&&getGuestRsvpYesNo(g)===true;
     return true;
   }).filter(function(g){return!searchQuery||(g.name||'').toLowerCase().includes(searchQuery);})
     .filter(function(g){return!groupFilter||(g.group||'')===groupFilter;})
-    .filter(function(g){return!typeFilter||(typeFilter==='party'?isPartyType(g):!isPartyType(g));})
     .sort(function(a,b){
       if(sortMode==='az')return(a.name||'').localeCompare(b.name||'');
       if(sortMode==='za')return(b.name||'').localeCompare(a.name||'');
@@ -2130,144 +1827,61 @@ function renderGuestList(){
   var childGuests=guests.filter(function(g){return g.isChild;});
   var sentGuests=guests.filter(function(g){return g.sent;});
 
-  // Nest guests linked via parentNames directly under whichever named
-  // parent is currently in view, instead of leaving them to surface
-  // wherever they happen to fall alphabetically/by group. A child nests
-  // under the first of its parents found among the currently-filtered
-  // guests; if neither parent is in view (e.g. filtered out by search),
-  // it falls back to rendering in its normal spot, untouched.
-  var nameToGuest={};
-  guests.forEach(function(g){nameToGuest[g.name]=g;});
-  var childHost={}; // child's guest name -> host parent's guest name
-  var childrenByHost={}; // host parent's guest name -> [child guests]
-  guests.forEach(function(g){
-    if(!g.parentNames)return;
-    var hostName=_parentNameList(g.parentNames).filter(function(pn){return nameToGuest[pn];})[0];
-    if(!hostName)return;
-    childHost[g.name]=hostName;
-    if(!childrenByHost[hostName])childrenByHost[hostName]=[];
-    childrenByHost[hostName].push(g);
-  });
-  function isNestedElsewhere(g){return!!childHost[g.name];}
-  // Returns {toggleHtml, podHtml} so callers can place the toggle badge
-  // wherever it belongs (overlapping the seam between a merged couple, or
-  // just below a single card) while the expanded kid list always flows
-  // underneath as a normal block. Returns null if there are no kids.
-  function nestedChildrenParts(names, seam){
-    var out=[],seenHere={};
-    names.forEach(function(n){
-      (childrenByHost[n]||[]).forEach(function(kid){
-        if(seenHere[kid.name])return;
-        seenHere[kid.name]=true;out.push(kid);
-      });
-    });
-    if(!out.length)return null;
-    // Match the pod's connector line to the parent's own RSVP color instead of
-    // a fixed blue, so a "no" parent doesn't sit next to a jarring blue line.
-    var hostGuest=nameToGuest[names[0]];
-    var hostYN=hostGuest?getGuestRsvpYesNo(hostGuest):null;
-    var accent=hostYN===true?'rgba(58,140,92,.5)':hostYN===false?'rgba(192,64,46,.5)':'rgba(74,110,168,.45)';
-    // Kids stay collapsed behind a small toggle by default — a family with
-    // several kids used to dump every kid card into view under the parent;
-    // now it's just a "+N" pill until tapped open.
-    var podKey=names[0];
-    var expanded=!!expandedFamilyPods[podKey];
-    // For a couple, the badge sits pinned to the seam between the two names
-    // instead of floating in its own row below — same boxes, badge just
-    // overlaps the border between them.
-    var seamStyle=seam?'position:absolute;top:50%;right:14px;transform:translateY(-50%);z-index:3;margin:0':'';
-    var toggleHtml='<div class="g-family-pod-toggle'+(expanded?' is-open':'')+'" data-pod-key="'+podKey.replace(/"/g,'&quot;')+'" style="--pod-accent:'+accent+';'+seamStyle+'">'
-      +'<svg class="g-family-pod-toggle-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'
-      +'<span>'+out.length+'</span>'
-      +'</div>';
-    var podHtml=expanded?('<div class="g-family-pod" style="--pod-accent:'+accent+'">'
-      +out.map(function(kid){return '<div class="g-family-pod-item">'+buildGuestCard(kid)+'</div>';}).join('')+'</div>'):'';
-    return {toggleHtml:toggleHtml, podHtml:podHtml};
-  }
-  // Back-compat wrapper for single-guest (non-couple) call sites: toggle and
-  // pod just flow one after the other in normal document order.
-  function nestedChildrenHtml(names){
-    var parts=nestedChildrenParts(names,false);
-    return parts?(parts.toggleHtml+parts.podHtml):'';
-  }
-  // For a merged couple: wraps the pair card + seam badge in a positioned
-  // container, then returns the expanded kid list (if any) to flow after it.
-  function mergedPairWithKids(pairHtml, names){
-    var parts=nestedChildrenParts(names,true);
-    if(!parts)return pairHtml;
-    return '<div class="g-pair-merged-wrap">'+pairHtml+parts.toggleHtml+'</div>'+parts.podHtml;
-  }
-
   var sections={};
   // preserve sorted order when bucketing into groups
-  unsent.filter(function(g){return!isNestedElsewhere(g);}).forEach(function(g){var grp=g.group||'_';if(!sections[grp])sections[grp]=[];sections[grp].push(g);});
+  unsent.forEach(function(g){var grp=g.group||'_';if(!sections[grp])sections[grp]=[];sections[grp].push(g);});
 
   var html='';
   // Sort group keys: '_' first, then alphabetically; within each group preserve sorted order from getFiltered
   var grpKeys=Object.keys(sections).sort(function(a,b){if(a==='_')return-1;if(b==='_')return 1;return a.localeCompare(b);});
   grpKeys.forEach(function(grp){
     if(grp!=='_')html+='<div class="g-group-hdr">'+grp+' <span style="opacity:.4">('+sections[grp].length+')</span></div>';
-    // Frame couples (two guests who mutually infer each other as partner) as
-    // one bordered card instead of two loose rows, same idea as the Sent
-    // list's confirmed-pair box — makes "this is a couple" visible before
-    // either of them has even RSVP'd.
-    var mergedSeenUnsent={};
-    sections[grp].forEach(function(g){
-      if(mergedSeenUnsent[g.name])return;
-      var partnerName=inferPartnerName(g);
-      var partnerObj=partnerName?nameToGuest[partnerName]:null;
-      var mutual=partnerObj&&!partnerObj.sent&&!partnerObj.isChild&&inferPartnerName(partnerObj)===g.name;
-      var partnerInThisSection=mutual&&sections[grp].indexOf(partnerObj)!==-1;
-      if(partnerInThisSection){
-        mergedSeenUnsent[partnerObj.name]=true;
-        html+=mergedPairWithKids('<div class="g-pair-merged">'+buildGuestCard(g,'top')+buildGuestCard(partnerObj,'bottom')+'</div>',[g.name,partnerObj.name]);
-      } else {
-        html+=mergedPairWithKids(buildGuestCard(g),[g.name]);
-      }
-    });
+    sections[grp].forEach(function(g){html+=buildGuestCard(g);});
   });
 
-  // Children section — no buttons, just names. Anyone already nested under
-  // a visible parent above is left out of this flat list.
-  var flatChildGuests=childGuests.filter(function(g){return!isNestedElsewhere(g);});
-  if(flatChildGuests.length){
-    html+='<div class="g-group-hdr children-hdr" style="color:#4A6EA8;border-color:rgba(74,110,168,.2)"><span style="margin-right:5px">&#x1F467;</span>Children <span style="opacity:.4">('+flatChildGuests.length+')</span></div>';
-    flatChildGuests.forEach(function(g){html+=buildGuestCard(g);});
+  // Children section — no buttons, just names
+  if(childGuests.length){
+    html+='<div class="g-group-hdr children-hdr" style="color:#4A6EA8;border-color:rgba(74,110,168,.2)"><span style="margin-right:5px">&#x1F467;</span>Children <span style="opacity:.4">('+childGuests.length+')</span></div>';
+    childGuests.forEach(function(g){html+=buildGuestCard(g);});
   }
 
-  // Sent: always shown individually — one card per guest, no merging — so the
-  // yes/no count and each person's color can never be ambiguous.
+  // Sent: group bulk-with partners together, then split couples vs singles
   if(sentGuests.length){
     if(showSent){
+      // Pair up guests that sent together (by shared sentGroupId, falling back to bulkWith)
+      var renderedNames={};
+      var sentOrdered=[];
+      sentGuests.forEach(function(g){
+        if(renderedNames[g.name])return;
+        renderedNames[g.name]=true;
+        // Try sentGroupId first (most reliable), then bulkWith
+        var partnerName=g.bulkWith||'';
+        if(partnerName){
+          var partner=sentGuests.find(function(h){return h.name===partnerName&&!renderedNames[h.name];});
+          if(partner){
+            renderedNames[partner.name]=true;
+            sentOrdered.push({type:'pair',guests:[g,partner]});
+            return;
+          }
+        }
+        sentOrdered.push({type:'single',guest:g});
+      });
+
       var sentYes=sentGuests.filter(function(g){return getGuestRsvpYesNo(g)===true;}).length;
       var sentNo=sentGuests.filter(function(g){return getGuestRsvpYesNo(g)===false;}).length;
-      var sentHdrLabel=importFilter==='confirmed'?'Confirmed':'Sent';
-      html+='<div class="g-group-hdr sent sent-with-stats"><span style="flex-shrink:0">'+sentHdrLabel+' ('+sentGuests.length+')</span>'
+      html+='<div class="g-group-hdr sent sent-with-stats"><span style="flex-shrink:0">Sent ('+sentGuests.length+')</span>'
         + '<span style="flex:1;height:1px;background:var(--parchment);display:inline-block;min-width:8px"></span>'
         + entriesCluster(sentGuests.length, sentYes, sentNo, false) + '</div>';
-      // Pairs you've explicitly confirmed in Review Pairs collapse into one
-      // merged card — everyone else (pending / unreviewed / suspicious)
-      // stays as two separate cards so anything unresolved stays visible.
-      var mergedSeen={};
-      sentGuests.forEach(function(g){
-        var ri=importQueue.indexOf(g);
-        if(mergedSeen[ri])return;
-        if(isNestedElsewhere(g))return; // renders nested under its host parent instead
-        var partnerObj=g.bulkWith?importQueue.find(function(o){return o.name===g.bulkWith;}):null;
-        var partnerInSentList=partnerObj&&sentGuests.indexOf(partnerObj)!==-1;
-        var pKey=partnerObj?pairKey(g.name,partnerObj.name):null;
-        var isConfirmedPair=partnerInSentList&&pKey&&_confirmedPairs[pKey];
-        if(isConfirmedPair){
-          var partnerRi=importQueue.indexOf(partnerObj);
-          mergedSeen[partnerRi]=true;
-          html+=mergedPairWithKids('<div class="g-pair-merged">'+buildGuestCard(g,'top')+buildGuestCard(partnerObj,'bottom')+'</div>',[g.name,partnerObj.name]);
+      sentOrdered.forEach(function(item){
+        if(item.type==='pair'){
+          html+=buildPairSentCard(item.guests[0],item.guests[1]);
         } else {
-          html+=mergedPairWithKids(buildGuestCard(g),[g.name]);
+          html+=buildGuestCard(item.guest);
         }
       });
-      html+='<button class="show-sent-btn" id="showSentBtn">Hide '+sentHdrLabel.toLowerCase()+'</button>';
+      html+='<button class="show-sent-btn" id="showSentBtn">Hide sent</button>';
     } else {
-      html+='<button class="show-sent-btn" id="showSentBtn">Show '+sentGuests.length+' '+(importFilter==='confirmed'?'confirmed':'sent')+'</button>';
+      html+='<button class="show-sent-btn" id="showSentBtn">Show '+sentGuests.length+' sent</button>';
     }
   }
 
@@ -2276,26 +1890,9 @@ function renderGuestList(){
   var ssBtn=document.getElementById('showSentBtn');
   if(ssBtn)ssBtn.addEventListener('click',function(e){e.stopPropagation();showSent=!showSent;renderGuestList();});
 
-  // Kids toggle — expand/collapse the "+N kids" pill under a parent
-  list.querySelectorAll('.g-family-pod-toggle').forEach(function(t){
-    t.addEventListener('click',function(e){e.stopPropagation();var key=this.dataset.podKey;expandedFamilyPods[key]=!expandedFamilyPods[key];renderGuestList();});
-  });
-
   // Row tap = select
   list.querySelectorAll('.g-card').forEach(function(card){
-    card.addEventListener('click',function(e){if(e.target.closest('[data-action]'))return;if(e.target.closest('.g-partner-ref'))return;var ri=parseInt(this.dataset.qi);var g=importQueue[ri];if(!g||g.sent)return;toggleSelect(ri);renderGuestList();});
-  });
-  // "Sent with X" reference — jump to and briefly flash the partner's card
-  list.querySelectorAll('.g-partner-ref').forEach(function(ref){
-    ref.addEventListener('click',function(e){
-      e.stopPropagation();
-      var targetQi=this.dataset.jumpQi;
-      var targetWrap=list.querySelector('.g-swipe-wrap[data-qi="'+targetQi+'"]');
-      if(!targetWrap)return;
-      targetWrap.scrollIntoView({behavior:'smooth',block:'center'});
-      targetWrap.classList.add('g-flash-ref');
-      setTimeout(function(){targetWrap.classList.remove('g-flash-ref');},1200);
-    });
+    card.addEventListener('click',function(e){if(e.target.closest('[data-action]'))return;var ri=parseInt(this.dataset.qi);var g=importQueue[ri];if(!g||g.sent)return;toggleSelect(ri);renderGuestList();});
   });
   // Actions
   list.querySelectorAll('[data-action]').forEach(function(btn){
@@ -2305,7 +1902,6 @@ function renderGuestList(){
       else if(a==='flag'){g.followup=!g.followup;saveGuestMeta();pushMetaToWorker(g);renderGuestList();renderDashboard();}
       else if(a==='claim'){claimGuest(g.name);}
       else if(a==='note')openNoteModal(ri);
-      else if(a==='role')openRoleModal(ri);
       else if(a==='del'){importQueue.splice(ri,1);selectedIdxs=selectedIdxs.filter(function(i){return i!==ri;});saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();}
       else if(a==='confirm-yes'){
         var prevSent=g.sent;var prevSentBy=g.sentBy||'';var prevFollowup=g.followup;g.pendingSent=false;g.followup=false;g.sent=true;g.sentAt=ts();g.sentBy=sessionSender;todayCount++;updateTodayBadge();
@@ -2316,21 +1912,8 @@ function renderGuestList(){
         showUndo('Marked '+g.name+' as sent',function(){g.sent=prevSent;g.sentAt='';g.sentBy=prevSentBy;g.followup=prevFollowup;if(!prevSent){todayCount=Math.max(0,todayCount-1);updateTodayBadge();}pushUnsentToWorker(g.name);saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();});
       }
       else if(a==='confirm-no'){g.pendingSent=false;saveGuestMeta();renderGuestList();}
-      else if(a==='rsvp-yes'){g.manualRsvp=(g.manualRsvp==='yes')?'':'yes';var qi2y=this.dataset.qi2;var g2y=(qi2y!==undefined&&qi2y!=='')?importQueue[parseInt(qi2y)]:null;if(g2y)g2y.manualRsvp=g.manualRsvp;saveGuestMeta();renderGuestList();renderDashboard();pushMetaToWorker(g).then(function(){if(g2y)pushMetaToWorker(g2y);});}
-      else if(a==='rsvp-no'){g.manualRsvp=(g.manualRsvp==='no')?'':'no';var qi2n=this.dataset.qi2;var g2n=(qi2n!==undefined&&qi2n!=='')?importQueue[parseInt(qi2n)]:null;if(g2n)g2n.manualRsvp=g.manualRsvp;saveGuestMeta();renderGuestList();renderDashboard();pushMetaToWorker(g).then(function(){if(g2n)pushMetaToWorker(g2n);});}
-      else if(a==='unlink-partner'){
-        var oldPartner=importQueue.find(function(o){return o.name===g.bulkWith;});
-        if(confirm('Unlink '+g.name+' from '+g.bulkWith+'?')){
-          g.bulkWith='';g.sentGroupId='';
-          saveGuestMeta();renderGuestList();renderDashboard();
-          // Push sequentially, not in parallel — two saves fired at once can
-          // race on the server and clobber each other, silently leaving one
-          // side of the pair still linked (see pushMetaToWorker/_pushWithRetry notes).
-          pushMetaToWorker(g).then(function(){
-            if(oldPartner&&oldPartner.bulkWith===g.name){oldPartner.bulkWith='';oldPartner.sentGroupId='';pushMetaToWorker(oldPartner);}
-          });
-        }
-      }
+      else if(a==='rsvp-yes'){g.manualRsvp=(g.manualRsvp==='yes')?'':'yes';saveGuestMeta();pushMetaToWorker(g);renderGuestList();renderDashboard();}
+      else if(a==='rsvp-no'){g.manualRsvp=(g.manualRsvp==='no')?'':'no';saveGuestMeta();pushMetaToWorker(g);renderGuestList();renderDashboard();}
     });
   });
 
@@ -2349,784 +1932,24 @@ function buildPairSentCard(g1,g2){
   var sentLetter1=g1.sentBy==='Arina'?'A':g1.sentBy==='Elnur'?'E':'';
   var sentTime=g1.sentAt?'<span class="g-sent-time">'+fmtSentAt(g1.sentAt)+(sentLetter1?' · '+sentLetter1:'')+'</span>':'';
   var pairName=pairDisplayName(g1.name,g2.name);
-
-  /* RSVP lookup — pair cards were never wired up to this before, so they
-     could never show a color or pill no matter what the actual RSVP said.
-     bulkWith is already set between g1/g2 (that's how they got paired up
-     into this card), so knownPartnerName is reliable here. A manual
-     override on EITHER guest wins, and gets treated as applying to both. */
-  var manualOverridePair=g1.manualRsvp||g2.manualRsvp||'';
-  var rsvpInfoPair=getGuestRsvpInfo(g1.name, true, g2.name, manualOverridePair);
-  var rsvpClassPair='';
-  var pillWrapPair='';
-  if(rsvpInfoPair){
-    /* Guests Attending lists the originally-invited names regardless of a
-       yes/no answer (a decline still shows "Laura, Björn" there) — so it can
-       only be used to split a pair when the household actually said YES.
-       On a decline, both are simply red; there's nothing to split. */
-    var gaStrPair=(!rsvpInfoPair.manual && rsvpInfoPair.isYes)?(rsvpInfoPair.guestsAttending||''):'';
-    if(gaStrPair){
-      var gaToksPair=gaStrPair.toLowerCase().split(/[\s,&]+/).filter(Boolean);
-      var fn1Pair=firstName(g1.name).toLowerCase();
-      var fn2Pair=firstName(g2.name).toLowerCase();
-      var coming1=gaToksPair.indexOf(fn1Pair)!==-1;
-      var coming2=gaToksPair.indexOf(fn2Pair)!==-1;
-      if(coming1&&coming2) rsvpClassPair=' rsvp-yes';
-      else if(!coming1&&!coming2) rsvpClassPair=' rsvp-no';
-      else rsvpClassPair=' rsvp-pending';
-      var personsPair=[{name:firstName(g1.name),coming:coming1},{name:firstName(g2.name),coming:coming2}];
-      pillWrapPair='<span style="display:flex;gap:3px;flex-wrap:wrap;align-items:center;margin-left:4px">'+personsPair.map(function(p){
-        return p.coming
-          ?'<span style="background:#d4f5e2;color:#1a7a4a;border-radius:100px;padding:2px 8px;font-size:8px;font-weight:800;letter-spacing:.06em;flex-shrink:0">'+p.name+'</span>'
-          :'<span style="background:#fde8e8;color:#b91c1c;border-radius:100px;padding:2px 8px;font-size:8px;font-weight:800;letter-spacing:.06em;flex-shrink:0">'+p.name+'</span>';
-      }).join('')+'</span>';
-    } else {
-      rsvpClassPair=rsvpInfoPair.isYes?' rsvp-yes':rsvpInfoPair.isNo?' rsvp-no':' rsvp-pending';
-    }
-  }
-  if(!pillWrapPair){
-    var rsvpPillPair=getGuestRsvpPill(g1.name, true, g2.name, manualOverridePair);
-    pillWrapPair=rsvpPillPair?'<span style="display:flex;gap:3px;flex-wrap:wrap;align-items:center;margin-left:4px">'+rsvpPillPair+'</span>':'';
-  }
-  var debugTagPair=(DEV_MODE&&!rsvpInfoPair)?'<div style="font-size:9px;color:#b91c1c;opacity:.75;margin-top:2px;word-break:break-word">DEBUG: '+debugNoMatch(g1, g2.name)+'</div>':'';
-
-  var effStatePair=manualOverridePair==='yes'?'yes':manualOverridePair==='no'?'no':(rsvpClassPair===' rsvp-yes'?'yes':rsvpClassPair===' rsvp-no'?'no':'');
-  var rsvpPanelPair='<div class="g-swipe-action-right sw-rsvp"><div class="g-swipe-action-inner">'
-    +'<button class="ga-btn ga-btn-rsvp-yes swipe-rsvp-btn'+(effStatePair==='yes'?' active':'')+'" data-qi="'+ri1+'" data-qi2="'+ri2+'" data-action="rsvp-yes" title="Mark RSVP: Yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button>'
-    +'<button class="ga-btn ga-btn-rsvp-no swipe-rsvp-btn'+(effStatePair==='no'?' active':'')+'" data-qi="'+ri1+'" data-qi2="'+ri2+'" data-action="rsvp-no" title="Mark RSVP: No"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>'
-    +'</div></div>';
-
-  // Sender/time/undo/delete hidden by default — right-swipe reveals them (matches single sent cards).
-  var infoActionsPair='<div class="g-swipe-info-actions">'
-    +'<button class="g-undo-btn" data-qi="'+ri1+'" data-action="undo" title="Mark as unsent"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8s2-4.5 9.5-4.5a9 9 0 1 1-9 9"/><polyline points="2.5 3 2.5 8 7.5 8"/></svg></button>'
-    +'</div>';
-  return '<div class="g-swipe-wrap'+rsvpClassPair+'">'
-    +'<div class="g-swipe-action-left sw-info"><div class="g-swipe-action-inner">'+infoActionsPair+'</div></div>'
-    +rsvpPanelPair
+  // Sender/time letters hidden by default — right-swipe reveals them (matches single sent cards).
+  return '<div class="g-swipe-wrap">'
+    +'<div class="g-swipe-action-left sw-info"><div class="g-swipe-action-inner">'+senderChip+sentTime+'</div></div>'
     +'<div class="g-card sent">'
       +'<div class="g-inner">'
         +'<div class="g-inner-left">'
           +'<div class="g-main">'
-            +'<div class="g-name-row" style="flex-wrap:wrap"><span class="g-name" style="font-size:15px;flex:0 1 auto">'+pairName+'</span>'+pillWrapPair+'</div>'
-            +debugTagPair
+            +'<div class="g-name-row"><span class="g-name" style="font-size:15px">'+pairName+'</span></div>'
           +'</div>'
+        +'</div>'
+        +'<div class="g-inner-right">'
+          +'<button class="g-undo-btn" data-qi="'+ri1+'" data-action="undo" title="Mark as unsent"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8s2-4.5 9.5-4.5a9 9 0 1 1-9 9"/><polyline points="2.5 3 2.5 8 7.5 8"/></svg></button>'
+          +'<button class="g-del" data-qi="'+ri1+'" data-action="del" style="position:static;width:18px;height:18px;color:var(--soft);border:none;background:transparent;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>'
         +'</div>'
       +'</div>'
     +'</div>'
   +'</div>';
 }
-
-/* ══ PAIRS REVIEW — audits every bulkWith link and flags ones that look
-   like they were corrupted by the stale-index sync bug (see doSync notes
-   above): mismatched surname, mismatched group, mismatched phone owner, or
-   a big gap between the two sentAt timestamps despite supposedly being sent
-   in the very same action. Lets a person fix bad pairs in two taps instead
-   of hunting through the whole list. ══ */
-function auditPairs(){
-  var seen={};
-  var pairs=[];
-  importQueue.forEach(function(g){
-    if(!g.bulkWith) return;
-    var key=[g.name,g.bulkWith].sort().join('::');
-    if(seen[key]) return;
-    seen[key]=true;
-    var partner=importQueue.find(function(o){return o.name===g.bulkWith;});
-    var reasons=[];
-    if(!partner){
-      reasons.push('partner no longer in list');
-    } else {
-      var ln1=lastName(g.name),ln2=lastName(partner.name);
-      if(ln1&&ln2&&ln1.toLowerCase()!==ln2.toLowerCase())reasons.push('different surnames');
-      if(g.group&&partner.group&&g.group!==partner.group)reasons.push('different groups ("'+g.group+'" vs "'+partner.group+'")');
-      if(g.phone&&partner.phone){
-        var p1=g.phone.replace(/[\s\-\(\)]/g,''),p2=partner.phone.replace(/[\s\-\(\)]/g,'');
-        if(p1!==p2)reasons.push('different phone numbers on file');
-      }
-      if(g.sentAt&&partner.sentAt){
-        var t1=new Date(g.sentAt).getTime(),t2=new Date(partner.sentAt).getTime();
-        if(!isNaN(t1)&&!isNaN(t2)&&Math.abs(t1-t2)>5*60*1000)reasons.push('sent '+Math.round(Math.abs(t1-t2)/60000)+' min apart');
-      }
-      if(partner.bulkWith!==g.name)reasons.push('link is one-directional (partner points elsewhere)');
-    }
-    pairs.push({g:g,partner:partner,reasons:reasons});
-  });
-  // Suspicious first, then alphabetical
-  pairs.sort(function(a,b){
-    if(!!a.reasons.length!==!!b.reasons.length)return a.reasons.length?-1:1;
-    return a.g.name.localeCompare(b.g.name);
-  });
-  return pairs;
-}
-
-/* Sent guests with NO bulkWith at all, but who share a surname or family
-   group with exactly one other sent, unlinked guest — i.e. they were almost
-   certainly sent together (as a couple/family) but the link was simply
-   never recorded. Surfaced as suggestions to confirm, never auto-applied. */
-// A guest whose group name itself says "kids" (e.g. "Kids church+venue,
-// 15-17yo") has already been categorized as a child via the group dropdown
-// — the isChild flag only ever comes from the original import file and
-// can't be set from the dashboard, so relying on it alone ignores anyone
-// sorted into a Kids group here. Checked in addition to isChild, not
-// instead of it.
-function isKidsGroup(g){ return !!(g&&g.group&&/\bkids?\b/i.test(g.group)); }
-function _loadDismissedMissingPairs(){try{return JSON.parse(localStorage.getItem('ww_dismissed_pairs')||'{}');}catch(e){return{};}}
-function _saveDismissedMissingPairs(){try{localStorage.setItem('ww_dismissed_pairs',JSON.stringify(_dismissedMissingPairs));}catch(e){}}
-// Pairs the user has explicitly confirmed as correct — e.g. a real couple
-// who just happen to have different phone numbers on file. Confirming
-// stops that pair from being counted/flagged as "suspicious" on every
-// future visit to Review Pairs, without touching the underlying data.
-function _loadConfirmedPairs(){try{return JSON.parse(localStorage.getItem('ww_confirmed_pairs')||'{}');}catch(e){return{};}}
-function _saveConfirmedPairs(){try{localStorage.setItem('ww_confirmed_pairs',JSON.stringify(_confirmedPairs));}catch(e){}}
-var _confirmedPairs=_loadConfirmedPairs();
-function pairKey(n1,n2){return [n1,n2].sort().join('::');}
-// Previously only an in-memory object — every reload (or even just closing
-// and reopening the modal after a sync) wiped it, so "Not a pair" never
-// actually stuck and the same kid/family suggestions kept resurfacing.
-var _dismissedMissingPairs=_loadDismissedMissingPairs();
-function auditMissingPairs(){
-  var suggestions=[];
-  var seen={};
-  importQueue.forEach(function(g){
-    if(!g.sent||g.bulkWith||g.isChild||isKidsGroup(g)) return;
-    var suggestedName=inferPartnerName(g);
-    if(!suggestedName) return;
-    var partner=importQueue.find(function(o){return o.name===suggestedName;});
-    if(!partner||partner.bulkWith||!partner.sent||partner.isChild||isKidsGroup(partner)) return;
-    if(inferPartnerName(partner)!==g.name) return; // must agree both ways
-    var key=[g.name,partner.name].sort().join('::');
-    if(seen[key]||_dismissedMissingPairs[key]) return;
-    seen[key]=true;
-    var ln1=lastName(g.name),ln2=lastName(partner.name);
-    var via=(ln1&&ln2&&ln1.toLowerCase()===ln2.toLowerCase())?'same surname "'+ln1+'"':'same group "'+(g.group||partner.group)+'"';
-    suggestions.push({g:g,partner:partner,via:via,key:key});
-  });
-  return suggestions;
-}
-
-var _pairsReviewQuery='';
-var _pairsReviewTab='couples'; // 'couples' | 'tree'
-// Per-pair manual expand/collapse override, keyed by pairKey(). A confirmed,
-// non-suspicious pair collapses by default (nothing to review); this records
-// when the person has explicitly opened or closed one by hand. Absent =
-// "use the automatic default" (expanded only if it needs attention).
-var _expandedPairs={};
-var _manualLinkOpen=false;
-var _matchTabOpen=false;
-var _manualLinkPick={1:null,2:null}; // selected guest names for the two manual-link slots
-var _parentLinkOpen=false;
-var _parentLinkKids=[]; // names of the kid guests being linked (multi-select)
-var _parentLinkParents=[]; // parent/guardian names picked — no cap, blended families can list more than 2
-// Browsable candidate list for the manual-link panel — defaults to every
-// guest with no partner recorded yet (the ones you'd actually want to pick
-// from), and narrows by typed text when there's a query. Excludes whoever
-// is already picked in the other slot.
-function renderManualPickList(query,slot){
-  var otherSlot=slot==='1'?'2':'1';
-  var q=(query||'').trim().toLowerCase();
-  var nameMatches=function(o){return (o.name||'').toLowerCase().indexOf(q)!==-1;};
-  // Always unlinked-only — this panel is for pairing people who don't have
-  // a partner recorded yet. Already-linked guests are excluded even while
-  // searching; if a search only turns up linked people, say who they're
-  // already linked to instead of just showing an empty list.
-  var pool=importQueue.filter(function(o){
-    if(o.name===_manualLinkPick[otherSlot])return false;
-    if(o.bulkWith)return false;
-    if(q)return nameMatches(o);
-    return true;
-  }).sort(function(a,b){return (a.name||'').localeCompare(b.name||'');});
-  if(!pool.length){
-    if(q){
-      var linkedMatches=importQueue.filter(function(o){return o.bulkWith&&o.name!==_manualLinkPick[otherSlot]&&nameMatches(o);}).slice(0,4);
-      if(linkedMatches.length){
-        return '<div style="padding:6px 8px;font-family:var(--sans);font-size:11px;color:var(--muted)">Already linked: '
-          +linkedMatches.map(function(o){return o.name+' &harr; '+o.bulkWith;}).join(', ')
-          +'</div>';
-      }
-      return '<div style="padding:6px 8px;font-family:var(--sans);font-size:11px;color:var(--muted)">No matches.</div>';
-    }
-    return '<div style="padding:6px 8px;font-family:var(--sans);font-size:11px;color:var(--muted)">Everyone else is already linked.</div>';
-  }
-  return pool.map(function(m){
-    return '<button data-manual-pick="'+slot+'" data-manual-pick-name="'+m.name.replace(/"/g,'&quot;')+'" style="display:block;width:100%;text-align:left;padding:6px 8px;margin-top:3px;border-radius:6px;border:1px solid var(--parchment);background:#fff;color:var(--ink);font-family:var(--sans);font-size:12px;cursor:pointer">'+m.name+'</button>';
-  }).join('');
-}
-// Candidate list for picking WHICH guest is the kid being linked. Defaults
-// to guests with no parents recorded yet, kid-looking ones (name/group
-// mentions "kid") bubbled to the top since that's almost always who this
-// panel gets used for — but nothing stops you picking anyone.
-function renderKidPickList(query){
-  var q=(query||'').trim().toLowerCase();
-  var pool=importQueue.filter(function(o){
-    if(_parentLinkKids.indexOf(o.name)!==-1)return false;
-    if(_parentLinkParents.indexOf(o.name)!==-1)return false;
-    if(q)return (o.name||'').toLowerCase().indexOf(q)!==-1;
-    return !o.parentNames;
-  }).sort(function(a,b){
-    var ak=isKidsGroup(a)||/\bkids?\b/i.test(a.name)?0:1;
-    var bk=isKidsGroup(b)||/\bkids?\b/i.test(b.name)?0:1;
-    if(ak!==bk)return ak-bk;
-    return (a.name||'').localeCompare(b.name||'');
-  });
-  if(!pool.length)return '<div style="padding:6px 8px;font-family:var(--sans);font-size:11px;color:var(--muted)">'+(q?'No matches.':'No unlinked kids left.')+'</div>';
-  return pool.map(function(m){
-    return '<button data-kid-pick data-kid-pick-name="'+m.name.replace(/"/g,'&quot;')+'" style="display:block;width:100%;text-align:left;padding:6px 8px;margin-top:3px;border-radius:6px;border:1px solid var(--parchment);background:#fff;color:var(--ink);font-family:var(--sans);font-size:12px;cursor:pointer">'+m.name+(m.parentNames?' <span style="color:var(--muted);font-size:10px">(currently child of '+m.parentNames+')</span>':'')+'</button>';
-  }).join('');
-}
-// Candidate list for picking a parent — any guest except any kid already
-// picked and whoever's already picked as the other parent. Parents are
-// ordinary guests (often already bulkWith-linked to their own spouse), so
-// no unlinked-only filter here.
-function renderParentPickList(query){
-  var q=(query||'').trim().toLowerCase();
-  var pool=importQueue.filter(function(o){
-    if(_parentLinkKids.indexOf(o.name)!==-1)return false;
-    if(_parentLinkParents.indexOf(o.name)!==-1)return false;
-    if(q)return (o.name||'').toLowerCase().indexOf(q)!==-1;
-    return true;
-  }).sort(function(a,b){return (a.name||'').localeCompare(b.name||'');}).slice(0,q?8:0);
-  if(!pool.length)return '<div style="padding:6px 8px;font-family:var(--sans);font-size:11px;color:var(--muted)">'+(q?'No matches.':'Start typing a name…')+'</div>';
-  return pool.map(function(m){
-    return '<button data-parent-pick data-parent-pick-name="'+m.name.replace(/"/g,'&quot;')+'" style="display:block;width:100%;text-align:left;padding:6px 8px;margin-top:3px;border-radius:6px;border:1px solid var(--parchment);background:#fff;color:var(--ink);font-family:var(--sans);font-size:12px;cursor:pointer">'+m.name+'</button>';
-  }).join('');
-}
-// Names a child's parentNames field lists, trimmed — a kid can be linked
-// to any number of parents/guardians, comma-separated in whatever order they were picked.
-function _parentNameList(s){return (s||'').split(',').map(function(n){return n.trim();}).filter(Boolean);}
-function buildFamilyTree(){
-  var allPairs=auditPairs();
-  var couples=allPairs.filter(function(p){
-    if(!p.partner)return false;
-    var partnerName=p.partner.name;
-    return !!_confirmedPairs[pairKey(p.g.name,partnerName)];
-  });
-  var claimedKids={};
-  var families=couples.map(function(c){
-    var names=[c.g.name,c.partner.name];
-    var kids=importQueue.filter(function(o){
-      if(!o.parentNames)return false;
-      var pn=_parentNameList(o.parentNames);
-      if(!pn.length)return false;
-      return pn.every(function(n){return names.indexOf(n)!==-1;});
-    }).sort(function(a,b){return (a.name||'').localeCompare(b.name||'');});
-    kids.forEach(function(k){claimedKids[k.name]=true;});
-    return {parents:names,kids:kids};
-  });
-  var strayKids=importQueue.filter(function(o){return o.parentNames&&!claimedKids[o.name];});
-  return {families:families,strayKids:strayKids};
-}
-function renderFamilyTree(){
-  var data=buildFamilyTree();
-  var q=_pairsReviewQuery.trim().toLowerCase();
-  var families=data.families;
-  if(q){
-    families=families.filter(function(f){
-      return f.parents.some(function(n){return n.toLowerCase().indexOf(q)!==-1;})
-        ||f.kids.some(function(k){return k.name.toLowerCase().indexOf(q)!==-1;});
-    });
-  }
-  document.getElementById('pairsReviewSub').textContent=data.families.length
-    ? data.families.length+' confirmed famil'+(data.families.length>1?'ies':'y')+(q?' · showing matches for "'+_pairsReviewQuery+'"':'')+'.'
-    : 'Confirm a couple in the Couples tab to see it here.';
-  var html='';
-  if(!families.length){
-    html='<div style="padding:20px;text-align:center;color:var(--muted);font-family:var(--sans);font-size:12px">'
-      +(q?'No matches for "'+_pairsReviewQuery+'".':'No confirmed couples yet — confirm a pair in the Couples tab first.')+'</div>';
-  } else {
-    families.forEach(function(f){
-      html+='<div class="ft-family">'
-        +'<div class="ft-parents">'
-          +'<span class="ft-parent-name">'+f.parents[0]+'</span>'
-          +'<span class="ft-heart">&amp;</span>'
-          +'<span class="ft-parent-name">'+f.parents[1]+'</span>'
-        +'</div>';
-      if(f.kids.length){
-        html+='<div class="ft-kids-wrap"><div class="ft-trunk"></div></div>'
-          +'<div class="ft-kids-wrap"><div class="ft-kids">'
-          +f.kids.map(function(k){return '<span class="ft-kid">'+k.name+'</span>';}).join('')
-          +'</div></div>';
-      }
-      html+='</div>';
-    });
-  }
-  if(!q&&data.strayKids.length){
-    html+='<div class="ft-stray-hdr">Linked children without a confirmed couple</div>'
-      +'<div class="ft-stray-sub">Confirm their parents\' pair in the Couples tab to place them in the tree.</div>'
-      +data.strayKids.map(function(k){
-        return '<div class="ft-stray-row"><span style="font-weight:600">'+k.name+'</span><span style="color:var(--soft);font-size:10.5px">&middot; child of '+k.parentNames+'</span></div>';
-      }).join('');
-  }
-  document.getElementById('pairsReviewList').innerHTML=html;
-}
-function renderPairsReview(){
-  var treeToggle=document.getElementById('prTreeToggle');
-  if(treeToggle)treeToggle.checked=(_pairsReviewTab==='tree');
-  if(_pairsReviewTab==='tree'){
-    var searchWrap0=document.getElementById('pairsReviewSearchWrap');
-    if(searchWrap0)searchWrap0.style.display='';
-    var manualFixed0=document.getElementById('pairsReviewManualFixed');
-    if(manualFixed0){manualFixed0.style.display='none';manualFixed0.innerHTML='';}
-    renderFamilyTree();
-    return;
-  }
-  var manualFixedShow=document.getElementById('pairsReviewManualFixed');
-  if(manualFixedShow)manualFixedShow.style.display=_matchTabOpen?'':'none';
-  var matchTabBtn=document.getElementById('pairsMatchTab');
-  if(matchTabBtn){
-    matchTabBtn.style.background=_matchTabOpen?'#fff':'var(--cream)';
-    matchTabBtn.style.color=_matchTabOpen?'var(--ink)':'var(--ink2)';
-    matchTabBtn.style.borderColor=_matchTabOpen?'var(--parchment)':'var(--parchment)';
-    matchTabBtn.style.boxShadow=_matchTabOpen?'0 -2px 6px rgba(0,0,0,.03)':'none';
-  }
-  var allPairs=auditPairs();
-  var allMissing=auditMissingPairs();
-  var pairs=allPairs,missing=allMissing;
-  if(_pairsReviewQuery){
-    var q=_pairsReviewQuery.toLowerCase();
-    var matchPair=function(p){return p.g.name.toLowerCase().indexOf(q)!==-1||(p.partner&&p.partner.name.toLowerCase().indexOf(q)!==-1);};
-    pairs=allPairs.filter(matchPair);
-    missing=allMissing.filter(function(m){return m.g.name.toLowerCase().indexOf(q)!==-1||m.partner.name.toLowerCase().indexOf(q)!==-1;});
-  }
-  var sus=allPairs.filter(function(p){var partnerName=p.partner?p.partner.name:p.g.bulkWith;return p.reasons.length&&!_confirmedPairs[pairKey(p.g.name,partnerName)];});
-  document.getElementById('pairsReviewSub').textContent=allPairs.length
-    ? sus.length+' need'+(sus.length===1?'s':'')+' your attention'+(allMissing.length?' · '+allMissing.length+' possible missing link'+(allMissing.length>1?'s':''):'')+(_pairsReviewQuery?' · showing matches for "'+_pairsReviewQuery+'"':'')+'.'
-    : (allMissing.length?allMissing.length+' possible missing link'+(allMissing.length>1?'s':'')+' found.':'No sent-together pairs found yet.');
-  // Hide the pair-list search bar while either manual-link panel is open —
-  // it filters pairs, not the people you're currently picking, so showing
-  // it there is just confusing clutter.
-  var searchWrap=document.getElementById('pairsReviewSearchWrap');
-  if(searchWrap)searchWrap.style.display=(_manualLinkOpen||_parentLinkOpen)?'none':'';
-
-  var html='';
-
-  if(missing.length){
-    html+='<div style="font-family:var(--sans);font-weight:800;font-size:12px;color:#C9702A;margin:4px 4px 3px">Possible missing links</div>'
-        +'<div style="font-family:var(--sans);font-size:10px;color:var(--muted);margin:0 4px 5px">Sent, but no partner recorded — these share a surname or group, so they were likely sent together.</div>';
-    missing.forEach(function(m,idx){
-      html+='<div class="pr-missing-row" style="padding:8px;margin-bottom:6px;border-radius:10px;background:var(--cream)">'
-        +'<div style="font-family:var(--sans);font-size:13px;font-weight:700;color:var(--ink)">'+m.g.name+' &harr; '+m.partner.name+'</div>'
-        +'<div style="margin-top:2px;font-size:10px;color:#C9702A;font-weight:600">'+m.via+'</div>'
-        +'<div style="display:flex;gap:8px;margin-top:5px">'
-          +'<button data-pm-action="link" data-pm-idx="'+idx+'" style="flex:1;padding:7px;border-radius:8px;border:1px solid var(--green);background:var(--green-bg);color:var(--green);font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer">Link them</button>'
-          +'<button data-pm-action="dismiss" data-pm-idx="'+idx+'" style="flex:1;padding:7px;border-radius:8px;border:1px solid var(--parchment);background:#fff;color:var(--muted);font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer">Not a pair</button>'
-        +'</div>'
-      +'</div>';
-    });
-    html+='<div style="font-family:var(--sans);font-weight:800;font-size:12px;color:var(--ink2);margin:10px 4px 3px">Existing links</div>';
-  }
-
-  pairs.forEach(function(p,idx){
-    var partnerName=p.partner?p.partner.name:p.g.bulkWith;
-    var pKey=pairKey(p.g.name,partnerName);
-    var isConfirmed=!!_confirmedPairs[pKey];
-    // "Confirm" only makes sense for a pair that's ALREADY linked correctly
-    // on both sides — it silences a benign warning (e.g. different phone
-    // numbers), it never creates or repairs a link. A broken/one-sided or
-    // dangling link needs Relink/Unlink instead; confirming it would just
-    // hide the warning while the underlying data stays wrong.
-    var isBroken=p.reasons.some(function(r){return r.indexOf('one-directional')!==-1||r.indexOf('no longer in list')!==-1;});
-    // A confirmed, unbroken pair (or one with nothing flagged at all) has
-    // nothing left to review, so it stays collapsed until asked for.
-    // Anything actually suspicious opens automatically. Either state can
-    // be flipped by hand via the row header, tracked in _expandedPairs.
-    var needsAttention=p.reasons.length>0&&!isConfirmed;
-    var isExpanded=_expandedPairs.hasOwnProperty(pKey)?_expandedPairs[pKey]:needsAttention;
-    var badgeHtml=isConfirmed
-      ? '<span style="font-family:var(--sans);font-size:10px;font-weight:700;color:var(--green);white-space:nowrap">&#x2713; Confirmed</span>'
-      : (p.reasons.length
-        ? '<span style="font-family:var(--sans);font-size:10px;font-weight:700;color:#b91c1c;white-space:nowrap">&#x26A0; Review</span>'
-        : '<span style="font-family:var(--sans);font-size:10px;font-weight:600;color:var(--muted);white-space:nowrap">OK</span>');
-    var chevronHtml='<span style="flex-shrink:0;width:16px;height:16px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:9px;transition:transform var(--ease);transform:rotate('+(isExpanded?'90deg':'0deg')+')">&#x25B8;</span>';
-    var flagHtml=isConfirmed
-      ? '<div style="margin-top:4px;font-size:10px;color:var(--green);font-weight:600">✓ confirmed by you — won\'t be flagged again</div>'
-      : (p.reasons.length
-        ? '<div style="margin-top:4px;font-size:10px;color:#b91c1c;font-weight:700">⚠ '+p.reasons.join(' · ')+'</div>'
-        : '<div style="margin-top:4px;font-size:10px;color:var(--green);font-weight:600">looks consistent</div>');
-    var confirmBtnHtml=isBroken
-      ? '<button disabled title="This link is actually broken — use Relink to fix it, not Confirm" style="flex:1;min-width:0;padding:7px 4px;border-radius:8px;border:1px solid var(--parchment);background:var(--parchment);color:var(--muted);font-family:var(--sans);font-size:10.5px;font-weight:700;cursor:not-allowed">Confirm</button>'
-      : '<button data-pr-action="'+(isConfirmed?'unconfirm':'confirm')+'" data-pr="'+idx+'" title="'+(isConfirmed?'Stop treating as confirmed':'Confirm this pair is correct — stop flagging it')+'" style="flex:1;min-width:0;padding:7px 4px;border-radius:8px;border:1px solid '+(isConfirmed?'var(--green)':'var(--parchment)')+';background:'+(isConfirmed?'var(--green-bg)':'#fff')+';color:'+(isConfirmed?'var(--green)':'var(--muted)')+';font-family:var(--sans);font-size:10.5px;font-weight:700;cursor:pointer">'+(isConfirmed?'✓ Confirmed':'Confirm')+'</button>';
-    var bodyHtml='';
-    if(isExpanded){
-      bodyHtml=flagHtml
-        +(isBroken?'<div style="margin-top:3px;font-size:10px;color:var(--sky);font-weight:600">Use Relink to… below to actually fix this</div>':'')
-        +'<div style="display:flex;gap:6px;margin-top:6px">'
-          +'<button data-pr-action="unlink" data-pr="'+idx+'" style="flex:1;min-width:0;padding:7px 4px;border-radius:8px;border:1px solid #b91c1c;background:#fde8e8;color:#b91c1c;font-family:var(--sans);font-size:10.5px;font-weight:700;cursor:pointer">Unlink</button>'
-          +confirmBtnHtml
-          +'<button data-pr-action="relink" data-pr="'+idx+'" title="Relink to…" style="flex:1;min-width:0;padding:7px 4px;border-radius:8px;border:1px solid var(--parchment);background:#fff;color:var(--ink2);font-family:var(--sans);font-size:10.5px;font-weight:700;cursor:pointer">Relink</button>'
-        +'</div>'
-        +'<div class="pr-relink-wrap" data-pr-relink="'+idx+'" style="display:none;margin-top:6px;background:#fbf7f3;border-radius:8px;padding:8px">'
-          +'<input type="text" class="pr-relink-input" data-pr-input="'+idx+'" placeholder="Type correct partner\'s name…" style="width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);font-family:var(--sans);font-size:12px;box-sizing:border-box;background:#fff;color:var(--ink)">'
-          +'<div class="pr-relink-results" data-pr-results="'+idx+'" style="margin-top:4px"></div>'
-          +'<button data-pr-action="cancel-relink" data-pr="'+idx+'" style="margin-top:6px;width:100%;padding:6px;border-radius:8px;border:1px solid var(--parchment);background:#fff;color:var(--muted);font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer">Cancel</button>'
-        +'</div>';
-    }
-    html+='<div class="pr-row" data-pr="'+idx+'" style="padding:8px;margin-bottom:6px;border-radius:10px;background:var(--cream)">'
-      +'<div data-pr-header="'+idx+'" style="display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer">'
-        +'<div style="font-family:var(--sans);font-size:13px;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+p.g.name+' &harr; '+partnerName+'</div>'
-        +'<div style="display:flex;align-items:center;gap:6px;flex-shrink:0">'+badgeHtml+chevronHtml+'</div>'
-      +'</div>'
-      +bodyHtml
-    +'</div>';
-  });
-
-  // Manual fallback — for when the auto-detection above doesn't catch a
-  // pair (different surnames, no shared group, etc). Rendered into the
-  // "Link & roles" tab content panel, toggled via #pairsMatchTab, instead
-  // of always sitting fixed on screen.
-  var manualHtml='';
-  {
-    // Lives right alongside the manual-link tools since both are
-    // "management" actions rather than things that scroll with the list.
-    manualHtml+='<button id="rolesOverviewBtn" style="width:100%;text-align:left;padding:8px 10px;margin-bottom:10px;border-radius:8px;border:1px dashed #8B5FBF;background:#F0E6F7;color:#6B3FA0;font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Who\'s doing what — roles overview</button>';
-
-    // Manual link panel — for pairing two people the surname/group heuristic
-    // wouldn't catch on its own (different surnames, no shared group, etc).
-    manualHtml+='<div style="margin-bottom:10px">'
-      +'<button id="pairsManualToggle" style="width:100%;text-align:left;padding:8px 10px;border-radius:8px;border:1px dashed var(--sky);background:var(--sky-bg);color:var(--sky);font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer">'+(_manualLinkOpen?'− Hide manual link':'+ Link two guests manually')+'</button>';
-    if(_manualLinkOpen){
-      // Progressive: only show the second guest's picker once the first is
-      // chosen — showing two full browse lists stacked at once was the
-      // "way too messy" problem.
-      [1,2].forEach(function(slot){
-        if(slot===2&&!_manualLinkPick[1])return;
-        var picked=_manualLinkPick[slot];
-        manualHtml+='<div style="margin-top:8px">'
-          +'<div style="font-size:10px;color:var(--muted);font-family:var(--sans);margin-bottom:3px">'+(slot===1?'First guest':'Second guest')+'</div>'
-          +(picked
-            ? '<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);background:#fff;font-family:var(--sans);font-size:12px;color:var(--ink)"><span>'+picked+'</span><button data-manual-clear="'+slot+'" style="border:none;background:none;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;padding:0 2px">×</button></div>'
-            : '<input type="text" class="pairs-manual-input" data-manual-slot="'+slot+'" placeholder="Search, or pick from the list below…" style="width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);font-family:var(--sans);font-size:12px;box-sizing:border-box;background:#fff;color:var(--ink)">'
-              +'<div class="pairs-manual-results" data-manual-results="'+slot+'" style="margin-top:4px;max-height:140px;overflow-y:auto">'+renderManualPickList('',slot)+'</div>')
-        +'</div>';
-      });
-      if(_manualLinkPick[1]&&_manualLinkPick[2]){
-        manualHtml+='<button id="pairsManualLinkBtn" style="margin-top:8px;width:100%;padding:8px;border-radius:8px;border:1px solid var(--green);background:var(--green-bg);color:var(--green);font-family:var(--sans);font-size:12px;font-weight:700;cursor:pointer">Link these two</button>';
-      }
-    }
-    manualHtml+='</div>';
-
-    // Kid ↔ parent(s) panel. A child can have up to two parents, which is
-    // why this can't just reuse bulkWith (strictly one-to-one) — it's a
-    // separate field (parentNames) stored on the kid's own guest record.
-    manualHtml+='<div style="margin-bottom:6px">'
-      +'<button id="parentLinkToggle" style="width:100%;text-align:left;padding:8px 10px;border-radius:8px;border:1px dashed var(--sky);background:var(--sky-bg);color:var(--sky);font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer">'+(_parentLinkOpen?'− Hide link kid to parent(s)':'+ Link a kid to their parent(s)')+'</button>';
-    if(_parentLinkOpen){
-      manualHtml+='<div style="margin-top:6px;font-size:10px;color:var(--muted);font-family:var(--sans)">Kid'+(_parentLinkKids.length>1?'s':'')+(_parentLinkKids.length?' ('+_parentLinkKids.length+')':'')+'</div>';
-      _parentLinkKids.forEach(function(kn){
-        manualHtml+='<div style="margin-top:3px;display:flex;align-items:center;justify-content:space-between;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);background:#fff;font-family:var(--sans);font-size:12px;color:var(--ink)"><span>'+kn+'</span><button data-kid-remove="'+kn.replace(/"/g,'&quot;')+'" style="border:none;background:none;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;padding:0 2px">×</button></div>';
-      });
-      manualHtml+='<div style="margin-top:3px">'
-        +'<input type="text" id="kidPickInput" placeholder="'+(_parentLinkKids.length?'Add another kid…':'Search, or pick from the list below…')+'" style="width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);font-family:var(--sans);font-size:12px;box-sizing:border-box;background:#fff;color:var(--ink)">'
-        +'<div id="kidPickResults" style="margin-top:4px;max-height:140px;overflow-y:auto">'+renderKidPickList('')+'</div>'
-      +'</div>';
-      // Progressive: parent picker only appears once at least one kid is chosen.
-      if(_parentLinkKids.length){
-      manualHtml+='<div style="margin-top:8px;font-size:10px;color:var(--muted);font-family:var(--sans)">Parent'+(_parentLinkParents.length===1?'':'s')+(_parentLinkParents.length?' ('+_parentLinkParents.length+')':'')+'</div>';
-      _parentLinkParents.forEach(function(pn){
-        manualHtml+='<div style="margin-top:3px;display:flex;align-items:center;justify-content:space-between;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);background:#fff;font-family:var(--sans);font-size:12px;color:var(--ink)"><span>'+pn+'</span><button data-parent-remove="'+pn.replace(/"/g,'&quot;')+'" style="border:none;background:none;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;padding:0 2px">×</button></div>';
-      });
-      manualHtml+='<div style="margin-top:3px">'
-        +'<input type="text" id="parentPickInput" placeholder="'+(_parentLinkParents.length?'Add another parent/guardian…':'Search a parent\'s name…')+'" style="width:100%;padding:7px 9px;border-radius:8px;border:1px solid var(--parchment);font-family:var(--sans);font-size:12px;box-sizing:border-box;background:#fff;color:var(--ink)">'
-        +'<div id="parentPickResults" style="margin-top:4px"></div>'
-      +'</div>';
-      }
-      var parentLinkReady=_parentLinkKids.length>0&&_parentLinkParents.length>0;
-      if(parentLinkReady){
-        manualHtml+='<button id="parentLinkBtn" style="margin-top:8px;width:100%;padding:8px;border-radius:8px;border:1px solid var(--green);background:var(--green-bg);color:var(--green);font-family:var(--sans);font-size:12px;font-weight:700;cursor:pointer">Link '+_parentLinkKids.length+' kid'+(_parentLinkKids.length>1?'s':'')+' to parent'+(_parentLinkParents.length>1?'s':'')+'</button>';
-      }
-    }
-    manualHtml+='</div>';
-  }
-  var manualFixedEl=document.getElementById('pairsReviewManualFixed');
-  if(manualFixedEl)manualFixedEl.innerHTML=manualHtml;
-
-  document.getElementById('pairsReviewList').innerHTML=html||('<div style="padding:20px;text-align:center;color:var(--muted);font-family:var(--sans);font-size:12px">'+(_pairsReviewQuery?'No matches for "'+_pairsReviewQuery+'".':'No pairs yet.')+'</div>');
-
-  var list=document.getElementById('pairsReviewList');
-  var mlist=manualFixedEl||list;
-  list.querySelectorAll('[data-pr-header]').forEach(function(el){
-    el.addEventListener('click',function(){
-      var p=pairs[parseInt(this.dataset.prHeader)];
-      var partnerName=p.partner?p.partner.name:p.g.bulkWith;
-      var key=pairKey(p.g.name,partnerName);
-      var needsAttn=p.reasons.length>0&&!_confirmedPairs[key];
-      var curExpanded=_expandedPairs.hasOwnProperty(key)?_expandedPairs[key]:needsAttn;
-      _expandedPairs[key]=!curExpanded;
-      renderPairsReview();
-    });
-  });
-  var rolesOverviewBtn=document.getElementById('rolesOverviewBtn');
-  if(rolesOverviewBtn)rolesOverviewBtn.addEventListener('click',function(){openRolesOverview();});
-  var manualToggle=document.getElementById('pairsManualToggle');
-  if(manualToggle)manualToggle.addEventListener('click',function(){
-    _manualLinkOpen=!_manualLinkOpen;
-    if(!_manualLinkOpen)_manualLinkPick={1:null,2:null};
-    renderPairsReview();
-  });
-  mlist.querySelectorAll('[data-manual-clear]').forEach(function(btn){
-    btn.addEventListener('click',function(){
-      _manualLinkPick[this.dataset.manualClear]=null;
-      renderPairsReview();
-    });
-  });
-  mlist.querySelectorAll('.pairs-manual-input').forEach(function(input){
-    var bindPicks=function(resultsEl){
-      resultsEl.querySelectorAll('[data-manual-pick]').forEach(function(pickBtn){
-        pickBtn.addEventListener('click',function(){
-          _manualLinkPick[this.dataset.manualPick]=this.dataset.manualPickName;
-          renderPairsReview();
-        });
-      });
-    };
-    input.addEventListener('input',function(){
-      var slot=this.dataset.manualSlot;
-      var resultsEl=mlist.querySelector('[data-manual-results="'+slot+'"]');
-      resultsEl.innerHTML=renderManualPickList(this.value,slot);
-      bindPicks(resultsEl);
-    });
-  });
-  // Bind the picks already rendered on page load (before any typing)
-  mlist.querySelectorAll('.pairs-manual-results').forEach(function(resultsEl){
-    resultsEl.querySelectorAll('[data-manual-pick]').forEach(function(pickBtn){
-      pickBtn.addEventListener('click',function(){
-        _manualLinkPick[this.dataset.manualPick]=this.dataset.manualPickName;
-        renderPairsReview();
-      });
-    });
-  });
-  var manualLinkBtn=document.getElementById('pairsManualLinkBtn');
-  if(manualLinkBtn)manualLinkBtn.addEventListener('click',function(){
-    var n1=_manualLinkPick[1],n2=_manualLinkPick[2];
-    if(!n1||!n2||n1===n2)return;
-    var g1=importQueue.find(function(o){return o.name===n1;});
-    var g2=importQueue.find(function(o){return o.name===n2;});
-    if(!g1||!g2)return;
-    // If either was already linked to someone else, detach that old
-    // reciprocal link first (only if it actually points back — same
-    // stale-link guard used everywhere else in this modal).
-    var toPush=[];
-    [g1,g2].forEach(function(g){
-      if(g.bulkWith&&g.bulkWith!==g1.name&&g.bulkWith!==g2.name){
-        var oldMate=importQueue.find(function(o){return o.name===g.bulkWith;});
-        if(oldMate&&oldMate.bulkWith===g.name){
-          delete _confirmedPairs[pairKey(g.name,oldMate.name)];
-          oldMate.bulkWith='';oldMate.sentGroupId='';
-          toPush.push(oldMate);
-        }
-      }
-    });
-    var groupId=Date.now().toString(36);
-    g1.bulkWith=g2.name;g1.sentGroupId=groupId;
-    g2.bulkWith=g1.name;g2.sentGroupId=groupId;
-    _confirmedPairs[pairKey(g1.name,g2.name)]=true;_saveConfirmedPairs();
-    toPush.push(g1,g2);
-    _manualLinkPick={1:null,2:null};
-    saveGuestMeta();renderGuestList();renderPairsReview();
-    (function pushNext(){var g=toPush.shift();if(!g)return;pushMetaToWorker(g).then(pushNext);})();
-  });
-
-  var parentToggle=document.getElementById('parentLinkToggle');
-  if(parentToggle)parentToggle.addEventListener('click',function(){
-    _parentLinkOpen=!_parentLinkOpen;
-    if(!_parentLinkOpen){_parentLinkKids=[];_parentLinkParents=[];}
-    renderPairsReview();
-  });
-  mlist.querySelectorAll('[data-kid-remove]').forEach(function(btn){
-    btn.addEventListener('click',function(){
-      var removeName=this.dataset.kidRemove;
-      _parentLinkKids=_parentLinkKids.filter(function(n){return n!==removeName;});
-      renderPairsReview();
-    });
-  });
-  mlist.querySelectorAll('[data-parent-remove]').forEach(function(btn){
-    btn.addEventListener('click',function(){
-      var removeName=this.dataset.parentRemove;
-      _parentLinkParents=_parentLinkParents.filter(function(n){return n!==removeName;});
-      renderPairsReview();
-    });
-  });
-  var kidPickInput=document.getElementById('kidPickInput');
-  var bindKidPicks=function(resultsEl){
-    resultsEl.querySelectorAll('[data-kid-pick]').forEach(function(btn){
-      btn.addEventListener('click',function(){
-        _parentLinkKids.push(this.dataset.kidPickName);
-        renderPairsReview();
-      });
-    });
-  };
-  if(kidPickInput)kidPickInput.addEventListener('input',function(){
-    var resultsEl=document.getElementById('kidPickResults');
-    resultsEl.innerHTML=renderKidPickList(this.value);
-    bindKidPicks(resultsEl);
-  });
-  var kidPickResultsInit=document.getElementById('kidPickResults');
-  if(kidPickResultsInit)bindKidPicks(kidPickResultsInit);
-  var parentPickInput=document.getElementById('parentPickInput');
-  if(parentPickInput)parentPickInput.addEventListener('input',function(){
-    var resultsEl=document.getElementById('parentPickResults');
-    resultsEl.innerHTML=renderParentPickList(this.value);
-    resultsEl.querySelectorAll('[data-parent-pick]').forEach(function(btn){
-      btn.addEventListener('click',function(){
-        _parentLinkParents.push(this.dataset.parentPickName);
-        renderPairsReview();
-      });
-    });
-  });
-  var parentLinkBtn=document.getElementById('parentLinkBtn');
-  if(parentLinkBtn)parentLinkBtn.addEventListener('click',function(){
-    if(!_parentLinkKids.length||!_parentLinkParents.length)return;
-    var parentLabel=_parentLinkParents.join(', ');
-    var kidsToPush=[];
-    _parentLinkKids.forEach(function(kidName){
-      var kid=importQueue.find(function(o){return o.name===kidName;});
-      if(kid){kid.parentNames=parentLabel;kidsToPush.push(kid);}
-    });
-    var linkedCount=kidsToPush.length;
-    _parentLinkKids=[];_parentLinkParents=[];
-    saveGuestMeta();renderGuestList();renderPairsReview();
-    showActivityToast('Linked '+linkedCount+' kid'+(linkedCount>1?'s':'')+' to '+parentLabel);
-    // Sequential, not parallel — same reasoning as every other multi-guest
-    // save in this modal.
-    (function pushNext(){var g=kidsToPush.shift();if(!g)return;pushMetaToWorker(g).then(pushNext);})();
-  });
-
-  list.querySelectorAll('[data-pm-action="link"]').forEach(function(btn){
-    btn.addEventListener('click',function(){
-      var m=missing[parseInt(this.dataset.pmIdx)];
-      var groupId=Date.now().toString(36);
-      m.g.bulkWith=m.partner.name;m.g.sentGroupId=groupId;
-      m.partner.bulkWith=m.g.name;m.partner.sentGroupId=groupId;
-      // You just verified this pairing by hand — treat it as confirmed so
-      // it doesn't turn around and show up as "suspicious" next time.
-      _confirmedPairs[pairKey(m.g.name,m.partner.name)]=true;_saveConfirmedPairs();
-      saveGuestMeta();renderGuestList();renderPairsReview();
-      // Sequential, not parallel — see _pushWithRetry notes on why firing
-      // both saves at once can let one silently overwrite the other.
-      pushMetaToWorker(m.g).then(function(){pushMetaToWorker(m.partner);});
-    });
-  });
-  list.querySelectorAll('[data-pr-action="confirm"],[data-pr-action="unconfirm"]').forEach(function(btn){
-    btn.addEventListener('click',function(){
-      var p=pairs[parseInt(this.dataset.pr)];
-      var partnerName=p.partner?p.partner.name:p.g.bulkWith;
-      var key=pairKey(p.g.name,partnerName);
-      if(this.dataset.prAction==='confirm')_confirmedPairs[key]=true;else delete _confirmedPairs[key];
-      _saveConfirmedPairs();
-      renderPairsReview();
-    });
-  });
-  list.querySelectorAll('[data-pm-action="dismiss"]').forEach(function(btn){
-    btn.addEventListener('click',function(){
-      var m=missing[parseInt(this.dataset.pmIdx)];
-      _dismissedMissingPairs[m.key]=true;
-      _saveDismissedMissingPairs();
-      renderPairsReview();
-    });
-  });
-  list.querySelectorAll('[data-pr-action="unlink"]').forEach(function(btn){
-    btn.addEventListener('click',function(){
-      var p=pairs[parseInt(this.dataset.pr)];
-      var pGName=p.g.name;
-      var oldPartnerName=p.partner?p.partner.name:p.g.bulkWith;
-      delete _confirmedPairs[pairKey(pGName,oldPartnerName)];_saveConfirmedPairs();
-      p.g.bulkWith='';p.g.sentGroupId='';
-      // Only clear the partner's side if it actually points back to g —
-      // a one-directional/stale link (flagged above) may have partner
-      // pointing to someone else entirely, and that link is still good.
-      var shouldClearPartner=p.partner&&p.partner.bulkWith===pGName;
-      if(shouldClearPartner){p.partner.bulkWith='';p.partner.sentGroupId='';}
-      saveGuestMeta();renderGuestList();renderPairsReview();
-      // Sequential, not parallel — see _pushWithRetry notes.
-      pushMetaToWorker(p.g).then(function(){if(shouldClearPartner)pushMetaToWorker(p.partner);});
-    });
-  });
-  list.querySelectorAll('[data-pr-action="relink"]').forEach(function(btn){
-    btn.addEventListener('click',function(){
-      var idx=this.dataset.pr;
-      var wrap=list.querySelector('[data-pr-relink="'+idx+'"]');
-      wrap.style.display=wrap.style.display==='none'?'block':'none';
-      var input=wrap.querySelector('[data-pr-input="'+idx+'"]');
-      if(input)input.focus();
-    });
-  });
-  list.querySelectorAll('[data-pr-action="cancel-relink"]').forEach(function(btn){
-    btn.addEventListener('click',function(){
-      var idx=this.dataset.pr;
-      var wrap=list.querySelector('[data-pr-relink="'+idx+'"]');
-      wrap.style.display='none';
-      var input=wrap.querySelector('[data-pr-input="'+idx+'"]');
-      if(input)input.value='';
-      var results=wrap.querySelector('[data-pr-results="'+idx+'"]');
-      if(results)results.innerHTML='';
-    });
-  });
-  list.querySelectorAll('.pr-relink-input').forEach(function(input){
-    input.addEventListener('input',function(){
-      var idx=parseInt(this.dataset.prInput);
-      var p=pairs[idx];
-      var q=this.value.trim().toLowerCase();
-      var resultsEl=list.querySelector('[data-pr-results="'+idx+'"]');
-      if(!q){resultsEl.innerHTML='';return;}
-      var matches=importQueue.filter(function(o){
-        return o.name!==p.g.name && (o.name||'').toLowerCase().indexOf(q)!==-1;
-      }).slice(0,6);
-      resultsEl.innerHTML=matches.map(function(m){
-        return '<button data-pr-pick="'+idx+'" data-pick-name="'+m.name.replace(/"/g,'&quot;')+'" style="display:block;width:100%;text-align:left;padding:6px 8px;margin-top:3px;border-radius:6px;border:1px solid var(--parchment);background:#fff;color:var(--ink);font-family:var(--sans);font-size:12px;cursor:pointer">'+m.name+(m.bulkWith?' <span style="color:var(--muted);font-size:10px">(currently &harr; '+m.bulkWith+')</span>':'')+'</button>';
-      }).join('');
-      resultsEl.querySelectorAll('[data-pr-pick]').forEach(function(pickBtn){
-        pickBtn.addEventListener('click',function(){
-          var newPartnerName=this.dataset.pickName;
-          var newPartner=importQueue.find(function(o){return o.name===newPartnerName;});
-          if(!newPartner)return;
-          // Clean up old links on all three sides first — but only clear a
-          // side if its link actually points back to the guest being
-          // detached from. A one-directional/stale link may point to
-          // someone else entirely, and that real link must survive.
-          var oldPartnerToClear=(p.partner&&p.partner.bulkWith===p.g.name)?p.partner:null;
-          if(oldPartnerToClear){oldPartnerToClear.bulkWith='';oldPartnerToClear.sentGroupId='';}
-          var oldMateToClear=null;
-          if(newPartner.bulkWith){
-            var oldMate=importQueue.find(function(o){return o.name===newPartner.bulkWith;});
-            if(oldMate&&oldMate.bulkWith===newPartner.name)oldMateToClear=oldMate;
-          }
-          if(oldMateToClear){oldMateToClear.bulkWith='';oldMateToClear.sentGroupId='';}
-          var groupId=Date.now().toString(36);
-          // Clean up any stale confirmation on the old pairing, and mark
-          // the freshly-picked one confirmed — you just verified it by hand.
-          var oldPairKey=pairKey(p.g.name,(p.partner?p.partner.name:p.g.bulkWith));
-          delete _confirmedPairs[oldPairKey];
-          _confirmedPairs[pairKey(p.g.name,newPartner.name)]=true;
-          _saveConfirmedPairs();
-          p.g.bulkWith=newPartner.name;p.g.sentGroupId=groupId;
-          newPartner.bulkWith=p.g.name;newPartner.sentGroupId=groupId;
-          saveGuestMeta();renderGuestList();renderPairsReview();
-          // Push every touched guest one at a time, never in parallel — up
-          // to 4 records can change here, and firing them together is
-          // exactly the race that leaves pairs pointing only one way.
-          var toPush=[oldPartnerToClear,oldMateToClear,p.g,newPartner].filter(Boolean);
-          (function pushNext(){
-            var g=toPush.shift();
-            if(!g)return;
-            pushMetaToWorker(g).then(pushNext);
-          })();
-        });
-      });
-    });
-  });
-}
-
-(function(){
-  var modal=document.getElementById('pairsReviewModal');
-  var closeBtn=document.getElementById('pairsReviewClose');
-  var searchInput=document.getElementById('pairsReviewSearch');
-  var tabCouples=document.getElementById('prTreeToggle');
-  if(closeBtn)closeBtn.addEventListener('click',function(){modal.style.display='none';searchInput.value='';_pairsReviewQuery='';});
-  if(modal)modal.addEventListener('click',function(e){if(e.target===modal)modal.style.display='none';});
-  if(searchInput)searchInput.addEventListener('input',function(){_pairsReviewQuery=this.value.trim();renderPairsReview();});
-  if(tabCouples)tabCouples.addEventListener('change',function(){
-    _pairsReviewTab=this.checked?'tree':'couples';
-    searchInput.value='';_pairsReviewQuery='';
-    renderPairsReview();
-  });
-})();
 
 function getGuestRsvpInfo(name, isCouple, knownPartnerName, manualOverride){
   /* Manual override — set by a human directly on a guest who can't RSVP
@@ -3185,17 +2008,9 @@ function getGuestRsvpInfo(name, isCouple, knownPartnerName, manualOverride){
        submission like "Ines & Philipp Ziegler" purely because they share the surname
        "Ziegler". */
     var isTrulySolo = !isCouple && name.indexOf('&')===-1 && !knownPartnerName;
-    // For a guest known to be part of a pair, a bare first-name match (S2/S4)
-    // is only trustworthy against a joint "A & B" submission — where the
-    // partner-name guard further down can double-check it. Letting it also
-    // match an unrelated SOLO row (e.g. some other "Valerie" who submitted
-    // her own RSVP) was the actual bug: nothing downstream re-checks a
-    // solo-row match, so a same-first-name stranger's RSVP got attributed
-    // to this guest outright.
     function rowOk(r){
-      var isHousehold=normN(r['Full Name']||r['name']||'').indexOf('&')!==-1;
-      if(isTrulySolo) return !isHousehold;
-      return isHousehold;
+      if(!isTrulySolo) return true;
+      return normN(r['Full Name']||r['name']||'').indexOf('&')===-1;
     }
 
     /* S1 — exact Full Name */
@@ -3331,8 +2146,8 @@ function getGuestRsvpPill(name, isCouple, knownPartnerName, manualOverride){
         :'<span style="background:#fde8e8;color:#b91c1c;border-radius:100px;padding:2px 8px;font-size:8px;font-weight:800;letter-spacing:.06em;flex-shrink:0">'+p.name+'</span>';
     }).join('');
   }
-  if(info.isYes) return '<span style="background:var(--green-bg);color:var(--green);border-radius:6px;padding:2px 8px;font-size:8px;font-weight:700;letter-spacing:.04em;flex-shrink:0">RSVP</span>';
-  if(info.isNo)  return '<span style="background:var(--red-bg);color:var(--red);border-radius:6px;padding:2px 8px;font-size:8px;font-weight:700;letter-spacing:.04em;flex-shrink:0">RSVP</span>';
+  if(info.isYes) return '<span style="background:#d4f5e2;color:#1a7a4a;border-radius:100px;padding:2px 9px;font-size:8px;font-weight:800;letter-spacing:.06em;flex-shrink:0">RSVP</span>';
+  if(info.isNo)  return '<span style="background:#fde8e8;color:#b91c1c;border-radius:100px;padding:2px 9px;font-size:8px;font-weight:800;letter-spacing:.06em;flex-shrink:0">RSVP</span>';
   return '<span style="background:var(--cream2);color:var(--muted);border-radius:100px;padding:2px 8px;font-size:8px;font-weight:700;letter-spacing:.06em;flex-shrink:0">RSVP ?</span>';
 }
 
@@ -3424,15 +2239,14 @@ function getGuestRsvpYesNo(g){
   return info.isYes ? true : (info.isNo ? false : null);
 }
 
-function buildGuestCard(g, mergedPairPos){
+function buildGuestCard(g){
   var ri=importQueue.indexOf(g);
   var isSel=selectedIdxs.indexOf(ri)>-1;
   var isPending=g.pendingSent&&!g.sent;
   var claimedBy=claims[g.name]||null;
   var claimedByMe=claimedBy===sessionSender;
   var claimedByOther=claimedBy&&claimedBy!==sessionSender;
-  var coupleRole=g.name==='Arina'?'bride':g.name==='Elnur'?'groom':'';
-  var cls='g-card'+(isSel?' sel':'')+(g.followup&&!g.sent?' fup':'')+(g.sent?' sent':'')+(isPending?' pending-sent':'')+(claimedByOther?' claimed-other':'')+(g.isChild?' is-child':'')+(coupleRole?' is-couple '+coupleRole:'');
+  var cls='g-card'+(isSel?' sel':'')+(g.followup&&!g.sent?' fup':'')+(g.sent?' sent':'')+(isPending?' pending-sent':'')+(claimedByOther?' claimed-other':'')+(g.isChild?' is-child':'');
 
   /* RSVP color class — computed regardless of sent status, so guests who RSVP'd
      before being marked "Sent" still show green/red/amber on the left list.
@@ -3457,11 +2271,10 @@ function buildGuestCard(g, mergedPairPos){
   var senderCls=g.sender==='Arina'?'a':'e';
   var sC=g.sender==='Arina'?'<span class="chip chip-a chip-sender-corner">a</span>':'<span class="chip chip-e chip-sender-corner">e</span>';
   var sBR=g.sender?('<span class="g-sender-br '+senderCls+'">'+(g.sender==='Arina'?'a':'e')+'</span>'):'';
-  var tC=isPartyType(g)?'<span class="chip chip-type">Party</span>':'<span class="chip chip-type">Church</span>';
+  var tC=(g.type==='ceremony-party-single'||g.type==='couple-party')?'<span class="chip chip-type">Party</span>':'<span class="chip chip-type">Church</span>';
   var lC=g.lang&&g.lang!=='en'?'<span class="chip chip-lang">'+(g.lang==='de'?'DE':'RU')+'</span>':'';
   var rC=g.confirmed?'<span class="chip chip-rsvp">RSVP</span>':'';
   var cC=g.isChild?'<span class="chip chip-child">Child</span>':'';
-  var roleC=g.role?'<span class="chip chip-role" data-action="role" data-qi="'+ri+'">'+g.role+'</span>':'';
   var claimC=claimedBy?('<span class="claim-badge claim-badge-'+(claimedBy==='Arina'?'a':'e')+'"><span class="claim-dot claim-dot-'+(claimedBy==='Arina'?'a':'e')+'"></span>'+(claimedByMe?'You':''+claimedBy)+'</span>'):'';
   var sentBy=g.sentBy?g.sentBy:'';var sentLetter=sentBy==='Arina'?'a':sentBy==='Elnur'?'e':'';var sentTime=g.sent&&g.sentAt?'<span class="g-sent-time">'+fmtSentAt(g.sentAt)+(sentLetter?' · '+sentLetter:'')+'</span>':'';
 
@@ -3475,82 +2288,36 @@ function buildGuestCard(g, mergedPairPos){
     var rsvpPillSent=getGuestRsvpPill(g.name, isCoupleGuest, partnerName, g.manualRsvp);
     /* Reuse the class computed at the top of buildGuestCard so sent and
        unsent cards use identical matching/coloring logic. */
-    var rsvpClass=coupleRole?'':wrapRsvpClass;
+    var rsvpClass=wrapRsvpClass;
     var debugTag=(DEV_MODE&&!rsvpInfo)?'<div style="font-size:9px;color:#b91c1c;opacity:.75;margin-top:2px;word-break:break-word">DEBUG: '+debugNoMatch(g, partnerName)+'</div>':'';
     /* Pills need flex-wrap so couple pills don't overflow */
     var pillWrap=rsvpPillSent?'<span style="display:flex;gap:3px;flex-wrap:wrap;align-items:center;margin-left:4px">'+rsvpPillSent+'</span>':''
-    // The couple aren't "guests" RSVPing to their own wedding — swap the RSVP
-    // pill for a small role badge instead, in their existing brand color.
-    if(coupleRole)pillWrap='<span class="chip chip-couple-role '+coupleRole+'"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>'+(coupleRole==='bride'?'Bride':'Groom')+'</span>';
-
-    /* Bulk-sent reference: if this guest was sent together with someone else,
-       show a small line naming that partner and their current RSVP status —
-       even though each guest is its own card now, the "sent together"
-       relationship and the other side's status are still worth surfacing.
-       Clicking it jumps to and briefly highlights the partner's card. */
-    var partnerRefHtml='';
-    if(g.bulkWith&&!mergedPairPos){
-      var partnerGuestObj=importQueue.find(function(o){return o.name===g.bulkWith;});
-      if(partnerGuestObj){
-        var partnerRi=importQueue.indexOf(partnerGuestObj);
-        var partnerYN=getGuestRsvpYesNo(partnerGuestObj);
-        var partnerStatusCls=partnerYN===true?'g-partner-status-yes':partnerYN===false?'g-partner-status-no':'';
-        var partnerStatusTxt=partnerYN===true?'YES':partnerYN===false?'NO':'pending';
-        partnerRefHtml='<div class="g-partner-ref-wrap"><div class="g-partner-ref" data-jump-qi="'+partnerRi+'" title="Sent together with '+partnerGuestObj.name+'">'
-          +'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:.7"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>'
-          +'Sent with '+partnerGuestObj.name+' · <span class="'+partnerStatusCls+'">'+partnerStatusTxt+'</span>'
-          +'</div>'
-          +'<button class="g-partner-unlink" data-qi="'+ri+'" data-action="unlink-partner" title="Wrong pairing? Unlink">&#10005;</button>'
-          +'</div>';
-      }
-    }
-
-    // "Child of X" reference, if this guest has been linked to their
-    // parent(s) via the Review Pairs "Link a kid to their parent(s)" panel.
-    // A short "with {parents}" caption — kept brief since when nested under a
-    // visible parent the branch connector already shows the relationship;
-    // this only needs to carry the info when the guest is shown on its own.
-    var parentRefHtml='';
-    if(g.parentNames){
-      var parentFirstNames=_parentNameList(g.parentNames).map(function(n){return n.split(' ')[0];}).join(' & ');
-      parentRefHtml='<div class="g-child-tag" style="margin-left:auto;margin-top:0;flex-shrink:0;white-space:nowrap;padding-left:8px" title="Child of '+g.parentNames+'">with '+parentFirstNames+'</div>';
-    }
 
     // Effective RSVP state to pre-select in the swipe panel: a manual override wins,
     // otherwise fall back to whatever was auto-detected from the guest's own RSVP.
     var effState=g.manualRsvp==='yes'?'yes':g.manualRsvp==='no'?'no':(rsvpClass===' rsvp-yes'?'yes':rsvpClass===' rsvp-no'?'no':'');
 
     var senderChipSent=g.sender?('<span class="g-sender-br '+(g.sender==='Arina'?'a':'e')+'">'+(g.sender==='Arina'?'a':'e')+'</span>'):''
-    var infoActions='<div class="g-swipe-info-actions">'
-      +'<button class="g-undo-btn" data-qi="'+ri+'" data-action="undo" title="Mark as unsent"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8s2-4.5 9.5-4.5a9 9 0 1 1-9 9"/><polyline points="2.5 3 2.5 8 7.5 8"/></svg></button>'
-      +'<button class="ga-btn ga-btn-role'+(g.role?' has-role':'')+'" data-qi="'+ri+'" data-action="role" title="'+(g.role?'Role: '+g.role:'Assign role')+'"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41 11 3.83A2 2 0 0 0 9.59 3.24L4 3a1 1 0 0 0-1 1l.24 5.59a2 2 0 0 0 .59 1.41l9.58 9.59a2 2 0 0 0 2.83 0l4.35-4.35a2 2 0 0 0 0-2.83z"/><circle cx="7.5" cy="7.5" r="1.2" fill="currentColor" stroke="none"/></svg></button>'
-      +'</div>';
-    // No delete button here anymore — it made the panel cramped. Instead,
-    // dragging the card further than the normal reveal "arms" delete: the
-    // panel below turns red and swaps to this hint. Releasing past that
-    // point deletes (with an undo toast); releasing short of it just snaps
-    // back to the normal undo/role panel. See attachSwipe's DELETE_ARM_X.
-    var deleteHint='<div class="g-swipe-delete-hint"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg><span>Release to delete</span></div>';
-    var infoPanel='<div class="g-swipe-action-left sw-info"><div class="g-swipe-action-inner">'+infoActions+'</div>'+deleteHint+'</div>';
-    var reminderHint='<div class="g-swipe-reminder-hint"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>Release to send reminder</span></div>';
+    var infoPanel='<div class="g-swipe-action-left sw-info"><div class="g-swipe-action-inner">'+senderChipSent+sentTime+'</div></div>';
     var rsvpPanel='<div class="g-swipe-action-right sw-rsvp"><div class="g-swipe-action-inner">'
       +'<button class="ga-btn ga-btn-rsvp-yes swipe-rsvp-btn'+(effState==='yes'?' active':'')+'" data-qi="'+ri+'" data-action="rsvp-yes" title="Mark RSVP: Yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button>'
       +'<button class="ga-btn ga-btn-rsvp-no swipe-rsvp-btn'+(effState==='no'?' active':'')+'" data-qi="'+ri+'" data-action="rsvp-no" title="Mark RSVP: No"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>'
-      +'</div>'+reminderHint+'</div>';
+      +'</div></div>';
 
-    // effState exposed on the wrap so attachSwipe can gate the deep-swipe
-    // "send reminder" gesture to guests who haven't responded yet.
-    return '<div class="g-swipe-wrap'+rsvpClass+(coupleRole?' is-couple-wrap '+coupleRole:'')+'" data-qi="'+ri+'" data-rsvp-state="'+effState+'">'
+    return '<div class="g-swipe-wrap'+rsvpClass+'" data-qi="'+ri+'">'
       +infoPanel
       +rsvpPanel
       +'<div class="'+cls+'" data-qi="'+ri+'">'
         +'<div class="g-inner">'
           +'<div class="g-inner-left">'
             +'<div class="g-main">'
-              +'<div class="g-name-row" style="flex-wrap:wrap"><span class="g-name" style="font-size:15px;flex:0 1 auto">'+g.name+'</span>'+pillWrap+(g.role?'<span class="chip chip-role" data-action="role" data-qi="'+ri+'">'+g.role+'</span>':'')+parentRefHtml+'</div>'
-              +partnerRefHtml
+              +'<div class="g-name-row" style="flex-wrap:wrap"><span class="g-name" style="font-size:15px;flex-shrink:0">'+g.name+'</span>'+pillWrap+'</div>'
               +debugTag
             +'</div>'
+          +'</div>'
+          +'<div class="g-inner-right">'
+            +'<button class="g-undo-btn" data-qi="'+ri+'" data-action="undo" title="Mark as unsent"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8s2-4.5 9.5-4.5a9 9 0 1 1-9 9"/><polyline points="2.5 3 2.5 8 7.5 8"/></svg></button>'
+            +'<button class="g-del" data-qi="'+ri+'" data-action="del" style="position:static;width:18px;height:18px;color:var(--soft);border:none;background:transparent;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>'
           +'</div>'
         +'</div>'
       +'</div>'
@@ -3570,7 +2337,7 @@ function buildGuestCard(g, mergedPairPos){
               +(g.sender?'<span class="g-sender-br '+senderCls+'">'+(g.sender==='Arina'?'a':'e')+'</span>':'')
               +tC+rC
             +'</div>'
-            +(lC||cC||roleC?'<div class="g-tags">'+lC+cC+roleC+'</div>':'')
+            +(lC||cC?'<div class="g-tags">'+lC+cC+'</div>':'')
             +(g.note?'<div class="g-note">'+g.note+'</div>':'')
           +'</div>'
         +'</div>'
@@ -3578,7 +2345,6 @@ function buildGuestCard(g, mergedPairPos){
           +'<button class="ga-btn ga-btn-wa'+(g.sent?' done':'')+(!((g.phone||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,''))?' no-phone':'')+'" data-qi="'+ri+'" data-action="wa" title="Send WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.556 4.121 1.528 5.855L.057 23.882a.5.5 0 0 0 .614.612l6.094-1.597A11.937 11.937 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.808 9.808 0 0 1-5.032-1.384l-.36-.214-3.733.979.995-3.63-.234-.374A9.808 9.808 0 0 1 2.182 12C2.182 6.57 6.57 2.182 12 2.182c5.43 0 9.818 4.388 9.818 9.818 0 5.43-4.388 9.818-9.818 9.818z"/></svg></button>'
           +'<button class="ga-btn'+(claimedByMe?' ga-btn-flag flagged':claimedByOther?' ga-btn-flag':' ga-btn-flag')+(claimedBy&&!claimedByOther?' flagged':'')+'" data-qi="'+ri+'" data-action="claim" title="'+(claimedByMe?'Mine':claimedByOther?claimedBy:'Claim')+'">'+(claimedByMe?'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><line x1="12" y1="16" x2="12" y2="16" stroke-width="3" stroke-linecap="round"/></svg>':claimedByOther?'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>':'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M17 11V7a5 5 0 0 0-9.9-1" stroke-dasharray="4 2"/></svg>')+'</button>'
           +'<button class="ga-btn ga-btn-flag'+(g.followup?' flagged':'')+'" data-qi="'+ri+'" data-action="flag" title="'+(g.followup?'Flagged':'Follow Up')+'">'+(g.followup?'<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M4 3h16l-3 6 3 6H4V3z"/><rect x="3" y="3" width="2" height="18" rx="1"/></svg>':'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3h16l-3 6 3 6H4V3z"/><line x1="4" y1="21" x2="4" y2="3"/></svg>')+'</button>'
-          +'<button class="ga-btn ga-btn-role'+(g.role?' has-role':'')+'" data-qi="'+ri+'" data-action="role" title="'+(g.role?'Role: '+g.role:'Assign role')+'"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41 11 3.83A2 2 0 0 0 9.59 3.24L4 3a1 1 0 0 0-1 1l.24 5.59a2 2 0 0 0 .59 1.41l9.58 9.59a2 2 0 0 0 2.83 0l4.35-4.35a2 2 0 0 0 0-2.83z"/><circle cx="7.5" cy="7.5" r="1.2" fill="currentColor" stroke="none"/></svg></button>'
           +'<button class="g-del" data-qi="'+ri+'" data-action="del" style="position:static;width:18px;height:18px;color:var(--soft);border:none;background:transparent;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;transition:all var(--ease)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>'
         +'</div>'
       +'</div>'
@@ -3644,22 +2410,6 @@ function attachSwipe(card){
   var SNAP_THRESHOLD = 40;
   // How far the card slides to reveal the 80px action button
   var OPEN_X = 88;
-  // Sent cards have a left "info" panel (undo/role) revealed by swiping
-  // right. Those cards support a deeper second-stage swipe that deletes
-  // directly instead of needing a cramped trash icon in that panel.
-  var hasDeletePanel = !!wrap.querySelector('.g-swipe-action-left.sw-info') && card.dataset.qi !== undefined && card.dataset.qi !== '';
-  // How far past OPEN_X the card can keep sliding for the delete gesture.
-  var DELETE_MAX_X = 190;
-  // Drag distance at which delete "arms" (panel turns red; releasing here deletes).
-  var DELETE_ARM_X = 150;
-  var deleteArmed = false;
-  // Sent-but-not-yet-responded cards support the same deep-swipe pattern on
-  // the left-drag side of the RSVP panel: past REMINDER_ARM_X it arms a
-  // "send reminder" WhatsApp nudge instead of just the Yes/No quick-set.
-  var hasReminderPanel = !!wrap.querySelector('.g-swipe-action-right.sw-rsvp') && wrap.dataset.rsvpState === '';
-  var REMINDER_MAX_X = -190;
-  var REMINDER_ARM_X = -150;
-  var reminderArmed = false;
 
   var startX, startY, isDragging = false, isOpen = false, openDir = 0; // openDir: 1=right, -1=left
 
@@ -3672,26 +2422,10 @@ function attachSwipe(card){
     setTimeout(function(){ card.style.transition = ''; }, 220);
   }
 
-  function resetDeleteArm(){
-    deleteArmed = false;
-    wrap.classList.remove('sw-delete-ready');
-    var infoPanelEl = wrap.querySelector('.g-swipe-action-left.sw-info');
-    if(infoPanelEl) infoPanelEl.style.width = '';
-  }
-
-  function resetReminderArm(){
-    reminderArmed = false;
-    wrap.classList.remove('sw-reminder-ready');
-    var rsvpPanelEl = wrap.querySelector('.g-swipe-action-right.sw-rsvp');
-    if(rsvpPanelEl) rsvpPanelEl.style.width = '';
-  }
-
   function closeCard(){
     snapTo(0);
     isOpen = false; openDir = 0;
     wrap.classList.remove('sw-open-right','sw-open-left');
-    resetDeleteArm();
-    resetReminderArm();
     wrap.querySelectorAll('.g-swipe-action-left,.g-swipe-action-right').forEach(function(b){
       b.style.opacity='';
       var ic = b.querySelector('.g-swipe-action-icon'); if(ic) ic.style.transform='';
@@ -3705,47 +2439,11 @@ function attachSwipe(card){
     isOpen = true; openDir = dir;
     wrap.classList.toggle('sw-open-right', dir === 1);
     wrap.classList.toggle('sw-open-left', dir === -1);
-    resetDeleteArm();
-    resetReminderArm();
     // Reset inline styles so CSS takes over at full 80px
     var btnSel = dir === 1 ? '.g-swipe-action-left' : '.g-swipe-action-right';
     var btn = wrap.querySelector(btnSel);
     if(btn){ btn.style.opacity=''; var ic = btn.querySelector('.g-swipe-action-icon'); if(ic) ic.style.transform=''; }
     if(navigator.vibrate) navigator.vibrate(18);
-  }
-
-  // Deletes the guest this card belongs to, with a short slide-out and an
-  // undo toast — the safety net that replaces the old always-visible trash
-  // icon now that deletion happens via a deliberate deep swipe instead.
-  function deleteWithUndo(){
-    var g = getG();
-    if(!g){ closeCard(); return; }
-    if(navigator.vibrate) navigator.vibrate([15,30,15]);
-    wrap.style.transition = 'max-height .2s ease, opacity .2s ease';
-    card.style.transition = 'transform .18s ease-in';
-    card.style.transform = 'translateX(240px)';
-    wrap.style.opacity = '0';
-    setTimeout(function(){
-      var idx = importQueue.indexOf(g);
-      if(idx===-1) return;
-      importQueue.splice(idx,1);
-      selectedIdxs = selectedIdxs.filter(function(i){return i!==idx;});
-      saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();
-      showUndo('Deleted '+g.name,function(){
-        importQueue.push(g);
-        saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();
-      });
-    }, 180);
-  }
-
-  // Deep-swipe-armed "send reminder" — mirrors deleteWithUndo's snap-back
-  // and toast, but opens WhatsApp instead of removing the guest.
-  function triggerReminder(){
-    var g = getG();
-    closeCard();
-    if(!g) return;
-    if(navigator.vibrate) navigator.vibrate([15,30,15]);
-    sendReminder(g, parseInt(card.dataset.qi));
   }
 
   // Wire up action button clicks
@@ -3777,12 +2475,7 @@ function attachSwipe(card){
     document.querySelectorAll('.sw-open-right,.sw-open-left').forEach(function(w){
       if(w === wrap) return;
       w.classList.remove('sw-open-right','sw-open-left');
-      // Must target the sliding .g-card specifically — sent-card panels have
-      // their own buttons (undo/role/rsvp) carrying data-qi earlier in the
-      // DOM, so a bare '[data-qi]' match could grab one of those instead of
-      // the card itself, leaving its transform (and thus the open panel)
-      // stuck on screen.
-      var c = w.querySelector('.g-card[data-qi]');
+      var c = w.querySelector('[data-qi]');
       if(c){ c.style.transition='transform .2s cubic-bezier(.25,.8,.25,1)'; c.style.transform=''; setTimeout(function(){c.style.transition='';},220); }
     });
     var t = e.touches ? e.touches[0] : e;
@@ -3800,11 +2493,8 @@ function attachSwipe(card){
     // If card is open, offset from open position
     var base = isOpen ? openDir * OPEN_X : 0;
     var raw = base + dx;
-    // Rightward drag on a delete-capable card can go past OPEN_X, up to
-    // DELETE_MAX_X, for the deep-swipe-to-delete gesture. Every other
-    // direction/card type keeps the original hard cap at OPEN_X.
-    var posMax = hasDeletePanel ? DELETE_MAX_X : OPEN_X;
-    var clamped = raw >= 0 ? Math.min(posMax, raw) : Math.max(hasReminderPanel ? REMINDER_MAX_X : -OPEN_X, raw);
+    // Hard cap at OPEN_X — card never slides further than the button width
+    var clamped = Math.max(-OPEN_X, Math.min(OPEN_X, raw));
     card.style.transform = 'translateX('+clamped+'px)';
     // Show the relevant action button during drag, growing with drag distance
     wrap.classList.remove('sw-open-left','sw-open-right');
@@ -3813,29 +2503,13 @@ function attachSwipe(card){
       wrap.classList.add('sw-open-right');
       var btn = wrap.querySelector('.g-swipe-action-left');
       if(btn){ var sc = Math.min(absDrag/OPEN_X, 1); btn.style.opacity = sc; var ic = btn.querySelector('.g-swipe-action-icon'); if(ic) ic.style.transform = 'scale('+(.6+sc*.4)+')'; }
-      if(hasDeletePanel){
-        var infoPanelEl = wrap.querySelector('.g-swipe-action-left.sw-info');
-        if(infoPanelEl) infoPanelEl.style.width = Math.min(clamped, DELETE_MAX_X)+'px';
-        var nowArmed = clamped >= DELETE_ARM_X;
-        if(nowArmed && !deleteArmed){ deleteArmed = true; wrap.classList.add('sw-delete-ready'); if(navigator.vibrate) navigator.vibrate(14); }
-        else if(!nowArmed && deleteArmed){ deleteArmed = false; wrap.classList.remove('sw-delete-ready'); }
-      }
     } else if(clamped < -8){
       wrap.classList.add('sw-open-left');
       var btn = wrap.querySelector('.g-swipe-action-right');
       if(btn){ var sc = Math.min(absDrag/OPEN_X, 1); btn.style.opacity = sc; var ic = btn.querySelector('.g-swipe-action-icon'); if(ic) ic.style.transform = 'scale('+(.6+sc*.4)+')'; }
-      if(hasReminderPanel){
-        var rsvpPanelEl = wrap.querySelector('.g-swipe-action-right.sw-rsvp');
-        if(rsvpPanelEl) rsvpPanelEl.style.width = Math.min(absDrag, -REMINDER_MAX_X)+'px';
-        var nowRArmed = clamped <= REMINDER_ARM_X;
-        if(nowRArmed && !reminderArmed){ reminderArmed = true; wrap.classList.add('sw-reminder-ready'); if(navigator.vibrate) navigator.vibrate(14); }
-        else if(!nowRArmed && reminderArmed){ reminderArmed = false; wrap.classList.remove('sw-reminder-ready'); }
-      }
     } else {
       // reset both
       ['.g-swipe-action-left','.g-swipe-action-right'].forEach(function(sel){ var b=wrap.querySelector(sel); if(b){b.style.opacity='';} });
-      if(hasDeletePanel) resetDeleteArm();
-      if(hasReminderPanel) resetReminderArm();
     }
   }
 
@@ -3851,15 +2525,6 @@ function attachSwipe(card){
     var base = isOpen ? openDir * OPEN_X : 0;
     var net = base + dx; // net position from closed
     startX = null;
-
-    if(hasDeletePanel && net >= DELETE_ARM_X){
-      deleteWithUndo();
-      return;
-    }
-    if(hasReminderPanel && net <= REMINDER_ARM_X){
-      triggerReminder();
-      return;
-    }
 
     if(Math.abs(net) > SNAP_THRESHOLD){
       openCard(net > 0 ? 1 : -1);
@@ -3979,59 +2644,6 @@ function sendSingleWithLang(g,ri,msgLang,resolvedPhone){
     g.pendingSent=true;g.followup=true;g.sentBy=sessionSender;saveGuestMeta();renderGuestList();
   });
 }
-// Triggered by the deep-left-swipe "send reminder" gesture on a sent,
-// not-yet-responded guest card. Reuses the same RSVP link as the original
-// invite, just with a gentler nudge message. reminderSentAt is local-only
-// (like skipped/pendingSent) — worker.js isn't part of this project's
-// files, so it isn't pushed to /meta; it won't sync across devices until
-// the server side adds a matching field.
-function sendReminder(g,ri){
-  var type=g.type||'ceremony-single';var lang=g.lang||selLang||'en';
-  // If this guest was originally sent a shared couple/bulk link
-  // (g.bulkWith set), reuse that same combined link + plural message
-  // instead of generating a fresh solo one — mirrors doGroupSend's own
-  // dName/url/isPlural construction so the reminder matches what was
-  // actually sent.
-  var partner=g.bulkWith?importQueue.find(function(o){return o.name===g.bulkWith;}):null;
-  var isPlural=!!partner;
-  var p1=g.name,p2=partner?partner.name:'';
-  var dName;
-  if(isPlural){
-    var ln1=lastName(p1),ln2=lastName(p2);
-    dName=(ln1&&ln2&&ln1.toLowerCase()===ln2.toLowerCase())?(firstName(p1)+' & '+firstName(p2)+' '+ln1):(firstName(p1)+' & '+firstName(p2));
-  } else {
-    dName=firstName(p1);
-  }
-  var url=isPlural?buildUrl(p1,p2,type,lang):buildUrl(g.name,'',type,lang);
-  var msg=buildReminderMsg(dName,lang,url,isPlural,p1,p2);
-  // Prefer this guest's own phone; fall back to the partner's if this one
-  // doesn't have a number on file (same idea as doGroupSend's phoneOwner).
-  var rawPhone=g.phone||(partner&&partner.phone)||'';
-  var phone=rawPhone.replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');
-  function fire(resolvedPhone){
-    var p=resolvedPhone!==undefined?resolvedPhone:phone;
-    if(resolvedPhone)g.phone='+'+resolvedPhone;
-    var waUrl=p?'https://wa.me/'+p+'?text='+encodeURIComponent(msg):'https://wa.me/?text='+encodeURIComponent(msg);
-    var displayPhone=resolvedPhone?'+'+resolvedPhone:(g.phone||partner&&partner.phone||'+'+p);
-    // Always confirm before opening — matches sendSingleWithLang and
-    // doGroupSend. Firing window.open without this direct click can get
-    // silently blocked by the browser, while the toast below would still
-    // (falsely) claim it went out.
-    showPhoneConfirm(dName,displayPhone,function(){
-      window.open(waUrl,'_blank');
-      var prevReminderAt=g.reminderSentAt,prevPartnerReminderAt=partner?partner.reminderSentAt:undefined;
-      g.reminderSentAt=ts();if(partner)partner.reminderSentAt=g.reminderSentAt;
-      saveGuestMeta();renderGuestList();
-      showUndo('Reminder sent to '+dName,function(){
-        g.reminderSentAt=prevReminderAt||'';
-        if(partner)partner.reminderSentAt=prevPartnerReminderAt||'';
-        saveGuestMeta();renderGuestList();
-      });
-    });
-  }
-  if(!phone){showPhoneModal(dName,function(p){fire(p);});return;}
-  fire();
-}
 function showCrossSenderConfirm(assigned,active,onConfirm){
   var t=document.getElementById('undoToast'),btn=document.getElementById('undoToastBtn');
   if(undoTimer)clearTimeout(undoTimer);
@@ -4120,23 +2732,7 @@ function doGroupSend(guests,phone,msgLang){
     guests[0].sentGroupId=groupId;guests[1].sentGroupId=groupId;
   }
   guests.forEach(function(g){g.pendingSent=true;g.followup=true;});selectedIdxs=[];saveGuestMeta();renderGuestList();renderDashboard();
-  // Use pushMetaToWorker (not a raw push) so _localWrites is set for both
-  // guests' bulkWith/sentGroupId. Without that guard, the two guests' server
-  // writes can land at slightly different times, and the background poller
-  // or next sync sees whichever one hasn't landed yet as "no partner" and
-  // silently erases it — turning a fresh pair into a one-directional link
-  // (exactly the bug where a partner shows as sent-together on one side but
-  // not the other). pushMetaToWorker registers the guard before pushing.
-  if(guests.length>1){
-    // Sequential, not a parallel forEach — same race as everywhere else
-    // two guest records are saved together.
-    var toPush=guests.slice();
-    (function pushNext(){
-      var g=toPush.shift();
-      if(!g)return;
-      pushMetaToWorker(g).then(pushNext);
-    })();
-  }
+  if(guests.length>1){guests.forEach(function(g){_pushWithRetry('/meta',{name:g.name,bulkWith:g.bulkWith,sentGroupId:g.sentGroupId},'meta:'+g.name);});}
 }
 
 /* ══ FAB + QUICK SEND ════════════════════════ */
@@ -4170,10 +2766,6 @@ function doGroupSend(guests,phone,msgLang){
 })();
 document.getElementById('quickAddBtn').addEventListener('click',function(){
   openQuickForm(sessionSender);
-});
-document.getElementById('sManualSendBtn').addEventListener('click',function(){
-  closeSettings();
-  setTimeout(function(){ openQuickForm(sessionSender); }, 250);
 });
 
 var qfMode='single',qfScope='ceremony';
@@ -4274,68 +2866,6 @@ var noteModalBg=document.getElementById('noteModalBg'),noteTarget=-1;
 function openNoteModal(ri){noteTarget=ri;var g=importQueue[ri];document.getElementById('noteModalTitle').textContent='Note — '+g.name;document.getElementById('noteModalTA').value=g.note||'';noteModalBg.style.display='flex';setTimeout(function(){document.getElementById('noteModalTA').focus();},50);}
 document.getElementById('noteModalCancel').addEventListener('click',function(){noteModalBg.style.display='none';});
 document.getElementById('noteModalSave').addEventListener('click',function(){if(noteTarget>=0&&importQueue[noteTarget]){importQueue[noteTarget].note=document.getElementById('noteModalTA').value.trim();saveGuestMeta();pushMetaToWorker(importQueue[noteTarget]);renderGuestList();}noteModalBg.style.display='none';});
-
-var ROLE_PRESETS=['Best Man','Maid of Honor','Groomsman','Bridesmaid','Usher','Officiant','Photographer','MC','Driver'];
-var roleModalBg=document.getElementById('roleModalBg'),roleTarget=-1;
-(function(){
-  var row=document.getElementById('rolePresetRow');
-  row.innerHTML=ROLE_PRESETS.map(function(r){return '<button type="button" class="role-preset-chip" data-role="'+r+'">'+r+'</button>';}).join('');
-  row.querySelectorAll('.role-preset-chip').forEach(function(b){
-    b.addEventListener('click',function(){document.getElementById('roleModalTA').value=this.dataset.role;});
-  });
-})();
-function openRoleModal(ri){roleTarget=ri;var g=importQueue[ri];document.getElementById('roleModalTitle').textContent='Role — '+g.name;document.getElementById('roleModalTA').value=g.role||'';roleModalBg.style.display='flex';setTimeout(function(){document.getElementById('roleModalTA').focus();},50);}
-
-/* ══ ROLES OVERVIEW — "who's doing what" across all guests ═══════════ */
-function openRolesOverview(){
-  renderRolesOverview();
-  document.getElementById('rolesOverviewModal').style.display='flex';
-}
-function renderRolesOverview(){
-  var withRole=importQueue.filter(function(g){return (g.role||'').trim();});
-  var groups={};
-  withRole.forEach(function(g){
-    var key=g.role.trim();
-    if(!groups[key])groups[key]=[];
-    groups[key].push(g);
-  });
-  var roleNames=Object.keys(groups).sort(function(a,b){return a.localeCompare(b);});
-  document.getElementById('rolesOverviewSub').textContent=roleNames.length
-    ? withRole.length+' guest'+(withRole.length===1?'':'s')+' assigned across '+roleNames.length+' role'+(roleNames.length===1?'':'s')+'.'
-    : 'No roles assigned yet — tap the role icon on a guest to give them one.';
-  var html='';
-  roleNames.forEach(function(roleName){
-    var members=groups[roleName];
-    html+='<div style="margin-bottom:10px">'
-      +'<div style="font-family:var(--sans);font-weight:800;font-size:12px;color:#6B3FA0;margin:4px 4px 5px">'+roleName+' <span style="font-weight:600;color:var(--muted)">('+members.length+')</span></div>';
-    members.forEach(function(g){
-      var ri=importQueue.indexOf(g);
-      html+='<button data-ro-edit="'+ri+'" style="width:100%;text-align:left;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;margin-bottom:4px;border-radius:8px;border:1px solid var(--parchment);background:var(--cream);font-family:var(--sans);font-size:12.5px;color:var(--ink);cursor:pointer">'
-        +'<span>'+g.name+'</span>'
-        +'<span style="font-size:10px;color:var(--muted);font-weight:600">Edit ›</span>'
-      +'</button>';
-    });
-    html+='</div>';
-  });
-  document.getElementById('rolesOverviewList').innerHTML=html||('<div style="padding:20px;text-align:center;color:var(--muted);font-family:var(--sans);font-size:12px">No roles assigned yet.</div>');
-  document.getElementById('rolesOverviewList').querySelectorAll('[data-ro-edit]').forEach(function(btn){
-    btn.addEventListener('click',function(){
-      var ri=parseInt(this.dataset.roEdit);
-      document.getElementById('rolesOverviewModal').style.display='none';
-      openRoleModal(ri);
-    });
-  });
-}
-document.getElementById('rolesOverviewClose').addEventListener('click',function(){document.getElementById('rolesOverviewModal').style.display='none';});
-// Refresh the roles overview in place after a role is saved/cleared while it's
-// open behind the role modal. Deferred with setTimeout so this runs after the
-// save/clear handlers above have actually updated the guest's g.role.
-function _refreshRolesOverviewIfOpen(){setTimeout(function(){if(document.getElementById('rolesOverviewModal').style.display==='flex')renderRolesOverview();},0);}
-document.getElementById('roleModalSave').addEventListener('click',_refreshRolesOverviewIfOpen);
-document.getElementById('roleModalClear').addEventListener('click',_refreshRolesOverviewIfOpen);
-document.getElementById('roleModalCancel').addEventListener('click',function(){roleModalBg.style.display='none';});
-document.getElementById('roleModalClear').addEventListener('click',function(){if(roleTarget>=0&&importQueue[roleTarget]){importQueue[roleTarget].role='';saveGuestMeta();pushMetaToWorker(importQueue[roleTarget]);renderGuestList();}roleModalBg.style.display='none';});
-document.getElementById('roleModalSave').addEventListener('click',function(){if(roleTarget>=0&&importQueue[roleTarget]){importQueue[roleTarget].role=document.getElementById('roleModalTA').value.trim();saveGuestMeta();pushMetaToWorker(importQueue[roleTarget]);renderGuestList();}roleModalBg.style.display='none';});
 
 /* ══ UNIFIED BRIDGE ══════════════════════════ */
 // When a guest list guest is marked sent, mirror it into the manual tracker
@@ -4438,17 +2968,6 @@ function doSync(){
       var inMemoryMap={};
       importQueue.forEach(function(g){ inMemoryMap[g.name]=g; });
 
-      // CRITICAL: importQueue is about to be replaced with a brand-new array,
-      // possibly in a different order than before (order comes from the
-      // worker's response, not from local state). selectedIdxs holds raw
-      // array *positions*, not guest identities — if a bulk-send selection
-      // survives across this reassignment, those positions now point at
-      // totally different guests, and a subsequent "Send" would silently
-      // link/mark the wrong people together (e.g. pairing two unrelated
-      // guests as "sent together"). Clearing the selection here guarantees
-      // that never happens; worst case the user just re-taps their guests.
-      if(selectedIdxs.length){selectedIdxs=[];}
-
       importQueue=guests.map(function(g){
         var name=g.name||g.Name||'';
         var titleName=toTitleCase(name);
@@ -4479,13 +2998,8 @@ function doSync(){
           skipped:inMem.skipped||localMeta.skipped||false,
           pendingSent:inMem.pendingSent||localMeta.pendingSent||false,
           msgLang:inMem.msgLang||localMeta.msgLang||'',
-          // bulkWith/sentGroupId: worker is now authoritative (pushMetaToWorker
-          // sends these on every change, including clears) UNLESS this device
-          // has an unconfirmed write in flight this session — same pattern as
-          // sent/followup/note below.
-          bulkWith:(inMemoryMap[titleName]&&_localWrites[titleName]&&_localWrites[titleName].bulkWith!==undefined)?inMem.bulkWith:(g.bulkWith!==undefined?(g.bulkWith||''):(inMem.bulkWith||localMeta.bulkWith||'')),
-          sentGroupId:(inMemoryMap[titleName]&&_localWrites[titleName]&&_localWrites[titleName].sentGroupId!==undefined)?inMem.sentGroupId:(g.sentGroupId!==undefined?(g.sentGroupId||''):(inMem.sentGroupId||localMeta.sentGroupId||'')),
-          parentNames:(inMemoryMap[titleName]&&_localWrites[titleName]&&_localWrites[titleName].parentNames!==undefined)?inMem.parentNames:(g.parentNames!==undefined?(g.parentNames||''):(inMem.parentNames||localMeta.parentNames||'')),
+          bulkWith:inMem.bulkWith||localMeta.bulkWith||'',
+          sentGroupId:inMem.sentGroupId||localMeta.sentGroupId||'',
           manualRsvp:g.manualRsvp||inMem.manualRsvp||localMeta.manualRsvp||'',
           // resolved: worker wins, but local sent state preserved if push is in-flight
           sent:isSent,
@@ -4601,15 +3115,11 @@ function startAutoPoll(){
           if(remote.note!==undefined&&local.note===undefined&&remote.note!==g.note){
             g.note=remote.note;dirty=true;
           }
-          if(remote.role!==undefined&&local.role===undefined&&remote.role!==g.role){
-            g.role=remote.role;dirty=true;
-          }
           if(remote.claim!==undefined&&remote.claim!==g.claim){
             g.claim=remote.claim;dirty=true;
           }
-          if(remote.bulkWith!==undefined&&local.bulkWith===undefined&&(remote.bulkWith||'')!==(g.bulkWith||'')){g.bulkWith=remote.bulkWith||'';dirty=true;}
-          if(remote.sentGroupId!==undefined&&local.sentGroupId===undefined&&(remote.sentGroupId||'')!==(g.sentGroupId||'')){g.sentGroupId=remote.sentGroupId||'';dirty=true;}
-          if(remote.parentNames!==undefined&&local.parentNames===undefined&&(remote.parentNames||'')!==(g.parentNames||'')){g.parentNames=remote.parentNames||'';dirty=true;}
+          if(remote.bulkWith!==undefined&&remote.bulkWith&&!g.bulkWith){g.bulkWith=remote.bulkWith;dirty=true;}
+          if(remote.sentGroupId!==undefined&&remote.sentGroupId&&!g.sentGroupId){g.sentGroupId=remote.sentGroupId;dirty=true;}
           if(remote.sentBy!==undefined&&remote.sentBy!==g.sentBy){
             g.sentBy=remote.sentBy;
           }
@@ -4735,7 +3245,6 @@ function renderGroupDropdown(){
   sel.value=groupFilter||'';
   sel.onchange=function(){groupFilter=this.value;renderGuestList();};
 }
-document.getElementById('typeSel').onchange=function(){typeFilter=this.value;renderGuestList();};
 document.getElementById('searchInput').addEventListener('input',function(){
   searchQuery=this.value.trim().toLowerCase();
   this.classList.toggle('has-value',!!this.value);
@@ -4845,9 +3354,7 @@ async function deployToGitHub(silent){
   btn.title = 'Deploying...';
 
   try {
-    var deployTime = new Date().toISOString();
     var html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-    html = html.replace(/var APP_DEPLOYED_AT='[^']*';/, "var APP_DEPLOYED_AT='" + deployTime + "';");
     var res = await fetch(workerUrl.replace(/\/$/, '') + '/deploy', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -4859,13 +3366,6 @@ async function deployToGitHub(silent){
     var data = await res.json();
     btn.classList.remove('deploying');
     if(data.ok) {
-      APP_DEPLOYED_AT = deployTime;
-      var stampBtn=document.getElementById('deployStampBtn');
-      if(stampBtn)stampBtn.title='Toggle version info';
-      var stampLabelEl=document.getElementById('deployStampLabel');
-      if(stampLabelEl)stampLabelEl.textContent=formatDeployStamp(APP_DEPLOYED_AT);
-      if(window._deployInfoOpen){var _popup=document.getElementById('deployInfoPopup');if(_popup)_popup.textContent=formatDeployStamp(APP_DEPLOYED_AT);}
-      var vEl=document.getElementById('sAppVersion');if(vEl)vEl.textContent=formatDeployStamp(APP_DEPLOYED_AT);
       btn.classList.add('deployed');
       btn.title = 'Deployed ✓';
       if(!silent) showUndo('Deployed to GitHub ✓ — live in ~60s', function(){});
@@ -5024,7 +3524,6 @@ function closeSettings(){
 }
 
 function loadSettingsIntoUI(){
-  var vEl=document.getElementById('sAppVersion');if(vEl)vEl.textContent=formatDeployStamp(APP_DEPLOYED_AT);
   document.getElementById('sNameA').value=appSettings.nameA;
   document.getElementById('sNameE').value=appSettings.nameE;
   document.getElementById('sWeddingDate').value=appSettings.weddingDate;
@@ -5157,7 +3656,7 @@ function doSyncSilent(){
         // Worker sentAt is ALWAYS authoritative
         var workerSentAt = g.sentAt||null;
         var isSent = !!workerSentAt;
-        return{name:titleName,phone:inMem.phone||meta.phone||g.phone||g.Phone||g['WhatsApp']||'',type:inMem.type||meta.type||g.type||g.Type||g['Invite Type']||'ceremony-single',lang:inMem.lang||meta.lang||g.lang||g.Lang||g['Language']||'en',sender:inMem.sender||meta.sender||g.sender||g.Sender||'',group:inMem.group||meta.group||g.group||g.Group||g['Family Group']||'',isChild:g.isChild||g['Is Child']||false,confirmed:g.confirmed||g.Confirmed||false,note:g.note||'',followup:!!g.followup,skipped:inMem.skipped||meta.skipped||false,pendingSent:inMem.pendingSent||meta.pendingSent||false,bulkWith:inMem.bulkWith||meta.bulkWith||'',sentGroupId:inMem.sentGroupId||meta.sentGroupId||'',manualRsvp:inMem.manualRsvp||meta.manualRsvp||'',parentNames:inMem.parentNames||meta.parentNames||'',sent:isSent,sentAt:workerSentAt||'',sentBy:g.sentBy||'',msgLang:inMem.msgLang||meta.msgLang||''};
+        return{name:titleName,phone:inMem.phone||meta.phone||g.phone||g.Phone||g['WhatsApp']||'',type:inMem.type||meta.type||g.type||g.Type||g['Invite Type']||'ceremony-single',lang:inMem.lang||meta.lang||g.lang||g.Lang||g['Language']||'en',sender:inMem.sender||meta.sender||g.sender||g.Sender||'',group:inMem.group||meta.group||g.group||g.Group||g['Family Group']||'',isChild:g.isChild||g['Is Child']||false,confirmed:g.confirmed||g.Confirmed||false,note:g.note||'',followup:!!g.followup,skipped:inMem.skipped||meta.skipped||false,pendingSent:inMem.pendingSent||meta.pendingSent||false,bulkWith:inMem.bulkWith||meta.bulkWith||'',sentGroupId:inMem.sentGroupId||meta.sentGroupId||'',manualRsvp:inMem.manualRsvp||meta.manualRsvp||'',sent:isSent,sentAt:workerSentAt||'',sentBy:g.sentBy||'',msgLang:inMem.msgLang||meta.msgLang||''};
       });
       var now=ts();
       try{localStorage.setItem('ww_pending',JSON.stringify(importQueue));localStorage.setItem('ww_ls',now);}catch(e){}
