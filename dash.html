@@ -995,6 +995,7 @@ body.lite-mode #liteModeTopBtn {
 .ts-opt.active{color:var(--sky)}
 .ts-opt.active .ts-icon{border-color:var(--sky)}
 .ts-rotate-btn{margin-left:6px;font-size:11px;font-weight:700;padding:4px 9px;border-radius:999px;border:1.5px solid var(--parchment);background:var(--cream2);color:var(--ink2);cursor:pointer;vertical-align:middle}
+.ts-chairs-bar{display:flex;align-items:center;justify-content:center;gap:12px;padding:10px 2px 12px;border-bottom:1px solid var(--parchment);margin-bottom:8px}
 /* Seat badge shown inline next to a guest's name in the main list —
    colored per table (hashed from the table's id, so it's consistent
    every time, not just a plain repeated text label) so at a glance you
@@ -6501,7 +6502,11 @@ window.seatBadgeHtml = function(name){
 
 /* ── Table CRUD ── */
 function addTable(){
-  seatMap.tables.push({id:uid(), name:'Table '+(seatMap.tables.length+1), seats:8});
+  // New tables pick up the shape of whichever table was added most
+  // recently, so a run of tables stays visually consistent instead of
+  // defaulting back to round every time.
+  var lastShape = seatMap.tables.length ? (seatMap.tables[seatMap.tables.length-1].shape || 'round') : 'round';
+  seatMap.tables.push({id:uid(), name:'Table '+(seatMap.tables.length+1), seats:8, shape:lastShape});
   saveSeatMap();
   renderSeatMap();
 }
@@ -6713,13 +6718,35 @@ function renderSeatMap(){
   wireFloorColorPicker();
 }
 
-/* Give a table a default spot on the floor (staggered grid) if it doesn't
-   have a saved position yet — so new tables don't all stack on top of
-   each other in the middle of the canvas. */
-function defaultTablePos(index){
-  var cols = 3;
-  var col = index % cols, row = Math.floor(index / cols);
-  return { x: 18 + col * 32, y: 20 + row * 28 };
+/* Give a table a default spot on the floor if it doesn't have a saved
+   position yet — packs tables left-to-right, wrapping to a new row once
+   a table wouldn't fit, using each table's REAL footprint (which differs
+   by shape/seat count) rather than a fixed grid cell, and checking
+   against every already-placed table (including manually dragged ones)
+   so new tables land in open space instead of overlapping. Only ever
+   runs once per table — after that its position is just whatever's
+   saved (including drags), same as before. */
+function defaultTablePos(placed, canvasW, canvasH, lay){
+  var gap = 20, marginX = 18, marginY = 18;
+  var w = (lay && lay.w) || 120, h = (lay && lay.h) || 120;
+  if(!placed.length){
+    return { x: (marginX + w/2)/canvasW*100, y: (marginY + h/2)/canvasH*100 };
+  }
+  // "Current row" = the trailing run of already-placed tables that share
+  // roughly the same vertical center as the most recently placed one.
+  var last = placed[placed.length-1];
+  var rowY = last.cy, rowBottom = last.cy + last.h/2, cursorRight = marginX;
+  for(var i=placed.length-1;i>=0;i--){
+    if(Math.abs(placed[i].cy - rowY) > 6) break;
+    rowBottom = Math.max(rowBottom, placed[i].cy + placed[i].h/2);
+    cursorRight = Math.max(cursorRight, placed[i].cx + placed[i].w/2);
+  }
+  var cx = cursorRight + gap + w/2, cy = rowY;
+  if(cx + w/2 > canvasW - marginX){
+    cx = marginX + w/2;
+    cy = rowBottom + gap + h/2;
+  }
+  return { x: cx/canvasW*100, y: cy/canvasH*100 };
 }
 
 /* Compute the seat-dot layout for one table on the floor plan: how big
@@ -6839,10 +6866,15 @@ function renderSeatFloorPlan(){
     return;
   }
 
-  var tableNodes = seatMap.tables.map(function(t, i){
-    if(!t.pos) t.pos = defaultTablePos(i);
+  var tableNodes = [];
+  var canvasPxW = body.clientWidth || 340;
+  var canvasPxH = Math.min(window.innerHeight * 0.7, 520);
+  var placedFootprints = [];
+  seatMap.tables.forEach(function(t, i){
     if(!t.shape) t.shape = 'round';
     var lay = tableFloorLayout(t);
+    if(!t.pos) t.pos = defaultTablePos(placedFootprints, canvasPxW, canvasPxH, lay);
+    placedFootprints.push({ cx: t.pos.x/100*canvasPxW, cy: t.pos.y/100*canvasPxH, w: lay.w, h: lay.h });
     var filled = 0;
     var dotsHtml = lay.dots.map(function(d){
       var name = seatMap.assignments[seatKey(t.id,d.num)] || '';
@@ -6853,14 +6885,14 @@ function renderSeatFloorPlan(){
       return '<div class="'+dcls+'" data-table="'+t.id+'" data-seat="'+d.num+'" title="'+(name?name.replace(/"/g,'&quot;'):'Seat '+d.num)+'" style="left:'+d.x+'px;top:'+d.y+'px"></div>';
     }).join('');
     var shapeCls = 'seatmap-node-shape '+lay.shapeCls+(filled===t.seats && t.seats>0 ? ' full':'');
-    return '<div class="seatmap-table-node" data-table-id="'+t.id+'" style="left:'+t.pos.x+'%;top:'+t.pos.y+'%;width:'+lay.w+'px;height:'+lay.h+'px">'
+    tableNodes.push('<div class="seatmap-table-node" data-table-id="'+t.id+'" style="left:'+t.pos.x+'%;top:'+t.pos.y+'%;width:'+lay.w+'px;height:'+lay.h+'px">'
       + '<div class="'+shapeCls+'" style="width:'+lay.shapeW+'px;height:'+lay.shapeH+'px;left:'+(lay.w-lay.shapeW)/2+'px;top:'+(lay.h-lay.shapeH)/2+'px;background:'+tableStyle.bg+';border:2px solid '+tableStyle.border+'">'
         + '<span class="seatmap-table-node-name" style="color:'+tableStyle.text+'">'+t.name.replace(/</g,'&lt;')+'</span>'
         + '<span class="seatmap-table-node-meta" style="color:'+tableStyle.meta+'">'+filled+'/'+t.seats+'</span>'
       + '</div>'
       + dotsHtml
-      + '</div>';
-  }).join('');
+      + '</div>');
+  });
 
   var landmarkNodes = seatMap.landmarks.map(function(l){
     var m = LANDMARK_TYPES[l.type] || LANDMARK_TYPES.buffet;
@@ -6868,7 +6900,7 @@ function renderSeatFloorPlan(){
   }).join('');
 
   body.innerHTML = controls
-    + '<div class="seatmap-floor" id="seatmapFloorCanvas" style="'+floorStyle.css+'">'+tableNodes+landmarkNodes
+    + '<div class="seatmap-floor" id="seatmapFloorCanvas" style="'+floorStyle.css+'">'+tableNodes.join('')+landmarkNodes
       + '<div class="seatmap-snap-guide v" id="snapGuideV"></div>'
       + '<div class="seatmap-snap-guide h" id="snapGuideH"></div>'
     + '</div>';
@@ -7162,13 +7194,22 @@ function openTableFromFloor(tableId){
   srch.value = '';
   document.getElementById('seatAssignUnassignBtn').style.display = 'none';
   var list = document.getElementById('seatAssignList');
-  list.innerHTML = '<div class="seatmap-seats" style="padding:2px 2px 14px">'+seatsHtml+'</div>';
+  var chairsBar = '<div class="ts-chairs-bar">'
+    + '<button class="seatmap-mini-btn" id="tsChairsDec" title="Fewer chairs">–</button>'
+    + '<span class="seatmap-seat-count">'+t.seats+' chairs</span>'
+    + '<button class="seatmap-mini-btn" id="tsChairsInc" title="More chairs">+</button>'
+    + '</div>';
+  list.innerHTML = chairsBar + '<div class="seatmap-seats" style="padding:2px 2px 14px">'+seatsHtml+'</div>';
   list.querySelectorAll('.seatmap-seat').forEach(function(seat){
     seat.addEventListener('click', function(){
       closeSeatAssign();
       openSeatAssign(this.dataset.table, parseInt(this.dataset.seat,10));
     });
   });
+  var chairsDec = document.getElementById('tsChairsDec');
+  var chairsInc = document.getElementById('tsChairsInc');
+  if(chairsDec) chairsDec.addEventListener('click', function(){ setSeatCount(tableId, t.seats-1); openTableFromFloor(tableId); });
+  if(chairsInc) chairsInc.addEventListener('click', function(){ setSeatCount(tableId, t.seats+1); openTableFromFloor(tableId); });
   var shapeToggle = document.getElementById('tableShapeToggle');
   var shapePop = document.getElementById('tableShapePop');
   if(shapeToggle && shapePop){
