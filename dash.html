@@ -890,6 +890,11 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-seat-num{font-family:var(--sans);font-size:9px;font-weight:800;letter-spacing:.03em;color:var(--soft);text-transform:uppercase}
 .seatmap-seat-name{font-family:var(--sans);font-size:10.5px;font-weight:700;color:var(--ink2);line-height:1.2;word-break:break-word;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .seatmap-seat.empty .seatmap-seat-name{color:var(--soft);font-weight:600}
+/* The trailing "add a chair" tile reads as an action, not an empty seat —
+   dashed border, no seat-number label, just a big plus. */
+.seatmap-seat.add-seat{border-style:dashed;background:transparent;align-items:center;justify-content:center}
+.seatmap-seat-plus{font-family:var(--sans);font-size:20px;font-weight:800;color:var(--soft);line-height:1}
+.seatmap-seat.add-seat:active .seatmap-seat-plus{color:var(--ink2)}
 /* Strong, saturated fills for the three RSVP states — confirmed / declined
    / pending need to read at a glance without squinting at a pale tint. */
 .seatmap-seat.rsvp-yes{background:#16A34A;border-color:#15803D}
@@ -918,10 +923,10 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-trash{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(30px) scale(.85);z-index:401;width:56px;height:56px;border-radius:50%;background:rgba(40,40,40,.88);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .18s,transform .18s,background .15s}
 .seatmap-trash.visible{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
 .seatmap-trash.armed{background:#b91c1c;transform:translateX(-50%) translateY(0) scale(1.15)}
-.seatmap-floor-wrap{position:relative;width:100%;height:min(70vh,520px);border:1.5px solid rgba(0,0,0,.12);border-radius:var(--r-md,14px);margin-bottom:14px;overflow:auto;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y;-webkit-transform:translateZ(0);transform:translateZ(0)}
+.seatmap-floor-wrap{position:relative;width:100%;height:min(70vh,520px);border:1.5px solid rgba(0,0,0,.12);border-radius:var(--r-md,14px);margin-bottom:14px;overflow:auto;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y}
 .seatmap-floor-sizer{position:relative;min-width:100%;min-height:100%;box-sizing:border-box}
 .seatmap-floor{position:absolute;left:0;top:0;
-  background-size:24px 24px;will-change:transform;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+  background-size:24px 24px}
 /* Zero-height sticky anchor so the zoom pill stays pinned while scrolling
    the floor plan without reserving its own row (that reserved row was the
    awkward white stripe along the top of the canvas). */
@@ -952,7 +957,7 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-node-dot.is-couple.bride{border-color:var(--arina-txt);box-shadow:0 0 6px rgba(230,180,80,.9)}
 .seatmap-node-dot.is-couple.groom{border-color:var(--elnur-txt);box-shadow:0 0 6px rgba(230,180,80,.9)}
 /* Rotate/remove quick-actions on a floor-plan table node itself. */
-.seatmap-node-chairs{position:absolute;left:50%;bottom:-11px;transform:translateX(-50%);display:flex;gap:4px;z-index:2}
+.seatmap-node-chairs{position:absolute;left:50%;bottom:-32px;transform:translateX(-50%);display:flex;gap:4px;z-index:2}
 .seatmap-node-chair-btn{width:20px;height:20px;border-radius:50%;border:1.5px solid rgba(255,255,255,.5);background:rgba(0,0,0,.55);color:#fff;font-family:var(--sans);font-size:12px;font-weight:800;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;touch-action:manipulation}
 .seatmap-node-chair-btn:active{background:rgba(0,0,0,.75)}
 .seatmap-node-chair-btn.danger{background:rgba(185,28,28,.75);border-color:rgba(255,255,255,.6)}
@@ -6540,7 +6545,7 @@ function addTable(){
   // deliberately chose (e.g. via the shape picker), starting from table 1's
   // shape — so a run of tables stays visually consistent instead of
   // quietly defaulting back to round.
-  var shape = seatMap.defaultShape || 'rect';
+  var shape = seatMap.defaultShape || 'round';
   var t = {id:uid(), name:'Table '+(seatMap.tables.length+1), seats:8, shape:shape};
   seatMap.tables.push(t);
   _lastAddedTableId = t.id;
@@ -6772,13 +6777,7 @@ function renderSeatMap(){
 /* Scrolls the just-added table into view and gives it a brief highlight
    pulse — the visible confirmation that tapping "+ Table" actually did
    something, instead of a new card/node silently appearing off-screen or
-   blending into the rest. Fires once per add, in whichever view is open.
-   Uses an instant jump rather than smooth-scroll on the floor plan: iOS
-   Safari has a known compositing bug where an animated scroll over a
-   container that mixes position:sticky + overflow:auto + a transform-
-   scaled descendant (exactly this canvas, for the zoom controls) can
-   corrupt the paint mid-animation — showing up as stray line fragments
-   until the next full repaint. An instant scroll removes that window. */
+   blending into the rest. Fires once per add, in whichever view is open. */
 function flashLastAddedTable(container){
   if(!_lastAddedTableId) return;
   var id = _lastAddedTableId;
@@ -6786,27 +6785,35 @@ function flashLastAddedTable(container){
   setTimeout(function(){
     var el = container.querySelector('[data-table-id="'+id+'"]');
     if(!el) return;
-    var behavior = container.id === 'seatmapBody' ? 'smooth' : 'auto';
-    el.scrollIntoView({behavior:behavior, block:'center', inline:'center'});
+    el.scrollIntoView({behavior:'smooth', block:'center', inline:'center'});
     el.classList.add('just-added');
     setTimeout(function(){ el.classList.remove('just-added'); }, 1600);
   }, 30);
 }
 
 /* Give a table a default spot on the floor if it doesn't have a saved
-   position yet. Positions are stored in fixed PIXELS (stable regardless
-   of how tall the canvas grows later — a % would drift every time a
-   table gets added and the canvas is re-measured).
-   Tables default to a single vertical column, stacked top to bottom —
-   each new table lands in the clear strip below whatever's already on
-   the floor, left-aligned, using its REAL footprint (which differs by
-   shape/seat count) so nothing new ever lands on top of something
-   already there, including manually dragged tables. Always draggable
-   afterward if you want a different arrangement. */
+   position yet. Previously this spiraled new tables out from dead-center
+   of the canvas — which is exactly why new tables kept landing on top of
+   existing ones (positions were also stored as a % of the canvas's
+   height at ADD time, but the canvas grows taller every time a table is
+   added below the fold, so that same % got reinterpreted against a
+   bigger number on every later render and tables drifted from their
+   spot — the stray blank/white space users saw growing over time).
+   Now: positions are stored in fixed PIXELS (stable regardless of how
+   tall the canvas grows later), and every new table is simply placed
+   in the clear strip below whatever's already on the floor — guaranteed
+   free space, never on top of another table, and obviously a "new,
+   unplaced" table you can immediately drag to where you actually want
+   it, rather than a smart algorithm quietly deciding for you. */
 function defaultTablePos(placed, canvasW, canvasH, lay){
   var gap = 28, marginX = 18, marginY = 18;
   var w = (lay && lay.w) || 120, h = (lay && lay.h) || 120;
 
+  // Every new table — including the first — lands in the same predictable
+  // spot: stacked below whatever's already on the floor, left-aligned.
+  // One consistent rule instead of "first table goes here, later ones go
+  // there" is what actually makes the placement order make sense; you can
+  // always drag it wherever you actually want it from there.
   var maxBottom = marginY - gap;
   placed.forEach(function(p){ maxBottom = Math.max(maxBottom, p.cy + p.h/2); });
   return { x: marginX + w/2, y: maxBottom + gap + h/2 };
@@ -6817,17 +6824,10 @@ function defaultTablePos(placed, canvasW, canvasH, lay){
    around it. Round tables get seats spaced evenly around the circle;
    rectangular tables get seats split evenly between a top row and a
    bottom row (e.g. 8 seats -> 4 and 4, 7 seats -> 4 and 3) — no manual
-   per-side setup needed.
-   `h` (and therefore the node's total footprint used for placement/
-   collision) always includes extra room below the seat dots for the
-   rotate/remove control row, so those buttons never land on top of a
-   chair — `coreH` is the height of just the table+dots part, which is
-   what the shape/dots stay centered against, so this reserved strip is
-   pure empty space tacked on at the bottom rather than squeezed in. */
+   per-side setup needed. */
 function shapeLabel(sh){ return sh==='rect' ? 'Rectangular' : sh==='square' ? 'Square' : 'Round'; }
 function tableFloorLayout(t){
   var seats = t.seats;
-  var CTRL_SPACE = 30;
   if(t.shape === 'rect'){
     var rotated = t.rotation === 90;
     var sideA = Math.ceil(seats/2), sideB = seats-sideA;
@@ -6837,8 +6837,8 @@ function tableFloorLayout(t){
     var pad = 22;
     var rectW = rotated ? shortSide : longSide;
     var rectH = rotated ? longSide : shortSide;
-    var w = rectW + pad*2 + (rotated?6:0), coreH = rectH + pad*2 + (rotated?0:6);
-    var cx = w/2, cy = coreH/2;
+    var w = rectW + pad*2 + (rotated?6:0), h = rectH + pad*2 + (rotated?0:6);
+    var cx = w/2, cy = h/2;
     var dots = [];
     var num = 1;
     if(!rotated){
@@ -6848,7 +6848,7 @@ function tableFloorLayout(t){
       for(var i2=0;i2<sideA;i2++) dots.push({ num:num++, x: cx - rectW/2 - 13, y: cy - rectH/2 + (rectH/(sideA+1))*(i2+1) });
       for(var j2=0;j2<sideB;j2++) dots.push({ num:num++, x: cx + rectW/2 + 13, y: cy - rectH/2 + (rectH/(sideB+1))*(j2+1) });
     }
-    return { w:w, h:coreH+CTRL_SPACE, coreH:coreH, shapeW:rectW, shapeH:rectH, shapeCls:'rect', dots:dots };
+    return { w:w, h:h, shapeW:rectW, shapeH:rectH, shapeCls:'rect', dots:dots };
   }
   if(t.shape === 'square'){
     // Seats spread evenly across all four sides (round-robin top/right/
@@ -6857,8 +6857,8 @@ function tableFloorLayout(t){
     var perSide = Math.ceil(seats/4);
     var sq = Math.max(56, perSide*24 + 14);
     var pad2 = 22;
-    var w2 = sq + pad2*2, coreH2 = sq + pad2*2;
-    var cx2 = w2/2, cy2 = coreH2/2;
+    var w2 = sq + pad2*2, h2 = sq + pad2*2;
+    var cx2 = w2/2, cy2 = h2/2;
     var counts = [0,0,0,0];
     for(var s=0;s<seats;s++) counts[s%4]++;
     var dots2 = [], num2 = 1;
@@ -6866,18 +6866,18 @@ function tableFloorLayout(t){
     for(var r0=0;r0<counts[1];r0++) dots2.push({ num:num2++, x: cx2 + sq/2 + 13, y: cy2 - sq/2 + (sq/(counts[1]+1))*(r0+1) }); // right
     for(var b0=0;b0<counts[2];b0++) dots2.push({ num:num2++, x: cx2 + sq/2 - (sq/(counts[2]+1))*(b0+1), y: cy2 + sq/2 + 13 }); // bottom
     for(var l0=0;l0<counts[3];l0++) dots2.push({ num:num2++, x: cx2 - sq/2 - 13, y: cy2 + sq/2 - (sq/(counts[3]+1))*(l0+1) }); // left
-    return { w:w2, h:coreH2+CTRL_SPACE, coreH:coreH2, shapeW:sq, shapeH:sq, shapeCls:'square', dots:dots2 };
+    return { w:w2, h:h2, shapeW:sq, shapeH:sq, shapeCls:'square', dots:dots2 };
   }
   var d = Math.max(56, Math.min(92, 44 + seats*3));
   var r = d/2 + 15;
-  var w = r*2 + 22, coreH = w;
-  var cx = w/2, cy = coreH/2;
+  var w = r*2 + 22, h = w;
+  var cx = w/2, cy = h/2;
   var dots = [];
   for(var k=0;k<seats;k++){
     var angle = -Math.PI/2 + k*(2*Math.PI/seats);
     dots.push({ num:k+1, x: cx + r*Math.cos(angle), y: cy + r*Math.sin(angle) });
   }
-  return { w:w, h:coreH+CTRL_SPACE, coreH:coreH, shapeW:d, shapeH:d, shapeCls:'round', dots:dots };
+  return { w:w, h:h, shapeW:d, shapeH:d, shapeCls:'round', dots:dots };
 }
 
 /* Nice, high-contrast defaults for the floor plan — a warm charcoal room
@@ -6937,8 +6937,18 @@ function renderSeatFloorPlan(){
   }
 
   var tableNodes = [];
-  var canvasPxW = body.clientWidth || 340;
-  var canvasPxH = Math.min(window.innerHeight * 0.7, 520);
+  // The floor plan is a big, fixed-size "room" — generously larger than any
+  // one device's screen — that you zoom/pan around, not a box sized to fit
+  // your phone. A small canvas was the actual bug behind tables refusing to
+  // go past the middle: dragging was (correctly) clamped to the canvas's
+  // real edge, but that edge was set to the viewport's width, so there was
+  // nowhere further right to put a table regardless of zoom. The room also
+  // grows to fully enclose any table/marker already placed out past its
+  // current edge (e.g. from before this fix), so nothing is ever clipped
+  // or stranded outside the grid.
+  var ROOM_MIN_W = 1600, ROOM_MIN_H = 1000;
+  var canvasPxW = Math.max(body.clientWidth || 340, ROOM_MIN_W);
+  var canvasPxH = Math.max(Math.min(window.innerHeight * 0.7, 520), ROOM_MIN_H);
   var placedFootprints = [];
   seatMap.tables.forEach(function(t, i){
     if(!t.shape) t.shape = 'rect';
@@ -6955,17 +6965,15 @@ function renderSeatFloorPlan(){
       return '<div class="'+dcls+'" data-table="'+t.id+'" data-seat="'+d.num+'" title="'+(name?name.replace(/"/g,'&quot;'):'Seat '+d.num)+'" style="left:'+d.x+'px;top:'+d.y+'px"></div>';
     }).join('');
     var shapeCls = 'seatmap-node-shape '+lay.shapeCls+(filled===t.seats && t.seats>0 ? ' full':'');
-    // Rotate + remove controls right on the node — pinned to the reserved
-    // strip below coreH (below every seat dot, whatever the shape), so
-    // they never sit on top of a chair; chairCtrls' own CSS "bottom"
-    // anchor is overridden with an explicit "top" here since that strip's
-    // size varies per table.
-    var chairCtrls = '<div class="seatmap-node-chairs" style="top:'+(lay.coreH+9)+'px;bottom:auto">'
+    // Rotate + remove controls right on the node — quick actions that make
+    // sense on the spatial layout itself (chair count still lives in the
+    // table sheet you get by tapping the table).
+    var chairCtrls = '<div class="seatmap-node-chairs">'
       + (t.shape==='rect' ? '<button class="seatmap-node-chair-btn" data-act="rotate" data-table="'+t.id+'" title="Rotate table">&#8635;</button>' : '')
       + '<button class="seatmap-node-chair-btn danger" data-act="remove" data-table="'+t.id+'" title="Remove table">&#10005;</button>'
       + '</div>';
     tableNodes.push('<div class="seatmap-table-node" data-table-id="'+t.id+'" style="left:'+t.pos.x+'px;top:'+t.pos.y+'px;width:'+lay.w+'px;height:'+lay.h+'px">'
-      + '<div class="'+shapeCls+'" style="width:'+lay.shapeW+'px;height:'+lay.shapeH+'px;left:'+(lay.w-lay.shapeW)/2+'px;top:'+(lay.coreH-lay.shapeH)/2+'px;background:'+tableStyle.bg+';border:2px solid '+tableStyle.border+'">'
+      + '<div class="'+shapeCls+'" style="width:'+lay.shapeW+'px;height:'+lay.shapeH+'px;left:'+(lay.w-lay.shapeW)/2+'px;top:'+(lay.h-lay.shapeH)/2+'px;background:'+tableStyle.bg+';border:2px solid '+tableStyle.border+'">'
         + '<span class="seatmap-table-node-name" style="color:'+tableStyle.text+'">'+t.name.replace(/</g,'&lt;')+'</span>'
         + '<span class="seatmap-table-node-meta" style="color:'+tableStyle.meta+'">'+filled+'/'+t.seats+'</span>'
       + '</div>'
@@ -6979,17 +6987,21 @@ function renderSeatFloorPlan(){
     return '<div class="seatmap-landmark" data-ltype="'+l.type+'" data-landmark-id="'+l.id+'" style="left:'+l.pos.x+'px;top:'+l.pos.y+'px;background:'+m.bg+';border:2px solid '+m.border+';color:'+m.color+'"><span>'+m.label+'</span></div>';
   }).join('');
 
-  // The canvas grows to fit every placed table/marker (instead of clipping
-  // anything that lands below the visible fold) — the wrap div below is
-  // what actually scrolls, and zoom scales the whole thing via transform.
-  var contentH = canvasPxH;
-  placedFootprints.forEach(function(p){ contentH = Math.max(contentH, p.cy + p.h/2 + 24); });
-  (seatMap.landmarks||[]).forEach(function(l){ contentH = Math.max(contentH, l.pos.y + 40); });
+  // The room grows to fully enclose every placed table/marker on both
+  // axes — not just downward — so nothing (including tables placed by an
+  // older version of this code) ever ends up stranded past the edge of
+  // the visible grid.
+  var contentW = canvasPxW, contentH = canvasPxH;
+  placedFootprints.forEach(function(p){
+    contentW = Math.max(contentW, p.cx + p.w/2 + 24);
+    contentH = Math.max(contentH, p.cy + p.h/2 + 24);
+  });
+  (seatMap.landmarks||[]).forEach(function(l){
+    contentW = Math.max(contentW, l.pos.x + 40);
+    contentH = Math.max(contentH, l.pos.y + 40);
+  });
   var z = seatMapZoom;
-  var gridPx = Math.max(6, Math.round(24*z));
-  var sizerW = canvasPxW*z, sizerH = contentH*z;
-  var gridSvg = floorGridFullSvg(floorStyle.gridRgb, floorStyle.gridOpacity, sizerW, sizerH, gridPx);
-  var sizerBg = 'background-color:'+seatMap.floorColor+';background-image:url(\'data:image/svg+xml,'+encodeURIComponent(gridSvg)+'\');background-repeat:no-repeat;background-size:'+Math.round(sizerW)+'px '+Math.round(sizerH)+'px;border-color:'+floorStyle.borderColor+';';
+  var gridPx = Math.max(6, 24*z);
 
   body.innerHTML = controls
     + '<div class="seatmap-floor-wrap" id="seatmapFloorWrap">'
@@ -6998,13 +7010,12 @@ function renderSeatFloorPlan(){
         + '<span class="seatmap-zoom-pct" id="seatmapZoomPct">'+Math.round(z*100)+'%</span>'
         + '<button class="seatmap-zoom-btn" id="seatmapZoomIn" title="Zoom in">+</button>'
       + '</div></div>'
-      // The grid is one exact-size, non-repeating image (see
-      // floorGridFullSvg) drawn on the sizer, which always fills at least
-      // the full wrap via min-width/height:100% — so panning/zooming out
-      // never runs off the edge of the pattern into a flat, grid-less area,
-      // and there's no tile boundary anywhere for a repaint to desync.
-      + '<div class="seatmap-floor-sizer" style="width:'+(canvasPxW*z)+'px;height:'+(contentH*z)+'px;'+sizerBg+'">'
-        + '<div class="seatmap-floor" id="seatmapFloorCanvas" style="width:'+canvasPxW+'px;height:'+contentH+'px;transform:translateZ(0) scale('+z+');transform-origin:0 0">'+tableNodes.join('')+landmarkNodes
+      // The grid/color background lives on the sizer (which always fills at
+      // least the full wrap, via min-width/height:100%) rather than on the
+      // table-content box, so panning/zooming out never runs off the edge
+      // of the pattern into a flat, stripe-less area.
+      + '<div class="seatmap-floor-sizer" style="width:'+(contentW*z)+'px;height:'+(contentH*z)+'px;'+floorStyle.css+';background-size:'+gridPx+'px '+gridPx+'px">'
+        + '<div class="seatmap-floor" id="seatmapFloorCanvas" style="width:'+contentW+'px;height:'+contentH+'px;transform:scale('+z+');transform-origin:0 0">'+tableNodes.join('')+landmarkNodes
           + '<div class="seatmap-snap-guide v" id="snapGuideV"></div>'
           + '<div class="seatmap-snap-guide h" id="snapGuideH"></div>'
         + '</div>'
@@ -7059,37 +7070,11 @@ function floorCanvasStyle(hex){
   var r = parseInt(h.substr(0,2),16)||0, g = parseInt(h.substr(2,2),16)||0, b = parseInt(h.substr(4,2),16)||0;
   var brightness = (r*299 + g*587 + b*114) / 1000;
   var light = brightness > 150;
-  var gridRgb = light ? '0,0,0' : '255,255,255';
-  var gridOpacity = light ? 0.08 : 0.06;
+  var gridColor = light ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.06)';
   var borderColor = light ? 'rgba(0,0,0,.15)' : 'rgba(255,255,255,.12)';
   var emptyColor = light ? 'rgba(0,0,0,.5)' : 'rgba(255,255,255,.65)';
-  // Small tiled grid, only used for the empty-state canvas (fixed 100%
-  // size, nothing ever dragged on top of it, so a repeating tile is safe
-  // there). The populated canvas below builds one full-size, untiled grid
-  // instead — see floorGridFullSvg.
-  var tileSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">'
-    + '<path d="M24 0H0V24" fill="none" stroke="rgba('+gridRgb+','+gridOpacity+')" stroke-width="1"/>'
-    + '</svg>';
-  var css = 'background-color:'+hex+';background-image:url(\'data:image/svg+xml,'+encodeURIComponent(tileSvg)+'\');background-repeat:repeat;border-color:'+borderColor+';';
-  return { css:css, emptyColor:emptyColor, borderColor:borderColor, gridRgb:gridRgb, gridOpacity:gridOpacity };
-}
-
-/* One single grid image sized to exactly match the canvas — every line
-   drawn explicitly, nothing tiled/repeated. iOS Safari has a real bug
-   where a REPEATING background pattern (gradient or tiled image) on a
-   large, frequently-repainted canvas — exactly what happens while
-   dragging a table or right after adding one — can show visible seams
-   between tile edges; the two smaller fixes tried before (rounding the
-   tile size, then switching the tile from a gradient to an SVG image)
-   both still relied on tiling, so the seam was still possible. Building
-   one exact-size image removes tiling — and therefore tile seams —
-   from the equation entirely. */
-function floorGridFullSvg(gridRgb, gridOpacity, w, h, cell){
-  w = Math.max(1, Math.round(w)); h = Math.max(1, Math.round(h)); cell = Math.max(4, Math.round(cell));
-  var lines = [];
-  for(var x=0; x<=w; x+=cell) lines.push('<line x1="'+x+'" y1="0" x2="'+x+'" y2="'+h+'" stroke="rgba('+gridRgb+','+gridOpacity+')" stroke-width="1"/>');
-  for(var y=0; y<=h; y+=cell) lines.push('<line x1="0" y1="'+y+'" x2="'+w+'" y2="'+y+'" stroke="rgba('+gridRgb+','+gridOpacity+')" stroke-width="1"/>');
-  return '<svg xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+h+'">'+lines.join('')+'</svg>';
+  var css = 'background-color:'+hex+';background-image:linear-gradient('+gridColor+' 1px,transparent 1px),linear-gradient(90deg,'+gridColor+' 1px,transparent 1px);border-color:'+borderColor+';';
+  return { css:css, emptyColor:emptyColor };
 }
 
 function wireFloorColorPicker(){
@@ -7215,7 +7200,7 @@ function wireFloorZoom(){
   // Two-finger pinch: track the distance between touches and scale the
   // zoom proportionally. Single-finger touches are left alone so the
   // wrap's native scrolling and table-node dragging keep working.
-  var pinchStartDist = null, pinchStartZoom = 1;
+  var pinchStartDist = null, pinchStartZoom = 1, didPinch = false;
   wrap.addEventListener('touchstart', function(e){
     if(e.touches.length === 2){
       pinchStartDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
@@ -7225,6 +7210,7 @@ function wireFloorZoom(){
   wrap.addEventListener('touchmove', function(e){
     if(e.touches.length === 2 && pinchStartDist){
       e.preventDefault();
+      didPinch = true;
       var dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
       var z = pinchStartZoom * (dist / pinchStartDist);
       seatMapZoom = Math.max(SEATMAP_ZOOM_MIN, Math.min(SEATMAP_ZOOM_MAX, z));
@@ -7232,15 +7218,30 @@ function wireFloorZoom(){
       var sizer = wrap.querySelector('.seatmap-floor-sizer');
       var pct = document.getElementById('seatmapZoomPct');
       if(canvas) canvas.style.transform = 'scale('+seatMapZoom+')';
-      if(sizer) sizer.style.width = (canvas.offsetWidth*seatMapZoom)+'px';
-      if(sizer) sizer.style.height = (canvas.offsetHeight*seatMapZoom)+'px';
+      if(sizer){
+        sizer.style.width = (canvas.offsetWidth*seatMapZoom)+'px';
+        sizer.style.height = (canvas.offsetHeight*seatMapZoom)+'px';
+        // Keep the grid dot spacing in sync live during the pinch too —
+        // otherwise the pattern's density was left stuck at whatever it
+        // was on the last full render, visibly mismatched from the actual
+        // zoom level until something else triggered a re-render.
+        var gridPx = Math.max(6, 24*seatMapZoom);
+        sizer.style.backgroundSize = gridPx+'px '+gridPx+'px';
+      }
       if(pct) pct.textContent = Math.round(seatMapZoom*100)+'%';
     }
   }, {passive:false});
   wrap.addEventListener('touchend', function(e){
     if(e.touches.length < 2){
       pinchStartDist = null;
-      saveSeatMap();
+      if(didPinch){
+        didPinch = false;
+        saveSeatMap();
+        // A full re-render (rather than leaving the manual DOM patches from
+        // touchmove as the final word) so the room re-expands/re-centers
+        // correctly for the new zoom level, same as the +/- buttons do.
+        renderSeatFloorPlan();
+      }
     }
   });
 }
