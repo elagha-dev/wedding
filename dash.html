@@ -6540,7 +6540,7 @@ function addTable(){
   // deliberately chose (e.g. via the shape picker), starting from table 1's
   // shape — so a run of tables stays visually consistent instead of
   // quietly defaulting back to round.
-  var shape = seatMap.defaultShape || 'round';
+  var shape = seatMap.defaultShape || 'rect';
   var t = {id:uid(), name:'Table '+(seatMap.tables.length+1), seats:8, shape:shape};
   seatMap.tables.push(t);
   _lastAddedTableId = t.id;
@@ -6787,31 +6787,41 @@ function flashLastAddedTable(container){
 }
 
 /* Give a table a default spot on the floor if it doesn't have a saved
-   position yet. Previously this spiraled new tables out from dead-center
-   of the canvas — which is exactly why new tables kept landing on top of
-   existing ones (positions were also stored as a % of the canvas's
-   height at ADD time, but the canvas grows taller every time a table is
-   added below the fold, so that same % got reinterpreted against a
-   bigger number on every later render and tables drifted from their
-   spot — the stray blank/white space users saw growing over time).
-   Now: positions are stored in fixed PIXELS (stable regardless of how
-   tall the canvas grows later), and every new table is simply placed
-   in the clear strip below whatever's already on the floor — guaranteed
-   free space, never on top of another table, and obviously a "new,
-   unplaced" table you can immediately drag to where you actually want
-   it, rather than a smart algorithm quietly deciding for you. */
+   position yet. Positions are stored in fixed PIXELS (stable regardless
+   of how tall/wide the canvas grows later — a % would drift every time
+   a table gets added and the canvas is re-measured).
+   Tables pack left-to-right in a row first, same as chairs around a real
+   room, wrapping to a new row only once one wouldn't fit within the
+   canvas width — instead of stacking every table into a single column,
+   which made long guest lists turn into one very tall, hard-to-scan
+   strip. Each table's REAL footprint (which differs by shape/seat count
+   AND by horizontal vs. vertical orientation) is checked against every
+   already-placed table so nothing new ever lands on top of something
+   already there, including manually dragged tables. */
 function defaultTablePos(placed, canvasW, canvasH, lay){
   var gap = 28, marginX = 18, marginY = 18;
   var w = (lay && lay.w) || 120, h = (lay && lay.h) || 120;
 
-  // Every new table — including the first — lands in the same predictable
-  // spot: stacked below whatever's already on the floor, left-aligned.
-  // One consistent rule instead of "first table goes here, later ones go
-  // there" is what actually makes the placement order make sense; you can
-  // always drag it wherever you actually want it from there.
-  var maxBottom = marginY - gap;
-  placed.forEach(function(p){ maxBottom = Math.max(maxBottom, p.cy + p.h/2); });
-  return { x: marginX + w/2, y: maxBottom + gap + h/2 };
+  if(!placed.length){
+    return { x: marginX + w/2, y: marginY + h/2 };
+  }
+
+  // "Current row" = the trailing run of already-placed tables that share
+  // roughly the same vertical center as the most recently placed one.
+  var last = placed[placed.length-1];
+  var rowY = last.cy, rowBottom = last.cy + last.h/2, cursorRight = marginX;
+  for(var i=placed.length-1;i>=0;i--){
+    if(Math.abs(placed[i].cy - rowY) > 6) break;
+    rowBottom = Math.max(rowBottom, placed[i].cy + placed[i].h/2);
+    cursorRight = Math.max(cursorRight, placed[i].cx + placed[i].w/2);
+  }
+  var cx = cursorRight + gap + w/2, cy = rowY;
+  if(cx + w/2 > canvasW - marginX){
+    // Doesn't fit at the end of this row — wrap to a new row below it.
+    cx = marginX + w/2;
+    cy = rowBottom + gap + h/2;
+  }
+  return { x: cx, y: cy };
 }
 
 /* Compute the seat-dot layout for one table on the floor plan: how big
@@ -6819,10 +6829,17 @@ function defaultTablePos(placed, canvasW, canvasH, lay){
    around it. Round tables get seats spaced evenly around the circle;
    rectangular tables get seats split evenly between a top row and a
    bottom row (e.g. 8 seats -> 4 and 4, 7 seats -> 4 and 3) — no manual
-   per-side setup needed. */
+   per-side setup needed.
+   `h` (and therefore the node's total footprint used for placement/
+   collision) always includes extra room below the seat dots for the
+   rotate/remove control row, so those buttons never land on top of a
+   chair — `coreH` is the height of just the table+dots part, which is
+   what the shape/dots stay centered against, so this reserved strip is
+   pure empty space tacked on at the bottom rather than squeezed in. */
 function shapeLabel(sh){ return sh==='rect' ? 'Rectangular' : sh==='square' ? 'Square' : 'Round'; }
 function tableFloorLayout(t){
   var seats = t.seats;
+  var CTRL_SPACE = 30;
   if(t.shape === 'rect'){
     var rotated = t.rotation === 90;
     var sideA = Math.ceil(seats/2), sideB = seats-sideA;
@@ -6832,8 +6849,8 @@ function tableFloorLayout(t){
     var pad = 22;
     var rectW = rotated ? shortSide : longSide;
     var rectH = rotated ? longSide : shortSide;
-    var w = rectW + pad*2 + (rotated?6:0), h = rectH + pad*2 + (rotated?0:6);
-    var cx = w/2, cy = h/2;
+    var w = rectW + pad*2 + (rotated?6:0), coreH = rectH + pad*2 + (rotated?0:6);
+    var cx = w/2, cy = coreH/2;
     var dots = [];
     var num = 1;
     if(!rotated){
@@ -6843,7 +6860,7 @@ function tableFloorLayout(t){
       for(var i2=0;i2<sideA;i2++) dots.push({ num:num++, x: cx - rectW/2 - 13, y: cy - rectH/2 + (rectH/(sideA+1))*(i2+1) });
       for(var j2=0;j2<sideB;j2++) dots.push({ num:num++, x: cx + rectW/2 + 13, y: cy - rectH/2 + (rectH/(sideB+1))*(j2+1) });
     }
-    return { w:w, h:h, shapeW:rectW, shapeH:rectH, shapeCls:'rect', dots:dots };
+    return { w:w, h:coreH+CTRL_SPACE, coreH:coreH, shapeW:rectW, shapeH:rectH, shapeCls:'rect', dots:dots };
   }
   if(t.shape === 'square'){
     // Seats spread evenly across all four sides (round-robin top/right/
@@ -6852,8 +6869,8 @@ function tableFloorLayout(t){
     var perSide = Math.ceil(seats/4);
     var sq = Math.max(56, perSide*24 + 14);
     var pad2 = 22;
-    var w2 = sq + pad2*2, h2 = sq + pad2*2;
-    var cx2 = w2/2, cy2 = h2/2;
+    var w2 = sq + pad2*2, coreH2 = sq + pad2*2;
+    var cx2 = w2/2, cy2 = coreH2/2;
     var counts = [0,0,0,0];
     for(var s=0;s<seats;s++) counts[s%4]++;
     var dots2 = [], num2 = 1;
@@ -6861,18 +6878,18 @@ function tableFloorLayout(t){
     for(var r0=0;r0<counts[1];r0++) dots2.push({ num:num2++, x: cx2 + sq/2 + 13, y: cy2 - sq/2 + (sq/(counts[1]+1))*(r0+1) }); // right
     for(var b0=0;b0<counts[2];b0++) dots2.push({ num:num2++, x: cx2 + sq/2 - (sq/(counts[2]+1))*(b0+1), y: cy2 + sq/2 + 13 }); // bottom
     for(var l0=0;l0<counts[3];l0++) dots2.push({ num:num2++, x: cx2 - sq/2 - 13, y: cy2 + sq/2 - (sq/(counts[3]+1))*(l0+1) }); // left
-    return { w:w2, h:h2, shapeW:sq, shapeH:sq, shapeCls:'square', dots:dots2 };
+    return { w:w2, h:coreH2+CTRL_SPACE, coreH:coreH2, shapeW:sq, shapeH:sq, shapeCls:'square', dots:dots2 };
   }
   var d = Math.max(56, Math.min(92, 44 + seats*3));
   var r = d/2 + 15;
-  var w = r*2 + 22, h = w;
-  var cx = w/2, cy = h/2;
+  var w = r*2 + 22, coreH = w;
+  var cx = w/2, cy = coreH/2;
   var dots = [];
   for(var k=0;k<seats;k++){
     var angle = -Math.PI/2 + k*(2*Math.PI/seats);
     dots.push({ num:k+1, x: cx + r*Math.cos(angle), y: cy + r*Math.sin(angle) });
   }
-  return { w:w, h:h, shapeW:d, shapeH:d, shapeCls:'round', dots:dots };
+  return { w:w, h:coreH+CTRL_SPACE, coreH:coreH, shapeW:d, shapeH:d, shapeCls:'round', dots:dots };
 }
 
 /* Nice, high-contrast defaults for the floor plan — a warm charcoal room
@@ -6936,7 +6953,7 @@ function renderSeatFloorPlan(){
   var canvasPxH = Math.min(window.innerHeight * 0.7, 520);
   var placedFootprints = [];
   seatMap.tables.forEach(function(t, i){
-    if(!t.shape) t.shape = 'round';
+    if(!t.shape) t.shape = 'rect';
     var lay = tableFloorLayout(t);
     if(!t.pos) t.pos = defaultTablePos(placedFootprints, canvasPxW, canvasPxH, lay);
     placedFootprints.push({ cx: t.pos.x, cy: t.pos.y, w: lay.w, h: lay.h });
@@ -6950,15 +6967,17 @@ function renderSeatFloorPlan(){
       return '<div class="'+dcls+'" data-table="'+t.id+'" data-seat="'+d.num+'" title="'+(name?name.replace(/"/g,'&quot;'):'Seat '+d.num)+'" style="left:'+d.x+'px;top:'+d.y+'px"></div>';
     }).join('');
     var shapeCls = 'seatmap-node-shape '+lay.shapeCls+(filled===t.seats && t.seats>0 ? ' full':'');
-    // Rotate + remove controls right on the node — quick actions that make
-    // sense on the spatial layout itself (chair count still lives in the
-    // table sheet you get by tapping the table).
-    var chairCtrls = '<div class="seatmap-node-chairs">'
+    // Rotate + remove controls right on the node — pinned to the reserved
+    // strip below coreH (below every seat dot, whatever the shape), so
+    // they never sit on top of a chair; chairCtrls' own CSS "bottom"
+    // anchor is overridden with an explicit "top" here since that strip's
+    // size varies per table.
+    var chairCtrls = '<div class="seatmap-node-chairs" style="top:'+(lay.coreH+9)+'px;bottom:auto">'
       + (t.shape==='rect' ? '<button class="seatmap-node-chair-btn" data-act="rotate" data-table="'+t.id+'" title="Rotate table">&#8635;</button>' : '')
       + '<button class="seatmap-node-chair-btn danger" data-act="remove" data-table="'+t.id+'" title="Remove table">&#10005;</button>'
       + '</div>';
     tableNodes.push('<div class="seatmap-table-node" data-table-id="'+t.id+'" style="left:'+t.pos.x+'px;top:'+t.pos.y+'px;width:'+lay.w+'px;height:'+lay.h+'px">'
-      + '<div class="'+shapeCls+'" style="width:'+lay.shapeW+'px;height:'+lay.shapeH+'px;left:'+(lay.w-lay.shapeW)/2+'px;top:'+(lay.h-lay.shapeH)/2+'px;background:'+tableStyle.bg+';border:2px solid '+tableStyle.border+'">'
+      + '<div class="'+shapeCls+'" style="width:'+lay.shapeW+'px;height:'+lay.shapeH+'px;left:'+(lay.w-lay.shapeW)/2+'px;top:'+(lay.coreH-lay.shapeH)/2+'px;background:'+tableStyle.bg+';border:2px solid '+tableStyle.border+'">'
         + '<span class="seatmap-table-node-name" style="color:'+tableStyle.text+'">'+t.name.replace(/</g,'&lt;')+'</span>'
         + '<span class="seatmap-table-node-meta" style="color:'+tableStyle.meta+'">'+filled+'/'+t.seats+'</span>'
       + '</div>'
@@ -6979,7 +6998,7 @@ function renderSeatFloorPlan(){
   placedFootprints.forEach(function(p){ contentH = Math.max(contentH, p.cy + p.h/2 + 24); });
   (seatMap.landmarks||[]).forEach(function(l){ contentH = Math.max(contentH, l.pos.y + 40); });
   var z = seatMapZoom;
-  var gridPx = Math.max(6, 24*z);
+  var gridPx = Math.max(6, Math.round(24*z));
 
   body.innerHTML = controls
     + '<div class="seatmap-floor-wrap" id="seatmapFloorWrap">'
