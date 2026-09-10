@@ -919,10 +919,14 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-trash.visible{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
 .seatmap-trash.armed{background:#b91c1c;transform:translateX(-50%) translateY(0) scale(1.15)}
 .seatmap-floor-wrap{position:relative;width:100%;height:min(70vh,520px);border:1.5px solid rgba(0,0,0,.12);border-radius:var(--r-md,14px);margin-bottom:14px;overflow:auto;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y}
-.seatmap-floor-sizer{position:relative}
+.seatmap-floor-sizer{position:relative;min-width:100%;min-height:100%;box-sizing:border-box}
 .seatmap-floor{position:absolute;left:0;top:0;
   background-size:24px 24px}
-.seatmap-zoom-controls{position:sticky;top:8px;margin:0 8px 0 auto;width:-webkit-fit-content;width:fit-content;z-index:6;display:flex;align-items:center;gap:2px;background:rgba(0,0,0,.55);padding:4px;border-radius:20px;backdrop-filter:blur(3px)}
+/* Zero-height sticky anchor so the zoom pill stays pinned while scrolling
+   the floor plan without reserving its own row (that reserved row was the
+   awkward white stripe along the top of the canvas). */
+.seatmap-zoom-anchor{position:sticky;top:0;left:0;right:0;height:0;overflow:visible;z-index:6;pointer-events:none}
+.seatmap-zoom-controls{position:absolute;top:8px;right:8px;width:-webkit-fit-content;width:fit-content;display:flex;align-items:center;gap:2px;background:rgba(0,0,0,.55);padding:4px;border-radius:20px;backdrop-filter:blur(3px);pointer-events:auto}
 .seatmap-zoom-btn{width:26px;height:26px;border-radius:50%;border:none;background:rgba(255,255,255,.15);color:#fff;font-family:var(--sans);font-size:15px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;line-height:1}
 .seatmap-zoom-btn:active{background:rgba(255,255,255,.3)}
 .seatmap-zoom-pct{font-family:var(--sans);font-size:10.5px;font-weight:700;color:#fff;min-width:32px;text-align:center;user-select:none}
@@ -947,11 +951,12 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-node-dot.is-couple{width:13px;height:13px;background:radial-gradient(circle at 35% 30%,#FFF6DC,#E8B84B 55%,#C6892A);border-width:2px}
 .seatmap-node-dot.is-couple.bride{border-color:var(--arina-txt);box-shadow:0 0 6px rgba(230,180,80,.9)}
 .seatmap-node-dot.is-couple.groom{border-color:var(--elnur-txt);box-shadow:0 0 6px rgba(230,180,80,.9)}
-/* Chair +/- controls on a floor-plan table node itself, so seats can be
-   added/removed right from the visual overview without opening the sheet. */
+/* Rotate/remove quick-actions on a floor-plan table node itself. */
 .seatmap-node-chairs{position:absolute;left:50%;bottom:-11px;transform:translateX(-50%);display:flex;gap:4px;z-index:2}
-.seatmap-node-chair-btn{width:20px;height:20px;border-radius:50%;border:1.5px solid rgba(255,255,255,.5);background:rgba(0,0,0,.55);color:#fff;font-family:var(--sans);font-size:13px;font-weight:800;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;touch-action:manipulation}
+.seatmap-node-chair-btn{width:20px;height:20px;border-radius:50%;border:1.5px solid rgba(255,255,255,.5);background:rgba(0,0,0,.55);color:#fff;font-family:var(--sans);font-size:12px;font-weight:800;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;touch-action:manipulation}
 .seatmap-node-chair-btn:active{background:rgba(0,0,0,.75)}
+.seatmap-node-chair-btn.danger{background:rgba(185,28,28,.75);border-color:rgba(255,255,255,.6)}
+.seatmap-node-chair-btn.danger:active{background:rgba(185,28,28,.95)}
 /* Brief highlight so a newly added table is unmistakable, whether it lands
    in the visible area or has to be scrolled to. */
 @keyframes seatmapJustAdded{0%,100%{box-shadow:0 3px 10px rgba(0,0,0,.35)}40%{box-shadow:0 0 0 6px rgba(201,135,106,.55)}}
@@ -6977,7 +6982,7 @@ function renderSeatFloorPlan(){
     + '</div>';
 
   if(!seatMap.tables.length && !seatMap.landmarks.length){
-    body.innerHTML = controls + '<div class="seatmap-floor-wrap"><div class="seatmap-floor" id="seatmapFloorCanvas" style="'+floorStyle.css+';position:relative;width:100%;height:100%"><div class="seatmap-floor-empty" style="color:'+floorStyle.emptyColor+'"><span>No tables yet.<br><br>Tap <strong>+ Table</strong> above, then drag it into place here to match your room layout.</span></div></div></div>';
+    body.innerHTML = controls + '<div class="seatmap-floor-wrap" style="background-color:'+seatMap.floorColor+'"><div class="seatmap-floor" id="seatmapFloorCanvas" style="'+floorStyle.css+';position:relative;width:100%;height:100%"><div class="seatmap-floor-empty" style="color:'+floorStyle.emptyColor+'"><span>No tables yet.<br><br>Tap <strong>+ Table</strong> above, then drag it into place here to match your room layout.</span></div></div></div>';
     wireFloorAddButtons();
     wireFloorColorPicker();
     return;
@@ -7002,11 +7007,12 @@ function renderSeatFloorPlan(){
       return '<div class="'+dcls+'" data-table="'+t.id+'" data-seat="'+d.num+'" title="'+(name?name.replace(/"/g,'&quot;'):'Seat '+d.num)+'" style="left:'+d.x+'px;top:'+d.y+'px"></div>';
     }).join('');
     var shapeCls = 'seatmap-node-shape '+lay.shapeCls+(filled===t.seats && t.seats>0 ? ' full':'');
-    // Chair +/- controls right on the node, so seats can be added/removed
-    // straight from the visual overview without opening the table sheet.
+    // Rotate + remove controls right on the node — quick actions that make
+    // sense on the spatial layout itself (chair count still lives in the
+    // table sheet you get by tapping the table).
     var chairCtrls = '<div class="seatmap-node-chairs">'
-      + '<button class="seatmap-node-chair-btn" data-act="dec" data-table="'+t.id+'" title="Fewer chairs">–</button>'
-      + '<button class="seatmap-node-chair-btn" data-act="inc" data-table="'+t.id+'" title="More chairs">+</button>'
+      + (t.shape==='rect' ? '<button class="seatmap-node-chair-btn" data-act="rotate" data-table="'+t.id+'" title="Rotate table">&#8635;</button>' : '')
+      + '<button class="seatmap-node-chair-btn danger" data-act="remove" data-table="'+t.id+'" title="Remove table">&#10005;</button>'
       + '</div>';
     tableNodes.push('<div class="seatmap-table-node" data-table-id="'+t.id+'" style="left:'+t.pos.x+'%;top:'+t.pos.y+'%;width:'+lay.w+'px;height:'+lay.h+'px">'
       + '<div class="'+shapeCls+'" style="width:'+lay.shapeW+'px;height:'+lay.shapeH+'px;left:'+(lay.w-lay.shapeW)/2+'px;top:'+(lay.h-lay.shapeH)/2+'px;background:'+tableStyle.bg+';border:2px solid '+tableStyle.border+'">'
@@ -7032,12 +7038,12 @@ function renderSeatFloorPlan(){
   var z = seatMapZoom;
 
   body.innerHTML = controls
-    + '<div class="seatmap-floor-wrap" id="seatmapFloorWrap">'
-      + '<div class="seatmap-zoom-controls">'
+    + '<div class="seatmap-floor-wrap" id="seatmapFloorWrap" style="background-color:'+seatMap.floorColor+'">'
+      + '<div class="seatmap-zoom-anchor"><div class="seatmap-zoom-controls">'
         + '<button class="seatmap-zoom-btn" id="seatmapZoomOut" title="Zoom out">–</button>'
         + '<span class="seatmap-zoom-pct" id="seatmapZoomPct">'+Math.round(z*100)+'%</span>'
         + '<button class="seatmap-zoom-btn" id="seatmapZoomIn" title="Zoom in">+</button>'
-      + '</div>'
+      + '</div></div>'
       + '<div class="seatmap-floor-sizer" style="width:'+(canvasPxW*z)+'px;height:'+(contentH*z)+'px">'
         + '<div class="seatmap-floor" id="seatmapFloorCanvas" style="'+floorStyle.css+';width:'+canvasPxW+'px;height:'+contentH+'px;transform:scale('+z+');transform-origin:0 0">'+tableNodes.join('')+landmarkNodes
           + '<div class="seatmap-snap-guide v" id="snapGuideV"></div>'
@@ -7057,8 +7063,13 @@ function renderSeatFloorPlan(){
       var id = this.dataset.table, act = this.dataset.act;
       var t = seatMap.tables.find(function(x){return x.id===id;});
       if(!t) return;
-      if(act==='inc') setSeatCount(id, t.seats+1);
-      else if(act==='dec') setSeatCount(id, t.seats-1);
+      if(act==='rotate'){
+        t.rotation = (t.rotation === 90) ? 0 : 90;
+        saveSeatMap();
+        renderSeatFloorPlan();
+      } else if(act==='remove'){
+        removeTable(id);
+      }
     });
   });
   flashLastAddedTable(document.getElementById('seatmapFloorCanvas') || body);
