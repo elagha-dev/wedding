@@ -918,10 +918,10 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-trash{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(30px) scale(.85);z-index:401;width:56px;height:56px;border-radius:50%;background:rgba(40,40,40,.88);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .18s,transform .18s,background .15s}
 .seatmap-trash.visible{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
 .seatmap-trash.armed{background:#b91c1c;transform:translateX(-50%) translateY(0) scale(1.15)}
-.seatmap-floor-wrap{position:relative;width:100%;height:min(70vh,520px);border:1.5px solid rgba(0,0,0,.12);border-radius:var(--r-md,14px);margin-bottom:14px;overflow:auto;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y}
+.seatmap-floor-wrap{position:relative;width:100%;height:min(70vh,520px);border:1.5px solid rgba(0,0,0,.12);border-radius:var(--r-md,14px);margin-bottom:14px;overflow:auto;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y;-webkit-transform:translateZ(0);transform:translateZ(0)}
 .seatmap-floor-sizer{position:relative;min-width:100%;min-height:100%;box-sizing:border-box}
 .seatmap-floor{position:absolute;left:0;top:0;
-  background-size:24px 24px}
+  background-size:24px 24px;will-change:transform;backface-visibility:hidden;-webkit-backface-visibility:hidden}
 /* Zero-height sticky anchor so the zoom pill stays pinned while scrolling
    the floor plan without reserving its own row (that reserved row was the
    awkward white stripe along the top of the canvas). */
@@ -6772,7 +6772,13 @@ function renderSeatMap(){
 /* Scrolls the just-added table into view and gives it a brief highlight
    pulse — the visible confirmation that tapping "+ Table" actually did
    something, instead of a new card/node silently appearing off-screen or
-   blending into the rest. Fires once per add, in whichever view is open. */
+   blending into the rest. Fires once per add, in whichever view is open.
+   Uses an instant jump rather than smooth-scroll on the floor plan: iOS
+   Safari has a known compositing bug where an animated scroll over a
+   container that mixes position:sticky + overflow:auto + a transform-
+   scaled descendant (exactly this canvas, for the zoom controls) can
+   corrupt the paint mid-animation — showing up as stray line fragments
+   until the next full repaint. An instant scroll removes that window. */
 function flashLastAddedTable(container){
   if(!_lastAddedTableId) return;
   var id = _lastAddedTableId;
@@ -6780,7 +6786,8 @@ function flashLastAddedTable(container){
   setTimeout(function(){
     var el = container.querySelector('[data-table-id="'+id+'"]');
     if(!el) return;
-    el.scrollIntoView({behavior:'smooth', block:'center', inline:'center'});
+    var behavior = container.id === 'seatmapBody' ? 'smooth' : 'auto';
+    el.scrollIntoView({behavior:behavior, block:'center', inline:'center'});
     el.classList.add('just-added');
     setTimeout(function(){ el.classList.remove('just-added'); }, 1600);
   }, 30);
@@ -6980,6 +6987,9 @@ function renderSeatFloorPlan(){
   (seatMap.landmarks||[]).forEach(function(l){ contentH = Math.max(contentH, l.pos.y + 40); });
   var z = seatMapZoom;
   var gridPx = Math.max(6, Math.round(24*z));
+  var sizerW = canvasPxW*z, sizerH = contentH*z;
+  var gridSvg = floorGridFullSvg(floorStyle.gridRgb, floorStyle.gridOpacity, sizerW, sizerH, gridPx);
+  var sizerBg = 'background-color:'+seatMap.floorColor+';background-image:url(\'data:image/svg+xml,'+encodeURIComponent(gridSvg)+'\');background-repeat:no-repeat;background-size:'+Math.round(sizerW)+'px '+Math.round(sizerH)+'px;border-color:'+floorStyle.borderColor+';';
 
   body.innerHTML = controls
     + '<div class="seatmap-floor-wrap" id="seatmapFloorWrap">'
@@ -6988,12 +6998,13 @@ function renderSeatFloorPlan(){
         + '<span class="seatmap-zoom-pct" id="seatmapZoomPct">'+Math.round(z*100)+'%</span>'
         + '<button class="seatmap-zoom-btn" id="seatmapZoomIn" title="Zoom in">+</button>'
       + '</div></div>'
-      // The grid/color background lives on the sizer (which always fills at
-      // least the full wrap, via min-width/height:100%) rather than on the
-      // table-content box, so panning/zooming out never runs off the edge
-      // of the pattern into a flat, stripe-less area.
-      + '<div class="seatmap-floor-sizer" style="width:'+(canvasPxW*z)+'px;height:'+(contentH*z)+'px;'+floorStyle.css+';background-size:'+gridPx+'px '+gridPx+'px">'
-        + '<div class="seatmap-floor" id="seatmapFloorCanvas" style="width:'+canvasPxW+'px;height:'+contentH+'px;transform:scale('+z+');transform-origin:0 0">'+tableNodes.join('')+landmarkNodes
+      // The grid is one exact-size, non-repeating image (see
+      // floorGridFullSvg) drawn on the sizer, which always fills at least
+      // the full wrap via min-width/height:100% — so panning/zooming out
+      // never runs off the edge of the pattern into a flat, grid-less area,
+      // and there's no tile boundary anywhere for a repaint to desync.
+      + '<div class="seatmap-floor-sizer" style="width:'+(canvasPxW*z)+'px;height:'+(contentH*z)+'px;'+sizerBg+'">'
+        + '<div class="seatmap-floor" id="seatmapFloorCanvas" style="width:'+canvasPxW+'px;height:'+contentH+'px;transform:translateZ(0) scale('+z+');transform-origin:0 0">'+tableNodes.join('')+landmarkNodes
           + '<div class="seatmap-snap-guide v" id="snapGuideV"></div>'
           + '<div class="seatmap-snap-guide h" id="snapGuideH"></div>'
         + '</div>'
@@ -7052,18 +7063,33 @@ function floorCanvasStyle(hex){
   var gridOpacity = light ? 0.08 : 0.06;
   var borderColor = light ? 'rgba(0,0,0,.15)' : 'rgba(255,255,255,.12)';
   var emptyColor = light ? 'rgba(0,0,0,.5)' : 'rgba(255,255,255,.65)';
-  // The grid used to be two overlapping 1px linear-gradients tiled via
-  // background-size — a classic WebKit trap: hairline gradients like that
-  // shimmer/seam on repaint (scrolling, dragging, any transform), no
-  // matter how clean the tile size math is, which is why the artifact
-  // came back regardless of zoom level. A small tiled SVG line-grid is a
-  // real rasterized image instead of an interpolated gradient, so it has
-  // nothing to seam.
-  var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">'
+  // Small tiled grid, only used for the empty-state canvas (fixed 100%
+  // size, nothing ever dragged on top of it, so a repeating tile is safe
+  // there). The populated canvas below builds one full-size, untiled grid
+  // instead — see floorGridFullSvg.
+  var tileSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">'
     + '<path d="M24 0H0V24" fill="none" stroke="rgba('+gridRgb+','+gridOpacity+')" stroke-width="1"/>'
     + '</svg>';
-  var css = 'background-color:'+hex+';background-image:url(\'data:image/svg+xml,'+encodeURIComponent(svg)+'\');background-repeat:repeat;border-color:'+borderColor+';';
-  return { css:css, emptyColor:emptyColor };
+  var css = 'background-color:'+hex+';background-image:url(\'data:image/svg+xml,'+encodeURIComponent(tileSvg)+'\');background-repeat:repeat;border-color:'+borderColor+';';
+  return { css:css, emptyColor:emptyColor, borderColor:borderColor, gridRgb:gridRgb, gridOpacity:gridOpacity };
+}
+
+/* One single grid image sized to exactly match the canvas — every line
+   drawn explicitly, nothing tiled/repeated. iOS Safari has a real bug
+   where a REPEATING background pattern (gradient or tiled image) on a
+   large, frequently-repainted canvas — exactly what happens while
+   dragging a table or right after adding one — can show visible seams
+   between tile edges; the two smaller fixes tried before (rounding the
+   tile size, then switching the tile from a gradient to an SVG image)
+   both still relied on tiling, so the seam was still possible. Building
+   one exact-size image removes tiling — and therefore tile seams —
+   from the equation entirely. */
+function floorGridFullSvg(gridRgb, gridOpacity, w, h, cell){
+  w = Math.max(1, Math.round(w)); h = Math.max(1, Math.round(h)); cell = Math.max(4, Math.round(cell));
+  var lines = [];
+  for(var x=0; x<=w; x+=cell) lines.push('<line x1="'+x+'" y1="0" x2="'+x+'" y2="'+h+'" stroke="rgba('+gridRgb+','+gridOpacity+')" stroke-width="1"/>');
+  for(var y=0; y<=h; y+=cell) lines.push('<line x1="0" y1="'+y+'" x2="'+w+'" y2="'+y+'" stroke="rgba('+gridRgb+','+gridOpacity+')" stroke-width="1"/>');
+  return '<svg xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+h+'">'+lines.join('')+'</svg>';
 }
 
 function wireFloorColorPicker(){
