@@ -221,7 +221,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .f-pill.on-a{background:var(--arina-bg);border-color:var(--arina-border);color:var(--arina-txt)}
 .f-pill.on-e{background:var(--elnur-bg);border-color:var(--elnur-border);color:var(--elnur-txt)}
 .f-pill.f-sent-pill.on{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 2px 8px rgba(58,140,92,.25)}
-.search-filter-row{display:flex;gap:8px;margin-bottom:12px;align-items:stretch}
+.search-filter-row{display:flex;gap:8px;margin-bottom:12px;align-items:stretch;flex-wrap:wrap}
 .search-wrap{position:relative;flex:1;min-width:0}
 .search-wrap::before{display:none}
 .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none;flex-shrink:0;z-index:1}
@@ -279,12 +279,17 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-swipe-wrap.sw-open-left .g-swipe-action-right{display:flex;pointer-events:all}
 .g-swipe-wrap.sw-open-right .g-swipe-action-left{display:flex;pointer-events:all}
 
-/* Sent-card swipe reveals: right-swipe = sender/time info, left-swipe = quick RSVP override */
-.g-swipe-action-left.sw-info{background:linear-gradient(135deg,#9AA5B1,#7C8794);flex-direction:column;gap:3px}
-.g-swipe-action-left.sw-info .g-sender-br{opacity:1;background:rgba(255,255,255,.28)!important;color:#fff!important}
-.g-swipe-action-left.sw-info .g-sent-time{color:rgba(255,255,255,.92)!important;font-size:9px;font-weight:600}
-.g-swipe-action-right.sw-rsvp{background:linear-gradient(135deg,#EFEAE4,#E4DCD3);flex-direction:row;gap:8px}
-.g-swipe-action-right.sw-rsvp .swipe-rsvp-btn{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.75);color:var(--muted);pointer-events:all}
+/* Sent-card swipe reveals: right-swipe (panel appears on the left) = sender/time
+   info + undo/delete; left-swipe (panel appears on the right) = quick RSVP
+   override. Both panels are plain white, not tinted/gradient. */
+.g-swipe-action-left.sw-info{background:#fff;flex-direction:column;gap:4px;box-shadow:inset 1px 0 0 rgba(0,0,0,.06)}
+.g-swipe-action-left.sw-info .g-sender-br{opacity:1;background:var(--parchment)!important;color:var(--ink2)!important}
+.g-swipe-action-left.sw-info .g-sent-time{color:var(--muted)!important;font-size:9px;font-weight:600}
+.g-swipe-info-actions{display:flex;align-items:center;gap:10px;margin-top:3px}
+.g-swipe-info-actions .g-undo-btn,.g-swipe-info-actions .g-del{width:20px;height:20px}
+.g-swipe-info-actions .g-undo-btn svg,.g-swipe-info-actions .g-del svg{width:14px;height:14px}
+.g-swipe-action-right.sw-rsvp{background:#fff;flex-direction:row;gap:8px;box-shadow:inset -1px 0 0 rgba(0,0,0,.06)}
+.g-swipe-action-right.sw-rsvp .swipe-rsvp-btn{width:32px;height:32px;border-radius:50%;background:var(--cream2);border:1.5px solid var(--parchment);color:var(--muted);pointer-events:all}
 .g-swipe-action-right.sw-rsvp .swipe-rsvp-btn svg{width:15px;height:15px}
 .g-swipe-action-right.sw-rsvp .swipe-rsvp-btn.ga-btn-rsvp-yes.active{background:var(--green);color:#fff}
 .g-swipe-action-right.sw-rsvp .swipe-rsvp-btn.ga-btn-rsvp-no.active{background:var(--red);color:#fff}
@@ -297,23 +302,22 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-swipe-wrap:has(.g-card.sel){box-shadow:0 0 0 3px rgba(201,135,106,.18)}
 .g-swipe-wrap:has(.g-card.fup){box-shadow:inset 3px 0 0 var(--amber),var(--shadow-sm)}
 .g-swipe-wrap:has(.g-card.sent) .g-card{background:#fafafa}
-.g-swipe-wrap.rsvp-yes{box-shadow:inset 3px 0 0 var(--green)!important}
+/* Sent cards: RSVP status reads as a full solid color fill — the original
+   green/red treatment, restored. */
+.g-swipe-wrap.rsvp-yes{box-shadow:inset 3px 0 0 #3A8C5C!important}
 .g-swipe-wrap.rsvp-yes .g-card.sent{background:#1a7a4a!important}
-.g-swipe-wrap.rsvp-yes .g-card.sent .g-name{color:#fff!important;font-weight:700!important}
-.g-swipe-wrap.rsvp-yes .g-card.sent .g-sent-time{color:rgba(255,255,255,.75)!important}
-.g-swipe-wrap.rsvp-yes .g-card.sent .g-undo-btn,.g-swipe-wrap.rsvp-yes .g-card.sent .g-del{color:rgba(255,255,255,.6)!important}
-.g-swipe-wrap.rsvp-yes .g-card.sent .g-sender-br{opacity:.85!important}
-.g-swipe-wrap.rsvp-no{box-shadow:inset 3px 0 0 var(--red)!important}
+.g-swipe-wrap.rsvp-yes .g-card.sent .g-name{color:#fff!important;font-weight:800!important}
+.g-swipe-wrap.rsvp-yes .g-card.sent .g-sent-time{color:rgba(255,255,255,.7)!important}
+.g-swipe-wrap.rsvp-yes .g-card.sent .g-sender-br{opacity:.8!important}
+.g-swipe-wrap.rsvp-no{box-shadow:inset 3px 0 0 #b91c1c!important}
 .g-swipe-wrap.rsvp-no .g-card.sent{background:#b91c1c!important}
-.g-swipe-wrap.rsvp-no .g-card.sent .g-name{color:#fff!important;font-weight:700!important}
-.g-swipe-wrap.rsvp-no .g-card.sent .g-sent-time{color:rgba(255,255,255,.75)!important}
-.g-swipe-wrap.rsvp-no .g-card.sent .g-undo-btn,.g-swipe-wrap.rsvp-no .g-card.sent .g-del{color:rgba(255,255,255,.6)!important}
-.g-swipe-wrap.rsvp-no .g-card.sent .g-sender-br{opacity:.85!important}
+.g-swipe-wrap.rsvp-no .g-card.sent .g-name{color:#fff!important;font-weight:800!important}
+.g-swipe-wrap.rsvp-no .g-card.sent .g-sent-time{color:rgba(255,255,255,.7)!important}
+.g-swipe-wrap.rsvp-no .g-card.sent .g-sender-br{opacity:.8!important}
 .g-swipe-wrap.rsvp-pending{box-shadow:inset 3px 0 0 var(--amber)!important}
 .g-swipe-wrap.rsvp-pending .g-card.sent{background:#f59e0b!important}
-.g-swipe-wrap.rsvp-pending .g-card.sent .g-name{color:#fff!important;font-weight:700!important}
-.g-swipe-wrap.rsvp-pending .g-card.sent .g-sent-time{color:rgba(255,255,255,.75)!important}
-.g-swipe-wrap.rsvp-pending .g-card.sent .g-undo-btn,.g-swipe-wrap.rsvp-pending .g-card.sent .g-del{color:rgba(255,255,255,.6)!important}
+.g-swipe-wrap.rsvp-pending .g-card.sent .g-name{color:#fff!important;font-weight:800!important}
+.g-swipe-wrap.rsvp-pending .g-card.sent .g-sent-time{color:rgba(255,255,255,.7)!important}
 .g-swipe-wrap:has(.g-card.pending-sent){box-shadow:inset 3px 0 0 var(--rose),var(--shadow-sm)}
 .g-partner-ref-wrap{display:inline-flex;align-items:center;gap:6px;margin-top:2px;max-width:100%}
 .g-partner-ref-wrap .g-partner-ref{margin-top:0;flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -344,7 +348,6 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-inner{padding:0;display:flex;align-items:stretch}
 .g-inner-left{flex:1;min-width:0;padding:11px 12px 11px 16px;display:flex;align-items:center;gap:11px}
 .g-inner-right{display:flex;align-items:center;gap:6px;padding:0 12px 0 10px;background:var(--cream2);flex-shrink:0}
-.g-swipe-wrap.rsvp-yes .g-card.sent .g-inner-right,.g-swipe-wrap.rsvp-no .g-card.sent .g-inner-right,.g-swipe-wrap.rsvp-pending .g-card.sent .g-inner-right{background:rgba(0,0,0,.12)}
 .g-ring{width:20px;height:20px;border:1.5px solid var(--parchment);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px;color:#fff;background:transparent;transition:all var(--ease)}
 .g-card.sel .g-ring{background:var(--rose);border-color:var(--rose)}
 .g-main{flex:1;min-width:0}
@@ -366,6 +369,36 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .chip-lang{background:var(--parchment);color:var(--muted)}
 .chip-rsvp{background:var(--green-bg);color:var(--green)}
 .chip-child{background:#EAF0FA;color:#4A6EA8}.is-child .g-inner-right .ga-btn-wa,.is-child .g-inner-right .g-del{display:none!important}
+/* ── FAMILY POD: kids nest under their parent as one visual unit, joined by
+   a real curved branch line (not a straight tick, not an elbow-plus-dot).
+   Kids otherwise use the exact same solid green/red/amber fill as any other
+   sent card — so status is unmistakable and text contrast is guaranteed
+   regardless of which parent they're grouped under. ── */
+.g-family-pod{--pod-accent:rgba(74,110,168,.5);margin:3px 0 10px 21px;padding-left:20px;position:relative;display:flex;flex-direction:column;gap:8px}
+.g-family-pod::before{content:'';position:absolute;left:0;top:-9px;bottom:24px;width:1.5px;background:linear-gradient(to bottom,var(--pod-accent),var(--pod-accent) 75%,transparent)}
+/* Each kid is wrapped in a plain (non-overflow-hidden) item so its curve
+   isn't clipped by .g-swipe-wrap's own overflow:hidden (needed there to
+   mask the swipe panels). True curve: a quarter-circle arc — large
+   border-radius on an invisible box — sweeping down from the trunk line
+   into the top-left of the card. No elbow corner, no dot. */
+.g-family-pod-item{position:relative}
+.g-family-pod-item::before{content:'';position:absolute;left:-20px;top:-8px;width:20px;height:30px;border-left:1.5px solid var(--pod-accent);border-bottom:1.5px solid var(--pod-accent);border-bottom-left-radius:20px;pointer-events:none}
+.g-child-tag{font-size:9.5px;color:#7A8FB8;margin-top:1px;font-style:italic}
+/* Couple frame — two partners share one bordered card instead of floating
+   as separate rows, in either the unsent or sent list. */
+.g-pair-merged{border:1.5px solid var(--parchment)}
+/* ── THE COUPLE: Arina & Elnur get their own card treatment, not a generic
+   RSVP-colored guest row — a soft brand-color wash plus a role badge. ── */
+.chip-couple-role{gap:4px;padding:2px 9px}
+.chip-couple-role.bride{background:linear-gradient(120deg,var(--arina-bg),#fff);color:var(--arina-txt);box-shadow:inset 0 0 0 1px rgba(155,26,68,.18)}
+.chip-couple-role.groom{background:linear-gradient(120deg,var(--elnur-bg),#fff);color:var(--elnur-txt);box-shadow:inset 0 0 0 1px rgba(138,74,0,.18)}
+.g-swipe-wrap.is-couple-wrap .g-card.sent{box-shadow:none}
+.g-swipe-wrap.is-couple-wrap.bride .g-card.sent{background:linear-gradient(120deg,var(--arina-bg) 0%,#fff 65%)!important}
+.g-swipe-wrap.is-couple-wrap.groom .g-card.sent{background:linear-gradient(120deg,var(--elnur-bg) 0%,#fff 65%)!important}
+.g-swipe-wrap.is-couple-wrap .g-card.sent .g-name{color:var(--ink)!important;font-weight:700!important}
+.g-swipe-wrap.is-couple-wrap.bride .g-card.sent .g-name::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--arina-txt);margin-right:7px;vertical-align:middle}
+.g-swipe-wrap.is-couple-wrap.groom .g-card.sent .g-name::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--elnur-txt);margin-right:7px;vertical-align:middle}
+.g-swipe-wrap.is-couple-wrap .g-card.sent .g-inner-right{background:rgba(0,0,0,.04)}
 .ga-btn-rsvp-yes:hover{color:var(--green);background:rgba(58,140,92,.12)}.ga-btn-rsvp-yes.active{color:#fff;background:var(--green)}
 .ga-btn-rsvp-no:hover{color:var(--red);background:rgba(192,64,46,.12)}.ga-btn-rsvp-no.active{color:#fff;background:var(--red)}
 /* Manual RSVP buttons stay visible for children even though other action buttons are hidden for them */
@@ -944,6 +977,7 @@ body.lite-mode #liteModeTopBtn {
           <input class="search-input" id="searchInput" type="text" placeholder=""/>
         </div>
         <select class="group-sel" id="groupSel" style="display:none"><option value="">All groups</option></select>
+        <select class="group-sel" id="typeSel" style="width:100px;flex-shrink:0"><option value="">Church + Party</option><option value="church">Church</option><option value="party">Party</option></select>
         <button class="sort-btn" id="sortBtn" title="Sort">A–Z</button>
       </div>
     </div>
@@ -1428,7 +1462,7 @@ function formatDeployStamp(iso){
 /* ══ STATE ═══════════════════════════════════ */
 var selType='ceremony-single',selLang='en',selSender='Arina',cur=null;
 var sortMode=(function(){try{return sessionStorage.getItem('ww_sort')||'default';}catch(e){return'default';}})();
-var mem=[],importQueue=[],selectedIdxs=[],importFilter='all',searchQuery='',groupFilter='';
+var mem=[],importQueue=[],selectedIdxs=[],importFilter='all',searchQuery='',groupFilter='',typeFilter='';
 var sessionSender='Arina'; // active session
 var todayCount=0; // sent this session
 // Unique per-tab ID so the poller can ignore events this tab generated
@@ -1955,6 +1989,8 @@ function renderFilterRow(){
 }
 
 /* ══ GUEST LIST ══════════════════════════════ */
+function isPartyType(g){ return g.type==='ceremony-party-single'||g.type==='couple-party'; }
+
 function getFiltered(){
   return importQueue.filter(function(g){
     if(g.skipped)return false;
@@ -1966,6 +2002,7 @@ function getFiltered(){
     return true;
   }).filter(function(g){return!searchQuery||(g.name||'').toLowerCase().includes(searchQuery);})
     .filter(function(g){return!groupFilter||(g.group||'')===groupFilter;})
+    .filter(function(g){return!typeFilter||(typeFilter==='party'?isPartyType(g):!isPartyType(g));})
     .sort(function(a,b){
       if(sortMode==='az')return(a.name||'').localeCompare(b.name||'');
       if(sortMode==='za')return(b.name||'').localeCompare(a.name||'');
@@ -2008,8 +2045,13 @@ function renderGuestList(){
       });
     });
     if(!out.length)return '';
-    return '<div style="margin:2px 0 8px 20px;padding-left:10px;border-left:2px solid rgba(74,110,168,.22)">'
-      +out.map(function(kid){return buildGuestCard(kid);}).join('')+'</div>';
+    // Match the pod's connector line to the parent's own RSVP color instead of
+    // a fixed blue, so a "no" parent doesn't sit next to a jarring blue line.
+    var hostGuest=nameToGuest[names[0]];
+    var hostYN=hostGuest?getGuestRsvpYesNo(hostGuest):null;
+    var accent=hostYN===true?'rgba(58,140,92,.5)':hostYN===false?'rgba(192,64,46,.5)':'rgba(74,110,168,.45)';
+    return '<div class="g-family-pod" style="--pod-accent:'+accent+'">'
+      +out.map(function(kid){return '<div class="g-family-pod-item">'+buildGuestCard(kid)+'</div>';}).join('')+'</div>';
   }
 
   var sections={};
@@ -2021,7 +2063,24 @@ function renderGuestList(){
   var grpKeys=Object.keys(sections).sort(function(a,b){if(a==='_')return-1;if(b==='_')return 1;return a.localeCompare(b);});
   grpKeys.forEach(function(grp){
     if(grp!=='_')html+='<div class="g-group-hdr">'+grp+' <span style="opacity:.4">('+sections[grp].length+')</span></div>';
-    sections[grp].forEach(function(g){html+=buildGuestCard(g)+nestedChildrenHtml([g.name]);});
+    // Frame couples (two guests who mutually infer each other as partner) as
+    // one bordered card instead of two loose rows, same idea as the Sent
+    // list's confirmed-pair box — makes "this is a couple" visible before
+    // either of them has even RSVP'd.
+    var mergedSeenUnsent={};
+    sections[grp].forEach(function(g){
+      if(mergedSeenUnsent[g.name])return;
+      var partnerName=inferPartnerName(g);
+      var partnerObj=partnerName?nameToGuest[partnerName]:null;
+      var mutual=partnerObj&&!partnerObj.sent&&!partnerObj.isChild&&inferPartnerName(partnerObj)===g.name;
+      var partnerInThisSection=mutual&&sections[grp].indexOf(partnerObj)!==-1;
+      if(partnerInThisSection){
+        mergedSeenUnsent[partnerObj.name]=true;
+        html+='<div class="g-pair-merged">'+buildGuestCard(g,'top')+buildGuestCard(partnerObj,'bottom')+'</div>'+nestedChildrenHtml([g.name,partnerObj.name]);
+      } else {
+        html+=buildGuestCard(g)+nestedChildrenHtml([g.name]);
+      }
+    });
   });
 
   // Children section — no buttons, just names. Anyone already nested under
@@ -2186,9 +2245,13 @@ function buildPairSentCard(g1,g2){
     +'<button class="ga-btn ga-btn-rsvp-no swipe-rsvp-btn'+(effStatePair==='no'?' active':'')+'" data-qi="'+ri1+'" data-qi2="'+ri2+'" data-action="rsvp-no" title="Mark RSVP: No"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>'
     +'</div></div>';
 
-  // Sender/time letters hidden by default — right-swipe reveals them (matches single sent cards).
+  // Sender/time/undo/delete hidden by default — right-swipe reveals them (matches single sent cards).
+  var infoActionsPair='<div class="g-swipe-info-actions">'
+    +'<button class="g-undo-btn" data-qi="'+ri1+'" data-action="undo" title="Mark as unsent"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8s2-4.5 9.5-4.5a9 9 0 1 1-9 9"/><polyline points="2.5 3 2.5 8 7.5 8"/></svg></button>'
+    +'<button class="g-del" data-qi="'+ri1+'" data-action="del" title="Delete"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>'
+    +'</div>';
   return '<div class="g-swipe-wrap'+rsvpClassPair+'">'
-    +'<div class="g-swipe-action-left sw-info"><div class="g-swipe-action-inner">'+senderChip+sentTime+'</div></div>'
+    +'<div class="g-swipe-action-left sw-info"><div class="g-swipe-action-inner">'+senderChip+sentTime+infoActionsPair+'</div></div>'
     +rsvpPanelPair
     +'<div class="g-card sent">'
       +'<div class="g-inner">'
@@ -2197,10 +2260,6 @@ function buildPairSentCard(g1,g2){
             +'<div class="g-name-row" style="flex-wrap:wrap"><span class="g-name" style="font-size:15px;flex:0 1 auto">'+pairName+'</span>'+pillWrapPair+'</div>'
             +debugTagPair
           +'</div>'
-        +'</div>'
-        +'<div class="g-inner-right">'
-          +'<button class="g-undo-btn" data-qi="'+ri1+'" data-action="undo" title="Mark as unsent"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8s2-4.5 9.5-4.5a9 9 0 1 1-9 9"/><polyline points="2.5 3 2.5 8 7.5 8"/></svg></button>'
-          +'<button class="g-del" data-qi="'+ri1+'" data-action="del" style="position:static;width:18px;height:18px;color:var(--soft);border:none;background:transparent;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>'
         +'</div>'
       +'</div>'
     +'</div>'
@@ -3203,7 +3262,8 @@ function buildGuestCard(g, mergedPairPos){
   var claimedBy=claims[g.name]||null;
   var claimedByMe=claimedBy===sessionSender;
   var claimedByOther=claimedBy&&claimedBy!==sessionSender;
-  var cls='g-card'+(isSel?' sel':'')+(g.followup&&!g.sent?' fup':'')+(g.sent?' sent':'')+(isPending?' pending-sent':'')+(claimedByOther?' claimed-other':'')+(g.isChild?' is-child':'');
+  var coupleRole=g.name==='Arina'?'bride':g.name==='Elnur'?'groom':'';
+  var cls='g-card'+(isSel?' sel':'')+(g.followup&&!g.sent?' fup':'')+(g.sent?' sent':'')+(isPending?' pending-sent':'')+(claimedByOther?' claimed-other':'')+(g.isChild?' is-child':'')+(coupleRole?' is-couple '+coupleRole:'');
 
   /* RSVP color class — computed regardless of sent status, so guests who RSVP'd
      before being marked "Sent" still show green/red/amber on the left list.
@@ -3228,7 +3288,7 @@ function buildGuestCard(g, mergedPairPos){
   var senderCls=g.sender==='Arina'?'a':'e';
   var sC=g.sender==='Arina'?'<span class="chip chip-a chip-sender-corner">a</span>':'<span class="chip chip-e chip-sender-corner">e</span>';
   var sBR=g.sender?('<span class="g-sender-br '+senderCls+'">'+(g.sender==='Arina'?'a':'e')+'</span>'):'';
-  var tC=(g.type==='ceremony-party-single'||g.type==='couple-party')?'<span class="chip chip-type">Party</span>':'<span class="chip chip-type">Church</span>';
+  var tC=isPartyType(g)?'<span class="chip chip-type">Party</span>':'<span class="chip chip-type">Church</span>';
   var lC=g.lang&&g.lang!=='en'?'<span class="chip chip-lang">'+(g.lang==='de'?'DE':'RU')+'</span>':'';
   var rC=g.confirmed?'<span class="chip chip-rsvp">RSVP</span>':'';
   var cC=g.isChild?'<span class="chip chip-child">Child</span>':'';
@@ -3245,10 +3305,13 @@ function buildGuestCard(g, mergedPairPos){
     var rsvpPillSent=getGuestRsvpPill(g.name, isCoupleGuest, partnerName, g.manualRsvp);
     /* Reuse the class computed at the top of buildGuestCard so sent and
        unsent cards use identical matching/coloring logic. */
-    var rsvpClass=wrapRsvpClass;
+    var rsvpClass=coupleRole?'':wrapRsvpClass;
     var debugTag=(DEV_MODE&&!rsvpInfo)?'<div style="font-size:9px;color:#b91c1c;opacity:.75;margin-top:2px;word-break:break-word">DEBUG: '+debugNoMatch(g, partnerName)+'</div>':'';
     /* Pills need flex-wrap so couple pills don't overflow */
     var pillWrap=rsvpPillSent?'<span style="display:flex;gap:3px;flex-wrap:wrap;align-items:center;margin-left:4px">'+rsvpPillSent+'</span>':''
+    // The couple aren't "guests" RSVPing to their own wedding — swap the RSVP
+    // pill for a small role badge instead, in their existing brand color.
+    if(coupleRole)pillWrap='<span class="chip chip-couple-role '+coupleRole+'"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>'+(coupleRole==='bride'?'Bride':'Groom')+'</span>';
 
     /* Bulk-sent reference: if this guest was sent together with someone else,
        show a small line naming that partner and their current RSVP status —
@@ -3274,12 +3337,13 @@ function buildGuestCard(g, mergedPairPos){
 
     // "Child of X" reference, if this guest has been linked to their
     // parent(s) via the Review Pairs "Link a kid to their parent(s)" panel.
+    // A short "with {parents}" caption — kept brief since when nested under a
+    // visible parent the branch connector already shows the relationship;
+    // this only needs to carry the info when the guest is shown on its own.
     var parentRefHtml='';
     if(g.parentNames){
-      parentRefHtml='<div class="g-partner-ref-wrap"><div class="g-partner-ref" title="Child of '+g.parentNames+'" style="cursor:default">'
-        +'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:.7"><path d="M12 2a4 4 0 0 1 4 4v1a4 4 0 0 1-8 0V6a4 4 0 0 1 4-4z"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>'
-        +'Child of '+g.parentNames
-        +'</div></div>';
+      var parentFirstNames=_parentNameList(g.parentNames).map(function(n){return n.split(' ')[0];}).join(' & ');
+      parentRefHtml='<div class="g-child-tag" title="Child of '+g.parentNames+'">with '+parentFirstNames+'</div>';
     }
 
     // Effective RSVP state to pre-select in the swipe panel: a manual override wins,
@@ -3287,13 +3351,17 @@ function buildGuestCard(g, mergedPairPos){
     var effState=g.manualRsvp==='yes'?'yes':g.manualRsvp==='no'?'no':(rsvpClass===' rsvp-yes'?'yes':rsvpClass===' rsvp-no'?'no':'');
 
     var senderChipSent=g.sender?('<span class="g-sender-br '+(g.sender==='Arina'?'a':'e')+'">'+(g.sender==='Arina'?'a':'e')+'</span>'):''
-    var infoPanel='<div class="g-swipe-action-left sw-info"><div class="g-swipe-action-inner">'+senderChipSent+sentTime+'</div></div>';
+    var infoActions='<div class="g-swipe-info-actions">'
+      +'<button class="g-undo-btn" data-qi="'+ri+'" data-action="undo" title="Mark as unsent"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8s2-4.5 9.5-4.5a9 9 0 1 1-9 9"/><polyline points="2.5 3 2.5 8 7.5 8"/></svg></button>'
+      +'<button class="g-del" data-qi="'+ri+'" data-action="del" title="Delete"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>'
+      +'</div>';
+    var infoPanel='<div class="g-swipe-action-left sw-info"><div class="g-swipe-action-inner">'+senderChipSent+sentTime+infoActions+'</div></div>';
     var rsvpPanel='<div class="g-swipe-action-right sw-rsvp"><div class="g-swipe-action-inner">'
       +'<button class="ga-btn ga-btn-rsvp-yes swipe-rsvp-btn'+(effState==='yes'?' active':'')+'" data-qi="'+ri+'" data-action="rsvp-yes" title="Mark RSVP: Yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button>'
       +'<button class="ga-btn ga-btn-rsvp-no swipe-rsvp-btn'+(effState==='no'?' active':'')+'" data-qi="'+ri+'" data-action="rsvp-no" title="Mark RSVP: No"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>'
       +'</div></div>';
 
-    return '<div class="g-swipe-wrap'+rsvpClass+'" data-qi="'+ri+'">'
+    return '<div class="g-swipe-wrap'+rsvpClass+(coupleRole?' is-couple-wrap '+coupleRole:'')+'" data-qi="'+ri+'">'
       +infoPanel
       +rsvpPanel
       +'<div class="'+cls+'" data-qi="'+ri+'">'
@@ -3305,10 +3373,6 @@ function buildGuestCard(g, mergedPairPos){
               +parentRefHtml
               +debugTag
             +'</div>'
-          +'</div>'
-          +'<div class="g-inner-right">'
-            +'<button class="g-undo-btn" data-qi="'+ri+'" data-action="undo" title="Mark as unsent"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8s2-4.5 9.5-4.5a9 9 0 1 1-9 9"/><polyline points="2.5 3 2.5 8 7.5 8"/></svg></button>'
-            +'<button class="g-del" data-qi="'+ri+'" data-action="del" style="position:static;width:18px;height:18px;color:var(--soft);border:none;background:transparent;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>'
           +'</div>'
         +'</div>'
       +'</div>'
@@ -4273,6 +4337,7 @@ function renderGroupDropdown(){
   sel.value=groupFilter||'';
   sel.onchange=function(){groupFilter=this.value;renderGuestList();};
 }
+document.getElementById('typeSel').onchange=function(){typeFilter=this.value;renderGuestList();};
 document.getElementById('searchInput').addEventListener('input',function(){
   searchQuery=this.value.trim().toLowerCase();
   this.classList.toggle('has-value',!!this.value);
