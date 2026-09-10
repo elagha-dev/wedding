@@ -6707,11 +6707,6 @@ function renderSeatMap(){
         + '<span class="seatmap-seat-name">'+(name?seatFirstName(name):'+ Add')+'</span>'
         + '</div>';
     }
-    // One extra tile right after the last seat — tap it to add the next
-    // chair in place, without needing the +/- counter up in the header.
-    seatsHtml += '<div class="seatmap-seat add-seat" data-table="'+t.id+'" title="Add a chair">'
-      + '<span class="seatmap-seat-plus">+</span>'
-      + '</div>';
     return '<div class="seatmap-table-card" data-table-id="'+t.id+'">'
       + '<div class="seatmap-table-hdr">'
         + '<input class="seatmap-table-name" data-table="'+t.id+'" value="'+t.name.replace(/"/g,'&quot;')+'" maxlength="30"/>'
@@ -6739,17 +6734,9 @@ function renderSeatMap(){
       else if(act==='del') removeTable(id);
     });
   });
-  body.querySelectorAll('.seatmap-seat:not(.add-seat)').forEach(function(seat){
+  body.querySelectorAll('.seatmap-seat').forEach(function(seat){
     seat.addEventListener('click', function(){
       openSeatAssign(this.dataset.table, parseInt(this.dataset.seat,10));
-    });
-  });
-  body.querySelectorAll('.seatmap-seat.add-seat').forEach(function(tile){
-    tile.addEventListener('click', function(){
-      var id = this.dataset.table;
-      var t = seatMap.tables.find(function(x){return x.id===id;});
-      if(!t) return;
-      setSeatCount(id, t.seats+1);
     });
   });
   wireFloorColorPicker();
@@ -6774,88 +6761,34 @@ function flashLastAddedTable(container){
 }
 
 /* Give a table a default spot on the floor if it doesn't have a saved
-   position yet. The first table always lands dead-center on the canvas;
-   every table after that spirals outward from the center, checking its
-   REAL footprint (which differs by shape/seat count AND by horizontal vs.
-   vertical orientation) against every already-placed table (including
-   manually dragged ones) plus a fixed logical gap, so new tables always
-   land in open space with a consistent breathing room and never overlap.
-   Only ever runs once per table — after that its position is just
-   whatever's saved (including drags), same as before. */
-/* Grid-cell offsets in clockwise spiral order starting at the center cell:
-   right, down, left, up, with each leg growing by one cell every two turns
-   — the standard clockwise spiral-fill pattern. Used so every new table's
-   CENTER lands on the same fixed grid (rows and columns always line up)
-   instead of a raw-pixel spiral that drifts out of alignment. */
-function spiralGridOffsets(n){
-  var offsets = [{r:0,c:0}];
-  var r=0, c=0, dirs=[[1,0],[0,1],[-1,0],[0,-1]], dirIdx=0, steps=1, produced=1;
-  while(produced<n){
-    for(var rep=0; rep<2 && produced<n; rep++){
-      var d = dirs[dirIdx%4];
-      for(var s=0; s<steps && produced<n; s++){
-        c += d[0]; r += d[1];
-        offsets.push({r:r,c:c});
-        produced++;
-      }
-      dirIdx++;
-    }
-    steps++;
-  }
-  return offsets;
-}
+   position yet — packs tables left-to-right, wrapping to a new row once
+   a table wouldn't fit, using each table's REAL footprint (which differs
+   by shape/seat count) rather than a fixed grid cell, and checking
+   against every already-placed table (including manually dragged ones)
+   so new tables land in open space instead of overlapping. Only ever
+   runs once per table — after that its position is just whatever's
+   saved (including drags), same as before. */
 function defaultTablePos(placed, canvasW, canvasH, lay){
-  var gap = 24, marginX = 18, marginY = 18;
+  var gap = 20, marginX = 18, marginY = 18;
   var w = (lay && lay.w) || 120, h = (lay && lay.h) || 120;
-  var cx0 = canvasW/2, cy0 = canvasH/2;
-  // Fixed grid pitch — independent of any one table's own size — so every
-  // table's center lines up on the same rows/columns no matter how big or
-  // small that particular table is.
-  var pitchX = 180, pitchY = 180;
-
-  function fitsInCanvas(cx, cy){
-    return cx - w/2 >= marginX && cx + w/2 <= canvasW - marginX
-        && cy - h/2 >= marginY && cy + h/2 <= canvasH - marginY;
-  }
-  // Axis-aligned bounding-box check, padded by `gap` on every side, so
-  // two tables always keep at least `gap` px of clear space between them
-  // regardless of how their footprints differ (round vs. rect, rotated
-  // vs. not).
-  function overlapsAny(cx, cy){
-    for(var i=0;i<placed.length;i++){
-      var p = placed[i];
-      var minDx = (w + p.w)/2 + gap, minDy = (h + p.h)/2 + gap;
-      if(Math.abs(cx - p.cx) < minDx && Math.abs(cy - p.cy) < minDy) return true;
-    }
-    return false;
-  }
-
   if(!placed.length){
-    // First table: dead center of the grid — every later table's offset
-    // is measured from here, so this is also the grid's origin cell.
-    return { x: cx0/canvasW*100, y: cy0/canvasH*100 };
+    return { x: (marginX + w/2)/canvasW*100, y: (marginY + h/2)/canvasH*100 };
   }
-
-  // Walk the clockwise spiral of GRID CELLS (not raw pixels) outward from
-  // the center, taking the first cell whose table both fits the canvas and
-  // doesn't overlap anything already placed. Because every candidate point
-  // sits on the same fixed pitch, tables end up in clean aligned rows and
-  // columns, filled in clockwise order, instead of drifting to wherever a
-  // pixel-spiral first found room.
-  var offsets = spiralGridOffsets(400);
-  for(var i=1;i<offsets.length;i++){
-    var cx = cx0 + offsets[i].c*pitchX;
-    var cy = cy0 + offsets[i].r*pitchY;
-    if(fitsInCanvas(cx, cy) && !overlapsAny(cx, cy)){
-      return { x: cx/canvasW*100, y: cy/canvasH*100 };
-    }
+  // "Current row" = the trailing run of already-placed tables that share
+  // roughly the same vertical center as the most recently placed one.
+  var last = placed[placed.length-1];
+  var rowY = last.cy, rowBottom = last.cy + last.h/2, cursorRight = marginX;
+  for(var i=placed.length-1;i>=0;i--){
+    if(Math.abs(placed[i].cy - rowY) > 6) break;
+    rowBottom = Math.max(rowBottom, placed[i].cy + placed[i].h/2);
+    cursorRight = Math.max(cursorRight, placed[i].cx + placed[i].w/2);
   }
-  // Fallback (grid is completely packed): stack below everything else,
-  // still horizontally centered, so it's at least never on top of another
-  // table even if it spills past the visible canvas height.
-  var maxBottom = marginY;
-  placed.forEach(function(p){ maxBottom = Math.max(maxBottom, p.cy + p.h/2); });
-  return { x: cx0/canvasW*100, y: (maxBottom+gap+h/2)/canvasH*100 };
+  var cx = cursorRight + gap + w/2, cy = rowY;
+  if(cx + w/2 > canvasW - marginX){
+    cx = marginX + w/2;
+    cy = rowBottom + gap + h/2;
+  }
+  return { x: cx/canvasW*100, y: cy/canvasH*100 };
 }
 
 /* Compute the seat-dot layout for one table on the floor plan: how big
@@ -6969,7 +6902,7 @@ function renderSeatFloorPlan(){
     + '</div>';
 
   if(!seatMap.tables.length && !seatMap.landmarks.length){
-    body.innerHTML = controls + '<div class="seatmap-floor" id="seatmapFloorCanvas" style="'+floorStyle.css+'"><div class="seatmap-floor-empty" style="color:'+floorStyle.emptyColor+'"><span>No tables yet.<br><br>Tap <strong>+ Table</strong> above, then drag it into place here to match your room layout.</span></div></div>';
+    body.innerHTML = controls + '<div class="seatmap-floor" id="seatmapFloorCanvas" style="'+floorStyle.css+'"><div class="seatmap-floor-empty" style="color:'+floorStyle.emptyColor+'">No tables yet.<br><br>Tap <strong>+ Table</strong> above, then drag it into place here to match your room layout.</div></div>';
     wireFloorAddButtons();
     wireFloorColorPicker();
     return;
