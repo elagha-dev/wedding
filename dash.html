@@ -6396,7 +6396,7 @@ function loadSeatMap(){
   // (starting with table 1's, if this is existing data from before this
   // field existed) so a run of new tables stays consistent with it instead
   // of quietly drifting back to round.
-  if(!seatMap.defaultShape) seatMap.defaultShape = (seatMap.tables[0] && seatMap.tables[0].shape) || 'round';
+  if(!seatMap.defaultShape) seatMap.defaultShape = (seatMap.tables[0] && seatMap.tables[0].shape) || 'rect';
 }
 function saveSeatMap(){
   try{ localStorage.setItem('ww_seatmap', JSON.stringify(seatMap)); }catch(e){}
@@ -6804,17 +6804,14 @@ function defaultTablePos(placed, canvasW, canvasH, lay){
   var gap = 28, marginX = 18, marginY = 18;
   var w = (lay && lay.w) || 120, h = (lay && lay.h) || 120;
 
-  if(!placed.length){
-    // First table: a fixed, predictable starting spot (near the top-left)
-    // instead of dead-center, so it's never mistaken for a re-add of an
-    // existing table and is easy to find right away.
-    return { x: marginX + w/2, y: marginY + h/2 };
-  }
-
-  var maxBottom = marginY;
+  // Every new table — including the first — lands in the same predictable
+  // spot: stacked below whatever's already on the floor, left-aligned.
+  // One consistent rule instead of "first table goes here, later ones go
+  // there" is what actually makes the placement order make sense; you can
+  // always drag it wherever you actually want it from there.
+  var maxBottom = marginY - gap;
   placed.forEach(function(p){ maxBottom = Math.max(maxBottom, p.cy + p.h/2); });
-  var cx = Math.max(marginX + w/2, Math.min(canvasW - marginX - w/2, canvasW/2));
-  return { x: cx, y: maxBottom + gap + h/2 };
+  return { x: marginX + w/2, y: maxBottom + gap + h/2 };
 }
 
 /* Compute the seat-dot layout for one table on the floor plan: how big
@@ -7254,24 +7251,36 @@ function wireFloorDrag(){
         return;
       }
 
+      // Positions are stored as fixed pixels in the canvas's own (unscaled)
+      // coordinate space — the canvas is rendered at that size and then
+      // visually scaled with a CSS transform for zoom, so converting a
+      // pointer's screen position back into that space means dividing out
+      // the current zoom factor, not just reading a percentage of the
+      // on-screen rect (which silently saved the wrong number whenever
+      // zoom wasn't exactly 100%, and even at 100% saved a 0-100 value
+      // that later got misread as raw pixels — the actual "tables jump"
+      // bug: a table dragged even slightly would be saved at a bogus
+      // near-zero pixel position and reappear stuck in the top-left corner
+      // next render).
       var rect = canvas.getBoundingClientRect();
-      var xPct = ((e.clientX - rect.left) / rect.width) * 100;
-      var yPct = ((e.clientY - rect.top) / rect.height) * 100;
-      xPct = Math.max(4, Math.min(96, xPct));
-      yPct = Math.max(6, Math.min(94, yPct));
+      var xPx = (e.clientX - rect.left) / seatMapZoom;
+      var yPx = (e.clientY - rect.top) / seatMapZoom;
+      var halfW = node.offsetWidth/2, halfH = node.offsetHeight/2;
+      xPx = Math.max(halfW, Math.min(canvas.offsetWidth - halfW, xPx));
+      yPx = Math.max(halfH, yPx); // no upper bound — canvas height grows to fit on next render
 
       var targets = snapTargets(excludeId);
       var snappedX = null, snappedY = null;
-      targets.xs.forEach(function(cx){ if(Math.abs(xPct-cx) < SNAP_THRESHOLD) snappedX = cx; });
-      targets.ys.forEach(function(cy){ if(Math.abs(yPct-cy) < SNAP_THRESHOLD) snappedY = cy; });
-      if(snappedX !== null) xPct = snappedX;
-      if(snappedY !== null) yPct = snappedY;
+      targets.xs.forEach(function(cx){ if(Math.abs(xPx-cx) < SNAP_THRESHOLD) snappedX = cx; });
+      targets.ys.forEach(function(cy){ if(Math.abs(yPx-cy) < SNAP_THRESHOLD) snappedY = cy; });
+      if(snappedX !== null) xPx = snappedX;
+      if(snappedY !== null) yPx = snappedY;
 
-      if(guideV){ guideV.style.display = snappedX!==null ? 'block' : 'none'; guideV.style.left = xPct+'%'; }
-      if(guideH){ guideH.style.display = snappedY!==null ? 'block' : 'none'; guideH.style.top = yPct+'%'; }
+      if(guideV){ guideV.style.display = snappedX!==null ? 'block' : 'none'; guideV.style.left = xPx+'px'; }
+      if(guideH){ guideH.style.display = snappedY!==null ? 'block' : 'none'; guideH.style.top = yPx+'px'; }
 
-      node.style.left = xPct + '%';
-      node.style.top = yPct + '%';
+      node.style.left = xPx + 'px';
+      node.style.top = yPx + 'px';
     });
     function endDrag(e){
       if(!dragging) return;
