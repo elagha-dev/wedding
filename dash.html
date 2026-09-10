@@ -6949,11 +6949,37 @@ function renderSeatFloorPlan(){
   var ROOM_MIN_W = 1600, ROOM_MIN_H = 1000;
   var canvasPxW = Math.max(body.clientWidth || 340, ROOM_MIN_W);
   var canvasPxH = Math.max(Math.min(window.innerHeight * 0.7, 520), ROOM_MIN_H);
+
+  // Zoom itself is sanity-checked here too: a bad value (however it got
+  // set) feeding scale(NaN) / scale(Infinity) into the canvas transform is
+  // exactly the kind of thing that renders as corrupted-looking graphics
+  // instead of a clean error — reset it rather than draw with it.
+  if(typeof seatMapZoom !== 'number' || !isFinite(seatMapZoom) || seatMapZoom <= 0){
+    seatMapZoom = 1;
+  }
+
+  var _posFixed = false;
   var placedFootprints = [];
   seatMap.tables.forEach(function(t, i){
     if(!t.shape) t.shape = 'rect';
+    // A table with a non-finite seat count would poison every downstream
+    // measurement (dot placement, box size) with NaN — which is invisible
+    // as a number but renders as visibly broken/garbled shapes on screen.
+    // Same idea for a saved position: fixed rather than silently carried
+    // forward, and re-saved so the fix actually sticks instead of having
+    // to be "fixed" again on every single render.
+    if(typeof t.seats !== 'number' || !isFinite(t.seats) || t.seats < 1){
+      t.seats = 8;
+      _posFixed = true;
+    } else if(Math.round(t.seats) !== t.seats){
+      t.seats = Math.max(1, Math.round(t.seats));
+      _posFixed = true;
+    }
     var lay = tableFloorLayout(t);
-    if(!t.pos) t.pos = defaultTablePos(placedFootprints, canvasPxW, canvasPxH, lay);
+    if(!t.pos || !isFinite(t.pos.x) || !isFinite(t.pos.y)){
+      t.pos = defaultTablePos(placedFootprints, canvasPxW, canvasPxH, lay);
+      _posFixed = true;
+    }
     placedFootprints.push({ cx: t.pos.x, cy: t.pos.y, w: lay.w, h: lay.h });
     var filled = 0;
     var dotsHtml = lay.dots.map(function(d){
@@ -6982,10 +7008,16 @@ function renderSeatFloorPlan(){
       + '</div>');
   });
 
-  var landmarkNodes = seatMap.landmarks.map(function(l){
+  var landmarkNodes = seatMap.landmarks.map(function(l, li){
     var m = LANDMARK_TYPES[l.type] || LANDMARK_TYPES.buffet;
+    if(!l.pos || !isFinite(l.pos.x) || !isFinite(l.pos.y)){
+      l.pos = { x: 40 + li*30, y: 40 + li*30 };
+      _posFixed = true;
+    }
     return '<div class="seatmap-landmark" data-ltype="'+l.type+'" data-landmark-id="'+l.id+'" style="left:'+l.pos.x+'px;top:'+l.pos.y+'px;background:'+m.bg+';border:2px solid '+m.border+';color:'+m.color+'"><span>'+m.label+'</span></div>';
-  }).join('');
+  });
+  landmarkNodes = landmarkNodes.join('');
+  if(_posFixed) saveSeatMap();
 
   // The room grows to fully enclose every placed table/marker on both
   // axes — not just downward — so nothing (including tables placed by an
@@ -7186,6 +7218,7 @@ var SNAP_THRESHOLD = 8;
    "sizer" div, so the wrap's native scrollbars/pinning already reach every
    part of it — no custom pan code needed. */
 function setSeatMapZoom(z){
+  if(!isFinite(z) || z <= 0) return;
   seatMapZoom = Math.max(SEATMAP_ZOOM_MIN, Math.min(SEATMAP_ZOOM_MAX, z));
   renderSeatFloorPlan();
 }
@@ -7213,6 +7246,7 @@ function wireFloorZoom(){
       didPinch = true;
       var dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
       var z = pinchStartZoom * (dist / pinchStartDist);
+      if(!isFinite(z) || z <= 0) return;
       seatMapZoom = Math.max(SEATMAP_ZOOM_MIN, Math.min(SEATMAP_ZOOM_MAX, z));
       var canvas = document.getElementById('seatmapFloorCanvas');
       var sizer = wrap.querySelector('.seatmap-floor-sizer');
@@ -7303,6 +7337,7 @@ function wireFloorDrag(){
       var rect = canvas.getBoundingClientRect();
       var xPx = (e.clientX - rect.left) / seatMapZoom;
       var yPx = (e.clientY - rect.top) / seatMapZoom;
+      if(!isFinite(xPx) || !isFinite(yPx)) return; // never write a corrupt position
       var halfW = node.offsetWidth/2, halfH = node.offsetHeight/2;
       xPx = Math.max(halfW, Math.min(canvas.offsetWidth - halfW, xPx));
       yPx = Math.max(halfH, yPx); // no upper bound — canvas height grows to fit on next render
