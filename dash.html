@@ -941,6 +941,17 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-node-dot.is-couple{width:13px;height:13px;background:radial-gradient(circle at 35% 30%,#FFF6DC,#E8B84B 55%,#C6892A);border-width:2px}
 .seatmap-node-dot.is-couple.bride{border-color:var(--arina-txt);box-shadow:0 0 6px rgba(230,180,80,.9)}
 .seatmap-node-dot.is-couple.groom{border-color:var(--elnur-txt);box-shadow:0 0 6px rgba(230,180,80,.9)}
+/* Chair +/- controls on a floor-plan table node itself, so seats can be
+   added/removed right from the visual overview without opening the sheet. */
+.seatmap-node-chairs{position:absolute;left:50%;bottom:-11px;transform:translateX(-50%);display:flex;gap:4px;z-index:2}
+.seatmap-node-chair-btn{width:20px;height:20px;border-radius:50%;border:1.5px solid rgba(255,255,255,.5);background:rgba(0,0,0,.55);color:#fff;font-family:var(--sans);font-size:13px;font-weight:800;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;touch-action:manipulation}
+.seatmap-node-chair-btn:active{background:rgba(0,0,0,.75)}
+/* Brief highlight so a newly added table is unmistakable, whether it lands
+   in the visible area or has to be scrolled to. */
+@keyframes seatmapJustAdded{0%,100%{box-shadow:0 3px 10px rgba(0,0,0,.35)}40%{box-shadow:0 0 0 6px rgba(201,135,106,.55)}}
+.seatmap-table-node.just-added .seatmap-node-shape{animation:seatmapJustAdded 1.6s ease}
+.seatmap-table-card.just-added{animation:seatmapCardJustAdded 1.6s ease}
+@keyframes seatmapCardJustAdded{0%,100%{box-shadow:none}40%{box-shadow:0 0 0 3px rgba(201,135,106,.55)}}
 .seatmap-landmark{position:absolute;transform:translate(-50%,-50%);display:flex;align-items:center;gap:6px;padding:9px 14px;border-radius:var(--r-pill);cursor:grab;user-select:none;box-shadow:0 3px 10px rgba(0,0,0,.35);font-family:var(--sans);font-size:12px;font-weight:800;white-space:nowrap}
 .seatmap-landmark:active{cursor:grabbing}
 .seatmap-landmark.dragging{transition:none}
@@ -6351,6 +6362,11 @@ var seatMap = {tables:[], assignments:{}};
 var DEFAULT_FLOOR_COLOR = '#1C2430';
 var DEFAULT_TABLE_COLOR = '#C9876A';
 
+/* Id of the table most recently added this session — used to give it a
+   brief highlight + scroll-into-view right after render, so adding a table
+   is never invisible/uncertain even if it lands off the visible area. */
+var _lastAddedTableId = null;
+
 function loadSeatMap(){
   try{
     var raw = localStorage.getItem('ww_seatmap');
@@ -6363,6 +6379,11 @@ function loadSeatMap(){
   if(!Array.isArray(seatMap.tables)) seatMap.tables = [];
   if(!seatMap.floorColor) seatMap.floorColor = DEFAULT_FLOOR_COLOR;
   if(!seatMap.tableColor) seatMap.tableColor = DEFAULT_TABLE_COLOR;
+  // Anchor shape for new tables — whatever shape was deliberately chosen
+  // (starting with table 1's, if this is existing data from before this
+  // field existed) so a run of new tables stays consistent with it instead
+  // of quietly drifting back to round.
+  if(!seatMap.defaultShape) seatMap.defaultShape = (seatMap.tables[0] && seatMap.tables[0].shape) || 'round';
 }
 function saveSeatMap(){
   try{ localStorage.setItem('ww_seatmap', JSON.stringify(seatMap)); }catch(e){}
@@ -6502,11 +6523,14 @@ window.seatBadgeHtml = function(name){
 
 /* ── Table CRUD ── */
 function addTable(){
-  // New tables pick up the shape of whichever table was added most
-  // recently, so a run of tables stays visually consistent instead of
-  // defaulting back to round every time.
-  var lastShape = seatMap.tables.length ? (seatMap.tables[seatMap.tables.length-1].shape || 'round') : 'round';
-  seatMap.tables.push({id:uid(), name:'Table '+(seatMap.tables.length+1), seats:8, shape:lastShape});
+  // New tables pick up seatMap.defaultShape — the shape you last
+  // deliberately chose (e.g. via the shape picker), starting from table 1's
+  // shape — so a run of tables stays visually consistent instead of
+  // quietly defaulting back to round.
+  var shape = seatMap.defaultShape || 'round';
+  var t = {id:uid(), name:'Table '+(seatMap.tables.length+1), seats:8, shape:shape};
+  seatMap.tables.push(t);
+  _lastAddedTableId = t.id;
   saveSeatMap();
   renderSeatMap();
 }
@@ -6655,7 +6679,7 @@ function renderSeatMap(){
       }
     }
   });
-  if(sub) sub.textContent = seatMap.tables.length ? (totalAssigned+' of '+totalSeats+' seats assigned') : '';
+  if(sub) sub.textContent = seatMap.tables.length ? (seatMap.tables.length+(seatMap.tables.length===1?' table · ':' tables · ')+totalAssigned+' of '+totalSeats+' seats assigned') : '';
   if(fab) fab.style.display = seatMap.tables.length ? 'flex' : 'none';
   if(!seatMap.tables.length){
     body.innerHTML = seatColorControlsHtml() + '<div class="seatmap-empty">No tables yet.<br><br>Tap <strong>+ Table</strong> above to add your first table, choose how many chairs it has, then tap a chair to seat a guest.</div>';
@@ -6716,6 +6740,24 @@ function renderSeatMap(){
     });
   });
   wireFloorColorPicker();
+  flashLastAddedTable(body);
+}
+
+/* Scrolls the just-added table into view and gives it a brief highlight
+   pulse — the visible confirmation that tapping "+ Table" actually did
+   something, instead of a new card/node silently appearing off-screen or
+   blending into the rest. Fires once per add, in whichever view is open. */
+function flashLastAddedTable(container){
+  if(!_lastAddedTableId) return;
+  var id = _lastAddedTableId;
+  _lastAddedTableId = null;
+  setTimeout(function(){
+    var el = container.querySelector('[data-table-id="'+id+'"]');
+    if(!el) return;
+    el.scrollIntoView({behavior:'smooth', block:'center', inline:'center'});
+    el.classList.add('just-added');
+    setTimeout(function(){ el.classList.remove('just-added'); }, 1600);
+  }, 30);
 }
 
 /* Give a table a default spot on the floor if it doesn't have a saved
@@ -6843,7 +6885,7 @@ function renderSeatFloorPlan(){
     totalSeats += t.seats;
     for(var n=1;n<=t.seats;n++) if(seatMap.assignments[seatKey(t.id,n)]) totalAssigned++;
   });
-  if(sub) sub.textContent = seatMap.tables.length ? (totalAssigned+' of '+totalSeats+' seats assigned') : '';
+  if(sub) sub.textContent = seatMap.tables.length ? (seatMap.tables.length+(seatMap.tables.length===1?' table · ':' tables · ')+totalAssigned+' of '+totalSeats+' seats assigned') : '';
 
   var floorStyle = floorCanvasStyle(seatMap.floorColor);
   var tableStyle = tableNodeStyle(seatMap.tableColor);
@@ -6885,12 +6927,19 @@ function renderSeatFloorPlan(){
       return '<div class="'+dcls+'" data-table="'+t.id+'" data-seat="'+d.num+'" title="'+(name?name.replace(/"/g,'&quot;'):'Seat '+d.num)+'" style="left:'+d.x+'px;top:'+d.y+'px"></div>';
     }).join('');
     var shapeCls = 'seatmap-node-shape '+lay.shapeCls+(filled===t.seats && t.seats>0 ? ' full':'');
+    // Chair +/- controls right on the node, so seats can be added/removed
+    // straight from the visual overview without opening the table sheet.
+    var chairCtrls = '<div class="seatmap-node-chairs">'
+      + '<button class="seatmap-node-chair-btn" data-act="dec" data-table="'+t.id+'" title="Fewer chairs">–</button>'
+      + '<button class="seatmap-node-chair-btn" data-act="inc" data-table="'+t.id+'" title="More chairs">+</button>'
+      + '</div>';
     tableNodes.push('<div class="seatmap-table-node" data-table-id="'+t.id+'" style="left:'+t.pos.x+'%;top:'+t.pos.y+'%;width:'+lay.w+'px;height:'+lay.h+'px">'
       + '<div class="'+shapeCls+'" style="width:'+lay.shapeW+'px;height:'+lay.shapeH+'px;left:'+(lay.w-lay.shapeW)/2+'px;top:'+(lay.h-lay.shapeH)/2+'px;background:'+tableStyle.bg+';border:2px solid '+tableStyle.border+'">'
         + '<span class="seatmap-table-node-name" style="color:'+tableStyle.text+'">'+t.name.replace(/</g,'&lt;')+'</span>'
         + '<span class="seatmap-table-node-meta" style="color:'+tableStyle.meta+'">'+filled+'/'+t.seats+'</span>'
       + '</div>'
       + dotsHtml
+      + chairCtrls
       + '</div>');
   });
 
@@ -6909,6 +6958,17 @@ function renderSeatFloorPlan(){
   wireFloorDrag();
   wireFloorAddButtons();
   wireFloorColorPicker();
+  body.querySelectorAll('.seatmap-node-chair-btn').forEach(function(btn){
+    btn.addEventListener('click', function(e){
+      e.stopPropagation();
+      var id = this.dataset.table, act = this.dataset.act;
+      var t = seatMap.tables.find(function(x){return x.id===id;});
+      if(!t) return;
+      if(act==='inc') setSeatCount(id, t.seats+1);
+      else if(act==='dec') setSeatCount(id, t.seats-1);
+    });
+  });
+  flashLastAddedTable(document.getElementById('seatmapFloorCanvas') || body);
 }
 
 /* Build the table-shape style for a chosen colour, picking readable text
@@ -7065,7 +7125,7 @@ function wireFloorDrag(){
     var dragging = false, moved = false, startX=0, startY=0;
     var trash = document.getElementById('seatmapTrash');
     node.addEventListener('pointerdown', function(e){
-      if(e.target.closest('.seatmap-node-dot')) return;
+      if(e.target.closest('.seatmap-node-dot') || e.target.closest('.seatmap-node-chair-btn')) return;
       dragging = true; moved = false;
       startX = e.clientX; startY = e.clientY;
       node.classList.add('dragging');
@@ -7224,6 +7284,7 @@ function openTableFromFloor(tableId){
         var newShape = this.dataset.shape;
         if(newShape === t.shape) return;
         t.shape = newShape;
+        seatMap.defaultShape = newShape; // future "+ Table" taps match this
         saveSeatMap();
         openTableFromFloor(tableId);
         renderSeatFloorPlan();
