@@ -918,7 +918,7 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-trash{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(30px) scale(.85);z-index:401;width:56px;height:56px;border-radius:50%;background:rgba(40,40,40,.88);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .18s,transform .18s,background .15s}
 .seatmap-trash.visible{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
 .seatmap-trash.armed{background:#b91c1c;transform:translateX(-50%) translateY(0) scale(1.15)}
-.seatmap-floor-wrap{position:relative;width:100%;height:min(70vh,520px);border:1.5px solid rgba(0,0,0,.12);border-radius:var(--r-md,14px);margin-bottom:14px;overflow:auto;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y;-webkit-transform:translateZ(0);transform:translateZ(0)}
+.seatmap-floor-wrap{position:relative;width:100%;height:min(70vh,520px);border:1.5px solid rgba(0,0,0,.12);border-radius:var(--r-md,14px);margin-bottom:14px;overflow:auto;-webkit-overflow-scrolling:touch}
 .seatmap-floor-sizer{position:relative;min-width:100%;min-height:100%;box-sizing:border-box}
 .seatmap-floor{position:absolute;left:0;top:0;
   background-size:24px 24px;will-change:transform;backface-visibility:hidden;-webkit-backface-visibility:hidden}
@@ -6938,19 +6938,16 @@ function renderSeatFloorPlan(){
 
   var tableNodes = [];
   var z = seatMapZoom;
-  // The logical canvas width scales INVERSELY with zoom, not just the
-  // visual rendering of a fixed-width canvas — that was the actual bug:
-  // canvasPxW used to always equal the device's screen width regardless
-  // of zoom, so zooming out only shrank the same small canvas visually
-  // instead of giving you more room to actually spread tables into. At
-  // 50% zoom that meant only the left HALF of the visible wrap was ever
-  // real canvas (grid + draggable area) — the right half was empty wrap
-  // background, which is exactly the "stops at the middle, can't drag
-  // past it" behavior. Now the rendered canvas (canvasPxW * z) always
-  // exactly fills the wrap's full on-screen width at any zoom level, and
-  // zooming out genuinely grants more logical width to lay tables out
-  // across (e.g. ten across the top, ten across the bottom).
-  var canvasPxW = (body.clientWidth || 340) / z;
+  // The logical canvas is a real, generously-sized floor plan — not a
+  // function of the phone's screen width or the current zoom — that you
+  // pan and zoom around, same as any map/drawing canvas. It also grows
+  // to the right (and down, as before) to fit wherever tables actually
+  // are, so "how many tables fit in a row" is limited by how far you
+  // drag/zoom, not by phone width or a canvas that silently re-shrinks
+  // itself back to fit the screen at every zoom level.
+  var canvasPxW = 900;
+  seatMap.tables.forEach(function(t){ if(t.pos) canvasPxW = Math.max(canvasPxW, t.pos.x + 220); });
+  (seatMap.landmarks||[]).forEach(function(l){ canvasPxW = Math.max(canvasPxW, l.pos.x + 90); });
   var canvasPxH = Math.min(window.innerHeight * 0.7, 520);
   var placedFootprints = [];
   seatMap.tables.forEach(function(t, i){
@@ -7262,6 +7259,42 @@ function wireFloorDrag(){
   if(!canvas) return;
   var guideV = document.getElementById('snapGuideV');
   var guideH = document.getElementById('snapGuideH');
+  var wrap = document.getElementById('seatmapFloorWrap');
+
+  // Auto-scrolls the floor wrap while a finger/pointer holding a table or
+  // marker gets near its edge. Without this, zooming out to fit e.g. 20
+  // tables makes the canvas's real (unscaled) size bigger than the
+  // physical screen — the position math already allows dragging anywhere
+  // on that full canvas, but a single touch gesture can't travel further
+  // than the edge of the phone screen, so anything past the currently-
+  // visible slice was physically unreachable. This is the same drag-to-
+  // scroll behavior most map/canvas apps use.
+  var scrollDX = 0, scrollDY = 0, scrollTimer = null;
+  function updateAutoScroll(clientX, clientY){
+    if(!wrap) return;
+    var wrect = wrap.getBoundingClientRect();
+    var margin = 40, speed = 14;
+    scrollDX = 0; scrollDY = 0;
+    if(clientX < wrect.left + margin) scrollDX = -speed;
+    else if(clientX > wrect.right - margin) scrollDX = speed;
+    if(clientY < wrect.top + margin) scrollDY = -speed;
+    else if(clientY > wrect.bottom - margin) scrollDY = speed;
+    if(scrollDX || scrollDY){
+      if(!scrollTimer){
+        scrollTimer = setInterval(function(){
+          wrap.scrollLeft += scrollDX;
+          wrap.scrollTop += scrollDY;
+        }, 16);
+      }
+    } else if(scrollTimer){
+      clearInterval(scrollTimer);
+      scrollTimer = null;
+    }
+  }
+  function stopAutoScroll(){
+    if(scrollTimer){ clearInterval(scrollTimer); scrollTimer = null; }
+    scrollDX = 0; scrollDY = 0;
+  }
 
   canvas.querySelectorAll('.seatmap-node-dot').forEach(function(dot){
     dot.addEventListener('pointerdown', function(e){ e.stopPropagation(); });
@@ -7286,6 +7319,7 @@ function wireFloorDrag(){
       var dx = e.clientX - startX, dy = e.clientY - startY;
       if(Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
       if(moved && trash && onDelete) trash.classList.add('visible');
+      if(moved) updateAutoScroll(e.clientX, e.clientY);
 
       var overTrash = false;
       if(moved && trash && onDelete){
@@ -7315,7 +7349,7 @@ function wireFloorDrag(){
       var xPx = (e.clientX - rect.left) / seatMapZoom;
       var yPx = (e.clientY - rect.top) / seatMapZoom;
       var halfW = node.offsetWidth/2, halfH = node.offsetHeight/2;
-      xPx = Math.max(halfW, Math.min(canvas.offsetWidth - halfW, xPx));
+      xPx = Math.max(halfW, xPx); // no upper bound — canvas grows to fit on next render, same as height
       yPx = Math.max(halfH, yPx); // no upper bound — canvas height grows to fit on next render
 
       var targets = snapTargets(excludeId);
@@ -7334,6 +7368,7 @@ function wireFloorDrag(){
     function endDrag(e){
       if(!dragging) return;
       dragging = false;
+      stopAutoScroll();
       node.classList.remove('dragging');
       node.style.opacity = '';
       if(guideV) guideV.style.display = 'none';
