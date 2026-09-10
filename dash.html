@@ -7036,16 +7036,21 @@ function renderSeatFloorPlan(){
   placedFootprints.forEach(function(p){ contentH = Math.max(contentH, p.cy + p.h/2 + 24); });
   (seatMap.landmarks||[]).forEach(function(l){ contentH = Math.max(contentH, (l.pos.y/100*canvasPxH) + 40); });
   var z = seatMapZoom;
+  var gridPx = Math.max(6, 24*z);
 
   body.innerHTML = controls
-    + '<div class="seatmap-floor-wrap" id="seatmapFloorWrap" style="background-color:'+seatMap.floorColor+'">'
+    + '<div class="seatmap-floor-wrap" id="seatmapFloorWrap">'
       + '<div class="seatmap-zoom-anchor"><div class="seatmap-zoom-controls">'
         + '<button class="seatmap-zoom-btn" id="seatmapZoomOut" title="Zoom out">–</button>'
         + '<span class="seatmap-zoom-pct" id="seatmapZoomPct">'+Math.round(z*100)+'%</span>'
         + '<button class="seatmap-zoom-btn" id="seatmapZoomIn" title="Zoom in">+</button>'
       + '</div></div>'
-      + '<div class="seatmap-floor-sizer" style="width:'+(canvasPxW*z)+'px;height:'+(contentH*z)+'px">'
-        + '<div class="seatmap-floor" id="seatmapFloorCanvas" style="'+floorStyle.css+';width:'+canvasPxW+'px;height:'+contentH+'px;transform:scale('+z+');transform-origin:0 0">'+tableNodes.join('')+landmarkNodes
+      // The grid/color background lives on the sizer (which always fills at
+      // least the full wrap, via min-width/height:100%) rather than on the
+      // table-content box, so panning/zooming out never runs off the edge
+      // of the pattern into a flat, stripe-less area.
+      + '<div class="seatmap-floor-sizer" style="width:'+(canvasPxW*z)+'px;height:'+(contentH*z)+'px;'+floorStyle.css+';background-size:'+gridPx+'px '+gridPx+'px">'
+        + '<div class="seatmap-floor" id="seatmapFloorCanvas" style="width:'+canvasPxW+'px;height:'+contentH+'px;transform:scale('+z+');transform-origin:0 0">'+tableNodes.join('')+landmarkNodes
           + '<div class="seatmap-snap-guide v" id="snapGuideV"></div>'
           + '<div class="seatmap-snap-guide h" id="snapGuideH"></div>'
         + '</div>'
