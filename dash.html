@@ -6787,88 +6787,34 @@ function flashLastAddedTable(container){
 }
 
 /* Give a table a default spot on the floor if it doesn't have a saved
-   position yet. The first table always lands dead-center on the canvas;
-   every table after that spirals outward from the center, checking its
-   REAL footprint (which differs by shape/seat count AND by horizontal vs.
-   vertical orientation) against every already-placed table (including
-   manually dragged ones) plus a fixed logical gap, so new tables always
-   land in open space with a consistent breathing room and never overlap.
-   Only ever runs once per table — after that its position is just
-   whatever's saved (including drags), same as before. */
-/* Grid-cell offsets in clockwise spiral order starting at the center cell:
-   right, down, left, up, with each leg growing by one cell every two turns
-   — the standard clockwise spiral-fill pattern. Used so every new table's
-   CENTER lands on the same fixed grid (rows and columns always line up)
-   instead of a raw-pixel spiral that drifts out of alignment. */
-function spiralGridOffsets(n){
-  var offsets = [{r:0,c:0}];
-  var r=0, c=0, dirs=[[1,0],[0,1],[-1,0],[0,-1]], dirIdx=0, steps=1, produced=1;
-  while(produced<n){
-    for(var rep=0; rep<2 && produced<n; rep++){
-      var d = dirs[dirIdx%4];
-      for(var s=0; s<steps && produced<n; s++){
-        c += d[0]; r += d[1];
-        offsets.push({r:r,c:c});
-        produced++;
-      }
-      dirIdx++;
-    }
-    steps++;
-  }
-  return offsets;
-}
+   position yet. Previously this spiraled new tables out from dead-center
+   of the canvas — which is exactly why new tables kept landing on top of
+   existing ones (positions were also stored as a % of the canvas's
+   height at ADD time, but the canvas grows taller every time a table is
+   added below the fold, so that same % got reinterpreted against a
+   bigger number on every later render and tables drifted from their
+   spot — the stray blank/white space users saw growing over time).
+   Now: positions are stored in fixed PIXELS (stable regardless of how
+   tall the canvas grows later), and every new table is simply placed
+   in the clear strip below whatever's already on the floor — guaranteed
+   free space, never on top of another table, and obviously a "new,
+   unplaced" table you can immediately drag to where you actually want
+   it, rather than a smart algorithm quietly deciding for you. */
 function defaultTablePos(placed, canvasW, canvasH, lay){
-  var gap = 24, marginX = 18, marginY = 18;
+  var gap = 28, marginX = 18, marginY = 18;
   var w = (lay && lay.w) || 120, h = (lay && lay.h) || 120;
-  var cx0 = canvasW/2, cy0 = canvasH/2;
-  // Fixed grid pitch — independent of any one table's own size — so every
-  // table's center lines up on the same rows/columns no matter how big or
-  // small that particular table is.
-  var pitchX = 180, pitchY = 180;
-
-  function fitsInCanvas(cx, cy){
-    return cx - w/2 >= marginX && cx + w/2 <= canvasW - marginX
-        && cy - h/2 >= marginY && cy + h/2 <= canvasH - marginY;
-  }
-  // Axis-aligned bounding-box check, padded by `gap` on every side, so
-  // two tables always keep at least `gap` px of clear space between them
-  // regardless of how their footprints differ (round vs. rect, rotated
-  // vs. not).
-  function overlapsAny(cx, cy){
-    for(var i=0;i<placed.length;i++){
-      var p = placed[i];
-      var minDx = (w + p.w)/2 + gap, minDy = (h + p.h)/2 + gap;
-      if(Math.abs(cx - p.cx) < minDx && Math.abs(cy - p.cy) < minDy) return true;
-    }
-    return false;
-  }
 
   if(!placed.length){
-    // First table: dead center of the grid — every later table's offset
-    // is measured from here, so this is also the grid's origin cell.
-    return { x: cx0/canvasW*100, y: cy0/canvasH*100 };
+    // First table: a fixed, predictable starting spot (near the top-left)
+    // instead of dead-center, so it's never mistaken for a re-add of an
+    // existing table and is easy to find right away.
+    return { x: marginX + w/2, y: marginY + h/2 };
   }
 
-  // Walk the clockwise spiral of GRID CELLS (not raw pixels) outward from
-  // the center, taking the first cell whose table both fits the canvas and
-  // doesn't overlap anything already placed. Because every candidate point
-  // sits on the same fixed pitch, tables end up in clean aligned rows and
-  // columns, filled in clockwise order, instead of drifting to wherever a
-  // pixel-spiral first found room.
-  var offsets = spiralGridOffsets(400);
-  for(var i=1;i<offsets.length;i++){
-    var cx = cx0 + offsets[i].c*pitchX;
-    var cy = cy0 + offsets[i].r*pitchY;
-    if(fitsInCanvas(cx, cy) && !overlapsAny(cx, cy)){
-      return { x: cx/canvasW*100, y: cy/canvasH*100 };
-    }
-  }
-  // Fallback (grid is completely packed): stack below everything else,
-  // still horizontally centered, so it's at least never on top of another
-  // table even if it spills past the visible canvas height.
   var maxBottom = marginY;
   placed.forEach(function(p){ maxBottom = Math.max(maxBottom, p.cy + p.h/2); });
-  return { x: cx0/canvasW*100, y: (maxBottom+gap+h/2)/canvasH*100 };
+  var cx = Math.max(marginX + w/2, Math.min(canvasW - marginX - w/2, canvasW/2));
+  return { x: cx, y: maxBottom + gap + h/2 };
 }
 
 /* Compute the seat-dot layout for one table on the floor plan: how big
@@ -6996,7 +6942,7 @@ function renderSeatFloorPlan(){
     if(!t.shape) t.shape = 'round';
     var lay = tableFloorLayout(t);
     if(!t.pos) t.pos = defaultTablePos(placedFootprints, canvasPxW, canvasPxH, lay);
-    placedFootprints.push({ cx: t.pos.x/100*canvasPxW, cy: t.pos.y/100*canvasPxH, w: lay.w, h: lay.h });
+    placedFootprints.push({ cx: t.pos.x, cy: t.pos.y, w: lay.w, h: lay.h });
     var filled = 0;
     var dotsHtml = lay.dots.map(function(d){
       var name = seatMap.assignments[seatKey(t.id,d.num)] || '';
@@ -7014,7 +6960,7 @@ function renderSeatFloorPlan(){
       + (t.shape==='rect' ? '<button class="seatmap-node-chair-btn" data-act="rotate" data-table="'+t.id+'" title="Rotate table">&#8635;</button>' : '')
       + '<button class="seatmap-node-chair-btn danger" data-act="remove" data-table="'+t.id+'" title="Remove table">&#10005;</button>'
       + '</div>';
-    tableNodes.push('<div class="seatmap-table-node" data-table-id="'+t.id+'" style="left:'+t.pos.x+'%;top:'+t.pos.y+'%;width:'+lay.w+'px;height:'+lay.h+'px">'
+    tableNodes.push('<div class="seatmap-table-node" data-table-id="'+t.id+'" style="left:'+t.pos.x+'px;top:'+t.pos.y+'px;width:'+lay.w+'px;height:'+lay.h+'px">'
       + '<div class="'+shapeCls+'" style="width:'+lay.shapeW+'px;height:'+lay.shapeH+'px;left:'+(lay.w-lay.shapeW)/2+'px;top:'+(lay.h-lay.shapeH)/2+'px;background:'+tableStyle.bg+';border:2px solid '+tableStyle.border+'">'
         + '<span class="seatmap-table-node-name" style="color:'+tableStyle.text+'">'+t.name.replace(/</g,'&lt;')+'</span>'
         + '<span class="seatmap-table-node-meta" style="color:'+tableStyle.meta+'">'+filled+'/'+t.seats+'</span>'
@@ -7026,7 +6972,7 @@ function renderSeatFloorPlan(){
 
   var landmarkNodes = seatMap.landmarks.map(function(l){
     var m = LANDMARK_TYPES[l.type] || LANDMARK_TYPES.buffet;
-    return '<div class="seatmap-landmark" data-ltype="'+l.type+'" data-landmark-id="'+l.id+'" style="left:'+l.pos.x+'%;top:'+l.pos.y+'%;background:'+m.bg+';border:2px solid '+m.border+';color:'+m.color+'"><span>'+m.label+'</span></div>';
+    return '<div class="seatmap-landmark" data-ltype="'+l.type+'" data-landmark-id="'+l.id+'" style="left:'+l.pos.x+'px;top:'+l.pos.y+'px;background:'+m.bg+';border:2px solid '+m.border+';color:'+m.color+'"><span>'+m.label+'</span></div>';
   }).join('');
 
   // The canvas grows to fit every placed table/marker (instead of clipping
@@ -7034,7 +6980,7 @@ function renderSeatFloorPlan(){
   // what actually scrolls, and zoom scales the whole thing via transform.
   var contentH = canvasPxH;
   placedFootprints.forEach(function(p){ contentH = Math.max(contentH, p.cy + p.h/2 + 24); });
-  (seatMap.landmarks||[]).forEach(function(l){ contentH = Math.max(contentH, (l.pos.y/100*canvasPxH) + 40); });
+  (seatMap.landmarks||[]).forEach(function(l){ contentH = Math.max(contentH, l.pos.y + 40); });
   var z = seatMapZoom;
   var gridPx = Math.max(6, 24*z);
 
@@ -7188,7 +7134,7 @@ function wireFloorAddButtons(){
 function addLandmark(type){
   if(!seatMap.landmarks) seatMap.landmarks = [];
   var count = seatMap.landmarks.filter(function(l){return l.type===type;}).length;
-  seatMap.landmarks.push({ id: uid(), type: type, pos: { x: 50 + count*6, y: 50 + count*6 } });
+  seatMap.landmarks.push({ id: uid(), type: type, pos: { x: 60 + count*30, y: 60 + count*30 } });
   saveSeatMap();
   renderSeatFloorPlan();
 }
@@ -7198,10 +7144,10 @@ function removeLandmark(id){
   renderSeatFloorPlan();
 }
 
-/* All other tables' + landmarks' x/y positions (as percentages), used to
-   snap a dragged item into alignment — like the "smart guides" in slide
-   or design apps: drag near another item's left/right/center/top/bottom
-   and it snaps straight, with a thin guide line while you're dragging. */
+/* All other tables' + landmarks' x/y positions (in canvas-local pixels),
+   used to snap a dragged item into alignment — like the "smart guides"
+   in slide or design apps: drag near another item's left/right/center/
+   top/bottom and it snaps straight, with a thin guide line while dragging. */
 function snapTargets(excludeId){
   var xs = [], ys = [];
   seatMap.tables.forEach(function(t){
@@ -7214,7 +7160,7 @@ function snapTargets(excludeId){
   });
   return { xs:xs, ys:ys };
 }
-var SNAP_THRESHOLD = 2.2;
+var SNAP_THRESHOLD = 8;
 
 /* Zoom controls (+/- buttons and pinch) for the floor-plan canvas. Zoom is
    just a CSS transform:scale on the canvas element sized inside a bigger
