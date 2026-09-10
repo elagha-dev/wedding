@@ -960,7 +960,11 @@ body.lite-mode #liteModeTopBtn {
 /* Assign-guest sheet */
 .seat-assign-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:409;opacity:0;pointer-events:none;transition:opacity .2s}
 .seat-assign-overlay.open{opacity:1;pointer-events:all}
-.seat-assign-sheet{position:fixed;left:0;right:0;bottom:0;z-index:410;background:var(--cream);border-radius:20px 20px 0 0;height:78vh;max-height:78vh;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .25s cubic-bezier(.32,.72,.35,1);box-shadow:0 -8px 32px rgba(0,0,0,.18)}
+/* Compact by default (table-view: shape/rotate + seat grid) so the floor
+   plan stays visible behind it — only the guest-search view (.tall,
+   added when actually assigning a seat) needs the taller sheet. */
+.seat-assign-sheet{position:fixed;left:0;right:0;bottom:0;z-index:410;background:var(--cream);border-radius:20px 20px 0 0;height:auto;max-height:44vh;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .25s cubic-bezier(.32,.72,.35,1);box-shadow:0 -8px 32px rgba(0,0,0,.18)}
+.seat-assign-sheet.tall{max-height:78vh}
 .seat-assign-sheet.open{transform:translateY(0)}
 .seat-assign-hdr{flex-shrink:0;padding:14px 16px 10px;border-bottom:1px solid var(--parchment)}
 .seat-assign-title{font-family:var(--sans);font-size:14px;font-weight:800;color:var(--ink2);margin-bottom:8px}
@@ -973,6 +977,22 @@ body.lite-mode #liteModeTopBtn {
 .seat-assign-row-meta{font-family:var(--sans);font-size:10.5px;color:var(--muted);margin-top:2px}
 .seat-assign-empty{text-align:center;color:var(--muted);font-size:12.5px;padding:30px 20px}
 .seat-assign-unassign{width:100%;box-sizing:border-box;margin:4px 8px 10px;padding:10px;border-radius:10px;border:1.5px solid rgba(185,28,28,.3);background:rgba(185,28,28,.06);color:#b91c1c;font-family:var(--sans);font-size:12.5px;font-weight:700;cursor:pointer}
+
+/* Table shape picker — tapping the pill drops a small popover with both
+   shapes previewed, instead of silently cycling on every tap. */
+.ts-wrap{position:relative;display:inline-block;margin-left:8px;vertical-align:middle}
+.ts-btn{display:inline-flex;align-items:center;gap:6px;font-family:var(--sans);font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;border:1.5px solid var(--parchment);background:var(--cream2);color:var(--ink2);cursor:pointer}
+.ts-icon{display:inline-block;width:12px;height:9px;border:1.6px solid currentColor;flex-shrink:0}
+.ts-icon.round{width:10px;height:10px;border-radius:50%}
+.ts-icon.rect{border-radius:2px}
+.ts-chev{opacity:.55;flex-shrink:0}
+.ts-pop{position:absolute;top:calc(100% + 6px);left:0;z-index:20;min-width:150px;background:var(--cream);border:1.5px solid var(--parchment);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.16);padding:5px;display:none}
+.ts-pop.open{display:block}
+.ts-opt{display:flex;align-items:center;gap:9px;width:100%;box-sizing:border-box;padding:8px 10px;border:none;background:none;border-radius:8px;font-family:var(--sans);font-size:12.5px;font-weight:700;color:var(--ink2);cursor:pointer;text-align:left}
+.ts-opt:active{background:var(--cream2)}
+.ts-opt.active{color:var(--sky)}
+.ts-opt.active .ts-icon{border-color:var(--sky)}
+.ts-rotate-btn{margin-left:6px;font-size:11px;font-weight:700;padding:4px 9px;border-radius:999px;border:1.5px solid var(--parchment);background:var(--cream2);color:var(--ink2);cursor:pointer;vertical-align:middle}
 /* Seat badge shown inline next to a guest's name in the main list —
    colored per table (hashed from the table's id, so it's consistent
    every time, not just a plain repeated text label) so at a glance you
@@ -6517,17 +6537,19 @@ function openSeatAssign(tableId, seatNum){
   if(!t) return;
   var current = seatMap.assignments[seatKey(tableId,seatNum)] || '';
   document.getElementById('seatAssignTitle').textContent = t.name+' — Seat '+seatNum;
-  document.getElementById('seatAssignSearch').value = '';
+  var srch = document.getElementById('seatAssignSearch');
+  srch.style.display = '';
+  srch.value = '';
   document.getElementById('seatAssignUnassignBtn').style.display = current ? 'block' : 'none';
   renderSeatAssignList('');
   document.getElementById('seatAssignOverlay').classList.add('open');
-  document.getElementById('seatAssignSheet').classList.add('open');
-  setTimeout(function(){ var s=document.getElementById('seatAssignSearch'); if(s) s.focus(); }, 200);
+  document.getElementById('seatAssignSheet').classList.add('open','tall');
+  setTimeout(function(){ if(srch) srch.focus(); }, 200);
 }
 function closeSeatAssign(){
   var ov=document.getElementById('seatAssignOverlay'), sh=document.getElementById('seatAssignSheet');
   if(ov) ov.classList.remove('open');
-  if(sh){ sh.classList.remove('open'); sh.style.bottom=''; sh.style.maxHeight=''; }
+  if(sh){ sh.classList.remove('open'); sh.classList.remove('tall'); sh.style.bottom=''; sh.style.maxHeight=''; }
   _assignCtx = null;
 }
 function renderSeatAssignList(query){
@@ -7091,12 +7113,21 @@ function openTableFromFloor(tableId){
       + '</div>';
   }
   document.getElementById('seatAssignTitle').innerHTML = t.name.replace(/</g,'&lt;')
-    + ' <button id="tableShapeToggle" data-table="'+t.id+'" style="margin-left:8px;font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;border:1.5px solid var(--parchment);background:var(--cream2);color:var(--ink2);cursor:pointer;vertical-align:middle">'
-    + (t.shape==='rect' ? 'Rectangular' : 'Round') + ' · tap to switch</button>'
-    + (t.shape==='rect' ? (
-        ' <button id="tableRotateBtn" data-table="'+t.id+'" title="Rotate table" style="margin-left:6px;font-size:11px;font-weight:700;padding:4px 9px;border-radius:999px;border:1.5px solid var(--parchment);background:var(--cream2);color:var(--ink2);cursor:pointer;vertical-align:middle">Rotate</button>'
-      ) : '');
-  document.getElementById('seatAssignSearch').value = '';
+    + '<span class="ts-wrap">'
+      + '<button id="tableShapeToggle" class="ts-btn" data-table="'+t.id+'">'
+        + '<span class="ts-icon '+(t.shape==='rect'?'rect':'round')+'"></span>'
+        + (t.shape==='rect' ? 'Rectangular' : 'Round')
+        + '<svg class="ts-chev" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>'
+      + '</button>'
+      + '<div class="ts-pop" id="tableShapePop">'
+        + '<button class="ts-opt'+(t.shape==='rect'?' active':'')+'" data-shape="rect"><span class="ts-icon rect"></span>Rectangular</button>'
+        + '<button class="ts-opt'+(t.shape!=='rect'?' active':'')+'" data-shape="round"><span class="ts-icon round"></span>Round</button>'
+      + '</div>'
+    + '</span>'
+    + (t.shape==='rect' ? ' <button id="tableRotateBtn" data-table="'+t.id+'" title="Rotate table" class="ts-rotate-btn">Rotate</button>' : '');
+  var srch = document.getElementById('seatAssignSearch');
+  srch.style.display = 'none'; // not relevant in table view — search only applies to assigning a single seat
+  srch.value = '';
   document.getElementById('seatAssignUnassignBtn').style.display = 'none';
   var list = document.getElementById('seatAssignList');
   list.innerHTML = '<div class="seatmap-seats" style="padding:2px 2px 14px">'+seatsHtml+'</div>';
@@ -7106,13 +7137,26 @@ function openTableFromFloor(tableId){
       openSeatAssign(this.dataset.table, parseInt(this.dataset.seat,10));
     });
   });
-  var shapeBtn = document.getElementById('tableShapeToggle');
-  if(shapeBtn) shapeBtn.addEventListener('click', function(){
-    t.shape = (t.shape==='rect') ? 'round' : 'rect';
-    saveSeatMap();
-    openTableFromFloor(tableId);
-    renderSeatFloorPlan();
-  });
+  var shapeToggle = document.getElementById('tableShapeToggle');
+  var shapePop = document.getElementById('tableShapePop');
+  if(shapeToggle && shapePop){
+    shapeToggle.addEventListener('click', function(e){
+      e.stopPropagation();
+      shapePop.classList.toggle('open');
+    });
+    shapePop.querySelectorAll('.ts-opt').forEach(function(opt){
+      opt.addEventListener('click', function(e){
+        e.stopPropagation();
+        shapePop.classList.remove('open');
+        var newShape = this.dataset.shape;
+        if(newShape === t.shape) return;
+        t.shape = newShape;
+        saveSeatMap();
+        openTableFromFloor(tableId);
+        renderSeatFloorPlan();
+      });
+    });
+  }
   var rotateBtn = document.getElementById('tableRotateBtn');
   if(rotateBtn) rotateBtn.addEventListener('click', function(){
     t.rotation = (t.rotation === 90) ? 0 : 90;
@@ -7120,6 +7164,7 @@ function openTableFromFloor(tableId){
     openTableFromFloor(tableId);
     renderSeatFloorPlan();
   });
+  document.getElementById('seatAssignSheet').classList.remove('tall'); // compact: floor plan stays visible behind it
   document.getElementById('seatAssignOverlay').classList.add('open');
   document.getElementById('seatAssignSheet').classList.add('open');
 }
@@ -7184,7 +7229,12 @@ if(_saSearch) _saSearch.addEventListener('input', function(){ renderSeatAssignLi
     var vv = window.visualViewport;
     var gap = window.innerHeight - vv.height - vv.offsetTop;
     sheet.style.bottom = Math.max(0, gap) + 'px';
-    sheet.style.maxHeight = Math.min(vv.height * 0.92, vv.height - 16) + 'px';
+    // Only the tall (guest-search) sheet needs to claim viewport height to
+    // dodge the keyboard — leave the compact table-view sheet's own CSS
+    // max-height alone so it doesn't balloon back up on every scroll/resize.
+    sheet.style.maxHeight = sheet.classList.contains('tall')
+      ? Math.min(vv.height * 0.92, vv.height - 16) + 'px'
+      : '';
   }
   window.visualViewport.addEventListener('resize', reposition);
   window.visualViewport.addEventListener('scroll', reposition);
@@ -7193,6 +7243,12 @@ if(_saSearch) _saSearch.addEventListener('input', function(){ renderSeatAssignLi
 var _saUnassign = document.getElementById('seatAssignUnassignBtn');
 if(_saUnassign) _saUnassign.addEventListener('click', function(){
   if(_assignCtx) unassignSeat(_assignCtx.tableId, _assignCtx.seatNum);
+});
+// Close the table-shape popover when tapping anywhere else on the sheet
+document.addEventListener('click', function(e){
+  if(!e.target.closest('.ts-wrap')){
+    document.querySelectorAll('.ts-pop.open').forEach(function(p){ p.classList.remove('open'); });
+  }
 });
 
 })();
