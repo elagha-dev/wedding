@@ -967,6 +967,12 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-zoom-anchor{position:sticky;top:0;left:0;right:0;height:0;overflow:visible;z-index:6;pointer-events:none}
 .seatmap-zoom-controls{position:absolute;top:8px;right:8px;width:-webkit-fit-content;width:fit-content;display:flex;align-items:center;gap:2px;background:rgba(0,0,0,.55);padding:4px;border-radius:20px;backdrop-filter:blur(3px);pointer-events:auto}
 .seatmap-zoom-btn{width:26px;height:26px;border-radius:50%;border:none;background:rgba(255,255,255,.15);color:#fff;font-family:var(--sans);font-size:15px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;line-height:1}
+.seatmap-zoom-sep{width:1px;height:16px;background:rgba(255,255,255,.25);flex-shrink:0;margin:0 1px}
+/* Lights up amber whenever the layout is bigger than what's currently on
+   screen — the "there's more down/over there" cue that was missing — so
+   spotting and jumping to it doesn't depend on remembering to check. */
+.seatmap-zoom-btn.needs-fit{background:var(--amber);color:#fff;animation:seatmapFitPulse 1.6s ease-in-out infinite}
+@keyframes seatmapFitPulse{0%,100%{box-shadow:0 0 0 0 rgba(176,120,48,.6)}50%{box-shadow:0 0 0 5px rgba(176,120,48,0)}}
 .seatmap-zoom-btn:active{background:rgba(255,255,255,.3)}
 .seatmap-zoom-pct{font-family:var(--sans);font-size:10.5px;font-weight:700;color:#fff;min-width:32px;text-align:center;user-select:none}
 .seatmap-floor-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;color:rgba(255,255,255,.65);font-size:12.5px;padding:24px;line-height:1.6}
@@ -7083,16 +7089,29 @@ function flashLastAddedTable(container){
    position yet. Positions are stored in fixed PIXELS (stable regardless
    of how tall the canvas grows later — a % would drift every time a
    table gets added and the canvas is re-measured).
-   Tables default to a single vertical column, stacked top to bottom —
-   each new table lands in the clear strip below whatever's already on
-   the floor, left-aligned, using its REAL footprint (which differs by
-   shape/seat count) so nothing new ever lands on top of something
-   already there, including manually dragged tables. Always draggable
-   afterward if you want a different arrangement. */
+   Tables flow left-to-right and wrap into a new row once a row gets too
+   wide, using each table's REAL footprint (which differs by shape/seat
+   count) so nothing new ever lands on top of something already there,
+   including manually dragged tables — a tidy grid instead of a single
+   column stacked straight down the left edge, which used to send every
+   few tables added further and further below the fold with nothing next
+   to it, easy to lose track of on a normal phone-width screen. Always
+   draggable afterward if you want a different arrangement. */
 function defaultTablePos(placed, canvasW, canvasH, lay){
   var gap = 28, marginX = 18, marginY = 18;
   var w = (lay && lay.w) || 120, h = (lay && lay.h) || 120;
 
+  if(!placed.length) return { x: marginX + w/2, y: marginY + h/2 };
+
+  var rowMaxRight = marginX + Math.max(340, Math.min(canvasW, 680));
+  var last = placed[placed.length-1];
+  var lastRight = last.cx + last.w/2;
+  var lastTop = last.cy - last.h/2;
+  if(lastRight + gap + w <= rowMaxRight){
+    // Room to continue the same row — top-aligned with the last table.
+    return { x: lastRight + gap + w/2, y: lastTop + h/2 };
+  }
+  // Row's full — start a new one below the lowest edge placed so far.
   var maxBottom = marginY - gap;
   placed.forEach(function(p){ maxBottom = Math.max(maxBottom, p.cy + p.h/2); });
   return { x: marginX + w/2, y: maxBottom + gap + h/2 };
@@ -7192,6 +7211,17 @@ function renderSeatFloorPlan(){
   if(!body) return;
   if(!seatMap.landmarks) seatMap.landmarks = [];
 
+  // Rebuilding the wrap's innerHTML below (needed since tables/markers can
+  // change) creates a brand-new DOM node, which resets scroll to (0,0) —
+  // that's the "screen jumps to the top-left corner" glitch that happened
+  // on something as small as tapping to select a table. Capture the pan
+  // position first and restore it after rebuilding, so a re-render never
+  // moves the viewport on its own — only a deliberate action like
+  // fitFloorPlanToScreen() overrides it afterward.
+  var _prevWrap = document.getElementById('seatmapFloorWrap');
+  var _prevScrollL = _prevWrap ? _prevWrap.scrollLeft : 0;
+  var _prevScrollT = _prevWrap ? _prevWrap.scrollTop : 0;
+
   if(fab) fab.style.display = seatMap.tables.length ? 'flex' : 'none';
   updateFabRotateVisibility();
 
@@ -7285,6 +7315,8 @@ function renderSeatFloorPlan(){
   body.innerHTML = controls
     + '<div class="seatmap-floor-wrap" id="seatmapFloorWrap" style="background-color:'+seatMap.floorColor+'">'
       + '<div class="seatmap-zoom-anchor"><div class="seatmap-zoom-controls">'
+        + '<button class="seatmap-zoom-btn" id="seatmapFitBtn" title="Fit all tables in view"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M8 21H5a2 2 0 0 1-2-2v-3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg></button>'
+        + '<span class="seatmap-zoom-sep"></span>'
         + '<button class="seatmap-zoom-btn" id="seatmapZoomOut" title="Zoom out">–</button>'
         + '<span class="seatmap-zoom-pct" id="seatmapZoomPct">'+Math.round(z*100)+'%</span>'
         + '<button class="seatmap-zoom-btn" id="seatmapZoomIn" title="Zoom in">+</button>'
@@ -7312,6 +7344,8 @@ function renderSeatFloorPlan(){
   wireFloorColorPicker();
   wireFloorZoom();
   seatmapFixFloorCoverage();
+  var _newWrap = document.getElementById('seatmapFloorWrap');
+  if(_newWrap){ _newWrap.scrollLeft = _prevScrollL; _newWrap.scrollTop = _prevScrollT; }
   flashLastAddedTable(document.getElementById('seatmapFloorCanvas') || body);
 }
 
@@ -7343,6 +7377,37 @@ function seatmapFixFloorCoverage(){
   sizer.style.backgroundImage = 'url(\'data:image/svg+xml,'+encodeURIComponent(gridSvg)+'\')';
   sizer.style.backgroundRepeat = 'no-repeat';
   sizer.style.backgroundSize = neededW+'px '+neededH+'px';
+
+  // Light up the "fit" button whenever the laid-out room is actually
+  // bigger than what's currently visible in the wrap — the cue that
+  // there are tables off past the edge of the screen that scrolling (or
+  // tapping fit) is needed to see.
+  var fitBtn = document.getElementById('seatmapFitBtn');
+  if(fitBtn){
+    var overflowing = (Math.round(canvasPxW*z) > wrap.clientWidth + 1) || (Math.round(contentH*z) > wrap.clientHeight + 1);
+    fitBtn.classList.toggle('needs-fit', overflowing);
+  }
+}
+
+/* Zooms out (or in) just enough that the entire room — every table and
+   marker, not just whatever's currently scrolled into view — fits inside
+   the visible wrap at once, then scrolls back to the top-left corner.
+   Bypasses the normal manual +/- zoom floor (SEATMAP_ZOOM_MIN): pinch/
+   buttons stay capped at 50% since that's a sensible limit for working on
+   a table by hand, but "show me everything" has to be able to go lower
+   than that for a spread-out floor plan, or it wouldn't actually fit. */
+function fitFloorPlanToScreen(){
+  var wrap = document.getElementById('seatmapFloorWrap');
+  var canvas = document.getElementById('seatmapFloorCanvas');
+  if(!wrap || !canvas) return;
+  var worldW = canvas.offsetWidth, worldH = canvas.offsetHeight;
+  if(!worldW || !worldH) return;
+  var pad = 20;
+  var fitZoom = Math.min((wrap.clientWidth-pad)/worldW, (wrap.clientHeight-pad)/worldH);
+  seatMapZoom = Math.max(0.12, Math.min(SEATMAP_ZOOM_MAX, fitZoom));
+  renderSeatFloorPlan();
+  var wrap2 = document.getElementById('seatmapFloorWrap');
+  if(wrap2){ wrap2.scrollLeft = 0; wrap2.scrollTop = 0; }
 }
 
 /* Build the table-shape style for a chosen colour, picking readable text
@@ -7552,8 +7617,10 @@ function wireFloorZoom(){
   var wrap = document.getElementById('seatmapFloorWrap');
   var outBtn = document.getElementById('seatmapZoomOut');
   var inBtn = document.getElementById('seatmapZoomIn');
+  var fitBtn = document.getElementById('seatmapFitBtn');
   if(outBtn) outBtn.addEventListener('click', function(){ setSeatMapZoom(seatMapZoom - 0.25); });
   if(inBtn) inBtn.addEventListener('click', function(){ setSeatMapZoom(seatMapZoom + 0.25); });
+  if(fitBtn) fitBtn.addEventListener('click', fitFloorPlanToScreen);
   if(!wrap) return;
 
   // Two-finger pinch: track the distance between touches and scale the
