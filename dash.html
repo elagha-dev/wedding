@@ -976,12 +976,12 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-table-node.dragging{transition:none}
 .seatmap-node-shape{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;box-shadow:0 3px 10px rgba(0,0,0,.35);transition:box-shadow .15s,transform .15s,filter .15s}
 .seatmap-table-node.dragging .seatmap-node-shape{box-shadow:0 6px 18px rgba(0,0,0,.5)}
-/* Selected table — a bright ring that reads clearly against any table
-   colour, plus a quick pulse the moment selection happens so the change
-   is noticeable even if the tap landed somewhere busy on the floor plan.
-   This is also the table the floating rotate button now acts on. */
-.seatmap-table-node.selected .seatmap-node-shape{box-shadow:0 0 0 3px #fff,0 0 0 6px var(--rose-deep),0 6px 18px rgba(0,0,0,.45);animation:seatmapTableSelected .4s ease}
-@keyframes seatmapTableSelected{0%{box-shadow:0 0 0 3px #fff,0 0 0 6px var(--rose-deep),0 0 0 12px rgba(160,97,74,.4),0 6px 18px rgba(0,0,0,.45)}100%{box-shadow:0 0 0 3px #fff,0 0 0 6px var(--rose-deep),0 6px 18px rgba(0,0,0,.45)}}
+/* Selected table — a warm gold glow instead of a hard ring/border, so it
+   reads as "lit up" rather than boxed-in. Pulses once on selection, then
+   settles into a soft steady shine so it stays easy to spot while it's
+   the floating rotate button's target. */
+.seatmap-table-node.selected .seatmap-node-shape{box-shadow:0 0 14px 4px rgba(255,200,20,.85),0 0 30px 10px rgba(255,200,20,.4),0 6px 18px rgba(0,0,0,.35);animation:seatmapTableSelected 1s ease}
+@keyframes seatmapTableSelected{0%{box-shadow:0 0 22px 8px rgba(255,200,20,1),0 0 44px 16px rgba(255,200,20,.6),0 6px 18px rgba(0,0,0,.35)}100%{box-shadow:0 0 14px 4px rgba(255,200,20,.85),0 0 30px 10px rgba(255,200,20,.4),0 6px 18px rgba(0,0,0,.35)}}
 /* Press-and-hold-to-delete feedback — a visible "charging up" squeeze +
    red tint while held, distinct from the existing drag-to-trash gesture,
    so a stationary long press reads as "about to delete" before it fires. */
