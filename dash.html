@@ -950,6 +950,26 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-fab-add{position:fixed;right:18px;bottom:24px;z-index:400;width:52px;height:52px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--rose),var(--rose-deep));color:#fff;font-size:26px;font-weight:400;cursor:pointer;box-shadow:0 8px 24px rgba(160,97,74,.4);display:flex;align-items:center;justify-content:center}
 .seatmap-fab-rotate{position:fixed;right:80px;bottom:24px;z-index:400;width:52px;height:52px;border-radius:50%;border:none;background:rgba(30,30,30,.88);color:#fff;font-size:22px;font-weight:400;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center}
 .seatmap-fab-rotate:active{background:rgba(30,30,30,1)}
+.seatmap-fab-delete{position:fixed;right:142px;bottom:24px;z-index:400;width:52px;height:52px;border-radius:50%;border:none;background:rgba(185,28,28,.88);color:#fff;font-size:19px;font-weight:400;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center}
+.seatmap-fab-delete:active{background:rgba(185,28,28,1)}
+/* Toggle pill that puts the floor plan into multi-select mode, sitting in
+   the same controls row as the marker/color buttons rather than as its own
+   FAB, since it's a mode switch rather than a per-table action. */
+.seatmap-select-toggle.active{background:#2f6fed;border-color:#2f6fed;color:#fff}
+/* Bottom action bar shown only while multi-select mode is active — replaces
+   the add/rotate/delete FABs so the two selection modes never overlap on
+   screen. Align buttons stay visible but disabled until 2+ tables are
+   picked, so the six options don't jump in and out of the layout. */
+.seatmap-select-bar{position:fixed;left:10px;right:10px;bottom:16px;z-index:400;display:none;align-items:center;gap:4px;background:rgba(30,30,30,.94);border-radius:var(--r-pill);padding:8px 10px;box-shadow:0 8px 24px rgba(0,0,0,.4);overflow-x:auto}
+.seatmap-select-bar.open{display:flex}
+.seatmap-select-count{font-family:var(--sans);font-size:11px;font-weight:800;color:#fff;padding:0 6px;white-space:nowrap;flex-shrink:0}
+.seatmap-align-btn{flex-shrink:0;width:34px;height:34px;border-radius:50%;border:1.5px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+.seatmap-align-btn:active{background:rgba(255,255,255,.22)}
+.seatmap-align-btn:disabled{opacity:.3;pointer-events:none}
+.seatmap-align-sep{width:1px;align-self:stretch;background:rgba(255,255,255,.2);flex-shrink:0;margin:2px 2px}
+.seatmap-select-bar-delete{flex-shrink:0;width:34px;height:34px;border-radius:50%;border:none;background:rgba(185,28,28,.85);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;margin-left:auto}
+.seatmap-select-bar-delete:disabled{opacity:.3;pointer-events:none}
+.seatmap-select-bar-done{flex-shrink:0;font-family:var(--sans);font-size:11.5px;font-weight:800;color:#fff;background:rgba(255,255,255,.12);border:none;border-radius:var(--r-pill);padding:8px 12px;cursor:pointer;white-space:nowrap}
 .seatmap-assign-banner{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:402;display:flex;align-items:center;gap:10px;background:rgba(30,30,30,.94);color:#fff;padding:10px 10px 10px 16px;border-radius:999px;box-shadow:0 8px 24px rgba(0,0,0,.35);font-family:var(--sans);font-size:12.5px;font-weight:700;max-width:calc(100vw - 32px)}
 .seatmap-assign-banner span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .seatmap-assign-banner button{flex-shrink:0;border:none;background:rgba(255,255,255,.18);color:#fff;font-family:var(--sans);font-size:11.5px;font-weight:800;padding:6px 12px;border-radius:999px;cursor:pointer}
@@ -988,6 +1008,11 @@ body.lite-mode #liteModeTopBtn {
    the floating rotate button's target. */
 .seatmap-table-node.selected .seatmap-node-shape{box-shadow:0 0 14px 4px rgba(255,200,20,.85),0 0 30px 10px rgba(255,200,20,.4),0 6px 18px rgba(0,0,0,.35);animation:seatmapTableSelected 1s ease}
 @keyframes seatmapTableSelected{0%{box-shadow:0 0 22px 8px rgba(255,200,20,1),0 0 44px 16px rgba(255,200,20,.6),0 6px 18px rgba(0,0,0,.35)}100%{box-shadow:0 0 14px 4px rgba(255,200,20,.85),0 0 30px 10px rgba(255,200,20,.4),0 6px 18px rgba(0,0,0,.35)}}
+/* Multi-select (bulk alignment mode) — a cool blue ring + checkmark badge,
+   deliberately distinct from the warm gold "single selected" glow above so
+   the two states never read as the same thing. */
+.seatmap-table-node.multi-selected .seatmap-node-shape{box-shadow:0 0 0 3px #2f6fed,0 0 16px 4px rgba(47,111,237,.55),0 6px 18px rgba(0,0,0,.35)}
+.seatmap-multi-badge{position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:#2f6fed;border:2px solid #fff;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;z-index:3;box-shadow:0 2px 6px rgba(0,0,0,.3)}
 /* Press-and-hold-to-delete feedback — a visible "charging up" squeeze +
    red tint while held, distinct from the existing drag-to-trash gesture,
    so a stationary long press reads as "about to delete" before it fires. */
@@ -1744,8 +1769,21 @@ body.lite-mode #liteModeTopBtn {
     <button class="seatmap-close" id="seatmapCloseBtn">✕</button>
   </div>
   <div class="seatmap-body" id="seatmapBody"></div>
+  <button class="seatmap-fab-delete" id="seatmapFabDelete" title="Delete table" style="display:none"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
   <button class="seatmap-fab-rotate" id="seatmapFabRotate" title="Rotate last table" style="display:none">↻</button>
   <button class="seatmap-fab-add" id="seatmapFabAdd" title="Add table" style="display:none">+</button>
+  <div class="seatmap-select-bar" id="seatmapSelectBar">
+    <span class="seatmap-select-count" id="seatmapSelectCount">0 selected</span>
+    <button type="button" class="seatmap-align-btn" data-align="left" title="Align left"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="4" y1="2" x2="4" y2="22"/><rect x="4" y="6" width="12" height="5"/><rect x="4" y="14" width="7" height="5"/></svg></button>
+    <button type="button" class="seatmap-align-btn" data-align="centerH" title="Align center (horizontal)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="2" x2="12" y2="22"/><rect x="6" y="6" width="12" height="5"/><rect x="8.5" y="14" width="7" height="5"/></svg></button>
+    <button type="button" class="seatmap-align-btn" data-align="right" title="Align right"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="20" y1="2" x2="20" y2="22"/><rect x="8" y="6" width="12" height="5"/><rect x="13" y="14" width="7" height="5"/></svg></button>
+    <span class="seatmap-align-sep"></span>
+    <button type="button" class="seatmap-align-btn" data-align="top" title="Align top"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="2" y1="4" x2="22" y2="4"/><rect x="6" y="4" width="5" height="12"/><rect x="14" y="4" width="5" height="7"/></svg></button>
+    <button type="button" class="seatmap-align-btn" data-align="middleV" title="Align middle (vertical)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="2" y1="12" x2="22" y2="12"/><rect x="6" y="6" width="5" height="12"/><rect x="14" y="8.5" width="5" height="7"/></svg></button>
+    <button type="button" class="seatmap-align-btn" data-align="bottom" title="Align bottom"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="2" y1="20" x2="22" y2="20"/><rect x="6" y="8" width="5" height="12"/><rect x="14" y="13" width="5" height="7"/></svg></button>
+    <button type="button" class="seatmap-select-bar-delete" id="seatmapSelectBarDelete" title="Delete selected"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
+    <button type="button" class="seatmap-select-bar-done" id="seatmapSelectBarDone">Done</button>
+  </div>
   <div class="seatmap-assign-banner" id="seatmapAssignBanner" style="display:none">
     <span id="seatmapAssignBannerText"></span>
     <button type="button" id="seatmapAssignCancelBtn">Cancel</button>
@@ -6527,6 +6565,14 @@ var _lastAddedTableId = null;
    what opens its seat sheet. */
 var _selectedTableId = null;
 
+/* Multi-select mode — toggled on via the "Select tables" pill in the floor
+   controls. While active, tapping a table adds/removes it from
+   _multiSelectedIds (instead of the single-select/open behaviour above),
+   and the bottom select bar lets you bulk-delete or align the picked
+   tables along a shared edge or center line. */
+var _multiSelectMode = false;
+var _multiSelectedIds = [];
+
 /* True for the duration of an active table/marker drag. The floor plan
    polls a remote worker every few seconds and does a full re-render on any
    update — if that landed mid-drag it would destroy the exact DOM node the
@@ -6730,12 +6776,105 @@ function seatmapFabRotateTarget(){
 }
 function updateFabRotateVisibility(){
   var btn = document.getElementById('seatmapFabRotate');
-  if(!btn) return;
+  var delBtn = document.getElementById('seatmapFabDelete');
   var t = seatmapFabRotateTarget();
-  // Only rectangular tables actually change shape when rotated — square and
-  // round look identical either way, so the button stays hidden for those
-  // rather than doing a no-op tap.
-  btn.style.display = (t && t.shape === 'rect') ? 'flex' : 'none';
+  // While multi-select mode is on, the bottom select bar takes over — the
+  // single-table FABs stay hidden so the two selection modes never
+  // overlap on screen.
+  if(_multiSelectMode) t = null;
+  if(btn){
+    // Only rectangular tables actually change shape when rotated — square
+    // and round look identical either way, so the button stays hidden for
+    // those rather than doing a no-op tap.
+    btn.style.display = (t && t.shape === 'rect') ? 'flex' : 'none';
+  }
+  // Delete has no shape restriction — it shows for any selected table.
+  if(delBtn) delBtn.style.display = t ? 'flex' : 'none';
+  updateSelectBar();
+}
+
+/* ── Multi-select + bulk alignment ── */
+function toggleMultiSelectMode(){
+  _multiSelectMode = !_multiSelectMode;
+  _multiSelectedIds = [];
+  _selectedTableId = null; // the two selection states never coexist
+  renderSeatFloorPlan();
+}
+function toggleTableInMultiSelect(id){
+  var i = _multiSelectedIds.indexOf(id);
+  if(i === -1) _multiSelectedIds.push(id);
+  else _multiSelectedIds.splice(i, 1);
+  renderSeatFloorPlan();
+}
+function updateSelectBar(){
+  var bar = document.getElementById('seatmapSelectBar');
+  var toggle = document.getElementById('seatmapSelectModeBtn');
+  if(toggle){
+    toggle.textContent = _multiSelectMode ? 'Done selecting' : 'Select tables';
+    toggle.classList.toggle('active', _multiSelectMode);
+  }
+  if(!bar) return;
+  bar.classList.toggle('open', _multiSelectMode);
+  var n = _multiSelectedIds.length;
+  var count = document.getElementById('seatmapSelectCount');
+  if(count) count.textContent = n + (n===1 ? ' selected' : ' selected');
+  bar.querySelectorAll('.seatmap-align-btn').forEach(function(b){ b.disabled = n < 2; });
+  var delBtn = document.getElementById('seatmapSelectBarDelete');
+  if(delBtn) delBtn.disabled = n < 1;
+}
+/* Aligns every selected table along a shared edge or center line. Each
+   table's pos.x/y is already the exact center of its floor-plan box (the
+   node is placed with CSS translate(-50%,-50%)), so "align left" etc. is
+   just matching left/right/top/bottom edges — computed via each table's
+   own tableFloorLayout() size — against the tightest edge across the
+   selection. */
+function alignSelectedTables(mode){
+  var picked = seatMap.tables.filter(function(t){ return _multiSelectedIds.indexOf(t.id) !== -1; });
+  if(picked.length < 2) return;
+  var boxes = picked.map(function(t){
+    var lay = tableFloorLayout(t);
+    return { t:t, w:lay.w, h:lay.h };
+  });
+  if(mode === 'left' || mode === 'right' || mode === 'centerH'){
+    if(mode === 'left'){
+      var minLeft = Math.min.apply(null, boxes.map(function(b){ return b.t.pos.x - b.w/2; }));
+      boxes.forEach(function(b){ b.t.pos.x = minLeft + b.w/2; });
+    } else if(mode === 'right'){
+      var maxRight = Math.max.apply(null, boxes.map(function(b){ return b.t.pos.x + b.w/2; }));
+      boxes.forEach(function(b){ b.t.pos.x = maxRight - b.w/2; });
+    } else {
+      var avgX = boxes.reduce(function(s,b){ return s + b.t.pos.x; }, 0) / boxes.length;
+      boxes.forEach(function(b){ b.t.pos.x = avgX; });
+    }
+  } else {
+    if(mode === 'top'){
+      var minTop = Math.min.apply(null, boxes.map(function(b){ return b.t.pos.y - b.h/2; }));
+      boxes.forEach(function(b){ b.t.pos.y = minTop + b.h/2; });
+    } else if(mode === 'bottom'){
+      var maxBottom = Math.max.apply(null, boxes.map(function(b){ return b.t.pos.y + b.h/2; }));
+      boxes.forEach(function(b){ b.t.pos.y = maxBottom - b.h/2; });
+    } else {
+      var avgY = boxes.reduce(function(s,b){ return s + b.t.pos.y; }, 0) / boxes.length;
+      boxes.forEach(function(b){ b.t.pos.y = avgY; });
+    }
+  }
+  saveSeatMap();
+  renderSeatFloorPlan();
+}
+function deleteMultiSelected(){
+  var picked = seatMap.tables.filter(function(t){ return _multiSelectedIds.indexOf(t.id) !== -1; });
+  if(!picked.length) return;
+  var label = picked.length===1 ? ('"'+picked[0].name+'"') : (picked.length+' tables');
+  if(!confirm('Delete '+label+'? Anyone seated there will be unassigned.')) return;
+  picked.forEach(function(t){
+    for(var n=1;n<=t.seats;n++) delete seatMap.assignments[seatKey(t.id,n)];
+  });
+  var ids = _multiSelectedIds.slice();
+  seatMap.tables = seatMap.tables.filter(function(x){ return ids.indexOf(x.id) === -1; });
+  _multiSelectedIds = [];
+  saveSeatMap();
+  renderSeatMap();
+  if(typeof renderGuestList==='function') renderGuestList();
 }
 function addTable(){
   // New tables pick up seatMap.defaultShape — the shape you last
@@ -6958,6 +7097,9 @@ function setSeatMapView(v){
   try{ localStorage.setItem('ww_seatmap_view', v); }catch(e){}
   var btn = document.getElementById('seatmapViewToggle');
   if(btn) btn.classList.toggle('active', v==='floor');
+  // Multi-select/alignment only makes sense on the spatial floor plan.
+  _multiSelectMode = false;
+  _multiSelectedIds = [];
   renderSeatMap();
 }
 
@@ -7222,7 +7364,7 @@ function renderSeatFloorPlan(){
   var _prevScrollL = _prevWrap ? _prevWrap.scrollLeft : 0;
   var _prevScrollT = _prevWrap ? _prevWrap.scrollTop : 0;
 
-  if(fab) fab.style.display = seatMap.tables.length ? 'flex' : 'none';
+  if(fab) fab.style.display = (seatMap.tables.length && !_multiSelectMode) ? 'flex' : 'none';
   updateFabRotateVisibility();
 
   var totalSeats=0, totalAssigned=0;
@@ -7236,6 +7378,7 @@ function renderSeatFloorPlan(){
   var tableStyle = tableNodeStyle(seatMap.tableColor);
 
   var controls = '<div class="seatmap-floor-controls">'
+    + (seatMap.tables.length ? '<button class="seatmap-floor-add-btn seatmap-select-toggle'+(_multiSelectMode?' active':'')+'" id="seatmapSelectModeBtn">'+(_multiSelectMode?'Done selecting':'Select tables')+'</button>' : '')
     + '<button class="seatmap-floor-add-btn" id="addMarkerBtn">+ Add venue marker</button>'
     + '<input type="color" class="seatmap-color-swatch" id="floorColorPicker" value="'+seatMap.floorColor+'" title="Canvas color">'
     + '<button type="button" class="seatmap-color-reset" id="floorColorReset" title="Reset canvas color to default">↺</button>'
@@ -7286,12 +7429,15 @@ function renderSeatFloorPlan(){
       return '<div class="'+dcls+'" data-table="'+t.id+'" data-seat="'+d.num+'" title="'+(name?name.replace(/"/g,'&quot;')+(qDot?' (questionable)':''):'Seat '+d.num)+'" style="left:'+d.x+'px;top:'+d.y+'px"></div>';
     }).join('');
     var shapeCls = 'seatmap-node-shape '+lay.shapeCls+(filled===t.seats && t.seats>0 ? ' full':'');
+    var isMultiSel = _multiSelectMode && _multiSelectedIds.indexOf(t.id) !== -1;
     var selCls = (t.id === _selectedTableId) ? ' selected' : '';
+    if(isMultiSel) selCls += ' multi-selected';
     tableNodes.push('<div class="seatmap-table-node'+selCls+'" data-table-id="'+t.id+'" style="left:'+t.pos.x+'px;top:'+t.pos.y+'px;width:'+lay.w+'px;height:'+lay.h+'px">'
       + '<div class="'+shapeCls+'" style="width:'+lay.shapeW+'px;height:'+lay.shapeH+'px;left:'+(lay.w-lay.shapeW)/2+'px;top:'+(lay.coreH-lay.shapeH)/2+'px;background:'+tableStyle.bg+';border:2px solid '+tableStyle.border+'">'
         + '<span class="seatmap-table-node-name" style="color:'+tableStyle.text+'">'+t.name.replace(/</g,'&lt;')+'</span>'
         + '<span class="seatmap-table-node-meta" style="color:'+tableStyle.meta+'">'+filled+'/'+t.seats+'</span>'
       + '</div>'
+      + (isMultiSel ? '<span class="seatmap-multi-badge">✓</span>' : '')
       + dotsHtml
       + '</div>');
   });
@@ -7533,6 +7679,8 @@ var LANDMARK_TYPES = {
 var _markerPickerOpen = false;
 
 function wireFloorAddButtons(){
+  var selBtn = document.getElementById('seatmapSelectModeBtn');
+  if(selBtn) selBtn.addEventListener('click', toggleMultiSelectMode);
   var b = document.getElementById('addMarkerBtn');
   if(b) b.addEventListener('click', function(){
     _markerPickerOpen = !_markerPickerOpen;
@@ -7794,12 +7942,17 @@ function wireFloorDrag(){
         saveSeatMap();
       }
       if(!moved){
-        // First tap on a table selects it (shows a highlight ring and
-        // becomes what the rotate button next to "+ Table" acts on) rather
-        // than jumping straight into the seat sheet — a second tap on that
-        // same, already-selected table is what actually opens it. Tapping
-        // a different table just moves the selection there instead.
-        if(_selectedTableId === id){
+        if(_multiSelectMode){
+          // In multi-select mode a tap just toggles the table in/out of
+          // the bulk-align selection — it never opens the seat sheet, so
+          // you can keep picking tables without leaving the mode.
+          toggleTableInMultiSelect(id);
+        } else if(_selectedTableId === id){
+          // First tap on a table selects it (shows a highlight ring and
+          // becomes what the rotate button next to "+ Table" acts on) rather
+          // than jumping straight into the seat sheet — a second tap on that
+          // same, already-selected table is what actually opens it. Tapping
+          // a different table just moves the selection there instead.
           _selectedTableId = null;
           openTableFromFloor(id);
         } else {
@@ -7831,6 +7984,7 @@ function wireFloorDrag(){
     }
     node.addEventListener('pointerdown', function(e){
       if(e.target.closest('.seatmap-node-dot') || e.target.closest('.seatmap-node-chair-btn')) return;
+      if(_multiSelectMode) return; // taps are for toggling selection here, not the long-press delete
       pressStartX = e.clientX; pressStartY = e.clientY;
       cancelLongPress();
       pressTimer = setTimeout(function(){
@@ -8001,6 +8155,21 @@ if(_smFabRotate) _smFabRotate.addEventListener('click', function(){
   _lastAddedTableId = t.id; // flash/scroll to it — the FAB isn't next to the table itself, so confirm which one just rotated
   renderSeatMap();
 });
+var _smFabDelete = document.getElementById('seatmapFabDelete');
+if(_smFabDelete) _smFabDelete.addEventListener('click', function(){
+  var t = seatmapFabRotateTarget();
+  if(t) removeTable(t.id);
+});
+var _smSelectBar = document.getElementById('seatmapSelectBar');
+if(_smSelectBar){
+  _smSelectBar.querySelectorAll('.seatmap-align-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){ alignSelectedTables(this.dataset.align); });
+  });
+}
+var _smSelectBarDelete = document.getElementById('seatmapSelectBarDelete');
+if(_smSelectBarDelete) _smSelectBarDelete.addEventListener('click', deleteMultiSelected);
+var _smSelectBarDone = document.getElementById('seatmapSelectBarDone');
+if(_smSelectBarDone) _smSelectBarDone.addEventListener('click', toggleMultiSelectMode);
 var _saOverlay = document.getElementById('seatAssignOverlay');
 if(_saOverlay) _saOverlay.addEventListener('click', closeSeatAssign);
 var _saCloseBtn = document.getElementById('seatAssignCloseBtn');
