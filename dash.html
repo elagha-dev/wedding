@@ -418,6 +418,9 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .chip-lang{background:var(--parchment);color:var(--muted)}
 .chip-rsvp{background:var(--green-bg);color:var(--green)}
 .chip-child{background:#EAF0FA;color:#4A6EA8}.is-child .g-inner-right .ga-btn-wa,.is-child .g-inner-right .g-del{display:none!important}
+.chip-questionable{background:#7c3aed;color:#fff;border:none;cursor:pointer;font-family:inherit}
+.chip-questionable-add{background:none;color:var(--muted);border:1.3px dashed var(--parchment);cursor:pointer;font-family:inherit;width:18px;padding:0;justify-content:center}
+.chip-questionable-add:active{color:#7c3aed;border-color:#7c3aed}
 .chip-role{background:#F0E6F7;color:#6B3FA0;cursor:pointer}
 .chip-role-empty{background:transparent;color:var(--soft);border:1.5px dashed var(--soft)}
 .ga-btn-role{color:#8B5FBF}.ga-btn-role.has-role{color:#6B3FA0;background:#F0E6F7}
@@ -902,6 +905,14 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-seat.rsvp-pending{background:#F59E0B;border-color:#B45309}
 .seatmap-seat.rsvp-pending .seatmap-seat-num{color:rgba(255,255,255,.85)}
 .seatmap-seat.rsvp-pending .seatmap-seat-name{color:#fff;font-weight:800}
+/* Questionable overrides whichever rsvp-* color/style was applied above —
+   declared after them so it always wins regardless of yes/no/pending —
+   plus an explicit "?" badge since a guest can be questionable and still
+   show as attending. */
+.seatmap-seat.questionable{position:relative;background:#7c3aed;border-color:#5b21b6}
+.seatmap-seat.questionable .seatmap-seat-num{color:rgba(255,255,255,.85)}
+.seatmap-seat.questionable .seatmap-seat-name{color:#fff;font-weight:800}
+.seatmap-seat.questionable::after{content:'?';position:absolute;top:3px;right:5px;font-size:11px;font-weight:900;color:#fff;line-height:1}
 /* Bride & groom's own seats — gold gradient + sparkle so they stand out
    from every other seat at a glance, with the name tinted in each
    person's existing accent color so the two are still told apart. */
@@ -955,6 +966,7 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-node-dot.rsvp-yes{background:#3A8C5C;border-color:#5fd393}
 .seatmap-node-dot.rsvp-no{background:#b91c1c;border-color:#e57373}
 .seatmap-node-dot.rsvp-pending{background:rgba(176,120,48,.65);border-color:#B07830}
+.seatmap-node-dot.questionable{background:#7c3aed;border-color:#c4b5fd;width:12px;height:12px}
 .seatmap-node-dot.is-couple{width:13px;height:13px;background:radial-gradient(circle at 35% 30%,#FFF6DC,#E8B84B 55%,#C6892A);border-width:2px}
 .seatmap-node-dot.is-couple.bride{border-color:var(--arina-txt);box-shadow:0 0 6px rgba(230,180,80,.9)}
 .seatmap-node-dot.is-couple.groom{border-color:var(--elnur-txt);box-shadow:0 0 6px rgba(230,180,80,.9)}
@@ -2490,6 +2502,7 @@ function renderGuestList(){
       else if(a==='confirm-no'){g.pendingSent=false;saveGuestMeta();renderGuestList();}
       else if(a==='rsvp-yes'){g.manualRsvp=(g.manualRsvp==='yes')?'':'yes';var qi2y=this.dataset.qi2;var g2y=(qi2y!==undefined&&qi2y!=='')?importQueue[parseInt(qi2y)]:null;if(g2y)g2y.manualRsvp=g.manualRsvp;saveGuestMeta();renderGuestList();renderDashboard();pushMetaToWorker(g).then(function(){if(g2y)pushMetaToWorker(g2y);});}
       else if(a==='rsvp-no'){g.manualRsvp=(g.manualRsvp==='no')?'':'no';var qi2n=this.dataset.qi2;var g2n=(qi2n!==undefined&&qi2n!=='')?importQueue[parseInt(qi2n)]:null;if(g2n)g2n.manualRsvp=g.manualRsvp;saveGuestMeta();renderGuestList();renderDashboard();pushMetaToWorker(g).then(function(){if(g2n)pushMetaToWorker(g2n);});}
+      else if(a==='toggle-questionable'){g.questionable=!g.questionable;saveGuestMeta();renderGuestList();if(typeof renderSeatMap==='function')renderSeatMap();pushMetaToWorker(g);}
       else if(a==='unlink-partner'){
         var oldPartner=importQueue.find(function(o){return o.name===g.bulkWith;});
         if(confirm('Unlink '+g.name+' from '+g.bulkWith+'?')){
@@ -3658,6 +3671,12 @@ function buildGuestCard(g, mergedPairPos){
     // The couple aren't "guests" RSVPing to their own wedding — swap the RSVP
     // pill for a small role badge instead, in their existing brand color.
     if(coupleRole)pillWrap='<span class="chip chip-couple-role '+coupleRole+'"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>'+(coupleRole==='bride'?'Bride':'Groom')+'</span>';
+    // A separate "questionable" flag, layered on top of (never replacing)
+    // the actual yes/no/pending pill above — for guests you're personally
+    // unsure about either way.
+    if(!coupleRole) pillWrap += g.questionable
+      ? '<button type="button" class="chip chip-questionable" data-qi="'+ri+'" data-action="toggle-questionable" title="Tap to unmark">? Unsure</button>'
+      : '<button type="button" class="chip chip-questionable-add" data-qi="'+ri+'" data-action="toggle-questionable" title="Mark as questionable">?</button>';
 
     /* Bulk-sent reference: if this guest was sent together with someone else,
        show a small line naming that partner and their current RSVP status —
@@ -6386,6 +6405,10 @@ var SEATMAP_ZOOM_MIN = 0.5, SEATMAP_ZOOM_MAX = 2.5;
    or floor — is opened first. */
 var DEFAULT_FLOOR_COLOR = '#1C2430';
 var DEFAULT_TABLE_COLOR = '#C9876A';
+/* A deliberately loud, distinct hue for "questionable" guests — nothing
+   else in the seat map uses violet, so it can't be mistaken for the
+   yes/no/pending greens, reds, and grays it sits alongside. */
+var QUESTIONABLE_COLOR = '#7c3aed';
 
 /* Id of the table most recently added this session — used to give it a
    brief highlight + scroll-into-view right after render, so adding a table
@@ -6505,6 +6528,25 @@ function seatGuestRsvpState(name){
     if(info && info.isNo) return 'no';
   }catch(e){}
   return 'pending';
+}
+
+/* "Questionable" — a separate manual flag layered on top of the yes/no/
+   pending RSVP state above, never changing it. For guests you're not
+   confident about even though they said yes (or haven't answered), so
+   they still stand out — in the guest list and every seat/dot in the seat
+   map — without touching the actual RSVP logic at all. */
+function isGuestQuestionable(name){
+  var g = (typeof importQueue!=='undefined'?importQueue:[]).find(function(x){return x.name===name;});
+  return !!(g && g.questionable);
+}
+function toggleGuestQuestionable(name){
+  var g = (typeof importQueue!=='undefined'?importQueue:[]).find(function(x){return x.name===name;});
+  if(!g) return;
+  g.questionable = !g.questionable;
+  if(typeof saveGuestMeta==='function') saveGuestMeta();
+  if(typeof renderGuestList==='function') renderGuestList();
+  if(typeof renderSeatMap==='function') renderSeatMap();
+  if(typeof pushMetaToWorker==='function') pushMetaToWorker(g);
 }
 
 /* Is this seat's occupant the bride or groom? Mirrors the exact same
@@ -6755,8 +6797,9 @@ function renderSeatAssignList(query){
   list.innerHTML = guests.map(function(g){
     var loc = getSeatForGuest(g.name);
     var state = seatGuestRsvpState(g.name);
-    var dot = state==='yes' ? '#3A8C5C' : state==='no' ? '#b91c1c' : '#C4AFA4';
-    var meta = loc ? ('Currently: '+loc.table.name+' · Seat '+loc.seatNum) : (state==='yes'?'Attending':state==='no'?'Not attending':'RSVP pending');
+    var q = isGuestQuestionable(g.name);
+    var dot = q ? QUESTIONABLE_COLOR : state==='yes' ? '#3A8C5C' : state==='no' ? '#b91c1c' : '#C4AFA4';
+    var meta = (loc ? ('Currently: '+loc.table.name+' · Seat '+loc.seatNum) : (state==='yes'?'Attending':state==='no'?'Not attending':'RSVP pending')) + (q ? ' · Questionable' : '');
     return '<div class="seat-assign-row" data-name="'+g.name.replace(/"/g,'&quot;')+'">'
       + '<div><div class="seat-assign-row-name">'+g.name+'</div><div class="seat-assign-row-meta">'+meta+'</div></div>'
       + '<span style="width:9px;height:9px;border-radius:50%;background:'+dot+';flex-shrink:0"></span>'
@@ -6841,7 +6884,8 @@ function renderSeatMap(){
       var state = name ? seatGuestRsvpState(name) : '';
       var role = name ? seatCoupleRole(name) : '';
       var stateCls = role ? ' is-couple '+role : !name ? '' : (state==='yes'?' rsvp-yes':state==='no'?' rsvp-no':' rsvp-pending');
-      var cls = 'seatmap-seat'+(name?'':' empty')+stateCls;
+      var qCls = (name && !role && isGuestQuestionable(name)) ? ' questionable' : '';
+      var cls = 'seatmap-seat'+(name?'':' empty')+stateCls+qCls;
       seatsHtml += '<div class="'+cls+'" data-table="'+t.id+'" data-seat="'+n+'"'+(name?' title="'+name.replace(/"/g,'&quot;')+'"':'')+'>'
         + '<span class="seatmap-seat-num">Seat '+n+'</span>'
         + '<span class="seatmap-seat-name">'+(name?seatFirstName(name):'+ Add')+'</span>'
@@ -7089,8 +7133,9 @@ function renderSeatFloorPlan(){
       var state = name ? seatGuestRsvpState(name) : '';
       var role = name ? seatCoupleRole(name) : '';
       if(name) filled++;
-      var dcls = 'seatmap-node-dot'+(role ? ' is-couple '+role : !name ? '' : (state==='yes'?' rsvp-yes':state==='no'?' rsvp-no':' rsvp-pending'));
-      return '<div class="'+dcls+'" data-table="'+t.id+'" data-seat="'+d.num+'" title="'+(name?name.replace(/"/g,'&quot;'):'Seat '+d.num)+'" style="left:'+d.x+'px;top:'+d.y+'px"></div>';
+      var qDot = (name && !role && isGuestQuestionable(name)) ? ' questionable' : '';
+      var dcls = 'seatmap-node-dot'+(role ? ' is-couple '+role : !name ? '' : (state==='yes'?' rsvp-yes':state==='no'?' rsvp-no':' rsvp-pending'))+qDot;
+      return '<div class="'+dcls+'" data-table="'+t.id+'" data-seat="'+d.num+'" title="'+(name?name.replace(/"/g,'&quot;')+(qDot?' (questionable)':''):'Seat '+d.num)+'" style="left:'+d.x+'px;top:'+d.y+'px"></div>';
     }).join('');
     var shapeCls = 'seatmap-node-shape '+lay.shapeCls+(filled===t.seats && t.seats>0 ? ' full':'');
     // Rotate + remove controls right on the node — pinned to the reserved
@@ -7346,9 +7391,32 @@ var SNAP_THRESHOLD = 8;
    just a CSS transform:scale on the canvas element sized inside a bigger
    "sizer" div, so the wrap's native scrollbars/pinning already reach every
    part of it — no custom pan code needed. */
+/* Applies the current seatMapZoom to the floor plan already on screen —
+   just a transform + a couple of style updates, no rebuild. Zoom never
+   needs a full re-render: the canvas's own width/height (and therefore the
+   grid image, drawn once in fixed world units) don't depend on zoom at
+   all, only how much it's stretched on screen does. Rebuilding the entire
+   floor plan (every table, dot, control) on each zoom tap was the real
+   cause of the grid looking like it "changes" — it wasn't the grid math,
+   it was a full flash-redraw of everything on every tap. Returns false if
+   the floor plan isn't currently showing a populated canvas to zoom.
+*/
+function applyFloorZoomLive(){
+  var canvas = document.getElementById('seatmapFloorCanvas');
+  var sizer = document.querySelector('.seatmap-floor-sizer');
+  var pct = document.getElementById('seatmapZoomPct');
+  if(!canvas || !sizer) return false;
+  canvas.style.transform = 'translateZ(0) scale('+seatMapZoom+')';
+  var w = canvas.offsetWidth*seatMapZoom, h = canvas.offsetHeight*seatMapZoom;
+  sizer.style.width = w+'px';
+  sizer.style.height = h+'px';
+  sizer.style.backgroundSize = Math.round(w)+'px '+Math.round(h)+'px';
+  if(pct) pct.textContent = Math.round(seatMapZoom*100)+'%';
+  return true;
+}
 function setSeatMapZoom(z){
   seatMapZoom = Math.max(SEATMAP_ZOOM_MIN, Math.min(SEATMAP_ZOOM_MAX, z));
-  renderSeatFloorPlan();
+  if(!applyFloorZoomLive()) renderSeatFloorPlan(); // e.g. still on the empty-state canvas — nothing to live-patch yet
 }
 function wireFloorZoom(){
   var wrap = document.getElementById('seatmapFloorWrap');
@@ -7374,28 +7442,16 @@ function wireFloorZoom(){
       var dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
       var z = pinchStartZoom * (dist / pinchStartDist);
       seatMapZoom = Math.max(SEATMAP_ZOOM_MIN, Math.min(SEATMAP_ZOOM_MAX, z));
-      var canvas = document.getElementById('seatmapFloorCanvas');
-      var sizer = wrap.querySelector('.seatmap-floor-sizer');
-      var pct = document.getElementById('seatmapZoomPct');
-      if(canvas) canvas.style.transform = 'scale('+seatMapZoom+')';
-      if(sizer){
-        var w = canvas.offsetWidth*seatMapZoom, h = canvas.offsetHeight*seatMapZoom;
-        sizer.style.width = w+'px';
-        sizer.style.height = h+'px';
-        // The grid is one fixed vector image stretched to fill the sizer —
-        // it needs its background-size nudged along with the sizer's own
-        // width/height during the pinch too, or the grid visibly stretches
-        // out of sync with the canvas until the gesture ends.
-        sizer.style.backgroundSize = Math.round(w)+'px '+Math.round(h)+'px';
-      }
-      if(pct) pct.textContent = Math.round(seatMapZoom*100)+'%';
+      applyFloorZoomLive();
     }
   }, {passive:false});
   wrap.addEventListener('touchend', function(e){
     if(e.touches.length < 2 && pinchStartDist !== null){
       pinchStartDist = null;
       saveSeatMap();
-      renderSeatFloorPlan(); // settle everything (sizer size, rounding) at the final zoom, same as the +/- buttons do
+      // No re-render here on purpose — same reasoning as the buttons above.
+      // A full rebuild right as you lift your fingers is exactly the kind
+      // of flash that reads as the grid "changing" at the end of a pinch.
     }
   });
 }
@@ -7581,7 +7637,8 @@ function openTableFromFloor(tableId){
     var state = name ? seatGuestRsvpState(name) : '';
     var role = name ? seatCoupleRole(name) : '';
     var stateCls = role ? ' is-couple '+role : !name ? '' : (state==='yes'?' rsvp-yes':state==='no'?' rsvp-no':' rsvp-pending');
-    var cls = 'seatmap-seat'+(name?'':' empty')+stateCls;
+    var qCls2 = (name && !role && isGuestQuestionable(name)) ? ' questionable' : '';
+    var cls = 'seatmap-seat'+(name?'':' empty')+stateCls+qCls2;
     seatsHtml += '<div class="'+cls+'" data-table="'+t.id+'" data-seat="'+n+'"'+(name?' title="'+name.replace(/"/g,'&quot;')+'"':'')+'>'
       + '<span class="seatmap-seat-num">Seat '+n+'</span>'
       + '<span class="seatmap-seat-name">'+(name?seatFirstName(name):'+ Add')+'</span>'
