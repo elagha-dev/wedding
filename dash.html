@@ -916,6 +916,8 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-view-toggle{flex-shrink:0;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;border:1.5px solid var(--parchment);background:var(--cream2);color:var(--muted);cursor:pointer;padding:0}
 .seatmap-view-toggle.active{background:var(--sky-bg);color:var(--sky);border-color:transparent}
 .seatmap-fab-add{position:fixed;right:18px;bottom:24px;z-index:400;width:52px;height:52px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--rose),var(--rose-deep));color:#fff;font-size:26px;font-weight:400;cursor:pointer;box-shadow:0 8px 24px rgba(160,97,74,.4);display:flex;align-items:center;justify-content:center}
+.seatmap-fab-rotate{position:fixed;right:80px;bottom:24px;z-index:400;width:46px;height:46px;border-radius:50%;border:none;background:rgba(30,30,30,.88);color:#fff;font-size:19px;font-weight:400;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center}
+.seatmap-fab-rotate:active{background:rgba(30,30,30,1)}
 .seatmap-assign-banner{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:402;display:flex;align-items:center;gap:10px;background:rgba(30,30,30,.94);color:#fff;padding:10px 10px 10px 16px;border-radius:999px;box-shadow:0 8px 24px rgba(0,0,0,.35);font-family:var(--sans);font-size:12.5px;font-weight:700;max-width:calc(100vw - 32px)}
 .seatmap-assign-banner span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .seatmap-assign-banner button{flex-shrink:0;border:none;background:rgba(255,255,255,.18);color:#fff;font-family:var(--sans);font-size:11.5px;font-weight:800;padding:6px 12px;border-radius:999px;cursor:pointer}
@@ -1681,6 +1683,7 @@ body.lite-mode #liteModeTopBtn {
     <button class="seatmap-close" id="seatmapCloseBtn">✕</button>
   </div>
   <div class="seatmap-body" id="seatmapBody"></div>
+  <button class="seatmap-fab-rotate" id="seatmapFabRotate" title="Rotate last table" style="display:none">↻</button>
   <button class="seatmap-fab-add" id="seatmapFabAdd" title="Add table" style="display:none">+</button>
   <div class="seatmap-assign-banner" id="seatmapAssignBanner" style="display:none">
     <span id="seatmapAssignBannerText"></span>
@@ -6554,6 +6557,24 @@ window.seatBadgeHtml = function(name){
 
 
 /* ── Table CRUD ── */
+/* Which table the floating rotate button (next to "+ Table") acts on: the
+   one you just added, falling back to the last table in the list if
+   nothing's been added yet this session — "rotate whatever I was last
+   working with" without having to tap into it first. */
+function seatmapFabRotateTarget(){
+  var t = _lastAddedTableId ? seatMap.tables.find(function(x){ return x.id === _lastAddedTableId; }) : null;
+  if(!t && seatMap.tables.length) t = seatMap.tables[seatMap.tables.length-1];
+  return t;
+}
+function updateFabRotateVisibility(){
+  var btn = document.getElementById('seatmapFabRotate');
+  if(!btn) return;
+  var t = seatmapFabRotateTarget();
+  // Only rectangular tables actually change shape when rotated — square and
+  // round look identical either way, so the button stays hidden for those
+  // rather than doing a no-op tap.
+  btn.style.display = (t && t.shape === 'rect') ? 'flex' : 'none';
+}
 function addTable(){
   // New tables pick up seatMap.defaultShape — the shape you last
   // deliberately chose (e.g. via the shape picker), starting from table 1's
@@ -6799,6 +6820,7 @@ function renderSeatMap(){
   });
   if(sub) seatmapSetHdrSub(seatMap.tables.length ? (seatMap.tables.length+(seatMap.tables.length===1?' table · ':' tables · ')+totalAssigned+' of '+totalSeats+' seats assigned') : '');
   if(fab) fab.style.display = seatMap.tables.length ? 'flex' : 'none';
+  updateFabRotateVisibility();
   if(!seatMap.tables.length){
     body.innerHTML = seatColorControlsHtml() + '<div class="seatmap-empty">No tables yet.<br><br>Tap <strong>+ Table</strong> above to add your first table, choose how many chairs it has, then tap a chair to seat a guest.</div>';
     wireFloorColorPicker();
@@ -7012,6 +7034,7 @@ function renderSeatFloorPlan(){
   if(!seatMap.landmarks) seatMap.landmarks = [];
 
   if(fab) fab.style.display = seatMap.tables.length ? 'flex' : 'none';
+  updateFabRotateVisibility();
 
   var totalSeats=0, totalAssigned=0;
   seatMap.tables.forEach(function(t){
@@ -7654,6 +7677,15 @@ if(_smViewToggle) _smViewToggle.addEventListener('click', function(){
 });
 var _smFab = document.getElementById('seatmapFabAdd');
 if(_smFab) _smFab.addEventListener('click', addTable);
+var _smFabRotate = document.getElementById('seatmapFabRotate');
+if(_smFabRotate) _smFabRotate.addEventListener('click', function(){
+  var t = seatmapFabRotateTarget();
+  if(!t) return;
+  t.rotation = (t.rotation === 90) ? 0 : 90;
+  saveSeatMap();
+  _lastAddedTableId = t.id; // flash/scroll to it — the FAB isn't next to the table itself, so confirm which one just rotated
+  renderSeatMap();
+});
 var _saOverlay = document.getElementById('seatAssignOverlay');
 if(_saOverlay) _saOverlay.addEventListener('click', closeSeatAssign);
 var _saCloseBtn = document.getElementById('seatAssignCloseBtn');
