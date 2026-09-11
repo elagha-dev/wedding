@@ -6380,6 +6380,15 @@ var DEFAULT_TABLE_COLOR = '#C9876A';
    is never invisible/uncertain even if it lands off the visible area. */
 var _lastAddedTableId = null;
 
+/* True for the duration of an active table/marker drag. The floor plan
+   polls a remote worker every few seconds and does a full re-render on any
+   update — if that landed mid-drag it would destroy the exact DOM node the
+   pointer is captured on (no more pointermove/pointerup ever reaches it),
+   silently killing the drag with nothing saved and the trash bin left
+   stuck showing. Remote updates are deferred until the drag ends instead
+   of being dropped or applied mid-gesture. */
+var _seatMapDragActive = false;
+
 function loadSeatMap(){
   try{
     var raw = localStorage.getItem('ww_seatmap');
@@ -6423,6 +6432,7 @@ function pullSeatMap(notifyIfRemote){
     .then(function(data){
       if(!data || !data.seatMap) return;
       if(!data.updatedAt || data.updatedAt <= _seatMapLastUpdatedAt) return; // nothing newer than what we have
+      if(_seatMapDragActive) return; // don't pull the rug out from under an active drag — retried on the next poll
       var remote = data.seatMap;
       if(!remote.assignments) remote.assignments = {};
       if(!Array.isArray(remote.tables)) remote.tables = [];
@@ -7001,7 +7011,7 @@ function renderSeatFloorPlan(){
   var sizerBg = 'background-color:'+seatMap.floorColor+';background-image:url(\'data:image/svg+xml,'+encodeURIComponent(gridSvg)+'\');background-repeat:no-repeat;background-size:'+Math.round(sizerW)+'px '+Math.round(sizerH)+'px;border-color:'+floorStyle.borderColor+';';
 
   body.innerHTML = controls
-    + '<div class="seatmap-floor-wrap" id="seatmapFloorWrap">'
+    + '<div class="seatmap-floor-wrap" id="seatmapFloorWrap" style="background-color:'+seatMap.floorColor+'">'
       + '<div class="seatmap-zoom-anchor"><div class="seatmap-zoom-controls">'
         + '<button class="seatmap-zoom-btn" id="seatmapZoomOut" title="Zoom out">–</button>'
         + '<span class="seatmap-zoom-pct" id="seatmapZoomPct">'+Math.round(z*100)+'%</span>'
@@ -7310,6 +7320,7 @@ function wireFloorDrag(){
     node.addEventListener('pointerdown', function(e){
       if(e.target.closest('.seatmap-node-dot') || e.target.closest('.seatmap-node-chair-btn')) return;
       dragging = true; moved = false;
+      _seatMapDragActive = true;
       startX = e.clientX; startY = e.clientY;
       node.classList.add('dragging');
       try{ node.setPointerCapture(e.pointerId); }catch(err){}
@@ -7368,6 +7379,7 @@ function wireFloorDrag(){
     function endDrag(e){
       if(!dragging) return;
       dragging = false;
+      _seatMapDragActive = false;
       stopAutoScroll();
       node.classList.remove('dragging');
       node.style.opacity = '';
@@ -7393,6 +7405,12 @@ function wireFloorDrag(){
         saveSeatMap();
       }
       if(!moved) openTableFromFloor(id);
+      // A drop that actually moved the table can put it past the canvas's
+      // current size (computed from where everything WAS before this
+      // drag) — re-render so the room/grid immediately grows to enclose
+      // it, rather than leaving it sitting past the edge of the drawn
+      // background until something else happens to trigger a redraw.
+      else if(moved) renderSeatFloorPlan();
     }, function(id){
       // removeTable() already confirms and re-renders — dragging a table
       // onto the trash bin is the deliberate "let go to delete" gesture.
@@ -7408,6 +7426,7 @@ function wireFloorDrag(){
         saveSeatMap();
       }
       if(!moved && confirm('Remove this marker?')) removeLandmark(id);
+      else if(moved) renderSeatFloorPlan();
     }, function(id){
       removeLandmark(id);
     });
