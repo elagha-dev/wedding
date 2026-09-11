@@ -974,8 +974,18 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-table-node{position:absolute;transform:translate(-50%,-50%);cursor:grab;user-select:none;touch-action:none}
 .seatmap-table-node:active{cursor:grabbing}
 .seatmap-table-node.dragging{transition:none}
-.seatmap-node-shape{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;box-shadow:0 3px 10px rgba(0,0,0,.35)}
+.seatmap-node-shape{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;box-shadow:0 3px 10px rgba(0,0,0,.35);transition:box-shadow .15s,transform .15s,filter .15s}
 .seatmap-table-node.dragging .seatmap-node-shape{box-shadow:0 6px 18px rgba(0,0,0,.5)}
+/* Selected table — a bright ring that reads clearly against any table
+   colour, plus a quick pulse the moment selection happens so the change
+   is noticeable even if the tap landed somewhere busy on the floor plan.
+   This is also the table the floating rotate button now acts on. */
+.seatmap-table-node.selected .seatmap-node-shape{box-shadow:0 0 0 3px #fff,0 0 0 6px var(--rose-deep),0 6px 18px rgba(0,0,0,.45);animation:seatmapTableSelected .4s ease}
+@keyframes seatmapTableSelected{0%{box-shadow:0 0 0 3px #fff,0 0 0 6px var(--rose-deep),0 0 0 12px rgba(160,97,74,.4),0 6px 18px rgba(0,0,0,.45)}100%{box-shadow:0 0 0 3px #fff,0 0 0 6px var(--rose-deep),0 6px 18px rgba(0,0,0,.45)}}
+/* Press-and-hold-to-delete feedback — a visible "charging up" squeeze +
+   red tint while held, distinct from the existing drag-to-trash gesture,
+   so a stationary long press reads as "about to delete" before it fires. */
+.seatmap-table-node.pressing .seatmap-node-shape{transform:scale(.9);filter:brightness(.75) saturate(1.3);box-shadow:0 0 0 3px rgba(185,28,28,.55),0 6px 18px rgba(0,0,0,.45)}
 .seatmap-node-shape.round{border-radius:50%}
 .seatmap-node-shape.rect{border-radius:10px}
 .seatmap-node-shape.square{border-radius:6px}
@@ -7741,6 +7751,36 @@ function wireFloorDrag(){
       // onto the trash bin is the deliberate "let go to delete" gesture.
       removeTable(id);
     });
+
+    // Press-and-hold (without dragging) is a second, faster way to delete
+    // a table — same familiar pattern as long-pressing an icon. It's a
+    // separate listener set from makeDraggable above rather than a new
+    // mode of it, since it only needs to watch "has the finger stayed
+    // still long enough", not any of the drag/snap/trash logic.
+    var LONG_PRESS_MS = 550, pressTimer = null, pressStartX = 0, pressStartY = 0;
+    function cancelLongPress(){
+      if(pressTimer){ clearTimeout(pressTimer); pressTimer = null; }
+      node.classList.remove('pressing');
+    }
+    node.addEventListener('pointerdown', function(e){
+      if(e.target.closest('.seatmap-node-dot') || e.target.closest('.seatmap-node-chair-btn')) return;
+      pressStartX = e.clientX; pressStartY = e.clientY;
+      cancelLongPress();
+      pressTimer = setTimeout(function(){
+        pressTimer = null;
+        node.classList.remove('pressing');
+        removeTable(node.dataset.tableId); // confirms before actually deleting
+      }, LONG_PRESS_MS);
+      // Slight delay before showing the "charging up" squeeze so a normal
+      // quick tap-to-select never flashes it.
+      setTimeout(function(){ if(pressTimer) node.classList.add('pressing'); }, 120);
+    });
+    node.addEventListener('pointermove', function(e){
+      if(!pressTimer) return;
+      if(Math.abs(e.clientX-pressStartX) > 3 || Math.abs(e.clientY-pressStartY) > 3) cancelLongPress();
+    });
+    node.addEventListener('pointerup', cancelLongPress);
+    node.addEventListener('pointercancel', cancelLongPress);
   });
 
   canvas.querySelectorAll('.seatmap-landmark').forEach(function(node){
