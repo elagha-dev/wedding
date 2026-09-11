@@ -70,13 +70,20 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .today-n{font-family:var(--sans);font-size:12px;font-weight:700;line-height:1;color:#fff}
 .today-l{font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.7)}
 
-/* Sync pill */
-.sync-pill{display:flex;align-items:center;justify-content:center;gap:5px;min-width:32px;height:32px;padding:0 10px;background:var(--rose);color:#fff;border:none;border-radius:var(--r-pill);cursor:pointer;transition:all var(--ease);flex-shrink:0}
+/* Sync pill — icon-only circular buttons. The status dot moves to an
+   overlaid badge in the corner instead of sitting inline next to a text
+   label, since there's no label anymore; the icon conveys *what* the
+   button does (Notion vs. cross-device), the dot still conveys *state*
+   (live/syncing/error) exactly as before. */
+.sync-pill{position:relative;display:flex;align-items:center;justify-content:center;width:36px;height:36px;min-width:36px;padding:0;background:var(--rose);color:#fff;border:none;border-radius:50%;cursor:pointer;transition:all var(--ease);flex-shrink:0}
 .sync-pill:hover{background:var(--rose-deep);transform:translateY(-1px)}
 .sync-pill.synced{background:var(--cream2);color:var(--green);box-shadow:none;border:none}
 .sync-pill.synced:hover{background:rgba(58,140,92,.24);transform:none}
-.sync-dot{width:8px;height:8px;background:rgba(255,255,255,.85);border-radius:50%;flex-shrink:0}
-.sync-pill.synced .sync-dot{background:var(--green)}
+.sync-icon{display:flex;pointer-events:none}
+.sync-icon svg{width:16px;height:16px;display:block}
+.sync-pill .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.sync-dot{position:absolute;right:1px;bottom:1px;width:9px;height:9px;background:rgba(255,255,255,.85);border-radius:50%;border:1.5px solid var(--rose);flex-shrink:0;pointer-events:none}
+.sync-pill.synced .sync-dot{background:var(--green);border-color:var(--cream2)}
 .sync-dot.live{animation:blink 2.2s ease-in-out infinite}
 @keyframes blink{0%,100%{opacity:1}55%{opacity:.3}}
 
@@ -927,9 +934,15 @@ body.lite-mode #liteModeTopBtn {
    top-aligned layout as the two-line seat tiles above (num on top, name
    below), which left it stuck near the top of the box instead of centered.
    Dashed border marks it as a placeholder/slot rather than a real seat. */
-.seatmap-seat.add-seat{justify-content:center;align-items:center;background:transparent;border-style:dashed;border-color:var(--soft)}
+.seatmap-seat.add-seat{justify-content:center;align-items:center;background:transparent;border-style:dashed;border-color:var(--soft);gap:4px}
 .seatmap-seat.add-seat:active{background:var(--cream2)}
-.seatmap-seat-plus{font-size:20px;font-weight:800;color:var(--soft);line-height:1}
+.seatmap-seat.add-seat:active .seatmap-seat-plus-icon{transform:scale(.92)}
+/* A small filled badge with a plus glyph reads as an actual "add" control
+   at a glance, instead of a lone bare "+" character floating in the tile
+   with no visual weight of its own. */
+.seatmap-seat-plus-icon{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--rose),var(--rose-deep));color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(160,97,74,.35);transition:transform .1s}
+.seatmap-seat-plus-icon svg{width:13px;height:13px;display:block}
+.seatmap-seat-plus-label{font-family:var(--sans);font-size:8.5px;font-weight:700;letter-spacing:.02em;color:var(--soft);text-transform:uppercase}
 .seatmap-summary{display:flex;gap:8px;padding:0 2px 12px;flex-wrap:wrap}
 .seatmap-summary-pill{font-family:var(--sans);font-size:10.5px;font-weight:700;padding:5px 11px;border-radius:var(--r-pill);background:var(--cream2);color:var(--muted);border:1px solid var(--parchment)}
 .seatmap-view-toggle{flex-shrink:0;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;border:1.5px solid var(--parchment);background:var(--cream2);color:var(--muted);cursor:pointer;padding:0}
@@ -1125,12 +1138,14 @@ body.lite-mode #liteModeTopBtn {
        Sync Devices = Browser ↔ Cloudflare ↔ Other Browser only (guest
        meta/claims + seat map). Never mixed — see doSync() / syncDevices(). -->
   <button class="sync-pill" id="topSyncBtn" title="Pull the guest roster from Notion">
+    <span class="sync-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16"/><path d="M4 10h10"/><path d="M4 15h6"/><path d="M16 14v7"/><path d="M13 18l3 3 3-3"/></svg></span>
     <span class="sync-dot live" id="syncDot"></span>
-    <span id="topSyncLabel" style="font-size:9px;font-weight:600;letter-spacing:.04em">Sync Notion</span>
+    <span id="topSyncLabel" class="sr-only">Sync Notion</span>
   </button>
   <button class="sync-pill" id="syncDevicesBtn" title="Push your changes, pull changes from other devices">
+    <span class="sync-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 1-15.5 6.3L3 16"/><path d="M3 12a9 9 0 0 1 15.5-6.3L21 8"/><path d="M3 16v4h4"/><path d="M21 8V4h-4"/></svg></span>
     <span class="sync-dot live" id="syncDevicesDot"></span>
-    <span id="syncDevicesLabel" style="font-size:9px;font-weight:600;letter-spacing:.04em">Sync Devices</span>
+    <span id="syncDevicesLabel" class="sr-only">Sync Devices</span>
   </button>
   <!-- Stats -->
   <div class="stat-pill total" id="ovTotal" title="Total guests" style="cursor:pointer">0</div>
@@ -6466,6 +6481,7 @@ window.addEventListener('unhandledrejection', function(e){ e.preventDefault(); }
 var seatMap = {tables:[], assignments:{}};
 var seatMapZoom = 1;
 var SEATMAP_ZOOM_MIN = 0.5, SEATMAP_ZOOM_MAX = 2.5;
+var SEATMAP_GRID_PX = 24; // fixed world-space grid cell size, shared by the initial render and the zoom-coverage fix below
 
 /* Nice, high-contrast defaults for the floor plan — a warm charcoal room
    with rose-gold tables, matching the site's own palette, so tables read
@@ -6979,7 +6995,8 @@ function renderSeatMap(){
     // One extra tile right after the last seat — tap it to add the next
     // chair in place, without needing the +/- counter up in the header.
     seatsHtml += '<div class="seatmap-seat add-seat" data-table="'+t.id+'" title="Add a chair">'
-      + '<span class="seatmap-seat-plus">+</span>'
+      + '<span class="seatmap-seat-plus-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>'
+      + '<span class="seatmap-seat-plus-label">Add seat</span>'
       + '</div>';
     return '<div class="seatmap-table-card" data-table-id="'+t.id+'">'
       + '<div class="seatmap-table-hdr">'
@@ -7247,7 +7264,7 @@ function renderSeatFloorPlan(){
   var contentH = canvasPxH;
   placedFootprints.forEach(function(p){ contentH = Math.max(contentH, p.cy + p.h/2 + 24); });
   (seatMap.landmarks||[]).forEach(function(l){ contentH = Math.max(contentH, l.pos.y + 40); });
-  var gridPx = 24; // fixed world-space cell size — zoom is applied only via background-size below, never by rebuilding the grid itself
+  var gridPx = SEATMAP_GRID_PX; // fixed world-space cell size — zoom is applied only via background-size below, never by rebuilding the grid itself
   var sizerW = canvasPxW*z, sizerH = contentH*z;
   var gridSvg = floorGridFullSvg(floorStyle.gridRgb, floorStyle.gridOpacity, canvasPxW, contentH, gridPx);
   var sizerBg = 'background-color:'+seatMap.floorColor+';background-image:url(\'data:image/svg+xml,'+encodeURIComponent(gridSvg)+'\');background-repeat:no-repeat;background-size:'+Math.round(sizerW)+'px '+Math.round(sizerH)+'px;border-color:'+floorStyle.borderColor+';';
@@ -7260,10 +7277,14 @@ function renderSeatFloorPlan(){
         + '<button class="seatmap-zoom-btn" id="seatmapZoomIn" title="Zoom in">+</button>'
       + '</div></div>'
       // The grid is one exact-size, non-repeating image (see
-      // floorGridFullSvg) drawn on the sizer, which always fills at least
-      // the full wrap via min-width/height:100% — so panning/zooming out
-      // never runs off the edge of the pattern into a flat, grid-less area,
-      // and there's no tile boundary anywhere for a repaint to desync.
+      // floorGridFullSvg) drawn on the sizer. Its inline width/height here
+      // is only a first-paint guess — once the sizer is actually in the
+      // DOM, its min-width/height:100% CSS can stretch it past this guess
+      // (e.g. zoomed out on a wide screen, or a small room on a big
+      // screen), and seatmapFixFloorCoverage() below re-measures and
+      // regenerates the grid to match whatever size the sizer really
+      // ended up, so the pattern always reaches every edge instead of
+      // leaving a flat, grid-less strip.
       + '<div class="seatmap-floor-sizer" style="width:'+(canvasPxW*z)+'px;height:'+(contentH*z)+'px;'+sizerBg+'">'
         + '<div class="seatmap-floor" id="seatmapFloorCanvas" style="width:'+canvasPxW+'px;height:'+contentH+'px;transform:translateZ(0) scale('+z+');transform-origin:0 0">'+tableNodes.join('')+landmarkNodes
           + '<div class="seatmap-snap-guide v" id="snapGuideV"></div>'
@@ -7277,7 +7298,38 @@ function renderSeatFloorPlan(){
   wireFloorAddButtons();
   wireFloorColorPicker();
   wireFloorZoom();
+  seatmapFixFloorCoverage();
   flashLastAddedTable(document.getElementById('seatmapFloorCanvas') || body);
+}
+
+/* The sizer has CSS min-width/height:100% so an empty/small floor plan
+   still fills the visible wrap. But the grid background image is a single
+   exact-size (non-repeating) graphic sized from canvasPxW/contentH*zoom —
+   if min-width/height then stretches the sizer past that size (typical
+   when zoomed out below 100%, or the room is narrower than the screen),
+   the image can't cover the extra stretched area and part of the canvas
+   is left with no grid at all. This re-measures the sizer's *actual*
+   rendered box after layout and, if it's bigger than the image, rebuilds
+   the grid at the larger size so it always reaches every edge. Called
+   after every full render and after every zoom step. */
+function seatmapFixFloorCoverage(){
+  var wrap = document.getElementById('seatmapFloorWrap');
+  var sizer = wrap && wrap.querySelector('.seatmap-floor-sizer');
+  var canvas = document.getElementById('seatmapFloorCanvas');
+  if(!wrap || !sizer || !canvas) return;
+  var z = seatMapZoom;
+  var canvasPxW = canvas.offsetWidth, contentH = canvas.offsetHeight; // untransformed (world) size — CSS transform:scale doesn't affect offsetWidth/Height
+  var neededW = Math.max(Math.round(canvasPxW*z), wrap.clientWidth);
+  var neededH = Math.max(Math.round(contentH*z), wrap.clientHeight);
+  var worldW = Math.max(canvasPxW, Math.ceil(neededW / z));
+  var worldH = Math.max(contentH, Math.ceil(neededH / z));
+  var fc = floorCanvasStyle(seatMap.floorColor);
+  var gridSvg = floorGridFullSvg(fc.gridRgb, fc.gridOpacity, worldW, worldH, SEATMAP_GRID_PX);
+  sizer.style.width = neededW+'px';
+  sizer.style.height = neededH+'px';
+  sizer.style.backgroundImage = 'url(\'data:image/svg+xml,'+encodeURIComponent(gridSvg)+'\')';
+  sizer.style.backgroundRepeat = 'no-repeat';
+  sizer.style.backgroundSize = neededW+'px '+neededH+'px';
 }
 
 /* Build the table-shape style for a chosen colour, picking readable text
@@ -7471,10 +7523,11 @@ function applyFloorZoomLive(){
   var pct = document.getElementById('seatmapZoomPct');
   if(!canvas || !sizer) return false;
   canvas.style.transform = 'translateZ(0) scale('+seatMapZoom+')';
-  var w = canvas.offsetWidth*seatMapZoom, h = canvas.offsetHeight*seatMapZoom;
-  sizer.style.width = w+'px';
-  sizer.style.height = h+'px';
-  sizer.style.backgroundSize = Math.round(w)+'px '+Math.round(h)+'px';
+  // Sizing/backgroundSize is handled by seatmapFixFloorCoverage() rather
+  // than a plain canvas*zoom multiply here, since at low zoom the sizer's
+  // min-width/height:100% can stretch it past that raw size — the grid
+  // needs to be rebuilt to actually cover however big the sizer ends up.
+  seatmapFixFloorCoverage();
   if(pct) pct.textContent = Math.round(seatMapZoom*100)+'%';
   return true;
 }
