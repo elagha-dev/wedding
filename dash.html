@@ -1113,10 +1113,17 @@ body.lite-mode #liteModeTopBtn {
   <!-- Hidden session buttons still needed for JS logic -->
   <button class="sess-btn on-a" id="sessA" data-who="Arina" style="display:none">A</button>
   <button class="sess-btn" id="sessE" data-who="Elnur" style="display:none">E</button>
-  <!-- Sync -->
-  <button class="sync-pill" id="topSyncBtn">
+  <!-- Sync: two separate, single-purpose, manual buttons.
+       Sync Notion = Notion → Browser only.
+       Sync Devices = Browser ↔ Cloudflare ↔ Other Browser only (guest
+       meta/claims + seat map). Never mixed — see doSync() / syncDevices(). -->
+  <button class="sync-pill" id="topSyncBtn" title="Pull the guest roster from Notion">
     <span class="sync-dot live" id="syncDot"></span>
-    <span id="topSyncLabel" style="font-size:9px;font-weight:600;letter-spacing:.04em"></span>
+    <span id="topSyncLabel" style="font-size:9px;font-weight:600;letter-spacing:.04em">Sync Notion</span>
+  </button>
+  <button class="sync-pill" id="syncDevicesBtn" title="Push your changes, pull changes from other devices">
+    <span class="sync-dot live" id="syncDevicesDot"></span>
+    <span id="syncDevicesLabel" style="font-size:9px;font-weight:600;letter-spacing:.04em">Sync Devices</span>
   </button>
   <!-- Stats -->
   <div class="stat-pill total" id="ovTotal" title="Total guests" style="cursor:pointer">0</div>
@@ -1865,9 +1872,10 @@ function _pushWithRetry(endpoint,payload,retryKey){
       if(!existing){_retryQueue.push({key:retryKey,endpoint:endpoint,payload:payload,ts:Date.now()});}
       else{existing.payload=payload;existing.ts=Date.now();} // overwrite with latest
       _saveRetryQueue();
-      // show visual warning in topbar
-      var dot=document.getElementById('syncDot');if(dot){dot.style.background='var(--amber)';}
-      document.getElementById('topSyncLabel').textContent='Push failed!';
+      // show visual warning on the Devices pill — this is device-sync
+      // traffic (/meta, /sent, /unsent, /claims), never the Notion pill
+      var dot=document.getElementById('syncDevicesDot');if(dot){dot.style.background='var(--amber)';}
+      var lbl=document.getElementById('syncDevicesLabel');if(lbl)lbl.textContent='Push failed!';
     });
 }
 function _flushRetryQueue(){
@@ -4577,8 +4585,9 @@ function setSyncBlur(on){
 function setTopSynced(timeStr){
   var pill=document.getElementById('topSyncBtn');
   pill.classList.add('synced');
-  pill.style.background='';pill.style.boxShadow='';pill.title='';
-  document.getElementById('topSyncLabel').textContent=timeStr;
+  pill.style.background='';pill.style.boxShadow='';
+  pill.title='Notion last synced '+timeStr; // date moved into the tooltip — the pill itself just says "Sync Notion" now
+  document.getElementById('topSyncLabel').textContent='Sync Notion';
   var dot=document.getElementById('syncDot');dot.classList.remove('live');dot.style.background='';
   setSyncBlur(false);
 }
@@ -4607,17 +4616,10 @@ function _buildSyncFingerprint(guests){
 function doSync(){
   var url=workerUrl;if(!url)return;
   setTopSyncing();
-  // Flush any queued failed pushes before fetching fresh state
-  _flushRetryQueue();
-  // Fetch guests + claims in parallel
-  Promise.all([
-    fetch(url,{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}),
-    fetch(url.replace(/\/$/,'')+'/claims',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;})
-  ])
-    .then(function(results){
-      var data=results[0];
-      var claimsData=results[1];
-      if(claimsData&&claimsData.claims){mergeRemoteClaims(claimsData.claims);}
+  // Pure Notion → Browser pull only now — no device-sync pushes (retry
+  // queue) or claims merging mixed in here; those belong to Sync Devices.
+  fetch(url,{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
+    .then(function(data){
       var guests=Array.isArray(data)?data:(data.results||data.guests||[]);
       if(!guests.length)throw new Error('No guests returned');
       var prevCount=importQueue.length;
@@ -4736,6 +4738,51 @@ function doSync(){
 var _prevSyncMap={};
 document.getElementById('topSyncBtn').addEventListener('click',doSync);
 
+// ── SYNC DEVICES: manual cross-device sync only ──
+// Browser ↔ Cloudflare ↔ Other Browser — pulls guest meta/claims (/state,
+// /claims) and the seat map (/seatmap), then pushes the local seat map.
+// Guest meta/claims themselves already push immediately when you edit them
+// (pushMetaToWorker/pushSentToWorker/claimGuest) — this button additionally
+// flushes anything that failed to push earlier. Completely separate from
+// doSync()/Sync Notion above; never touches the Notion roster fetch.
+function setDevicesSynced(){
+  var pill=document.getElementById('syncDevicesBtn');
+  pill.classList.add('synced');
+  var dot=document.getElementById('syncDevicesDot');dot.classList.remove('live');dot.style.background='';
+  document.getElementById('syncDevicesLabel').textContent='Sync Devices';
+}
+function setDevicesSyncing(){
+  var pill=document.getElementById('syncDevicesBtn');
+  pill.classList.remove('synced');
+  var dot=document.getElementById('syncDevicesDot');dot.classList.add('live');dot.style.background='';
+  document.getElementById('syncDevicesLabel').textContent='Syncing…';
+}
+function setDevicesSyncFailed(){
+  var pill=document.getElementById('syncDevicesBtn');
+  pill.classList.remove('synced');
+  var dot=document.getElementById('syncDevicesDot');dot.classList.add('live');dot.style.background='var(--amber)';
+  document.getElementById('syncDevicesLabel').textContent='Retry';
+}
+function syncDevices(){
+  var url=workerUrl; if(!url) return;
+  setDevicesSyncing();
+  _flushRetryQueue(); // anything that failed to push earlier (meta/sent/unsent/claims) goes out now too
+  var statePromise = (typeof pollGuestState==='function') ? pollGuestState() : Promise.resolve();
+  var claimsPromise = fetch(url.replace(/\/$/,'')+'/claims',{cache:'no-store'})
+    .then(function(r){return r.ok?r.json():null;})
+    .then(function(claimsData){ if(claimsData&&claimsData.claims) mergeRemoteClaims(claimsData.claims); })
+    .catch(function(){});
+  var seatPromise = (typeof pullSeatMap==='function') ? pullSeatMap(true) : Promise.resolve();
+  Promise.all([statePromise, claimsPromise, seatPromise])
+    .then(function(){
+      renderGuestList();
+      if(typeof pushSeatMap==='function') pushSeatMap(); // upload whatever the local seat map looks like now
+      setDevicesSynced();
+    })
+    .catch(function(){ setDevicesSyncFailed(); });
+}
+document.getElementById('syncDevicesBtn').addEventListener('click',syncDevices);
+
 // Worker URL managed via Settings drawer
 
 // Restore on load — show stale data instantly, then immediately fetch fresh from Worker
@@ -4761,82 +4808,77 @@ function startAutoPoll(){
 // startAutoPoll(); // disabled
 // visibilitychange auto-sync disabled
 
-// ── KV STATE POLLER: every 30s, merges sent/meta/claims from other device ──
+// ── KV STATE PULL: merges sent/meta/claims from other devices — now only
+// runs when "Sync Devices" is pressed (see syncDevices()), never on a timer.
 // Never touches Notion, never overwrites phones/types/groups or in-flight local state.
-(function(){
-  var _lastStateTs='';
-  function pollState(){
-    var url=workerUrl;
-    if(!url||!importQueue.length)return; // only after first manual sync
-    fetch(url.replace(/\/$/,'')+'/state',{cache:'no-store'})
-      .then(function(r){if(!r.ok)throw new Error();return r.json();})
-      .then(function(data){
-        if(!data.state)return;
-        var _stateHash=JSON.stringify(data.state);
-        if(_stateHash===_lastStateTs)return;
-        _lastStateTs=_stateHash;
-        var state=data.state;
-        var changed=[];
-        importQueue.forEach(function(g){
-          var remote=state[g.name];
-          if(!remote)return;
-          var local=_localWrites[g.name]||{};
-          var dirty=false;
-          // Skip fields this device already wrote — avoids echo-back
-          if(!g.pendingSent&&local.sent===undefined){
-            var newSent=!!(remote.sentAt);
-            if(newSent!==g.sent){
-              g.sent=newSent;
-              g.sentAt=remote.sentAt||'';
-              dirty=true;
-            }
-          }
-          if(remote.followup!==undefined&&local.followup===undefined&&remote.followup!==g.followup){
-            g.followup=remote.followup;dirty=true;
-          }
-          if(remote.note!==undefined&&local.note===undefined&&remote.note!==g.note){
-            g.note=remote.note;dirty=true;
-          }
-          if(remote.role!==undefined&&local.role===undefined&&remote.role!==g.role){
-            g.role=remote.role;dirty=true;
-          }
-          if(remote.claim!==undefined&&remote.claim!==g.claim){
-            g.claim=remote.claim;dirty=true;
-          }
-          if(remote.bulkWith!==undefined&&local.bulkWith===undefined&&(remote.bulkWith||'')!==(g.bulkWith||'')){g.bulkWith=remote.bulkWith||'';dirty=true;}
-          if(remote.sentGroupId!==undefined&&local.sentGroupId===undefined&&(remote.sentGroupId||'')!==(g.sentGroupId||'')){g.sentGroupId=remote.sentGroupId||'';dirty=true;}
-          if(remote.parentNames!==undefined&&local.parentNames===undefined&&(remote.parentNames||'')!==(g.parentNames||'')){g.parentNames=remote.parentNames||'';dirty=true;}
-          if(remote.sentBy!==undefined&&remote.sentBy!==g.sentBy){
-            g.sentBy=remote.sentBy;
-          }
-          if(dirty)changed.push(g.name);
-        });
-        if(changed.length){
-          try{localStorage.setItem('ww_pending',JSON.stringify(importQueue));}catch(e){}
-          saveGuestMeta();
-          renderGuestList();
-          renderDashboard();
-          // Find who made the change — use sentBy from remote state if available
-          var changedBy='';
-          for(var _ci=0;_ci<changed.length;_ci++){
-            var _cg=importQueue.find(function(g){return g.name===changed[_ci];});
-            if(_cg&&_cg.sentBy){changedBy=_cg.sentBy;break;}
-          }
-          if(changedBy&&changedBy!==sessionSender){
-            showActivityToast(changed.length===1?changed[0]+' updated by '+changedBy+' on another device':changed.length+' guests updated by '+changedBy+' on another device');
-          } else if(!changedBy){
-            showActivityToast(changed.length===1?changed[0]+' updated on another device':changed.length+' guests updated on another device');
+var _pollStateLastHash='';
+function pollGuestState(){
+  var url=workerUrl;
+  if(!url||!importQueue.length)return Promise.resolve(); // only after first manual sync
+  return fetch(url.replace(/\/$/,'')+'/state',{cache:'no-store'})
+    .then(function(r){if(!r.ok)throw new Error();return r.json();})
+    .then(function(data){
+      if(!data.state)return;
+      var _stateHash=JSON.stringify(data.state);
+      if(_stateHash===_pollStateLastHash)return;
+      _pollStateLastHash=_stateHash;
+      var state=data.state;
+      var changed=[];
+      importQueue.forEach(function(g){
+        var remote=state[g.name];
+        if(!remote)return;
+        var local=_localWrites[g.name]||{};
+        var dirty=false;
+        // Skip fields this device already wrote — avoids echo-back
+        if(!g.pendingSent&&local.sent===undefined){
+          var newSent=!!(remote.sentAt);
+          if(newSent!==g.sent){
+            g.sent=newSent;
+            g.sentAt=remote.sentAt||'';
+            dirty=true;
           }
         }
-      })
-      .catch(function(){}); // silent fail
-  }
-  // Start 10s after load, then every 30s
-  setTimeout(function(){
-    pollState();
-    setInterval(pollState, 30000);
-  }, 10000);
-})();
+        if(remote.followup!==undefined&&local.followup===undefined&&remote.followup!==g.followup){
+          g.followup=remote.followup;dirty=true;
+        }
+        if(remote.note!==undefined&&local.note===undefined&&remote.note!==g.note){
+          g.note=remote.note;dirty=true;
+        }
+        if(remote.role!==undefined&&local.role===undefined&&remote.role!==g.role){
+          g.role=remote.role;dirty=true;
+        }
+        if(remote.claim!==undefined&&remote.claim!==g.claim){
+          g.claim=remote.claim;dirty=true;
+        }
+        if(remote.bulkWith!==undefined&&local.bulkWith===undefined&&(remote.bulkWith||'')!==(g.bulkWith||'')){g.bulkWith=remote.bulkWith||'';dirty=true;}
+        if(remote.sentGroupId!==undefined&&local.sentGroupId===undefined&&(remote.sentGroupId||'')!==(g.sentGroupId||'')){g.sentGroupId=remote.sentGroupId||'';dirty=true;}
+        if(remote.parentNames!==undefined&&local.parentNames===undefined&&(remote.parentNames||'')!==(g.parentNames||'')){g.parentNames=remote.parentNames||'';dirty=true;}
+        if(remote.sentBy!==undefined&&remote.sentBy!==g.sentBy){
+          g.sentBy=remote.sentBy;
+        }
+        if(dirty)changed.push(g.name);
+      });
+      if(changed.length){
+        try{localStorage.setItem('ww_pending',JSON.stringify(importQueue));}catch(e){}
+        saveGuestMeta();
+        renderGuestList();
+        renderDashboard();
+        // Find who made the change — use sentBy from remote state if available
+        var changedBy='';
+        for(var _ci=0;_ci<changed.length;_ci++){
+          var _cg=importQueue.find(function(g){return g.name===changed[_ci];});
+          if(_cg&&_cg.sentBy){changedBy=_cg.sentBy;break;}
+        }
+        if(changedBy&&changedBy!==sessionSender){
+          showActivityToast(changed.length===1?changed[0]+' updated by '+changedBy+' on another device':changed.length+' guests updated by '+changedBy+' on another device');
+        } else if(!changedBy){
+          showActivityToast(changed.length===1?changed[0]+' updated on another device':changed.length+' guests updated on another device');
+        }
+      }
+    })
+    .catch(function(){}); // silent fail — syncDevices() still resolves either way
+}
+// Automatic 30s timer removed — pollGuestState() now only runs from syncDevices().
 
 // ── NOTION CHANGE CHECKER: every 12h, notifies if guest list changed ──
 /* ── NOTION SYNC MODE MANAGER ───────────────────────────── */
@@ -5138,7 +5180,7 @@ function doHardReset(){
   save();renderTracker();renderDashboard();
   document.getElementById('outCard').style.display='none';
   document.getElementById('guestArea').style.display='none';
-  var pill=document.getElementById('topSyncBtn');pill.classList.remove('synced');document.getElementById('topSyncLabel').textContent='Sync';var dot=document.getElementById('syncDot');dot.classList.add('live');dot.style.background='';
+  var pill=document.getElementById('topSyncBtn');pill.classList.remove('synced');document.getElementById('topSyncLabel').textContent='Sync Notion';var dot=document.getElementById('syncDot');dot.classList.add('live');dot.style.background='';
 }
 
 /* ══ SETTINGS ════════════════════════════════ */
@@ -5387,7 +5429,9 @@ function doSyncSilent(){
       .catch(function(){}); // silent fail
   }
 
-  setTimeout(function(){ poll(); setInterval(poll, 8000); }, 5000);
+  // Automatic 8s polling removed — this was another source of continuous
+  // Cloudflare reads outside of Sync Devices. poll()/doSyncSilent() are left
+  // defined but dormant in case they're wired up manually somewhere later.
 })();
 
 // Guest mode: no manual sync button, so auto-sync every 30s
@@ -6470,7 +6514,9 @@ function loadSeatMap(){
 }
 function saveSeatMap(){
   try{ localStorage.setItem('ww_seatmap', JSON.stringify(seatMap)); }catch(e){}
-  pushSeatMap();
+  // Cloudflare push removed from here — seat map edits now stay purely
+  // local (and instantly responsive) until "Sync Devices" is pressed,
+  // instead of writing to the worker on every drag/tap.
 }
 loadSeatMap();
 
@@ -6478,22 +6524,23 @@ loadSeatMap();
    Same shared-blob pattern as the /chat feature: GET /seatmap returns
    {seatMap, updatedAt, updatedBy}, POST replaces it. localStorage stays
    the instant local cache so the screen never feels laggy; the network
-   round-trip only decides who "wins" when both devices have edited. */
+   round-trip only happens when "Sync Devices" is pressed — pull decides
+   whether the other device's copy is newer, push uploads ours. */
 function seatMapWho(){ return (typeof sessionSender !== 'undefined') ? sessionSender : ''; }
 function seatMapWorkerBase(){ return (typeof workerUrl !== 'undefined' && workerUrl) ? workerUrl.replace(/\/$/, '') : 'https://guestlist.elnur-agha.workers.dev'; }
 
 var _seatMapLastUpdatedAt = 0;
 var _seatMapPushTimer = null;
-var _seatMapPollTimer = null;
+var _seatMapPollTimer = null; // unused now that polling is gone — kept only so stopSeatMapPoll() stays a harmless no-op
 var SEATMAP_POLL_MS = 8000;
 
 function pullSeatMap(notifyIfRemote){
-  fetch(seatMapWorkerBase() + '/seatmap', {cache:'no-store'})
+  return fetch(seatMapWorkerBase() + '/seatmap', {cache:'no-store'})
     .then(function(r){ return r.ok ? r.json() : null; })
     .then(function(data){
       if(!data || !data.seatMap) return;
       if(!data.updatedAt || data.updatedAt <= _seatMapLastUpdatedAt) return; // nothing newer than what we have
-      if(_seatMapDragActive) return; // don't pull the rug out from under an active drag — retried on the next poll
+      if(_seatMapDragActive) return; // don't pull the rug out from under an active drag
       var remote = data.seatMap;
       if(!remote.assignments) remote.assignments = {};
       if(!Array.isArray(remote.tables)) remote.tables = [];
@@ -6525,10 +6572,11 @@ function pushSeatMap(){
   }, 500);
 }
 
-function startSeatMapPoll(){ stopSeatMapPoll(); _seatMapPollTimer = setInterval(function(){ pullSeatMap(true); }, SEATMAP_POLL_MS); }
+function startSeatMapPoll(){ /* automatic seat-map polling removed — Sync Devices is now the only way in or out of Cloudflare for the seat map */ }
 function stopSeatMapPoll(){ if(_seatMapPollTimer){ clearInterval(_seatMapPollTimer); _seatMapPollTimer = null; } }
 
-pullSeatMap(false); // catch up with whatever the other device last saved
+// Automatic catch-up pull on load removed — the seat map now only talks to
+// Cloudflare when "Sync Devices" is pressed.
 
 function seatKey(tableId, n){ return tableId+'-'+n; }
 /* Seat buttons only have room for a short label — show just the first
@@ -7748,8 +7796,8 @@ function openSeatMap(){
   renderSeatMap();
   document.getElementById('seatmapOverlay').classList.add('open');
   document.getElementById('seatmapScreen').classList.add('open');
-  pullSeatMap(true); // grab anything the other device saved since our last pull
-  startSeatMapPoll();
+  // No automatic pull/poll here anymore — press "Sync Devices" to grab
+  // whatever another device has saved.
 }
 function closeSeatMapScreen(){
   document.getElementById('seatmapOverlay').classList.remove('open');
