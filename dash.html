@@ -3680,7 +3680,11 @@ function buildGuestCard(g, mergedPairPos){
     // there's nothing left to be unsure about, so the toggle disappears
     // (any existing flag just stops being shown/used, not deleted, in case
     // their RSVP status ever reverts to pending).
-    if(!coupleRole && rsvpClass===' rsvp-pending') pillWrap += g.questionable
+    // rsvpClass is '' (not ' rsvp-pending') for a guest with NO matched RSVP
+    // submission at all — the most-pending case there is — so that counts
+    // as pending here too, or the toggle silently never shows for exactly
+    // the guests you're most likely to be unsure about.
+    if(!coupleRole && (rsvpClass===' rsvp-pending' || rsvpClass==='')) pillWrap += g.questionable
       ? '<button type="button" class="chip chip-questionable" data-qi="'+ri+'" data-action="toggle-questionable" title="Tap to unmark">? Unsure</button>'
       : '<button type="button" class="chip chip-questionable-add" data-qi="'+ri+'" data-action="toggle-questionable" title="Mark as questionable">?</button>';
 
