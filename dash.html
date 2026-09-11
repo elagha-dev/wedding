@@ -873,6 +873,7 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-screen{position:fixed;inset:0;z-index:399;background:var(--parchment2,var(--cream));display:flex;flex-direction:column;transform:translateY(100%);transition:transform .28s cubic-bezier(.32,.72,.35,1)}
 .seatmap-screen.open{transform:translateY(0)}
 .seatmap-hdr{flex-shrink:0;display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--cream);border-bottom:1px solid var(--parchment);box-shadow:0 2px 8px rgba(0,0,0,.03)}
+.seatmap-hdr-titlewrap{flex:1;min-width:0}
 .seatmap-hdr-title{font-family:var(--serif,var(--sans));font-size:17px;font-weight:800;color:var(--ink2);flex:1}
 .seatmap-hdr-sub{font-family:var(--sans);font-size:11px;color:var(--muted);font-weight:600}
 .seatmap-unseated-link{font:inherit;color:var(--rose-deep,#a0614a);background:none;border:none;padding:0;text-decoration:underline;cursor:pointer}
@@ -988,7 +989,7 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-marker-picker{display:none;flex-wrap:wrap;gap:8px;padding:2px 2px 12px}
 .seatmap-marker-picker.open{display:flex}
 .seatmap-marker-chip{font-family:var(--sans);font-size:11.5px;font-weight:700;padding:7px 12px;border-radius:var(--r-pill);border:1.5px solid var(--parchment);background:var(--cream2);color:var(--ink2);cursor:pointer;display:flex;align-items:center;gap:5px}
-.seatmap-floor-controls{display:flex;gap:8px;padding:0 2px 10px;flex-wrap:wrap}
+.seatmap-floor-controls{display:flex;gap:8px;padding:0 2px 10px;flex-wrap:wrap;align-items:center}
 .seatmap-floor-add-btn{font-family:var(--sans);font-size:11.5px;font-weight:700;padding:7px 13px;border-radius:var(--r-pill);border:1.5px solid var(--parchment);background:var(--cream2);color:var(--ink2);cursor:pointer}
 .seatmap-color-swatch{-webkit-appearance:none;appearance:none;width:32px;height:32px;flex-shrink:0;border-radius:50%;border:1.5px solid var(--parchment);padding:0;cursor:pointer;background:none}
 .seatmap-color-swatch::-webkit-color-swatch-wrapper{padding:2px;border-radius:50%}
@@ -1686,7 +1687,7 @@ body.lite-mode #liteModeTopBtn {
 <div class="seatmap-overlay" id="seatmapOverlay"></div>
 <div class="seatmap-screen" id="seatmapScreen">
   <div class="seatmap-hdr">
-    <div>
+    <div class="seatmap-hdr-titlewrap">
       <div class="seatmap-hdr-title">Seat Map</div>
       <div class="seatmap-hdr-sub" id="seatmapHdrSub"></div>
     </div>
@@ -6427,6 +6428,12 @@ var QUESTIONABLE_COLOR = '#7c3aed';
    is never invisible/uncertain even if it lands off the visible area. */
 var _lastAddedTableId = null;
 
+/* Which table is currently "selected" on the floor plan — a single tap
+   selects a table (highlight ring, and becomes the rotate button's
+   target) without opening it; tapping that same selected table again is
+   what opens its seat sheet. */
+var _selectedTableId = null;
+
 /* True for the duration of an active table/marker drag. The floor plan
    polls a remote worker every few seconds and does a full re-render on any
    update — if that landed mid-drag it would destroy the exact DOM node the
@@ -6615,11 +6622,12 @@ window.seatBadgeHtml = function(name){
 
 /* ── Table CRUD ── */
 /* Which table the floating rotate button (next to "+ Table") acts on: the
-   one you just added, falling back to the last table in the list if
-   nothing's been added yet this session — "rotate whatever I was last
-   working with" without having to tap into it first. */
+   one currently selected on the floor plan, falling back to whichever was
+   just added, then to the last table in the list — "rotate whatever I'm
+   looking at" without needing to open it first. */
 function seatmapFabRotateTarget(){
-  var t = _lastAddedTableId ? seatMap.tables.find(function(x){ return x.id === _lastAddedTableId; }) : null;
+  var t = _selectedTableId ? seatMap.tables.find(function(x){ return x.id === _selectedTableId; }) : null;
+  if(!t && _lastAddedTableId) t = seatMap.tables.find(function(x){ return x.id === _lastAddedTableId; });
   if(!t && seatMap.tables.length) t = seatMap.tables[seatMap.tables.length-1];
   return t;
 }
@@ -7107,8 +7115,11 @@ function renderSeatFloorPlan(){
 
   var controls = '<div class="seatmap-floor-controls">'
     + '<button class="seatmap-floor-add-btn" id="addMarkerBtn">+ Add venue marker</button>'
+    + '<input type="color" class="seatmap-color-swatch" id="floorColorPicker" value="'+seatMap.floorColor+'" title="Canvas color">'
+    + '<button type="button" class="seatmap-color-reset" id="floorColorReset" title="Reset canvas color to default">↺</button>'
+    + '<input type="color" class="seatmap-color-swatch" id="tableColorPicker" value="'+seatMap.tableColor+'" title="Table color">'
+    + '<button type="button" class="seatmap-color-reset" id="tableColorReset" title="Reset table color to default">↺</button>'
     + '</div>'
-    + seatColorControlsHtml()
     + '<div class="seatmap-marker-picker' + (_markerPickerOpen ? ' open' : '') + '" id="markerPicker">'
     + Object.keys(LANDMARK_TYPES).map(function(key){
         var m = LANDMARK_TYPES[key];
@@ -7153,22 +7164,13 @@ function renderSeatFloorPlan(){
       return '<div class="'+dcls+'" data-table="'+t.id+'" data-seat="'+d.num+'" title="'+(name?name.replace(/"/g,'&quot;')+(qDot?' (questionable)':''):'Seat '+d.num)+'" style="left:'+d.x+'px;top:'+d.y+'px"></div>';
     }).join('');
     var shapeCls = 'seatmap-node-shape '+lay.shapeCls+(filled===t.seats && t.seats>0 ? ' full':'');
-    // Rotate + remove controls right on the node — pinned to the reserved
-    // strip below coreH (below every seat dot, whatever the shape), so
-    // they never sit on top of a chair; chairCtrls' own CSS "bottom"
-    // anchor is overridden with an explicit "top" here since that strip's
-    // size varies per table.
-    var chairCtrls = '<div class="seatmap-node-chairs" style="top:'+(lay.coreH+9)+'px;bottom:auto">'
-      + (t.shape==='rect' ? '<button class="seatmap-node-chair-btn" data-act="rotate" data-table="'+t.id+'" title="Rotate table">&#8635;</button>' : '')
-      + '<button class="seatmap-node-chair-btn danger" data-act="remove" data-table="'+t.id+'" title="Remove table">&#10005;</button>'
-      + '</div>';
-    tableNodes.push('<div class="seatmap-table-node" data-table-id="'+t.id+'" style="left:'+t.pos.x+'px;top:'+t.pos.y+'px;width:'+lay.w+'px;height:'+lay.h+'px">'
+    var selCls = (t.id === _selectedTableId) ? ' selected' : '';
+    tableNodes.push('<div class="seatmap-table-node'+selCls+'" data-table-id="'+t.id+'" style="left:'+t.pos.x+'px;top:'+t.pos.y+'px;width:'+lay.w+'px;height:'+lay.h+'px">'
       + '<div class="'+shapeCls+'" style="width:'+lay.shapeW+'px;height:'+lay.shapeH+'px;left:'+(lay.w-lay.shapeW)/2+'px;top:'+(lay.coreH-lay.shapeH)/2+'px;background:'+tableStyle.bg+';border:2px solid '+tableStyle.border+'">'
         + '<span class="seatmap-table-node-name" style="color:'+tableStyle.text+'">'+t.name.replace(/</g,'&lt;')+'</span>'
         + '<span class="seatmap-table-node-meta" style="color:'+tableStyle.meta+'">'+filled+'/'+t.seats+'</span>'
       + '</div>'
       + dotsHtml
-      + chairCtrls
       + '</div>');
   });
 
@@ -7213,21 +7215,6 @@ function renderSeatFloorPlan(){
   wireFloorAddButtons();
   wireFloorColorPicker();
   wireFloorZoom();
-  body.querySelectorAll('.seatmap-node-chair-btn').forEach(function(btn){
-    btn.addEventListener('click', function(e){
-      e.stopPropagation();
-      var id = this.dataset.table, act = this.dataset.act;
-      var t = seatMap.tables.find(function(x){return x.id===id;});
-      if(!t) return;
-      if(act==='rotate'){
-        t.rotation = (t.rotation === 90) ? 0 : 90;
-        saveSeatMap();
-        renderSeatFloorPlan();
-      } else if(act==='remove'){
-        removeTable(id);
-      }
-    });
-  });
   flashLastAddedTable(document.getElementById('seatmapFloorCanvas') || body);
 }
 
@@ -7611,7 +7598,20 @@ function wireFloorDrag(){
         t.pos = { x: parseFloat(node.style.left), y: parseFloat(node.style.top) };
         saveSeatMap();
       }
-      if(!moved) openTableFromFloor(id);
+      if(!moved){
+        // First tap on a table selects it (shows a highlight ring and
+        // becomes what the rotate button next to "+ Table" acts on) rather
+        // than jumping straight into the seat sheet — a second tap on that
+        // same, already-selected table is what actually opens it. Tapping
+        // a different table just moves the selection there instead.
+        if(_selectedTableId === id){
+          _selectedTableId = null;
+          openTableFromFloor(id);
+        } else {
+          _selectedTableId = id;
+          renderSeatFloorPlan();
+        }
+      }
       // A drop that actually moved the table can put it past the canvas's
       // current size (computed from where everything WAS before this
       // drag) — re-render so the room/grid immediately grows to enclose
