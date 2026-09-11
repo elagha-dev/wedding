@@ -923,6 +923,13 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-seat.is-couple .seatmap-seat-name{font-weight:800!important;position:relative;z-index:1}
 .seatmap-seat.is-couple.bride .seatmap-seat-name{color:var(--arina-txt)!important}
 .seatmap-seat.is-couple.groom .seatmap-seat-name{color:var(--elnur-txt)!important}
+/* Add-a-chair placeholder tile — its lone "+" was inheriting the same
+   top-aligned layout as the two-line seat tiles above (num on top, name
+   below), which left it stuck near the top of the box instead of centered.
+   Dashed border marks it as a placeholder/slot rather than a real seat. */
+.seatmap-seat.add-seat{justify-content:center;align-items:center;background:transparent;border-style:dashed;border-color:var(--soft)}
+.seatmap-seat.add-seat:active{background:var(--cream2)}
+.seatmap-seat-plus{font-size:20px;font-weight:800;color:var(--soft);line-height:1}
 .seatmap-summary{display:flex;gap:8px;padding:0 2px 12px;flex-wrap:wrap}
 .seatmap-summary-pill{font-family:var(--sans);font-size:10.5px;font-weight:700;padding:5px 11px;border-radius:var(--r-pill);background:var(--cream2);color:var(--muted);border:1px solid var(--parchment)}
 .seatmap-view-toggle{flex-shrink:0;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;border:1.5px solid var(--parchment);background:var(--cream2);color:var(--muted);cursor:pointer;padding:0}
@@ -7299,7 +7306,7 @@ function floorCanvasStyle(hex){
   var brightness = (r*299 + g*587 + b*114) / 1000;
   var light = brightness > 150;
   var gridRgb = light ? '0,0,0' : '255,255,255';
-  var gridOpacity = light ? 0.08 : 0.06;
+  var gridOpacity = light ? 0.12 : 0.10; // bumped up from .08/.06 — the old values were correct but easy to lose entirely to screenshot/photo compression
   var borderColor = light ? 'rgba(0,0,0,.15)' : 'rgba(255,255,255,.12)';
   var emptyColor = light ? 'rgba(0,0,0,.5)' : 'rgba(255,255,255,.65)';
   // Small tiled grid, only used for the empty-state canvas (fixed 100%
