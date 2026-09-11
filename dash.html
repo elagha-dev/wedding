@@ -3672,9 +3672,12 @@ function buildGuestCard(g, mergedPairPos){
     // pill for a small role badge instead, in their existing brand color.
     if(coupleRole)pillWrap='<span class="chip chip-couple-role '+coupleRole+'"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>'+(coupleRole==='bride'?'Bride':'Groom')+'</span>';
     // A separate "questionable" flag, layered on top of (never replacing)
-    // the actual yes/no/pending pill above — for guests you're personally
-    // unsure about either way.
-    if(!coupleRole) pillWrap += g.questionable
+    // the actual yes/no/pending pill above. Only makes sense for guests
+    // who haven't given a real answer yet — once someone's said yes or no,
+    // there's nothing left to be unsure about, so the toggle disappears
+    // (any existing flag just stops being shown/used, not deleted, in case
+    // their RSVP status ever reverts to pending).
+    if(!coupleRole && rsvpClass===' rsvp-pending') pillWrap += g.questionable
       ? '<button type="button" class="chip chip-questionable" data-qi="'+ri+'" data-action="toggle-questionable" title="Tap to unmark">? Unsure</button>'
       : '<button type="button" class="chip chip-questionable-add" data-qi="'+ri+'" data-action="toggle-questionable" title="Mark as questionable">?</button>';
 
@@ -6147,6 +6150,11 @@ window.addEventListener('unhandledrejection', function(e){ e.preventDefault(); }
 
 /* ── CHAT SYSTEM ── */
 (function(){
+  // Temporarily off — the chat's polling (every 5s while open, every 15s
+  // in the background for the unread badge) was adding meaningfully to
+  // Cloudflare Workers KV usage on the free tier. Flip this back to true
+  // to fully restore it; everything else in this file is unaffected.
+  var CHAT_ENABLED = false;
   var POLL_MS = 5000;
   var MAX_MSGS = 50;
   var chatOpen = false;
@@ -6180,6 +6188,10 @@ window.addEventListener('unhandledrejection', function(e){ e.preventDefault(); }
   }
 
   function openChat(){
+    if(!CHAT_ENABLED){
+      if(typeof showActivityToast==='function') showActivityToast('Chat is temporarily paused');
+      return;
+    }
     chatOpen = true;
     var other = otherPerson();
     headImg.src = 'https://www.arinaelnur.de/img/' + other.toLowerCase() + '.jpg';
@@ -6369,7 +6381,7 @@ window.addEventListener('unhandledrejection', function(e){ e.preventDefault(); }
 
   // Poll even when closed (for unread badge), but less frequently
   setInterval(function(){
-    if(!chatOpen) fetchMessages(false);
+    if(CHAT_ENABLED && !chatOpen) fetchMessages(false);
   }, 15000);
 
 })();
@@ -6531,13 +6543,16 @@ function seatGuestRsvpState(name){
 }
 
 /* "Questionable" — a separate manual flag layered on top of the yes/no/
-   pending RSVP state above, never changing it. For guests you're not
-   confident about even though they said yes (or haven't answered), so
-   they still stand out — in the guest list and every seat/dot in the seat
-   map — without touching the actual RSVP logic at all. */
+   pending RSVP state above, never changing that state itself. Only
+   meaningful for guests who haven't actually answered yet — once someone
+   has said yes or no, there's nothing questionable left to flag, so this
+   returns false for them even if the flag is still sitting on their
+   record (e.g. from before an RSVP came in, or from a manual override
+   getting cleared later). */
 function isGuestQuestionable(name){
   var g = (typeof importQueue!=='undefined'?importQueue:[]).find(function(x){return x.name===name;});
-  return !!(g && g.questionable);
+  if(!g || !g.questionable) return false;
+  return seatGuestRsvpState(name) === 'pending';
 }
 function toggleGuestQuestionable(name){
   var g = (typeof importQueue!=='undefined'?importQueue:[]).find(function(x){return x.name===name;});
