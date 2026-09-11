@@ -947,20 +947,19 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-summary-pill{font-family:var(--sans);font-size:10.5px;font-weight:700;padding:5px 11px;border-radius:var(--r-pill);background:var(--cream2);color:var(--muted);border:1px solid var(--parchment)}
 .seatmap-view-toggle{flex-shrink:0;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;border:1.5px solid var(--parchment);background:var(--cream2);color:var(--muted);cursor:pointer;padding:0}
 .seatmap-view-toggle.active{background:var(--sky-bg);color:var(--sky);border-color:transparent}
-.seatmap-select-bar-rotate{flex-shrink:0;width:34px;height:34px;border-radius:50%;border:1.5px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;font-size:17px}
-.seatmap-select-bar-rotate:active{background:rgba(255,255,255,.22)}
-.seatmap-select-bar-rotate:disabled{opacity:.3;pointer-events:none}
-/* Toggle pill that opens the floor plan's action panel — tapping it lets
-   you pick one or more tables (tap to add/remove from the selection) and
-   then act on all of them together via the bar below: rotate, delete, or
-   (once 2+ are picked) align. Replaces the old separate add/rotate/delete
-   FABs entirely, so there's a single place for per-table actions instead
-   of floating buttons competing with the canvas. */
+.seatmap-fab-add{position:fixed;right:18px;bottom:24px;z-index:400;width:52px;height:52px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--rose),var(--rose-deep));color:#fff;font-size:26px;font-weight:400;cursor:pointer;box-shadow:0 8px 24px rgba(160,97,74,.4);display:flex;align-items:center;justify-content:center}
+.seatmap-fab-rotate{position:fixed;right:80px;bottom:24px;z-index:400;width:52px;height:52px;border-radius:50%;border:none;background:rgba(30,30,30,.88);color:#fff;font-size:22px;font-weight:400;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center}
+.seatmap-fab-rotate:active{background:rgba(30,30,30,1)}
+.seatmap-fab-delete{position:fixed;right:142px;bottom:24px;z-index:400;width:52px;height:52px;border-radius:50%;border:none;background:rgba(185,28,28,.88);color:#fff;font-size:19px;font-weight:400;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center}
+.seatmap-fab-delete:active{background:rgba(185,28,28,1)}
+/* Toggle pill that puts the floor plan into multi-select mode, sitting in
+   the same controls row as the marker/color buttons rather than as its own
+   FAB, since it's a mode switch rather than a per-table action. */
 .seatmap-select-toggle.active{background:#2f6fed;border-color:#2f6fed;color:#fff}
-/* Bottom action panel, shown only while the select toggle above is active.
-   Rotate/delete work on any number of selected tables (1+); align buttons
-   stay visible but disabled until 2+ are picked, so the layout doesn't
-   jump around as the selection grows. */
+/* Bottom action bar shown only while multi-select mode is active — replaces
+   the add/rotate/delete FABs so the two selection modes never overlap on
+   screen. Align buttons stay visible but disabled until 2+ tables are
+   picked, so the six options don't jump in and out of the layout. */
 .seatmap-select-bar{position:fixed;left:10px;right:10px;bottom:16px;z-index:400;display:none;align-items:center;gap:4px;background:rgba(30,30,30,.94);border-radius:var(--r-pill);padding:8px 10px;box-shadow:0 8px 24px rgba(0,0,0,.4);overflow-x:auto}
 .seatmap-select-bar.open{display:flex}
 .seatmap-select-count{font-family:var(--sans);font-size:11px;font-weight:800;color:#fff;padding:0 6px;white-space:nowrap;flex-shrink:0}
@@ -1770,10 +1769,11 @@ body.lite-mode #liteModeTopBtn {
     <button class="seatmap-close" id="seatmapCloseBtn">✕</button>
   </div>
   <div class="seatmap-body" id="seatmapBody"></div>
+  <button class="seatmap-fab-delete" id="seatmapFabDelete" title="Delete table" style="display:none"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+  <button class="seatmap-fab-rotate" id="seatmapFabRotate" title="Rotate last table" style="display:none">↻</button>
+  <button class="seatmap-fab-add" id="seatmapFabAdd" title="Add table" style="display:none">+</button>
   <div class="seatmap-select-bar" id="seatmapSelectBar">
     <span class="seatmap-select-count" id="seatmapSelectCount">0 selected</span>
-    <button type="button" class="seatmap-select-bar-rotate" id="seatmapSelectBarRotate" title="Rotate selected">↻</button>
-    <span class="seatmap-align-sep"></span>
     <button type="button" class="seatmap-align-btn" data-align="left" title="Align left"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="4" y1="2" x2="4" y2="22"/><rect x="4" y="6" width="12" height="5"/><rect x="4" y="14" width="7" height="5"/></svg></button>
     <button type="button" class="seatmap-align-btn" data-align="centerH" title="Align center (horizontal)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="2" x2="12" y2="22"/><rect x="6" y="6" width="12" height="5"/><rect x="8.5" y="14" width="7" height="5"/></svg></button>
     <button type="button" class="seatmap-align-btn" data-align="right" title="Align right"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="20" y1="2" x2="20" y2="22"/><rect x="8" y="6" width="12" height="5"/><rect x="13" y="14" width="7" height="5"/></svg></button>
@@ -6559,18 +6559,19 @@ var QUESTIONABLE_COLOR = '#7c3aed';
    is never invisible/uncertain even if it lands off the visible area. */
 var _lastAddedTableId = null;
 
-/* Tables picked in the floor plan's action panel. A plain tap on a table
-   normally opens its seat sheet directly — this array only fills up while
-   _multiSelectMode (below) is on, at which point tapping toggles a table
-   in/out of the selection instead of opening it, so it can be rotated,
-   deleted, or (with 2+ picked) aligned as a group via the panel. */
-var _multiSelectedIds = [];
+/* Which table is currently "selected" on the floor plan — a single tap
+   selects a table (highlight ring, and becomes the rotate button's
+   target) without opening it; tapping that same selected table again is
+   what opens its seat sheet. */
+var _selectedTableId = null;
 
-/* Whether the floor plan's action panel is open — toggled via the "Select
-   tables" pill in the floor controls. While on, the panel replaces the
-   normal tap-to-open behaviour with tap-to-select, and its buttons act on
-   whatever's currently in _multiSelectedIds. */
+/* Multi-select mode — toggled on via the "Select tables" pill in the floor
+   controls. While active, tapping a table adds/removes it from
+   _multiSelectedIds (instead of the single-select/open behaviour above),
+   and the bottom select bar lets you bulk-delete or align the picked
+   tables along a shared edge or center line. */
 var _multiSelectMode = false;
+var _multiSelectedIds = [];
 
 /* True for the duration of an active table/marker drag. The floor plan
    polls a remote worker every few seconds and does a full re-render on any
@@ -6763,12 +6764,40 @@ window.seatBadgeHtml = function(name){
 
 
 /* ── Table CRUD ── */
-/* ── Floor plan action panel: pick 1+ tables, then rotate/delete/align
-   them together. Opened via the "Select tables" pill; replaces the old
-   separate add/rotate/delete FABs with one consistent bottom bar. ── */
+/* Which table the floating rotate button (next to "+ Table") acts on: the
+   one currently selected on the floor plan, falling back to whichever was
+   just added, then to the last table in the list — "rotate whatever I'm
+   looking at" without needing to open it first. */
+function seatmapFabRotateTarget(){
+  var t = _selectedTableId ? seatMap.tables.find(function(x){ return x.id === _selectedTableId; }) : null;
+  if(!t && _lastAddedTableId) t = seatMap.tables.find(function(x){ return x.id === _lastAddedTableId; });
+  if(!t && seatMap.tables.length) t = seatMap.tables[seatMap.tables.length-1];
+  return t;
+}
+function updateFabRotateVisibility(){
+  var btn = document.getElementById('seatmapFabRotate');
+  var delBtn = document.getElementById('seatmapFabDelete');
+  var t = seatmapFabRotateTarget();
+  // While multi-select mode is on, the bottom select bar takes over — the
+  // single-table FABs stay hidden so the two selection modes never
+  // overlap on screen.
+  if(_multiSelectMode) t = null;
+  if(btn){
+    // Only rectangular tables actually change shape when rotated — square
+    // and round look identical either way, so the button stays hidden for
+    // those rather than doing a no-op tap.
+    btn.style.display = (t && t.shape === 'rect') ? 'flex' : 'none';
+  }
+  // Delete has no shape restriction — it shows for any selected table.
+  if(delBtn) delBtn.style.display = t ? 'flex' : 'none';
+  updateSelectBar();
+}
+
+/* ── Multi-select + bulk alignment ── */
 function toggleMultiSelectMode(){
   _multiSelectMode = !_multiSelectMode;
   _multiSelectedIds = [];
+  _selectedTableId = null; // the two selection states never coexist
   renderSeatFloorPlan();
 }
 function toggleTableInMultiSelect(id){
@@ -6788,22 +6817,10 @@ function updateSelectBar(){
   bar.classList.toggle('open', _multiSelectMode);
   var n = _multiSelectedIds.length;
   var count = document.getElementById('seatmapSelectCount');
-  if(count) count.textContent = n + ' selected';
-  var rotateBtn = document.getElementById('seatmapSelectBarRotate');
-  if(rotateBtn) rotateBtn.disabled = n < 1;
+  if(count) count.textContent = n + (n===1 ? ' selected' : ' selected');
   bar.querySelectorAll('.seatmap-align-btn').forEach(function(b){ b.disabled = n < 2; });
   var delBtn = document.getElementById('seatmapSelectBarDelete');
   if(delBtn) delBtn.disabled = n < 1;
-}
-/* Rotates every selected rectangular table together — square/round tables
-   in the selection are silently skipped since they look identical either
-   way, same reasoning the old single-table rotate FAB used. */
-function rotateSelectedTables(){
-  var picked = seatMap.tables.filter(function(t){ return _multiSelectedIds.indexOf(t.id) !== -1 && t.shape === 'rect'; });
-  if(!picked.length) return;
-  picked.forEach(function(t){ t.rotation = (t.rotation === 90) ? 0 : 90; });
-  saveSeatMap();
-  renderSeatFloorPlan();
 }
 /* Aligns every selected table along a shared edge or center line. Each
    table's pos.x/y is already the exact center of its floor-plan box (the
