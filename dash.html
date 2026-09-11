@@ -916,7 +916,7 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-view-toggle{flex-shrink:0;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;border:1.5px solid var(--parchment);background:var(--cream2);color:var(--muted);cursor:pointer;padding:0}
 .seatmap-view-toggle.active{background:var(--sky-bg);color:var(--sky);border-color:transparent}
 .seatmap-fab-add{position:fixed;right:18px;bottom:24px;z-index:400;width:52px;height:52px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--rose),var(--rose-deep));color:#fff;font-size:26px;font-weight:400;cursor:pointer;box-shadow:0 8px 24px rgba(160,97,74,.4);display:flex;align-items:center;justify-content:center}
-.seatmap-fab-rotate{position:fixed;right:80px;bottom:24px;z-index:400;width:46px;height:46px;border-radius:50%;border:none;background:rgba(30,30,30,.88);color:#fff;font-size:19px;font-weight:400;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center}
+.seatmap-fab-rotate{position:fixed;right:80px;bottom:24px;z-index:400;width:52px;height:52px;border-radius:50%;border:none;background:rgba(30,30,30,.88);color:#fff;font-size:22px;font-weight:400;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center}
 .seatmap-fab-rotate:active{background:rgba(30,30,30,1)}
 .seatmap-assign-banner{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:402;display:flex;align-items:center;gap:10px;background:rgba(30,30,30,.94);color:#fff;padding:10px 10px 10px 16px;border-radius:999px;box-shadow:0 8px 24px rgba(0,0,0,.35);font-family:var(--sans);font-size:12.5px;font-weight:700;max-width:calc(100vw - 32px)}
 .seatmap-assign-banner span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -7123,9 +7123,9 @@ function renderSeatFloorPlan(){
   var contentH = canvasPxH;
   placedFootprints.forEach(function(p){ contentH = Math.max(contentH, p.cy + p.h/2 + 24); });
   (seatMap.landmarks||[]).forEach(function(l){ contentH = Math.max(contentH, l.pos.y + 40); });
-  var gridPx = Math.max(6, Math.round(24*z));
+  var gridPx = 24; // fixed world-space cell size — zoom is applied only via background-size below, never by rebuilding the grid itself
   var sizerW = canvasPxW*z, sizerH = contentH*z;
-  var gridSvg = floorGridFullSvg(floorStyle.gridRgb, floorStyle.gridOpacity, sizerW, sizerH, gridPx);
+  var gridSvg = floorGridFullSvg(floorStyle.gridRgb, floorStyle.gridOpacity, canvasPxW, contentH, gridPx);
   var sizerBg = 'background-color:'+seatMap.floorColor+';background-image:url(\'data:image/svg+xml,'+encodeURIComponent(gridSvg)+'\');background-repeat:no-repeat;background-size:'+Math.round(sizerW)+'px '+Math.round(sizerH)+'px;border-color:'+floorStyle.borderColor+';';
 
   body.innerHTML = controls
@@ -7221,12 +7221,21 @@ function floorCanvasStyle(hex){
    both still relied on tiling, so the seam was still possible. Building
    one exact-size image removes tiling — and therefore tile seams —
    from the equation entirely. */
-function floorGridFullSvg(gridRgb, gridOpacity, w, h, cell){
-  w = Math.max(1, Math.round(w)); h = Math.max(1, Math.round(h)); cell = Math.max(4, Math.round(cell));
+function floorGridFullSvg(gridRgb, gridOpacity, worldW, worldH, cell){
+  // Drawn once in the canvas's own fixed world coordinates (not the current
+  // zoomed screen size) with a constant cell size — the browser then
+  // stretches this single vector image to whatever the zoomed pixel size
+  // is via CSS background-size. That stretch is exact (sub-pixel, vector),
+  // so the number of grid squares can never shift with zoom the way it did
+  // when the grid was rebuilt at rounded screen-pixel dimensions on every
+  // zoom step (width and cell size each rounding independently meant
+  // width/cell — the actual square count — drifted slightly as you zoomed,
+  // which is what looked like "the grid keeps changing").
+  worldW = Math.max(1, Math.round(worldW)); worldH = Math.max(1, Math.round(worldH)); cell = Math.max(4, Math.round(cell));
   var lines = [];
-  for(var x=0; x<=w; x+=cell) lines.push('<line x1="'+x+'" y1="0" x2="'+x+'" y2="'+h+'" stroke="rgba('+gridRgb+','+gridOpacity+')" stroke-width="1"/>');
-  for(var y=0; y<=h; y+=cell) lines.push('<line x1="0" y1="'+y+'" x2="'+w+'" y2="'+y+'" stroke="rgba('+gridRgb+','+gridOpacity+')" stroke-width="1"/>');
-  return '<svg xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+h+'">'+lines.join('')+'</svg>';
+  for(var x=0; x<=worldW; x+=cell) lines.push('<line x1="'+x+'" y1="0" x2="'+x+'" y2="'+worldH+'" stroke="rgba('+gridRgb+','+gridOpacity+')" stroke-width="1"/>');
+  for(var y=0; y<=worldH; y+=cell) lines.push('<line x1="0" y1="'+y+'" x2="'+worldW+'" y2="'+y+'" stroke="rgba('+gridRgb+','+gridOpacity+')" stroke-width="1"/>');
+  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+worldW+' '+worldH+'">'+lines.join('')+'</svg>';
 }
 
 function wireFloorColorPicker(){
@@ -7369,15 +7378,24 @@ function wireFloorZoom(){
       var sizer = wrap.querySelector('.seatmap-floor-sizer');
       var pct = document.getElementById('seatmapZoomPct');
       if(canvas) canvas.style.transform = 'scale('+seatMapZoom+')';
-      if(sizer) sizer.style.width = (canvas.offsetWidth*seatMapZoom)+'px';
-      if(sizer) sizer.style.height = (canvas.offsetHeight*seatMapZoom)+'px';
+      if(sizer){
+        var w = canvas.offsetWidth*seatMapZoom, h = canvas.offsetHeight*seatMapZoom;
+        sizer.style.width = w+'px';
+        sizer.style.height = h+'px';
+        // The grid is one fixed vector image stretched to fill the sizer —
+        // it needs its background-size nudged along with the sizer's own
+        // width/height during the pinch too, or the grid visibly stretches
+        // out of sync with the canvas until the gesture ends.
+        sizer.style.backgroundSize = Math.round(w)+'px '+Math.round(h)+'px';
+      }
       if(pct) pct.textContent = Math.round(seatMapZoom*100)+'%';
     }
   }, {passive:false});
   wrap.addEventListener('touchend', function(e){
-    if(e.touches.length < 2){
+    if(e.touches.length < 2 && pinchStartDist !== null){
       pinchStartDist = null;
       saveSeatMap();
+      renderSeatFloorPlan(); // settle everything (sizer size, rounding) at the final zoom, same as the +/- buttons do
     }
   });
 }
