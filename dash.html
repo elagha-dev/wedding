@@ -955,29 +955,29 @@ body.lite-mode #liteModeTopBtn {
    stretched across the full width of the screen. */
 .seatmap-action-dock{position:fixed;right:14px;bottom:20px;z-index:400;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
 .seatmap-action-fab{flex-shrink:0;width:52px;height:52px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--rose),var(--rose-deep));color:#fff;cursor:pointer;box-shadow:0 8px 24px rgba(160,97,74,.4);display:flex;align-items:center;justify-content:center}
-.seatmap-action-toolbar{display:none;align-items:center;gap:4px;background:rgba(30,30,30,.94);border-radius:var(--r-pill);padding:7px 8px;box-shadow:0 8px 24px rgba(0,0,0,.4);max-width:calc(100vw - 28px);overflow-x:auto}
+.seatmap-action-toolbar{display:none;align-items:center;gap:4px;background:#E4EEF6;border:1px solid #C1D6E6;border-radius:var(--r-pill);padding:7px 8px;box-shadow:0 8px 24px rgba(20,45,70,.28);max-width:calc(100vw - 28px);overflow-x:auto}
 .seatmap-action-toolbar.open{display:flex}
-.seatmap-select-count{font-family:var(--sans);font-size:11px;font-weight:800;color:#fff;padding:0 6px;white-space:nowrap;flex-shrink:0;border:none;background:transparent;cursor:pointer;-webkit-appearance:none;appearance:none;margin:0;line-height:1.4}
+.seatmap-select-count{font-family:var(--sans);font-size:11px;font-weight:800;color:#1B3A5C;padding:0 6px;white-space:nowrap;flex-shrink:0;border:none;background:transparent;cursor:pointer;-webkit-appearance:none;appearance:none;margin:0;line-height:1.4}
 .seatmap-select-count:active{opacity:.7}
-.seatmap-dock-btn{flex-shrink:0;width:36px;height:36px;border-radius:50%;border:1.5px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
-.seatmap-dock-btn:active{background:rgba(255,255,255,.22)}
+.seatmap-dock-btn{flex-shrink:0;width:36px;height:36px;border-radius:50%;border:1.5px solid rgba(27,58,92,.22);background:rgba(27,58,92,.07);color:#1B3A5C;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+.seatmap-dock-btn:active{background:rgba(27,58,92,.18)}
 .seatmap-dock-btn:disabled{opacity:.3;pointer-events:none}
-.seatmap-dock-btn.active{background:#2f6fed;border-color:#2f6fed}
-.seatmap-dock-btn.danger{background:rgba(185,28,28,.85);border-color:transparent}
-.seatmap-dock-btn.danger:active{background:rgba(185,28,28,1)}
-.seatmap-dock-btn.done{width:auto;border-radius:var(--r-pill);padding:0 13px;font-family:var(--sans);font-size:11.5px;font-weight:800;background:rgba(255,255,255,.12);border:none}
+.seatmap-dock-btn.active{background:#2f6fed;border-color:#2f6fed;color:#fff}
+.seatmap-dock-btn.danger{background:rgba(178,30,30,.88);border-color:transparent;color:#fff}
+.seatmap-dock-btn.danger:active{background:rgba(178,30,30,1)}
+.seatmap-dock-btn.done{width:auto;border-radius:var(--r-pill);padding:0 13px;font-family:var(--sans);font-size:11.5px;font-weight:800;background:rgba(27,58,92,.12);border:none}
 /* Alignment popover — opens upward, anchored above the toolbar via the
    dock's column layout (this menu sits before the toolbar in the DOM, and
    the dock is bottom-anchored, so growing/shrinking this menu never moves
    the toolbar or FAB beneath it). Icon + label rows keep it scannable and
    tap-friendly instead of a dense row of icon-only buttons. */
-.seatmap-align-menu{display:none;flex-direction:column;gap:1px;background:rgba(30,30,30,.97);border-radius:14px;padding:6px;box-shadow:0 10px 28px rgba(0,0,0,.45);min-width:198px}
+.seatmap-align-menu{display:none;flex-direction:column;gap:1px;background:#E4EEF6;border:1px solid #C1D6E6;border-radius:14px;padding:6px;box-shadow:0 10px 28px rgba(20,45,70,.32);min-width:198px}
 .seatmap-align-menu.open{display:flex}
-.seatmap-align-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:9px;border:none;background:transparent;color:#fff;font-family:var(--sans);font-size:12.5px;font-weight:700;cursor:pointer;text-align:left;width:100%}
+.seatmap-align-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:9px;border:none;background:transparent;color:#1B3A5C;font-family:var(--sans);font-size:12.5px;font-weight:700;cursor:pointer;text-align:left;width:100%}
 .seatmap-align-item svg{flex-shrink:0}
-.seatmap-align-item:active{background:rgba(255,255,255,.14)}
+.seatmap-align-item:active{background:rgba(27,58,92,.12)}
 .seatmap-align-item:disabled{opacity:.3;pointer-events:none}
-.seatmap-align-menu-sep{height:1px;background:rgba(255,255,255,.15);margin:4px 6px}
+.seatmap-align-menu-sep{height:1px;background:rgba(27,58,92,.16);margin:4px 6px}
 .seatmap-assign-banner{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:402;display:flex;align-items:center;gap:10px;background:rgba(30,30,30,.94);color:#fff;padding:10px 10px 10px 16px;border-radius:999px;box-shadow:0 8px 24px rgba(0,0,0,.35);font-family:var(--sans);font-size:12.5px;font-weight:700;max-width:calc(100vw - 32px)}
 .seatmap-assign-banner span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .seatmap-assign-banner button{flex-shrink:0;border:none;background:rgba(255,255,255,.18);color:#fff;font-family:var(--sans);font-size:11.5px;font-weight:800;padding:6px 12px;border-radius:999px;cursor:pointer}
@@ -985,14 +985,25 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-trash{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(30px) scale(.85);z-index:401;width:56px;height:56px;border-radius:50%;background:rgba(40,40,40,.88);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .18s,transform .18s,background .15s}
 .seatmap-trash.visible{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
 .seatmap-trash.armed{background:#b91c1c;transform:translateX(-50%) translateY(0) scale(1.15)}
-.seatmap-floor-wrap{position:relative;width:100%;height:min(70vh,520px);border:1.5px solid rgba(0,0,0,.12);border-radius:var(--r-md,14px);margin-bottom:14px;overflow:auto;-webkit-overflow-scrolling:touch}
+.seatmap-floor-outer{position:relative;margin-bottom:14px}
+.seatmap-floor-wrap{position:relative;width:100%;height:min(70vh,520px);border:1.5px solid rgba(0,0,0,.12);border-radius:var(--r-md,14px);overflow:auto;-webkit-overflow-scrolling:touch}
 .seatmap-floor-sizer{position:relative;min-width:100%;min-height:100%;box-sizing:border-box}
 .seatmap-floor{position:absolute;left:0;top:0;
   background-size:24px 24px;will-change:transform;backface-visibility:hidden;-webkit-backface-visibility:hidden}
-/* Zero-height sticky anchor so the zoom pill stays pinned while scrolling
-   the floor plan without reserving its own row (that reserved row was the
-   awkward white stripe along the top of the canvas). */
-.seatmap-zoom-anchor{position:sticky;top:0;left:0;right:0;height:0;overflow:visible;z-index:6;pointer-events:none}
+/* The zoom pill + edge arrows live in this overlay, a sibling of
+   #seatmapFloorWrap rather than something pinned inside it with
+   position:sticky. Sticky elements nested in a container that also mixes
+   overflow:auto (-webkit-overflow-scrolling:touch) with a transform-
+   scaled descendant (the zoomed canvas) hit a known iOS Safari
+   compositing bug — the same combination flashLastAddedTable already
+   works around elsewhere in this file — where the "stuck" element can
+   detach and repaint in the wrong place (seen in practice: the fit button
+   ghosting at the bottom of the whole page). Since the wrap's own box
+   never moves — only its internal content scrolls — this plain
+   absolutely-positioned overlay, sized to match the wrap and living
+   outside its scrolling area entirely, stays visually pinned over it with
+   no sticky involved at all. */
+.seatmap-floor-overlay{position:absolute;inset:0;overflow:visible;z-index:6;pointer-events:none}
 .seatmap-zoom-controls{position:absolute;top:8px;right:8px;width:-webkit-fit-content;width:fit-content;display:flex;align-items:center;gap:2px;background:rgba(0,0,0,.55);padding:4px;border-radius:20px;backdrop-filter:blur(3px);pointer-events:auto}
 .seatmap-zoom-btn{width:26px;height:26px;border-radius:50%;border:none;background:rgba(255,255,255,.15);color:#fff;font-family:var(--sans);font-size:15px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;line-height:1}
 .seatmap-zoom-sep{width:1px;height:16px;background:rgba(255,255,255,.25);flex-shrink:0;margin:0 1px}
@@ -1003,6 +1014,17 @@ body.lite-mode #liteModeTopBtn {
 @keyframes seatmapFitPulse{0%,100%{box-shadow:0 0 0 0 rgba(176,120,48,.6)}50%{box-shadow:0 0 0 5px rgba(176,120,48,0)}}
 .seatmap-zoom-btn:active{background:rgba(255,255,255,.3)}
 .seatmap-zoom-pct{font-family:var(--sans);font-size:10.5px;font-weight:700;color:#fff;min-width:32px;text-align:center;user-select:none}
+/* One arrow per edge of the overlay (== the wrap's own box), each shown
+   only once a table has scrolled fully past that edge — so it always
+   points the way to something currently off-screen rather than just
+   flagging "there's more, somewhere". */
+.seatmap-edge-arrow{position:absolute;display:none;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;border:1px solid rgba(255,255,255,.5);background:linear-gradient(135deg,#FFE9A8,#D4AF37 55%,#B8860B);color:#3D2E24;backdrop-filter:blur(3px);cursor:pointer;pointer-events:auto;padding:0;box-shadow:0 2px 10px rgba(184,134,11,.55);animation:seatmapEdgeArrowPulse 1.6s ease-in-out infinite}
+.seatmap-edge-arrow.visible{display:flex}
+.seatmap-edge-arrow.top{top:8px;left:50%;transform:translateX(-50%)}
+.seatmap-edge-arrow.bottom{bottom:8px;left:50%;transform:translateX(-50%)}
+.seatmap-edge-arrow.left{left:8px;top:50%;transform:translateY(-50%)}
+.seatmap-edge-arrow.right{right:8px;top:50%;transform:translateY(-50%)}
+@keyframes seatmapEdgeArrowPulse{0%,100%{opacity:.85}50%{opacity:.4}}
 .seatmap-floor-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;color:rgba(255,255,255,.65);font-size:12.5px;padding:24px;line-height:1.6}
 .seatmap-floor-hint{text-align:center;color:var(--muted);font-size:11px;padding:0 2px 12px;font-family:var(--sans)}
 .seatmap-table-node{position:absolute;transform:translate(-50%,-50%);cursor:grab;user-select:none;touch-action:none}
@@ -1797,8 +1819,9 @@ body.lite-mode #liteModeTopBtn {
     </div>
     <div class="seatmap-action-toolbar" id="seatmapActionToolbar">
       <button type="button" class="seatmap-select-count" id="seatmapSelectCount" title="Tap to select/deselect all tables">0 selected</button>
+      <button type="button" class="seatmap-dock-btn" id="seatmapResetCanvasBtn" title="Reset canvas view (zoom &amp; position)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg></button>
       <button type="button" class="seatmap-dock-btn" id="seatmapSelectBarRotate" title="Rotate selected"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><polyline points="21 3 21 9 15 9"/></svg></button>
-      <button type="button" class="seatmap-dock-btn" id="seatmapAlignMenuBtn" title="Align, distribute, or arrange selected"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="4" y1="2" x2="4" y2="22"/><rect x="4" y="6" width="8" height="5"/><rect x="4" y="14" width="5" height="5"/></svg></button>
+      <button type="button" class="seatmap-dock-btn" id="seatmapAlignMenuBtn" title="Align, distribute, or arrange selected"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.287 1.288L3 12l5.8 1.9a2 2 0 0 1 1.288 1.287L12 21l1.9-5.8a2 2 0 0 1 1.287-1.288L21 12l-5.8-1.9a2 2 0 0 1-1.288-1.287Z"/></svg></button>
       <button type="button" class="seatmap-dock-btn danger" id="seatmapSelectBarDelete" title="Delete selected"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
       <button type="button" class="seatmap-dock-btn done" id="seatmapSelectBarDone">Done</button>
     </div>
@@ -6570,6 +6593,12 @@ var SEATMAP_GRID_PX = 24; // fixed world-space grid cell size, shared by the ini
    or floor — is opened first. */
 var DEFAULT_FLOOR_COLOR = '#1C2430';
 var DEFAULT_TABLE_COLOR = '#C9876A';
+/* One-time forced reset: an earlier session left floorColor/tableColor set
+   to a mismatched blue/gray instead of the intended charcoal+rose-gold
+   defaults above. Bumping this version makes loadSeatMap() below snap
+   every device back to the real defaults exactly once, then leaves future
+   deliberate color-picker choices alone (it won't keep re-forcing them). */
+var SEATMAP_COLOR_RESET_V = 1;
 /* A deliberately loud, distinct hue for "questionable" guests — nothing
    else in the seat map uses violet, so it can't be mistaken for the
    yes/no/pending greens, reds, and grays it sits alongside. */
@@ -6615,6 +6644,13 @@ function loadSeatMap(){
   if(!Array.isArray(seatMap.tables)) seatMap.tables = [];
   if(!seatMap.floorColor) seatMap.floorColor = DEFAULT_FLOOR_COLOR;
   if(!seatMap.tableColor) seatMap.tableColor = DEFAULT_TABLE_COLOR;
+  if(seatMap._colorResetV !== SEATMAP_COLOR_RESET_V){
+    seatMap.floorColor = DEFAULT_FLOOR_COLOR;
+    seatMap.tableColor = DEFAULT_TABLE_COLOR;
+    seatMap._colorResetV = SEATMAP_COLOR_RESET_V;
+    try{ localStorage.setItem('ww_seatmap', JSON.stringify(seatMap)); }catch(e){}
+    if(typeof pushSeatMap === 'function') pushSeatMap(); // so the other device(s) pick up the fix too
+  }
   // Anchor shape for new tables — whatever shape was deliberately chosen
   // (starting with table 1's, if this is existing data from before this
   // field existed) so a run of new tables stays consistent with it instead
@@ -6626,6 +6662,10 @@ function saveSeatMap(){
   // Cloudflare push removed from here — seat map edits now stay purely
   // local (and instantly responsive) until "Sync Devices" is pressed,
   // instead of writing to the worker on every drag/tap.
+  // A drag (or any other position change) can move a table off-screen or
+  // bring one back into view, so re-check the edge arrows every time —
+  // a no-op if the floor plan isn't the screen currently showing.
+  if(typeof updateSeatmapEdgeArrows === 'function') updateSeatmapEdgeArrows();
 }
 loadSeatMap();
 
@@ -7592,7 +7632,7 @@ function renderSeatFloorPlan(){
     + '</div>';
 
   if(!seatMap.tables.length && !seatMap.landmarks.length){
-    body.innerHTML = controls + '<div class="seatmap-floor-wrap" style="background-color:'+seatMap.floorColor+'"><div class="seatmap-floor" id="seatmapFloorCanvas" style="'+floorStyle.css+';position:relative;width:100%;height:100%"><div class="seatmap-floor-empty" style="color:'+floorStyle.emptyColor+'"><span>No tables yet.<br><br>Tap <strong>+ Table</strong> above, then drag it into place here to match your room layout.</span></div></div></div>';
+    body.innerHTML = controls + '<div class="seatmap-floor-wrap" style="background-color:'+seatMap.floorColor+';margin-bottom:14px"><div class="seatmap-floor" id="seatmapFloorCanvas" style="'+floorStyle.css+';position:relative;width:100%;height:100%"><div class="seatmap-floor-empty" style="color:'+floorStyle.emptyColor+'"><span>No tables yet.<br><br>Tap <strong>+ Table</strong> above, then drag it into place here to match your room layout.</span></div></div></div>';
     wireFloorAddButtons();
     wireFloorColorPicker();
     return;
@@ -7658,14 +7698,8 @@ function renderSeatFloorPlan(){
   var sizerBg = 'background-color:'+seatMap.floorColor+';background-image:url(\'data:image/svg+xml,'+encodeURIComponent(gridSvg)+'\');background-repeat:no-repeat;background-size:'+Math.round(sizerW)+'px '+Math.round(sizerH)+'px;border-color:'+floorStyle.borderColor+';';
 
   body.innerHTML = controls
+    + '<div class="seatmap-floor-outer">'
     + '<div class="seatmap-floor-wrap" id="seatmapFloorWrap" style="background-color:'+seatMap.floorColor+'">'
-      + '<div class="seatmap-zoom-anchor"><div class="seatmap-zoom-controls">'
-        + '<button class="seatmap-zoom-btn" id="seatmapFitBtn" title="Fit all tables in view"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M8 21H5a2 2 0 0 1-2-2v-3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg></button>'
-        + '<span class="seatmap-zoom-sep"></span>'
-        + '<button class="seatmap-zoom-btn" id="seatmapZoomOut" title="Zoom out">–</button>'
-        + '<span class="seatmap-zoom-pct" id="seatmapZoomPct">'+Math.round(z*100)+'%</span>'
-        + '<button class="seatmap-zoom-btn" id="seatmapZoomIn" title="Zoom in">+</button>'
-      + '</div></div>'
       // The grid is one exact-size, non-repeating image (see
       // floorGridFullSvg) drawn on the sizer. Its inline width/height here
       // is only a first-paint guess — once the sizer is actually in the
@@ -7681,6 +7715,33 @@ function renderSeatFloorPlan(){
           + '<div class="seatmap-snap-guide h" id="snapGuideH"></div>'
         + '</div>'
       + '</div>'
+    + '</div>'
+    // Everything below sits OUTSIDE #seatmapFloorWrap, as a plain overlay
+    // layer positioned over it rather than pinned via position:sticky
+    // inside it. Sticky elements nested in a container that also mixes
+    // overflow:auto (-webkit-overflow-scrolling:touch) with a transform-
+    // scaled descendant (the zoomed canvas) hit a known iOS Safari
+    // compositing bug — the exact combination flashLastAddedTable already
+    // works around elsewhere in this file — where the "stuck" element can
+    // detach and repaint at the wrong place (e.g. pinned to the bottom of
+    // the whole page instead of the wrap). Since the wrap's own box never
+    // moves — only its internal content scrolls — a plain absolutely-
+    // positioned overlay on top of it, living outside the scrolling area
+    // entirely, gets the same "always visible" effect with none of that
+    // risk: nothing here needs sticky at all.
+    + '<div class="seatmap-floor-overlay">'
+      + '<div class="seatmap-zoom-controls">'
+        + '<button class="seatmap-zoom-btn" id="seatmapFitBtn" title="Fit all tables in view"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M8 21H5a2 2 0 0 1-2-2v-3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg></button>'
+        + '<span class="seatmap-zoom-sep"></span>'
+        + '<button class="seatmap-zoom-btn" id="seatmapZoomOut" title="Zoom out">–</button>'
+        + '<span class="seatmap-zoom-pct" id="seatmapZoomPct">'+Math.round(z*100)+'%</span>'
+        + '<button class="seatmap-zoom-btn" id="seatmapZoomIn" title="Zoom in">+</button>'
+      + '</div>'
+      + '<button class="seatmap-edge-arrow top" id="seatmapEdgeUp" title="A table is above — tap to scroll up"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg></button>'
+      + '<button class="seatmap-edge-arrow bottom" id="seatmapEdgeDown" title="A table is below — tap to scroll down"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12l7 7 7-7"/></svg></button>'
+      + '<button class="seatmap-edge-arrow left" id="seatmapEdgeLeft" title="A table is to the left — tap to scroll left"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 5l-7 7 7 7"/></svg></button>'
+      + '<button class="seatmap-edge-arrow right" id="seatmapEdgeRight" title="A table is to the right — tap to scroll right"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></button>'
+    + '</div>'
     + '</div>';
 
   saveSeatMap();
@@ -7732,27 +7793,120 @@ function seatmapFixFloorCoverage(){
     var overflowing = (Math.round(canvasPxW*z) > wrap.clientWidth + 1) || (Math.round(contentH*z) > wrap.clientHeight + 1);
     fitBtn.classList.toggle('needs-fit', overflowing);
   }
+  updateSeatmapEdgeArrows();
 }
 
-/* Zooms out (or in) just enough that the entire room — every table and
-   marker, not just whatever's currently scrolled into view — fits inside
-   the visible wrap at once, then scrolls back to the top-left corner.
-   Bypasses the normal manual +/- zoom floor (SEATMAP_ZOOM_MIN): pinch/
-   buttons stay capped at 50% since that's a sensible limit for working on
-   a table by hand, but "show me everything" has to be able to go lower
-   than that for a spread-out floor plan, or it wouldn't actually fit. */
+/* Points a directional arrow at each edge of the floor wrap that currently
+   has a table (or landmark) scrolled fully past it — e.g. the up arrow
+   only lights up once a table's bottom edge has scrolled above the top of
+   the visible wrap, not just whenever the room is bigger than the screen.
+   Recomputed after every render, every zoom step, every save (which fires
+   on drag-end and other position changes), and every scroll of the wrap,
+   so it always reflects exactly what's on screen right now. */
+function updateSeatmapEdgeArrows(){
+  var wrap = document.getElementById('seatmapFloorWrap');
+  var upBtn = document.getElementById('seatmapEdgeUp');
+  var downBtn = document.getElementById('seatmapEdgeDown');
+  var leftBtn = document.getElementById('seatmapEdgeLeft');
+  var rightBtn = document.getElementById('seatmapEdgeRight');
+  if(!wrap || !upBtn || !downBtn || !leftBtn || !rightBtn) return;
+  var wrect = wrap.getBoundingClientRect();
+  var nodes = wrap.querySelectorAll('.seatmap-table-node, .seatmap-landmark');
+  var up=false, down=false, left=false, right=false;
+  nodes.forEach(function(el){
+    var r = el.getBoundingClientRect();
+    if(r.width===0 && r.height===0) return; // not laid out yet
+    if(r.bottom < wrect.top) up = true;
+    else if(r.top > wrect.bottom) down = true;
+    if(r.right < wrect.left) left = true;
+    else if(r.left > wrect.right) right = true;
+  });
+  upBtn.classList.toggle('visible', up);
+  downBtn.classList.toggle('visible', down);
+  leftBtn.classList.toggle('visible', left);
+  rightBtn.classList.toggle('visible', right);
+}
+
+/* Measures the actual visual bounding box of every table + landmark, in
+   canvas world-space (i.e. independent of the current zoom/scroll) —
+   using each node's real on-screen rect rather than its raw t.pos, since
+   table nodes are centered on t.pos via a CSS translate(-50%,-50%) and
+   landmarks are auto-sized pills, so t.pos alone isn't the edge of
+   anything. Dividing the on-screen rects by the current zoom converts
+   them back to the same fixed world units the canvas itself is sized in.
+   Returns null if there's nothing placed yet. */
+function seatmapContentBoundsWorld(){
+  var canvas = document.getElementById('seatmapFloorCanvas');
+  if(!canvas) return null;
+  var nodes = canvas.querySelectorAll('.seatmap-table-node, .seatmap-landmark');
+  if(!nodes.length) return null;
+  var z = seatMapZoom || 1;
+  var canvasRect = canvas.getBoundingClientRect();
+  var minX=Infinity, minY=Infinity, maxX=-Infinity, maxY=-Infinity;
+  nodes.forEach(function(el){
+    var r = el.getBoundingClientRect();
+    minX = Math.min(minX, (r.left - canvasRect.left)/z);
+    minY = Math.min(minY, (r.top - canvasRect.top)/z);
+    maxX = Math.max(maxX, (r.right - canvasRect.left)/z);
+    maxY = Math.max(maxY, (r.bottom - canvasRect.top)/z);
+  });
+  return {minX:minX, minY:minY, maxX:maxX, maxY:maxY};
+}
+
+/* Zooms out (or in) just enough that every table and marker — not just
+   whatever's currently scrolled into view, and not the padded working
+   canvas they sit on (which has a hard-coded 900px-wide minimum so
+   there's always room to drag new tables around) — fits inside the
+   visible wrap, then scrolls so that content is centered. Fitting against
+   the padded canvas instead of the tables' own tight bounding box was
+   the previous bug: a handful of tables clustered in one corner still
+   measured against the full 900px+ canvas, so Fill could never zoom in
+   past whatever that oversized box demanded, even with nothing actually
+   off-screen. Bypasses the normal manual +/- zoom floor (SEATMAP_ZOOM_MIN):
+   pinch/buttons stay capped at 50% since that's a sensible limit for
+   working on a table by hand, but "show me everything" has to be able to
+   go lower than that for a spread-out floor plan, or it wouldn't fit —
+   and likewise has to be able to go above the manual +/- ceiling isn't
+   raised, just the floor, so a single small table can zoom in properly. */
 function fitFloorPlanToScreen(){
   var wrap = document.getElementById('seatmapFloorWrap');
   var canvas = document.getElementById('seatmapFloorCanvas');
   if(!wrap || !canvas) return;
-  var worldW = canvas.offsetWidth, worldH = canvas.offsetHeight;
-  if(!worldW || !worldH) return;
+  var bounds = seatmapContentBoundsWorld();
   var pad = 20;
-  var fitZoom = Math.min((wrap.clientWidth-pad)/worldW, (wrap.clientHeight-pad)/worldH);
+  var fitZoom;
+  if(bounds){
+    var contentW = Math.max(1, bounds.maxX - bounds.minX);
+    var contentH = Math.max(1, bounds.maxY - bounds.minY);
+    fitZoom = Math.min((wrap.clientWidth-pad)/contentW, (wrap.clientHeight-pad)/contentH);
+  } else {
+    var worldW = canvas.offsetWidth, worldH = canvas.offsetHeight;
+    if(!worldW || !worldH) return;
+    fitZoom = Math.min((wrap.clientWidth-pad)/worldW, (wrap.clientHeight-pad)/worldH);
+  }
   seatMapZoom = Math.max(0.12, Math.min(SEATMAP_ZOOM_MAX, fitZoom));
   renderSeatFloorPlan();
   var wrap2 = document.getElementById('seatmapFloorWrap');
-  if(wrap2){ wrap2.scrollLeft = 0; wrap2.scrollTop = 0; }
+  if(wrap2){
+    if(bounds){
+      // Center the tables' bounding box in the wrap (at the new zoom
+      // level) instead of always jumping to the top-left corner — a
+      // cluster sitting away from the canvas origin should still land
+      // centered, not pinned to a corner with empty canvas around it.
+      var z2 = seatMapZoom;
+      var cx = (bounds.minX + bounds.maxX)/2 * z2;
+      var cy = (bounds.minY + bounds.maxY)/2 * z2;
+      wrap2.scrollLeft = Math.max(0, cx - wrap2.clientWidth/2);
+      wrap2.scrollTop = Math.max(0, cy - wrap2.clientHeight/2);
+    } else {
+      wrap2.scrollLeft = 0; wrap2.scrollTop = 0;
+    }
+  }
+  // renderSeatFloorPlan() already checked the edges, but against whatever
+  // scroll position it restored — re-check now that we've just scrolled
+  // to center the content, so a stale arrow doesn't linger for the brief
+  // moment before the browser's own scroll event would catch it.
+  updateSeatmapEdgeArrows();
 }
 
 /* Build the table-shape style for a chosen colour, picking readable text
@@ -7959,6 +8113,16 @@ function setSeatMapZoom(z){
   seatMapZoom = Math.max(SEATMAP_ZOOM_MIN, Math.min(SEATMAP_ZOOM_MAX, z));
   if(!applyFloorZoomLive()) renderSeatFloorPlan(); // e.g. still on the empty-state canvas — nothing to live-patch yet
 }
+/* "Reset canvas" — snaps zoom back to the app's default (0.6, same as a
+   fresh load) and scrolls the floor wrap back to the top-left origin.
+   Distinct from the zoom bar's "Fit all tables" button, which computes a
+   zoom/scroll based on wherever the tables currently are; this just
+   restores the plain starting view regardless of table positions. */
+function resetSeatmapCanvasView(){
+  setSeatMapZoom(0.6);
+  var wrap = document.getElementById('seatmapFloorWrap');
+  if(wrap) wrap.scrollTo({left:0, top:0, behavior:'smooth'});
+}
 function wireFloorZoom(){
   var wrap = document.getElementById('seatmapFloorWrap');
   var outBtn = document.getElementById('seatmapZoomOut');
@@ -7968,6 +8132,26 @@ function wireFloorZoom(){
   if(inBtn) inBtn.addEventListener('click', function(){ setSeatMapZoom(seatMapZoom + 0.25); });
   if(fitBtn) fitBtn.addEventListener('click', fitFloorPlanToScreen);
   if(!wrap) return;
+  var upBtn = document.getElementById('seatmapEdgeUp');
+  var downBtn = document.getElementById('seatmapEdgeDown');
+  var leftBtn = document.getElementById('seatmapEdgeLeft');
+  var rightBtn = document.getElementById('seatmapEdgeRight');
+  // Tapping an edge arrow pans most of a screenful toward whatever
+  // triggered it, rather than jumping the whole way there — enough to
+  // bring an off-screen table into view without disorienting a scroll
+  // straight to the far end of a large floor plan.
+  if(upBtn) upBtn.addEventListener('click', function(){ wrap.scrollBy({top: -wrap.clientHeight*0.7, behavior:'smooth'}); });
+  if(downBtn) downBtn.addEventListener('click', function(){ wrap.scrollBy({top: wrap.clientHeight*0.7, behavior:'smooth'}); });
+  if(leftBtn) leftBtn.addEventListener('click', function(){ wrap.scrollBy({left: -wrap.clientWidth*0.7, behavior:'smooth'}); });
+  if(rightBtn) rightBtn.addEventListener('click', function(){ wrap.scrollBy({left: wrap.clientWidth*0.7, behavior:'smooth'}); });
+  // Re-check which edges still have an off-screen table every time the
+  // wrap is scrolled — throttled to one check per animation frame so a
+  // fast scroll/fling doesn't queue up a pile of redundant measurements.
+  var _edgeArrowRaf = null;
+  wrap.addEventListener('scroll', function(){
+    if(_edgeArrowRaf) return;
+    _edgeArrowRaf = requestAnimationFrame(function(){ _edgeArrowRaf = null; updateSeatmapEdgeArrows(); });
+  }, {passive:true});
 
   // Two-finger pinch: track the distance between touches and scale the
   // zoom proportionally. Single-finger touches are left alone so the
@@ -8399,6 +8583,8 @@ if(_smViewToggle) _smViewToggle.addEventListener('click', function(){
 });
 var _smSelectModeBtn = document.getElementById('seatmapSelectModeBtn');
 if(_smSelectModeBtn) _smSelectModeBtn.addEventListener('click', toggleMultiSelectMode);
+var _smResetCanvasBtn = document.getElementById('seatmapResetCanvasBtn');
+if(_smResetCanvasBtn) _smResetCanvasBtn.addEventListener('click', resetSeatmapCanvasView);
 var _smSelectBarRotate = document.getElementById('seatmapSelectBarRotate');
 if(_smSelectBarRotate) _smSelectBarRotate.addEventListener('click', rotateMultiSelected);
 var _smSelectCount = document.getElementById('seatmapSelectCount');
