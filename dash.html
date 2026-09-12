@@ -1003,6 +1003,22 @@ body.lite-mode #liteModeTopBtn {
 @keyframes seatmapFitPulse{0%,100%{box-shadow:0 0 0 0 rgba(176,120,48,.6)}50%{box-shadow:0 0 0 5px rgba(176,120,48,0)}}
 .seatmap-zoom-btn:active{background:rgba(255,255,255,.3)}
 .seatmap-zoom-pct{font-family:var(--sans);font-size:10.5px;font-weight:700;color:#fff;min-width:32px;text-align:center;user-select:none}
+/* Zero-size sticky anchors pinned to the other three edges of the floor
+   wrap, same trick as .seatmap-zoom-anchor above — each holds one
+   directional arrow button that only appears once a table has scrolled
+   fully past that edge, so the arrow always points the way to something
+   currently off-screen rather than just flagging "there's more". */
+.seatmap-edge-anchor{position:sticky;height:0;width:0;overflow:visible;z-index:6;pointer-events:none}
+.seatmap-edge-anchor.bottom{bottom:0;left:0;right:0}
+.seatmap-edge-anchor.left{left:0;top:0;bottom:0}
+.seatmap-edge-anchor.right{right:0;top:0;bottom:0}
+.seatmap-edge-arrow{position:absolute;display:none;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;border:none;background:rgba(0,0,0,.55);color:#fff;backdrop-filter:blur(3px);cursor:pointer;pointer-events:auto;padding:0;box-shadow:var(--shadow-sm);animation:seatmapEdgeArrowPulse 1.6s ease-in-out infinite}
+.seatmap-edge-arrow.visible{display:flex}
+.seatmap-edge-arrow.top{top:8px;left:50%;transform:translateX(-50%)}
+.seatmap-edge-arrow.bottom{bottom:8px;left:50%;transform:translateX(-50%)}
+.seatmap-edge-arrow.left{left:8px;top:50%;transform:translateY(-50%)}
+.seatmap-edge-arrow.right{right:8px;top:50%;transform:translateY(-50%)}
+@keyframes seatmapEdgeArrowPulse{0%,100%{opacity:.85}50%{opacity:.4}}
 .seatmap-floor-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;color:rgba(255,255,255,.65);font-size:12.5px;padding:24px;line-height:1.6}
 .seatmap-floor-hint{text-align:center;color:var(--muted);font-size:11px;padding:0 2px 12px;font-family:var(--sans)}
 .seatmap-table-node{position:absolute;transform:translate(-50%,-50%);cursor:grab;user-select:none;touch-action:none}
@@ -6626,6 +6642,10 @@ function saveSeatMap(){
   // Cloudflare push removed from here — seat map edits now stay purely
   // local (and instantly responsive) until "Sync Devices" is pressed,
   // instead of writing to the worker on every drag/tap.
+  // A drag (or any other position change) can move a table off-screen or
+  // bring one back into view, so re-check the edge arrows every time —
+  // a no-op if the floor plan isn't the screen currently showing.
+  if(typeof updateSeatmapEdgeArrows === 'function') updateSeatmapEdgeArrows();
 }
 loadSeatMap();
 
@@ -7659,13 +7679,19 @@ function renderSeatFloorPlan(){
 
   body.innerHTML = controls
     + '<div class="seatmap-floor-wrap" id="seatmapFloorWrap" style="background-color:'+seatMap.floorColor+'">'
-      + '<div class="seatmap-zoom-anchor"><div class="seatmap-zoom-controls">'
-        + '<button class="seatmap-zoom-btn" id="seatmapFitBtn" title="Fit all tables in view"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M8 21H5a2 2 0 0 1-2-2v-3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg></button>'
-        + '<span class="seatmap-zoom-sep"></span>'
-        + '<button class="seatmap-zoom-btn" id="seatmapZoomOut" title="Zoom out">–</button>'
-        + '<span class="seatmap-zoom-pct" id="seatmapZoomPct">'+Math.round(z*100)+'%</span>'
-        + '<button class="seatmap-zoom-btn" id="seatmapZoomIn" title="Zoom in">+</button>'
-      + '</div></div>'
+      + '<div class="seatmap-zoom-anchor">'
+        + '<div class="seatmap-zoom-controls">'
+          + '<button class="seatmap-zoom-btn" id="seatmapFitBtn" title="Fit all tables in view"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M8 21H5a2 2 0 0 1-2-2v-3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg></button>'
+          + '<span class="seatmap-zoom-sep"></span>'
+          + '<button class="seatmap-zoom-btn" id="seatmapZoomOut" title="Zoom out">–</button>'
+          + '<span class="seatmap-zoom-pct" id="seatmapZoomPct">'+Math.round(z*100)+'%</span>'
+          + '<button class="seatmap-zoom-btn" id="seatmapZoomIn" title="Zoom in">+</button>'
+        + '</div>'
+        + '<button class="seatmap-edge-arrow top" id="seatmapEdgeUp" title="A table is above — tap to scroll up"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg></button>'
+      + '</div>'
+      + '<div class="seatmap-edge-anchor bottom"><button class="seatmap-edge-arrow bottom" id="seatmapEdgeDown" title="A table is below — tap to scroll down"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12l7 7 7-7"/></svg></button></div>'
+      + '<div class="seatmap-edge-anchor left"><button class="seatmap-edge-arrow left" id="seatmapEdgeLeft" title="A table is to the left — tap to scroll left"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 5l-7 7 7 7"/></svg></button></div>'
+      + '<div class="seatmap-edge-anchor right"><button class="seatmap-edge-arrow right" id="seatmapEdgeRight" title="A table is to the right — tap to scroll right"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></button></div>'
       // The grid is one exact-size, non-repeating image (see
       // floorGridFullSvg) drawn on the sizer. Its inline width/height here
       // is only a first-paint guess — once the sizer is actually in the
@@ -7732,6 +7758,38 @@ function seatmapFixFloorCoverage(){
     var overflowing = (Math.round(canvasPxW*z) > wrap.clientWidth + 1) || (Math.round(contentH*z) > wrap.clientHeight + 1);
     fitBtn.classList.toggle('needs-fit', overflowing);
   }
+  updateSeatmapEdgeArrows();
+}
+
+/* Points a directional arrow at each edge of the floor wrap that currently
+   has a table (or landmark) scrolled fully past it — e.g. the up arrow
+   only lights up once a table's bottom edge has scrolled above the top of
+   the visible wrap, not just whenever the room is bigger than the screen.
+   Recomputed after every render, every zoom step, every save (which fires
+   on drag-end and other position changes), and every scroll of the wrap,
+   so it always reflects exactly what's on screen right now. */
+function updateSeatmapEdgeArrows(){
+  var wrap = document.getElementById('seatmapFloorWrap');
+  var upBtn = document.getElementById('seatmapEdgeUp');
+  var downBtn = document.getElementById('seatmapEdgeDown');
+  var leftBtn = document.getElementById('seatmapEdgeLeft');
+  var rightBtn = document.getElementById('seatmapEdgeRight');
+  if(!wrap || !upBtn || !downBtn || !leftBtn || !rightBtn) return;
+  var wrect = wrap.getBoundingClientRect();
+  var nodes = wrap.querySelectorAll('.seatmap-table-node, .seatmap-landmark');
+  var up=false, down=false, left=false, right=false;
+  nodes.forEach(function(el){
+    var r = el.getBoundingClientRect();
+    if(r.width===0 && r.height===0) return; // not laid out yet
+    if(r.bottom < wrect.top) up = true;
+    else if(r.top > wrect.bottom) down = true;
+    if(r.right < wrect.left) left = true;
+    else if(r.left > wrect.right) right = true;
+  });
+  upBtn.classList.toggle('visible', up);
+  downBtn.classList.toggle('visible', down);
+  leftBtn.classList.toggle('visible', left);
+  rightBtn.classList.toggle('visible', right);
 }
 
 /* Zooms out (or in) just enough that the entire room — every table and
@@ -7753,6 +7811,11 @@ function fitFloorPlanToScreen(){
   renderSeatFloorPlan();
   var wrap2 = document.getElementById('seatmapFloorWrap');
   if(wrap2){ wrap2.scrollLeft = 0; wrap2.scrollTop = 0; }
+  // renderSeatFloorPlan() already checked the edges, but against whatever
+  // scroll position it restored — re-check now that we've just jumped
+  // back to the top-left corner, so a stale arrow doesn't linger for the
+  // brief moment before the browser's own scroll event would catch it.
+  updateSeatmapEdgeArrows();
 }
 
 /* Build the table-shape style for a chosen colour, picking readable text
@@ -7968,6 +8031,26 @@ function wireFloorZoom(){
   if(inBtn) inBtn.addEventListener('click', function(){ setSeatMapZoom(seatMapZoom + 0.25); });
   if(fitBtn) fitBtn.addEventListener('click', fitFloorPlanToScreen);
   if(!wrap) return;
+  var upBtn = document.getElementById('seatmapEdgeUp');
+  var downBtn = document.getElementById('seatmapEdgeDown');
+  var leftBtn = document.getElementById('seatmapEdgeLeft');
+  var rightBtn = document.getElementById('seatmapEdgeRight');
+  // Tapping an edge arrow pans most of a screenful toward whatever
+  // triggered it, rather than jumping the whole way there — enough to
+  // bring an off-screen table into view without disorienting a scroll
+  // straight to the far end of a large floor plan.
+  if(upBtn) upBtn.addEventListener('click', function(){ wrap.scrollBy({top: -wrap.clientHeight*0.7, behavior:'smooth'}); });
+  if(downBtn) downBtn.addEventListener('click', function(){ wrap.scrollBy({top: wrap.clientHeight*0.7, behavior:'smooth'}); });
+  if(leftBtn) leftBtn.addEventListener('click', function(){ wrap.scrollBy({left: -wrap.clientWidth*0.7, behavior:'smooth'}); });
+  if(rightBtn) rightBtn.addEventListener('click', function(){ wrap.scrollBy({left: wrap.clientWidth*0.7, behavior:'smooth'}); });
+  // Re-check which edges still have an off-screen table every time the
+  // wrap is scrolled — throttled to one check per animation frame so a
+  // fast scroll/fling doesn't queue up a pile of redundant measurements.
+  var _edgeArrowRaf = null;
+  wrap.addEventListener('scroll', function(){
+    if(_edgeArrowRaf) return;
+    _edgeArrowRaf = requestAnimationFrame(function(){ _edgeArrowRaf = null; updateSeatmapEdgeArrows(); });
+  }, {passive:true});
 
   // Two-finger pinch: track the distance between touches and scale the
   // zoom proportionally. Single-finger touches are left alone so the
