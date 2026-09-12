@@ -1800,7 +1800,7 @@ body.lite-mode #liteModeTopBtn {
       <button type="button" class="seatmap-dock-btn danger" id="seatmapSelectBarDelete" title="Delete selected"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
       <button type="button" class="seatmap-dock-btn done" id="seatmapSelectBarDone">Done</button>
     </div>
-    <button type="button" class="seatmap-action-fab" id="seatmapSelectModeBtn" title="Select tables to rotate, align, or delete"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 20 6"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg></button>
+    <button type="button" class="seatmap-action-fab" id="seatmapSelectModeBtn" title="Select tables to rotate, align, or delete"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="5" width="14" height="14" rx="1.5" stroke-dasharray="3 3.2"/><circle cx="5" cy="5" r="1.7" fill="currentColor" stroke="none"/><circle cx="19" cy="5" r="1.7" fill="currentColor" stroke="none"/><circle cx="5" cy="19" r="1.7" fill="currentColor" stroke="none"/><circle cx="19" cy="19" r="1.7" fill="currentColor" stroke="none"/></svg></button>
   </div>
   <div class="seatmap-assign-banner" id="seatmapAssignBanner" style="display:none">
     <span id="seatmapAssignBannerText"></span>
@@ -7877,13 +7877,14 @@ function removeLandmark(id){
    in slide or design apps: drag near another item's left/right/center/
    top/bottom and it snaps straight, with a thin guide line while dragging. */
 function snapTargets(excludeId){
+  var exclude = Array.isArray(excludeId) ? excludeId : [excludeId];
   var xs = [], ys = [];
   seatMap.tables.forEach(function(t){
-    if(t.id===excludeId || !t.pos) return;
+    if(exclude.indexOf(t.id) !== -1 || !t.pos) return;
     xs.push(t.pos.x); ys.push(t.pos.y);
   });
   (seatMap.landmarks||[]).forEach(function(l){
-    if(l.id===excludeId || !l.pos) return;
+    if(exclude.indexOf(l.id) !== -1 || !l.pos) return;
     xs.push(l.pos.x); ys.push(l.pos.y);
   });
   return { xs:xs, ys:ys };
@@ -8015,6 +8016,13 @@ function wireFloorDrag(){
   function makeDraggable(node, idAttr, excludeId, onEnd, onDelete){
     var dragging = false, moved = false, startX=0, startY=0;
     var trash = document.getElementById('seatmapTrash');
+    // Group drag: grabbing any one of 2+ tables that are currently
+    // multi-selected carries the whole selection along by the same
+    // delta, so the group moves as one rigid shape instead of each
+    // table re-snapping/re-clamping on its own and pulling apart.
+    // Only tables support this (idAttr is 'tableId' for tables,
+    // 'landmarkId' for venue markers, which have no multi-select).
+    var groupDrag = false, groupStarts = null;
     node.addEventListener('pointerdown', function(e){
       if(e.target.closest('.seatmap-node-dot') || e.target.closest('.seatmap-node-chair-btn')) return;
       dragging = true; moved = false;
@@ -8022,16 +8030,30 @@ function wireFloorDrag(){
       startX = e.clientX; startY = e.clientY;
       node.classList.add('dragging');
       try{ node.setPointerCapture(e.pointerId); }catch(err){}
+
+      groupDrag = idAttr === 'tableId' && _multiSelectMode && _multiSelectedIds.length > 1 && _multiSelectedIds.indexOf(node.dataset.tableId) !== -1;
+      if(groupDrag){
+        groupStarts = _multiSelectedIds.map(function(id){
+          var n = canvas.querySelector('.seatmap-table-node[data-table-id="'+id+'"]');
+          return n ? { id:id, node:n, left: parseFloat(n.style.left), top: parseFloat(n.style.top) } : null;
+        }).filter(Boolean);
+        groupStarts.forEach(function(g){ g.node.classList.add('dragging'); });
+      }
     });
     node.addEventListener('pointermove', function(e){
       if(!dragging) return;
       var dx = e.clientX - startX, dy = e.clientY - startY;
       if(Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
-      if(moved && trash && onDelete) trash.classList.add('visible');
+      // Dropping onto the trash deletes just one table — during a group
+      // drag that'd be a confusing (and risky) way to lose several tables
+      // at once, so the trash stays hidden and the dedicated bulk-Delete
+      // button in the action toolbar is the intended way to remove more
+      // than one.
+      if(moved && trash && onDelete && !groupDrag) trash.classList.add('visible');
       if(moved) updateAutoScroll(e.clientX, e.clientY);
 
       var overTrash = false;
-      if(moved && trash && onDelete){
+      if(moved && trash && onDelete && !groupDrag){
         var trect = trash.getBoundingClientRect();
         overTrash = e.clientX>=trect.left && e.clientX<=trect.right && e.clientY>=trect.top && e.clientY<=trect.bottom;
         trash.classList.toggle('armed', overTrash);
@@ -8061,7 +8083,7 @@ function wireFloorDrag(){
       xPx = Math.max(halfW, xPx); // no upper bound — canvas grows to fit on next render, same as height
       yPx = Math.max(halfH, yPx); // no upper bound — canvas height grows to fit on next render
 
-      var targets = snapTargets(excludeId);
+      var targets = snapTargets(groupDrag ? _multiSelectedIds : excludeId);
       var snappedX = null, snappedY = null;
       targets.xs.forEach(function(cx){ if(Math.abs(xPx-cx) < SNAP_THRESHOLD) snappedX = cx; });
       targets.ys.forEach(function(cy){ if(Math.abs(yPx-cy) < SNAP_THRESHOLD) snappedY = cy; });
@@ -8073,6 +8095,22 @@ function wireFloorDrag(){
 
       node.style.left = xPx + 'px';
       node.style.top = yPx + 'px';
+
+      // Carry the rest of the selection along by the exact delta the
+      // grabbed table just moved (post-snap/post-clamp), so the group
+      // stays rigid — every other table just replays that same offset
+      // from its own starting spot rather than computing its own snap.
+      if(groupDrag && groupStarts){
+        var primary = groupStarts.filter(function(g){ return g.id === node.dataset.tableId; })[0];
+        if(primary){
+          var deltaX = xPx - primary.left, deltaY = yPx - primary.top;
+          groupStarts.forEach(function(g){
+            if(g.node === node) return;
+            g.node.style.left = (g.left + deltaX) + 'px';
+            g.node.style.top = (g.top + deltaY) + 'px';
+          });
+        }
+      }
     });
     function endDrag(e){
       if(!dragging) return;
@@ -8085,18 +8123,36 @@ function wireFloorDrag(){
       if(guideH) guideH.style.display = 'none';
       var droppedOnTrash = !!(trash && trash.classList.contains('armed'));
       if(trash){ trash.classList.remove('visible'); trash.classList.remove('armed'); }
-      if(droppedOnTrash && onDelete){
+      var groupIds = null;
+      if(groupDrag && groupStarts){
+        groupStarts.forEach(function(g){ g.node.classList.remove('dragging'); });
+        groupIds = groupStarts.map(function(g){ return g.id; });
+      }
+      if(droppedOnTrash && onDelete && !groupDrag){
         onDelete(node.dataset[idAttr]);
         return;
       }
-      onEnd(moved, node.dataset[idAttr]);
+      onEnd(moved, node.dataset[idAttr], groupIds);
     }
     node.addEventListener('pointerup', endDrag);
     node.addEventListener('pointercancel', endDrag);
   }
 
   canvas.querySelectorAll('.seatmap-table-node').forEach(function(node){
-    makeDraggable(node, 'tableId', node.dataset.tableId, function(moved, id){
+    makeDraggable(node, 'tableId', node.dataset.tableId, function(moved, id, groupIds){
+      if(moved && groupIds){
+        // Group drag: commit every selected table's live on-screen
+        // position (not just the one that was actually grabbed) in one
+        // save, then re-render once.
+        groupIds.forEach(function(gid){
+          var gn = canvas.querySelector('.seatmap-table-node[data-table-id="'+gid+'"]');
+          var gt = seatMap.tables.find(function(x){ return x.id===gid; });
+          if(gn && gt) gt.pos = { x: parseFloat(gn.style.left), y: parseFloat(gn.style.top) };
+        });
+        saveSeatMap();
+        renderSeatFloorPlan();
+        return;
+      }
       var t = seatMap.tables.find(function(x){return x.id===id;});
       if(t){
         t.pos = { x: parseFloat(node.style.left), y: parseFloat(node.style.top) };
