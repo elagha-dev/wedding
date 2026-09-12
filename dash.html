@@ -1008,10 +1008,17 @@ body.lite-mode #liteModeTopBtn {
    directional arrow button that only appears once a table has scrolled
    fully past that edge, so the arrow always points the way to something
    currently off-screen rather than just flagging "there's more". */
-.seatmap-edge-anchor{position:sticky;height:0;width:0;overflow:visible;z-index:6;pointer-events:none}
-.seatmap-edge-anchor.bottom{bottom:0;left:0;right:0}
-.seatmap-edge-anchor.left{left:0;top:0;bottom:0}
-.seatmap-edge-anchor.right{right:0;top:0;bottom:0}
+.seatmap-edge-anchor{position:sticky;overflow:visible;z-index:6;pointer-events:none}
+/* Each variant only zeroes the axis it's meant to hug flush against —
+   the shared rule used to zero BOTH height and width, which stomped the
+   full-span axis (e.g. bottom's left:0;right:0 stretch was overridden by
+   a hard width:0), collapsing the anchor to a point and leaving the
+   button's left:50%/top:50% centering computed against a zero-size box
+   instead of the full edge. That's why only the top ("up") arrow, which
+   never shared this rule, ever landed in the right place. */
+.seatmap-edge-anchor.bottom{bottom:0;left:0;right:0;height:0}
+.seatmap-edge-anchor.left{left:0;top:0;bottom:0;width:0}
+.seatmap-edge-anchor.right{right:0;top:0;bottom:0;width:0}
 .seatmap-edge-arrow{position:absolute;display:none;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;border:none;background:rgba(0,0,0,.55);color:#fff;backdrop-filter:blur(3px);cursor:pointer;pointer-events:auto;padding:0;box-shadow:var(--shadow-sm);animation:seatmapEdgeArrowPulse 1.6s ease-in-out infinite}
 .seatmap-edge-arrow.visible{display:flex}
 .seatmap-edge-arrow.top{top:8px;left:50%;transform:translateX(-50%)}
@@ -7792,29 +7799,85 @@ function updateSeatmapEdgeArrows(){
   rightBtn.classList.toggle('visible', right);
 }
 
-/* Zooms out (or in) just enough that the entire room — every table and
-   marker, not just whatever's currently scrolled into view — fits inside
-   the visible wrap at once, then scrolls back to the top-left corner.
-   Bypasses the normal manual +/- zoom floor (SEATMAP_ZOOM_MIN): pinch/
-   buttons stay capped at 50% since that's a sensible limit for working on
-   a table by hand, but "show me everything" has to be able to go lower
-   than that for a spread-out floor plan, or it wouldn't actually fit. */
+/* Measures the actual visual bounding box of every table + landmark, in
+   canvas world-space (i.e. independent of the current zoom/scroll) —
+   using each node's real on-screen rect rather than its raw t.pos, since
+   table nodes are centered on t.pos via a CSS translate(-50%,-50%) and
+   landmarks are auto-sized pills, so t.pos alone isn't the edge of
+   anything. Dividing the on-screen rects by the current zoom converts
+   them back to the same fixed world units the canvas itself is sized in.
+   Returns null if there's nothing placed yet. */
+function seatmapContentBoundsWorld(){
+  var canvas = document.getElementById('seatmapFloorCanvas');
+  if(!canvas) return null;
+  var nodes = canvas.querySelectorAll('.seatmap-table-node, .seatmap-landmark');
+  if(!nodes.length) return null;
+  var z = seatMapZoom || 1;
+  var canvasRect = canvas.getBoundingClientRect();
+  var minX=Infinity, minY=Infinity, maxX=-Infinity, maxY=-Infinity;
+  nodes.forEach(function(el){
+    var r = el.getBoundingClientRect();
+    minX = Math.min(minX, (r.left - canvasRect.left)/z);
+    minY = Math.min(minY, (r.top - canvasRect.top)/z);
+    maxX = Math.max(maxX, (r.right - canvasRect.left)/z);
+    maxY = Math.max(maxY, (r.bottom - canvasRect.top)/z);
+  });
+  return {minX:minX, minY:minY, maxX:maxX, maxY:maxY};
+}
+
+/* Zooms out (or in) just enough that every table and marker — not just
+   whatever's currently scrolled into view, and not the padded working
+   canvas they sit on (which has a hard-coded 900px-wide minimum so
+   there's always room to drag new tables around) — fits inside the
+   visible wrap, then scrolls so that content is centered. Fitting against
+   the padded canvas instead of the tables' own tight bounding box was
+   the previous bug: a handful of tables clustered in one corner still
+   measured against the full 900px+ canvas, so Fill could never zoom in
+   past whatever that oversized box demanded, even with nothing actually
+   off-screen. Bypasses the normal manual +/- zoom floor (SEATMAP_ZOOM_MIN):
+   pinch/buttons stay capped at 50% since that's a sensible limit for
+   working on a table by hand, but "show me everything" has to be able to
+   go lower than that for a spread-out floor plan, or it wouldn't fit —
+   and likewise has to be able to go above the manual +/- ceiling isn't
+   raised, just the floor, so a single small table can zoom in properly. */
 function fitFloorPlanToScreen(){
   var wrap = document.getElementById('seatmapFloorWrap');
   var canvas = document.getElementById('seatmapFloorCanvas');
   if(!wrap || !canvas) return;
-  var worldW = canvas.offsetWidth, worldH = canvas.offsetHeight;
-  if(!worldW || !worldH) return;
+  var bounds = seatmapContentBoundsWorld();
   var pad = 20;
-  var fitZoom = Math.min((wrap.clientWidth-pad)/worldW, (wrap.clientHeight-pad)/worldH);
+  var fitZoom;
+  if(bounds){
+    var contentW = Math.max(1, bounds.maxX - bounds.minX);
+    var contentH = Math.max(1, bounds.maxY - bounds.minY);
+    fitZoom = Math.min((wrap.clientWidth-pad)/contentW, (wrap.clientHeight-pad)/contentH);
+  } else {
+    var worldW = canvas.offsetWidth, worldH = canvas.offsetHeight;
+    if(!worldW || !worldH) return;
+    fitZoom = Math.min((wrap.clientWidth-pad)/worldW, (wrap.clientHeight-pad)/worldH);
+  }
   seatMapZoom = Math.max(0.12, Math.min(SEATMAP_ZOOM_MAX, fitZoom));
   renderSeatFloorPlan();
   var wrap2 = document.getElementById('seatmapFloorWrap');
-  if(wrap2){ wrap2.scrollLeft = 0; wrap2.scrollTop = 0; }
+  if(wrap2){
+    if(bounds){
+      // Center the tables' bounding box in the wrap (at the new zoom
+      // level) instead of always jumping to the top-left corner — a
+      // cluster sitting away from the canvas origin should still land
+      // centered, not pinned to a corner with empty canvas around it.
+      var z2 = seatMapZoom;
+      var cx = (bounds.minX + bounds.maxX)/2 * z2;
+      var cy = (bounds.minY + bounds.maxY)/2 * z2;
+      wrap2.scrollLeft = Math.max(0, cx - wrap2.clientWidth/2);
+      wrap2.scrollTop = Math.max(0, cy - wrap2.clientHeight/2);
+    } else {
+      wrap2.scrollLeft = 0; wrap2.scrollTop = 0;
+    }
+  }
   // renderSeatFloorPlan() already checked the edges, but against whatever
-  // scroll position it restored — re-check now that we've just jumped
-  // back to the top-left corner, so a stale arrow doesn't linger for the
-  // brief moment before the browser's own scroll event would catch it.
+  // scroll position it restored — re-check now that we've just scrolled
+  // to center the content, so a stale arrow doesn't linger for the brief
+  // moment before the browser's own scroll event would catch it.
   updateSeatmapEdgeArrows();
 }
 
