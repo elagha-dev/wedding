@@ -1014,16 +1014,16 @@ body.lite-mode #liteModeTopBtn {
 @keyframes seatmapFitPulse{0%,100%{box-shadow:0 0 0 0 rgba(176,120,48,.6)}50%{box-shadow:0 0 0 5px rgba(176,120,48,0)}}
 .seatmap-zoom-btn:active{background:rgba(255,255,255,.3)}
 .seatmap-zoom-pct{font-family:var(--sans);font-size:10.5px;font-weight:700;color:#fff;min-width:32px;text-align:center;user-select:none}
-/* One arrow per edge of the overlay (== the wrap's own box), each shown
-   only once a table has scrolled fully past that edge — so it always
-   points the way to something currently off-screen rather than just
-   flagging "there's more, somewhere". */
-.seatmap-edge-arrow{position:absolute;display:none;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;border:1px solid rgba(255,255,255,.5);background:linear-gradient(135deg,#FFE9A8,#D4AF37 55%,#B8860B);color:#3D2E24;backdrop-filter:blur(3px);cursor:pointer;pointer-events:auto;padding:0;box-shadow:0 2px 10px rgba(184,134,11,.55);animation:seatmapEdgeArrowPulse 1.6s ease-in-out infinite}
-.seatmap-edge-arrow.visible{display:flex}
-.seatmap-edge-arrow.top{top:8px;left:50%;transform:translateX(-50%)}
-.seatmap-edge-arrow.bottom{bottom:8px;left:50%;transform:translateX(-50%)}
-.seatmap-edge-arrow.left{left:8px;top:50%;transform:translateY(-50%)}
-.seatmap-edge-arrow.right{right:8px;top:50%;transform:translateY(-50%)}
+/* One "ping" per off-screen table (or cluster of nearby ones), positioned
+   at wherever the floor wrap's own edge is crossed by a ray from its
+   center toward that table — i.e. it sits at the real angle, not snapped
+   to just up/down/left/right — and rotated to point exactly that way.
+   Position (left/top) and rotation are both set inline per-ping by JS in
+   updateSeatmapEdgeArrows(), since they depend on where the table
+   actually is; this rule only supplies the fixed look. */
+.seatmap-edge-radar{position:absolute;inset:0;overflow:visible;pointer-events:none}
+.seatmap-radar-ping{position:absolute;display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;border:1px solid rgba(255,255,255,.5);background:linear-gradient(135deg,#FFE9A8,#D4AF37 55%,#B8860B);color:#3D2E24;backdrop-filter:blur(3px);cursor:pointer;pointer-events:auto;padding:0;box-shadow:0 2px 10px rgba(184,134,11,.55);animation:seatmapEdgeArrowPulse 1.6s ease-in-out infinite}
+.seatmap-radar-ping .seatmap-radar-count{position:absolute;top:-5px;right:-5px;min-width:15px;height:15px;padding:0 3px;border-radius:8px;background:#8a5c07;color:#fff;font-family:var(--sans);font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,.4)}
 @keyframes seatmapEdgeArrowPulse{0%,100%{opacity:.85}50%{opacity:.4}}
 .seatmap-floor-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;color:rgba(255,255,255,.65);font-size:12.5px;padding:24px;line-height:1.6}
 .seatmap-floor-hint{text-align:center;color:var(--muted);font-size:11px;padding:0 2px 12px;font-family:var(--sans)}
@@ -1819,7 +1819,6 @@ body.lite-mode #liteModeTopBtn {
     </div>
     <div class="seatmap-action-toolbar" id="seatmapActionToolbar">
       <button type="button" class="seatmap-select-count" id="seatmapSelectCount" title="Tap to select/deselect all tables">0 selected</button>
-      <button type="button" class="seatmap-dock-btn" id="seatmapResetCanvasBtn" title="Reset canvas view (zoom &amp; position)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg></button>
       <button type="button" class="seatmap-dock-btn" id="seatmapSelectBarRotate" title="Rotate selected"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><polyline points="21 3 21 9 15 9"/></svg></button>
       <button type="button" class="seatmap-dock-btn" id="seatmapAlignMenuBtn" title="Align, distribute, or arrange selected"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.287 1.288L3 12l5.8 1.9a2 2 0 0 1 1.288 1.287L12 21l1.9-5.8a2 2 0 0 1 1.287-1.288L21 12l-5.8-1.9a2 2 0 0 1-1.288-1.287Z"/></svg></button>
       <button type="button" class="seatmap-dock-btn danger" id="seatmapSelectBarDelete" title="Delete selected"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
@@ -7737,10 +7736,7 @@ function renderSeatFloorPlan(){
         + '<span class="seatmap-zoom-pct" id="seatmapZoomPct">'+Math.round(z*100)+'%</span>'
         + '<button class="seatmap-zoom-btn" id="seatmapZoomIn" title="Zoom in">+</button>'
       + '</div>'
-      + '<button class="seatmap-edge-arrow top" id="seatmapEdgeUp" title="A table is above — tap to scroll up"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg></button>'
-      + '<button class="seatmap-edge-arrow bottom" id="seatmapEdgeDown" title="A table is below — tap to scroll down"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12l7 7 7-7"/></svg></button>'
-      + '<button class="seatmap-edge-arrow left" id="seatmapEdgeLeft" title="A table is to the left — tap to scroll left"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 5l-7 7 7 7"/></svg></button>'
-      + '<button class="seatmap-edge-arrow right" id="seatmapEdgeRight" title="A table is to the right — tap to scroll right"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></button>'
+      + '<div class="seatmap-edge-radar" id="seatmapEdgeRadar"></div>'
     + '</div>'
     + '</div>';
 
@@ -7796,35 +7792,86 @@ function seatmapFixFloorCoverage(){
   updateSeatmapEdgeArrows();
 }
 
-/* Points a directional arrow at each edge of the floor wrap that currently
-   has a table (or landmark) scrolled fully past it — e.g. the up arrow
-   only lights up once a table's bottom edge has scrolled above the top of
-   the visible wrap, not just whenever the room is bigger than the screen.
-   Recomputed after every render, every zoom step, every save (which fires
-   on drag-end and other position changes), and every scroll of the wrap,
-   so it always reflects exactly what's on screen right now. */
+/* Places one "radar ping" per off-screen table (or tight cluster of them)
+   at the exact point where a ray from the wrap's center toward that
+   table crosses the wrap's own edge, rotated to point at the real angle
+   — 90°, 40°, wherever the table actually is, instead of only ever being
+   able to say "up" or "left". Nearby angles (within CLUSTER_DEG of each
+   other) share a single ping with a small count badge, so a handful of
+   tables roughly the same direction don't stack identical pings on top
+   of each other. Recomputed after every render, every zoom step, every
+   save (which fires on drag-end and other position changes), and every
+   scroll of the wrap, so it always reflects exactly what's on screen. */
+var SEATMAP_RADAR_CLUSTER_DEG = 14;
 function updateSeatmapEdgeArrows(){
   var wrap = document.getElementById('seatmapFloorWrap');
-  var upBtn = document.getElementById('seatmapEdgeUp');
-  var downBtn = document.getElementById('seatmapEdgeDown');
-  var leftBtn = document.getElementById('seatmapEdgeLeft');
-  var rightBtn = document.getElementById('seatmapEdgeRight');
-  if(!wrap || !upBtn || !downBtn || !leftBtn || !rightBtn) return;
+  var radar = document.getElementById('seatmapEdgeRadar');
+  if(!wrap || !radar) return;
   var wrect = wrap.getBoundingClientRect();
+  var cx = wrect.left + wrect.width/2, cy = wrect.top + wrect.height/2;
   var nodes = wrap.querySelectorAll('.seatmap-table-node, .seatmap-landmark');
-  var up=false, down=false, left=false, right=false;
+  var angles = [];
   nodes.forEach(function(el){
     var r = el.getBoundingClientRect();
     if(r.width===0 && r.height===0) return; // not laid out yet
-    if(r.bottom < wrect.top) up = true;
-    else if(r.top > wrect.bottom) down = true;
-    if(r.right < wrect.left) left = true;
-    else if(r.left > wrect.right) right = true;
+    var isOff = r.bottom < wrect.top || r.top > wrect.bottom || r.right < wrect.left || r.left > wrect.right;
+    if(!isOff) return;
+    var tcx = r.left + r.width/2, tcy = r.top + r.height/2;
+    angles.push(Math.atan2(tcy - cy, tcx - cx)); // radians, screen coords (0 = right, +90° = down)
   });
-  upBtn.classList.toggle('visible', up);
-  downBtn.classList.toggle('visible', down);
-  leftBtn.classList.toggle('visible', left);
-  rightBtn.classList.toggle('visible', right);
+  if(!angles.length){ radar.innerHTML = ''; return; }
+
+  // Cluster nearby angles into single pings.
+  angles.sort(function(a,b){ return a-b; });
+  var clusterRad = SEATMAP_RADAR_CLUSTER_DEG * Math.PI/180;
+  var clusters = [];
+  angles.forEach(function(a){
+    var last = clusters[clusters.length-1];
+    if(last && (a - last[last.length-1]) < clusterRad) last.push(a);
+    else clusters.push([a]);
+  });
+  // The sort above can't see the wrap-around at the ±180° seam, so check
+  // whether the first and last cluster are actually adjacent across it.
+  if(clusters.length > 1){
+    var first = clusters[0], lastC = clusters[clusters.length-1];
+    if((first[0] + 2*Math.PI - lastC[lastC.length-1]) < clusterRad){
+      clusters[0] = lastC.concat(first);
+      clusters.pop();
+    }
+  }
+
+  // Place each cluster's ping on the wrap's own edge (inset a bit so it
+  // stays fully visible) at that cluster's average angle.
+  var margin = 18;
+  var cxLocal = wrect.width/2, cyLocal = wrect.height/2;
+  var maxX = Math.max(1, cxLocal - margin), maxY = Math.max(1, cyLocal - margin);
+  var html = clusters.map(function(c){
+    // Circular mean, not a plain arithmetic average — a cluster that
+    // straddles the ±180° seam (e.g. one table at 175°, another at
+    // -175°) would otherwise average to 0° (pointing the opposite way)
+    // instead of ~180°.
+    var sumSin=0, sumCos=0;
+    c.forEach(function(a){ sumSin += Math.sin(a); sumCos += Math.cos(a); });
+    var avg = Math.atan2(sumSin, sumCos);
+    var dx = Math.cos(avg), dy = Math.sin(avg);
+    var scale = Math.min(Math.abs(dx) < 1e-6 ? Infinity : maxX/Math.abs(dx), Math.abs(dy) < 1e-6 ? Infinity : maxY/Math.abs(dy));
+    var x = cxLocal + dx*scale, y = cyLocal + dy*scale;
+    var deg = avg*180/Math.PI + 90; // the arrow SVG points up by default (i.e. -90°), so rotate relative to that
+    var badge = c.length > 1 ? '<span class="seatmap-radar-count">'+c.length+'</span>' : '';
+    return '<button type="button" class="seatmap-radar-ping" data-dx="'+dx+'" data-dy="'+dy+'" title="'+c.length+(c.length===1?' table is':' tables are')+' off-screen this way — tap to scroll toward '+(c.length===1?'it':'them')+'" style="left:'+x+'px;top:'+y+'px;transform:translate(-50%,-50%) rotate('+deg+'deg)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>'+badge+'</button>';
+  }).join('');
+  radar.innerHTML = html;
+
+  // Tapping a ping pans most of a screenful toward it, rather than
+  // jumping the whole way there — enough to bring the off-screen
+  // table(s) into view without disorienting a scroll straight to the far
+  // end of a large floor plan.
+  radar.querySelectorAll('.seatmap-radar-ping').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var dx = parseFloat(btn.dataset.dx), dy = parseFloat(btn.dataset.dy);
+      wrap.scrollBy({left: dx*wrap.clientWidth*0.7, top: dy*wrap.clientHeight*0.7, behavior:'smooth'});
+    });
+  });
 }
 
 /* Measures the actual visual bounding box of every table + landmark, in
@@ -8113,16 +8160,6 @@ function setSeatMapZoom(z){
   seatMapZoom = Math.max(SEATMAP_ZOOM_MIN, Math.min(SEATMAP_ZOOM_MAX, z));
   if(!applyFloorZoomLive()) renderSeatFloorPlan(); // e.g. still on the empty-state canvas — nothing to live-patch yet
 }
-/* "Reset canvas" — snaps zoom back to the app's default (0.6, same as a
-   fresh load) and scrolls the floor wrap back to the top-left origin.
-   Distinct from the zoom bar's "Fit all tables" button, which computes a
-   zoom/scroll based on wherever the tables currently are; this just
-   restores the plain starting view regardless of table positions. */
-function resetSeatmapCanvasView(){
-  setSeatMapZoom(0.6);
-  var wrap = document.getElementById('seatmapFloorWrap');
-  if(wrap) wrap.scrollTo({left:0, top:0, behavior:'smooth'});
-}
 function wireFloorZoom(){
   var wrap = document.getElementById('seatmapFloorWrap');
   var outBtn = document.getElementById('seatmapZoomOut');
@@ -8132,21 +8169,14 @@ function wireFloorZoom(){
   if(inBtn) inBtn.addEventListener('click', function(){ setSeatMapZoom(seatMapZoom + 0.25); });
   if(fitBtn) fitBtn.addEventListener('click', fitFloorPlanToScreen);
   if(!wrap) return;
-  var upBtn = document.getElementById('seatmapEdgeUp');
-  var downBtn = document.getElementById('seatmapEdgeDown');
-  var leftBtn = document.getElementById('seatmapEdgeLeft');
-  var rightBtn = document.getElementById('seatmapEdgeRight');
-  // Tapping an edge arrow pans most of a screenful toward whatever
-  // triggered it, rather than jumping the whole way there — enough to
-  // bring an off-screen table into view without disorienting a scroll
-  // straight to the far end of a large floor plan.
-  if(upBtn) upBtn.addEventListener('click', function(){ wrap.scrollBy({top: -wrap.clientHeight*0.7, behavior:'smooth'}); });
-  if(downBtn) downBtn.addEventListener('click', function(){ wrap.scrollBy({top: wrap.clientHeight*0.7, behavior:'smooth'}); });
-  if(leftBtn) leftBtn.addEventListener('click', function(){ wrap.scrollBy({left: -wrap.clientWidth*0.7, behavior:'smooth'}); });
-  if(rightBtn) rightBtn.addEventListener('click', function(){ wrap.scrollBy({left: wrap.clientWidth*0.7, behavior:'smooth'}); });
-  // Re-check which edges still have an off-screen table every time the
-  // wrap is scrolled — throttled to one check per animation frame so a
-  // fast scroll/fling doesn't queue up a pile of redundant measurements.
+  // Radar pings (off-screen table indicators) wire their own click
+  // handlers each time updateSeatmapEdgeArrows() rebuilds them, since
+  // there's a variable number at variable positions rather than four
+  // fixed buttons.
+  // Re-check which tables are off-screen (and from what angle) every
+  // time the wrap is scrolled — throttled to one check per animation
+  // frame so a fast scroll/fling doesn't queue up a pile of redundant
+  // measurements.
   var _edgeArrowRaf = null;
   wrap.addEventListener('scroll', function(){
     if(_edgeArrowRaf) return;
@@ -8583,8 +8613,6 @@ if(_smViewToggle) _smViewToggle.addEventListener('click', function(){
 });
 var _smSelectModeBtn = document.getElementById('seatmapSelectModeBtn');
 if(_smSelectModeBtn) _smSelectModeBtn.addEventListener('click', toggleMultiSelectMode);
-var _smResetCanvasBtn = document.getElementById('seatmapResetCanvasBtn');
-if(_smResetCanvasBtn) _smResetCanvasBtn.addEventListener('click', resetSeatmapCanvasView);
 var _smSelectBarRotate = document.getElementById('seatmapSelectBarRotate');
 if(_smSelectBarRotate) _smSelectBarRotate.addEventListener('click', rotateMultiSelected);
 var _smSelectCount = document.getElementById('seatmapSelectCount');
