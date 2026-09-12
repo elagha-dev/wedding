@@ -955,29 +955,29 @@ body.lite-mode #liteModeTopBtn {
    stretched across the full width of the screen. */
 .seatmap-action-dock{position:fixed;right:14px;bottom:20px;z-index:400;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
 .seatmap-action-fab{flex-shrink:0;width:52px;height:52px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--rose),var(--rose-deep));color:#fff;cursor:pointer;box-shadow:0 8px 24px rgba(160,97,74,.4);display:flex;align-items:center;justify-content:center}
-.seatmap-action-toolbar{display:none;align-items:center;gap:4px;background:#E4EEF6;border:1px solid #C1D6E6;border-radius:var(--r-pill);padding:7px 8px;box-shadow:0 8px 24px rgba(20,45,70,.28);max-width:calc(100vw - 28px);overflow-x:auto}
+.seatmap-action-toolbar{display:none;align-items:center;gap:4px;background:#1B3245;border:1px solid rgba(255,255,255,.1);border-radius:var(--r-sm,12px);padding:7px 8px;box-shadow:0 10px 28px rgba(10,20,32,.45);max-width:calc(100vw - 28px);overflow-x:auto}
 .seatmap-action-toolbar.open{display:flex}
-.seatmap-select-count{font-family:var(--sans);font-size:11px;font-weight:800;color:#1B3A5C;padding:0 6px;white-space:nowrap;flex-shrink:0;border:none;background:transparent;cursor:pointer;-webkit-appearance:none;appearance:none;margin:0;line-height:1.4}
+.seatmap-select-count{font-family:var(--sans);font-size:11px;font-weight:800;color:#EAF3FB;padding:0 6px;white-space:nowrap;flex-shrink:0;border:none;background:transparent;cursor:pointer;-webkit-appearance:none;appearance:none;margin:0;line-height:1.4}
 .seatmap-select-count:active{opacity:.7}
-.seatmap-dock-btn{flex-shrink:0;width:36px;height:36px;border-radius:50%;border:1.5px solid rgba(27,58,92,.22);background:rgba(27,58,92,.07);color:#1B3A5C;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
-.seatmap-dock-btn:active{background:rgba(27,58,92,.18)}
+.seatmap-dock-btn{flex-shrink:0;width:36px;height:36px;border-radius:9px;border:1.5px solid rgba(255,255,255,.16);background:rgba(255,255,255,.07);color:#EAF3FB;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+.seatmap-dock-btn:active{background:rgba(255,255,255,.18)}
 .seatmap-dock-btn:disabled{opacity:.3;pointer-events:none}
 .seatmap-dock-btn.active{background:#2f6fed;border-color:#2f6fed;color:#fff}
-.seatmap-dock-btn.danger{background:rgba(178,30,30,.88);border-color:transparent;color:#fff}
-.seatmap-dock-btn.danger:active{background:rgba(178,30,30,1)}
-.seatmap-dock-btn.done{width:auto;border-radius:var(--r-pill);padding:0 13px;font-family:var(--sans);font-size:11.5px;font-weight:800;background:rgba(27,58,92,.12);border:none}
+.seatmap-dock-btn.danger{background:rgba(200,58,58,.85);border-color:transparent;color:#fff}
+.seatmap-dock-btn.danger:active{background:rgba(200,58,58,1)}
+.seatmap-dock-btn.done{width:auto;border-radius:9px;padding:0 13px;font-family:var(--sans);font-size:11.5px;font-weight:800;background:rgba(255,255,255,.12);border:none}
 /* Alignment popover — opens upward, anchored above the toolbar via the
    dock's column layout (this menu sits before the toolbar in the DOM, and
    the dock is bottom-anchored, so growing/shrinking this menu never moves
    the toolbar or FAB beneath it). Icon + label rows keep it scannable and
    tap-friendly instead of a dense row of icon-only buttons. */
-.seatmap-align-menu{display:none;flex-direction:column;gap:1px;background:#E4EEF6;border:1px solid #C1D6E6;border-radius:14px;padding:6px;box-shadow:0 10px 28px rgba(20,45,70,.32);min-width:198px}
+.seatmap-align-menu{display:none;flex-direction:column;gap:1px;background:#1B3245;border:1px solid rgba(255,255,255,.1);border-radius:var(--r-sm,12px);padding:6px;box-shadow:0 10px 28px rgba(10,20,32,.5);min-width:198px}
 .seatmap-align-menu.open{display:flex}
-.seatmap-align-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:9px;border:none;background:transparent;color:#1B3A5C;font-family:var(--sans);font-size:12.5px;font-weight:700;cursor:pointer;text-align:left;width:100%}
+.seatmap-align-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:7px;border:none;background:transparent;color:#EAF3FB;font-family:var(--sans);font-size:12.5px;font-weight:700;cursor:pointer;text-align:left;width:100%}
 .seatmap-align-item svg{flex-shrink:0}
-.seatmap-align-item:active{background:rgba(27,58,92,.12)}
+.seatmap-align-item:active{background:rgba(255,255,255,.12)}
 .seatmap-align-item:disabled{opacity:.3;pointer-events:none}
-.seatmap-align-menu-sep{height:1px;background:rgba(27,58,92,.16);margin:4px 6px}
+.seatmap-align-menu-sep{height:1px;background:rgba(255,255,255,.14);margin:4px 6px}
 .seatmap-assign-banner{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:402;display:flex;align-items:center;gap:10px;background:rgba(30,30,30,.94);color:#fff;padding:10px 10px 10px 16px;border-radius:999px;box-shadow:0 8px 24px rgba(0,0,0,.35);font-family:var(--sans);font-size:12.5px;font-weight:700;max-width:calc(100vw - 32px)}
 .seatmap-assign-banner span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .seatmap-assign-banner button{flex-shrink:0;border:none;background:rgba(255,255,255,.18);color:#fff;font-family:var(--sans);font-size:11.5px;font-weight:800;padding:6px 12px;border-radius:999px;cursor:pointer}
@@ -1022,8 +1022,8 @@ body.lite-mode #liteModeTopBtn {
    updateSeatmapEdgeArrows(), since they depend on where the table
    actually is; this rule only supplies the fixed look. */
 .seatmap-edge-radar{position:absolute;inset:0;overflow:visible;pointer-events:none}
-.seatmap-radar-ping{position:absolute;display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;border:1px solid rgba(255,255,255,.5);background:linear-gradient(135deg,#FFE9A8,#D4AF37 55%,#B8860B);color:#3D2E24;backdrop-filter:blur(3px);cursor:pointer;pointer-events:auto;padding:0;box-shadow:0 2px 10px rgba(184,134,11,.55);animation:seatmapEdgeArrowPulse 1.6s ease-in-out infinite}
-.seatmap-radar-ping .seatmap-radar-count{position:absolute;top:-5px;right:-5px;min-width:15px;height:15px;padding:0 3px;border-radius:8px;background:#8a5c07;color:#fff;font-family:var(--sans);font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,.4)}
+.seatmap-radar-ping{position:absolute;display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;border:1px solid rgba(255,255,255,.35);background:linear-gradient(135deg,#D9A15E,#B9793A 55%,#8C5A26);color:#FFF8EE;backdrop-filter:blur(3px);cursor:pointer;pointer-events:auto;padding:0;box-shadow:0 3px 12px rgba(90,58,17,.5);animation:seatmapEdgeArrowPulse 1.6s ease-in-out infinite}
+.seatmap-radar-ping .seatmap-radar-count{position:absolute;top:-5px;right:-5px;min-width:15px;height:15px;padding:0 3px;border-radius:8px;background:#6B4419;color:#fff;font-family:var(--sans);font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,.4)}
 @keyframes seatmapEdgeArrowPulse{0%,100%{opacity:.85}50%{opacity:.4}}
 .seatmap-floor-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;color:rgba(255,255,255,.65);font-size:12.5px;padding:24px;line-height:1.6}
 .seatmap-floor-hint{text-align:center;color:var(--muted);font-size:11px;padding:0 2px 12px;font-family:var(--sans)}
@@ -7592,6 +7592,10 @@ function renderSeatFloorPlan(){
   var sub = document.getElementById('seatmapHdrSub');
   if(!body) return;
   if(!seatMap.landmarks) seatMap.landmarks = [];
+  // Table/landmark DOM nodes are about to be torn down and rebuilt below
+  // (innerHTML replace) — drop the cached node list so the next radar
+  // update re-queries instead of reading stale, detached elements.
+  _smFloorNodesCache = null;
 
   // Rebuilding the wrap's innerHTML below (needed since tables/markers can
   // change) creates a brand-new DOM node, which resets scroll to (0,0) —
@@ -7803,15 +7807,16 @@ function seatmapFixFloorCoverage(){
    save (which fires on drag-end and other position changes), and every
    scroll of the wrap, so it always reflects exactly what's on screen. */
 var SEATMAP_RADAR_CLUSTER_DEG = 14;
+var _smFloorNodesCache = null; // re-queried once per render, reused across every scroll-frame radar update until the next render invalidates it
 function updateSeatmapEdgeArrows(){
   var wrap = document.getElementById('seatmapFloorWrap');
   var radar = document.getElementById('seatmapEdgeRadar');
   if(!wrap || !radar) return;
+  if(!_smFloorNodesCache) _smFloorNodesCache = wrap.querySelectorAll('.seatmap-table-node, .seatmap-landmark');
   var wrect = wrap.getBoundingClientRect();
   var cx = wrect.left + wrect.width/2, cy = wrect.top + wrect.height/2;
-  var nodes = wrap.querySelectorAll('.seatmap-table-node, .seatmap-landmark');
   var angles = [];
-  nodes.forEach(function(el){
+  _smFloorNodesCache.forEach(function(el){
     var r = el.getBoundingClientRect();
     if(r.width===0 && r.height===0) return; // not laid out yet
     var isOff = r.bottom < wrect.top || r.top > wrect.bottom || r.right < wrect.left || r.left > wrect.right;
@@ -7861,17 +7866,6 @@ function updateSeatmapEdgeArrows(){
     return '<button type="button" class="seatmap-radar-ping" data-dx="'+dx+'" data-dy="'+dy+'" title="'+c.length+(c.length===1?' table is':' tables are')+' off-screen this way — tap to scroll toward '+(c.length===1?'it':'them')+'" style="left:'+x+'px;top:'+y+'px;transform:translate(-50%,-50%) rotate('+deg+'deg)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>'+badge+'</button>';
   }).join('');
   radar.innerHTML = html;
-
-  // Tapping a ping pans most of a screenful toward it, rather than
-  // jumping the whole way there — enough to bring the off-screen
-  // table(s) into view without disorienting a scroll straight to the far
-  // end of a large floor plan.
-  radar.querySelectorAll('.seatmap-radar-ping').forEach(function(btn){
-    btn.addEventListener('click', function(){
-      var dx = parseFloat(btn.dataset.dx), dy = parseFloat(btn.dataset.dy);
-      wrap.scrollBy({left: dx*wrap.clientWidth*0.7, top: dy*wrap.clientHeight*0.7, behavior:'smooth'});
-    });
-  });
 }
 
 /* Measures the actual visual bounding box of every table + landmark, in
@@ -8169,10 +8163,18 @@ function wireFloorZoom(){
   if(inBtn) inBtn.addEventListener('click', function(){ setSeatMapZoom(seatMapZoom + 0.25); });
   if(fitBtn) fitBtn.addEventListener('click', fitFloorPlanToScreen);
   if(!wrap) return;
-  // Radar pings (off-screen table indicators) wire their own click
-  // handlers each time updateSeatmapEdgeArrows() rebuilds them, since
-  // there's a variable number at variable positions rather than four
-  // fixed buttons.
+  // One delegated click handler for every radar ping, wired once per
+  // render here rather than re-binding a fresh listener per ping every
+  // time updateSeatmapEdgeArrows() rebuilds the radar's contents (which
+  // can happen on every scroll frame) — cheaper, and nothing to clean up
+  // since old pings are simply removed from the DOM.
+  var radar = document.getElementById('seatmapEdgeRadar');
+  if(radar) radar.addEventListener('click', function(e){
+    var btn = e.target.closest('.seatmap-radar-ping');
+    if(!btn) return;
+    var dx = parseFloat(btn.dataset.dx), dy = parseFloat(btn.dataset.dy);
+    wrap.scrollBy({left: dx*wrap.clientWidth*0.7, top: dy*wrap.clientHeight*0.7, behavior:'smooth'});
+  });
   // Re-check which tables are off-screen (and from what angle) every
   // time the wrap is scrolled — throttled to one check per animation
   // frame so a fast scroll/fling doesn't queue up a pile of redundant
