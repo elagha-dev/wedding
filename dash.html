@@ -985,14 +985,25 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-trash{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(30px) scale(.85);z-index:401;width:56px;height:56px;border-radius:50%;background:rgba(40,40,40,.88);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .18s,transform .18s,background .15s}
 .seatmap-trash.visible{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
 .seatmap-trash.armed{background:#b91c1c;transform:translateX(-50%) translateY(0) scale(1.15)}
-.seatmap-floor-wrap{position:relative;width:100%;height:min(70vh,520px);border:1.5px solid rgba(0,0,0,.12);border-radius:var(--r-md,14px);margin-bottom:14px;overflow:auto;-webkit-overflow-scrolling:touch}
+.seatmap-floor-outer{position:relative;margin-bottom:14px}
+.seatmap-floor-wrap{position:relative;width:100%;height:min(70vh,520px);border:1.5px solid rgba(0,0,0,.12);border-radius:var(--r-md,14px);overflow:auto;-webkit-overflow-scrolling:touch}
 .seatmap-floor-sizer{position:relative;min-width:100%;min-height:100%;box-sizing:border-box}
 .seatmap-floor{position:absolute;left:0;top:0;
   background-size:24px 24px;will-change:transform;backface-visibility:hidden;-webkit-backface-visibility:hidden}
-/* Zero-height sticky anchor so the zoom pill stays pinned while scrolling
-   the floor plan without reserving its own row (that reserved row was the
-   awkward white stripe along the top of the canvas). */
-.seatmap-zoom-anchor{position:sticky;top:0;left:0;right:0;height:0;overflow:visible;z-index:6;pointer-events:none}
+/* The zoom pill + edge arrows live in this overlay, a sibling of
+   #seatmapFloorWrap rather than something pinned inside it with
+   position:sticky. Sticky elements nested in a container that also mixes
+   overflow:auto (-webkit-overflow-scrolling:touch) with a transform-
+   scaled descendant (the zoomed canvas) hit a known iOS Safari
+   compositing bug — the same combination flashLastAddedTable already
+   works around elsewhere in this file — where the "stuck" element can
+   detach and repaint in the wrong place (seen in practice: the fit button
+   ghosting at the bottom of the whole page). Since the wrap's own box
+   never moves — only its internal content scrolls — this plain
+   absolutely-positioned overlay, sized to match the wrap and living
+   outside its scrolling area entirely, stays visually pinned over it with
+   no sticky involved at all. */
+.seatmap-floor-overlay{position:absolute;inset:0;overflow:visible;z-index:6;pointer-events:none}
 .seatmap-zoom-controls{position:absolute;top:8px;right:8px;width:-webkit-fit-content;width:fit-content;display:flex;align-items:center;gap:2px;background:rgba(0,0,0,.55);padding:4px;border-radius:20px;backdrop-filter:blur(3px);pointer-events:auto}
 .seatmap-zoom-btn{width:26px;height:26px;border-radius:50%;border:none;background:rgba(255,255,255,.15);color:#fff;font-family:var(--sans);font-size:15px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;line-height:1}
 .seatmap-zoom-sep{width:1px;height:16px;background:rgba(255,255,255,.25);flex-shrink:0;margin:0 1px}
@@ -1003,22 +1014,10 @@ body.lite-mode #liteModeTopBtn {
 @keyframes seatmapFitPulse{0%,100%{box-shadow:0 0 0 0 rgba(176,120,48,.6)}50%{box-shadow:0 0 0 5px rgba(176,120,48,0)}}
 .seatmap-zoom-btn:active{background:rgba(255,255,255,.3)}
 .seatmap-zoom-pct{font-family:var(--sans);font-size:10.5px;font-weight:700;color:#fff;min-width:32px;text-align:center;user-select:none}
-/* Zero-size sticky anchors pinned to the other three edges of the floor
-   wrap, same trick as .seatmap-zoom-anchor above — each holds one
-   directional arrow button that only appears once a table has scrolled
-   fully past that edge, so the arrow always points the way to something
-   currently off-screen rather than just flagging "there's more". */
-.seatmap-edge-anchor{position:sticky;overflow:visible;z-index:6;pointer-events:none}
-/* Each variant only zeroes the axis it's meant to hug flush against —
-   the shared rule used to zero BOTH height and width, which stomped the
-   full-span axis (e.g. bottom's left:0;right:0 stretch was overridden by
-   a hard width:0), collapsing the anchor to a point and leaving the
-   button's left:50%/top:50% centering computed against a zero-size box
-   instead of the full edge. That's why only the top ("up") arrow, which
-   never shared this rule, ever landed in the right place. */
-.seatmap-edge-anchor.bottom{bottom:0;left:0;right:0;height:0}
-.seatmap-edge-anchor.left{left:0;top:0;bottom:0;width:0}
-.seatmap-edge-anchor.right{right:0;top:0;bottom:0;width:0}
+/* One arrow per edge of the overlay (== the wrap's own box), each shown
+   only once a table has scrolled fully past that edge — so it always
+   points the way to something currently off-screen rather than just
+   flagging "there's more, somewhere". */
 .seatmap-edge-arrow{position:absolute;display:none;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;border:none;background:rgba(0,0,0,.55);color:#fff;backdrop-filter:blur(3px);cursor:pointer;pointer-events:auto;padding:0;box-shadow:var(--shadow-sm);animation:seatmapEdgeArrowPulse 1.6s ease-in-out infinite}
 .seatmap-edge-arrow.visible{display:flex}
 .seatmap-edge-arrow.top{top:8px;left:50%;transform:translateX(-50%)}
@@ -7619,7 +7618,7 @@ function renderSeatFloorPlan(){
     + '</div>';
 
   if(!seatMap.tables.length && !seatMap.landmarks.length){
-    body.innerHTML = controls + '<div class="seatmap-floor-wrap" style="background-color:'+seatMap.floorColor+'"><div class="seatmap-floor" id="seatmapFloorCanvas" style="'+floorStyle.css+';position:relative;width:100%;height:100%"><div class="seatmap-floor-empty" style="color:'+floorStyle.emptyColor+'"><span>No tables yet.<br><br>Tap <strong>+ Table</strong> above, then drag it into place here to match your room layout.</span></div></div></div>';
+    body.innerHTML = controls + '<div class="seatmap-floor-wrap" style="background-color:'+seatMap.floorColor+';margin-bottom:14px"><div class="seatmap-floor" id="seatmapFloorCanvas" style="'+floorStyle.css+';position:relative;width:100%;height:100%"><div class="seatmap-floor-empty" style="color:'+floorStyle.emptyColor+'"><span>No tables yet.<br><br>Tap <strong>+ Table</strong> above, then drag it into place here to match your room layout.</span></div></div></div>';
     wireFloorAddButtons();
     wireFloorColorPicker();
     return;
@@ -7685,20 +7684,8 @@ function renderSeatFloorPlan(){
   var sizerBg = 'background-color:'+seatMap.floorColor+';background-image:url(\'data:image/svg+xml,'+encodeURIComponent(gridSvg)+'\');background-repeat:no-repeat;background-size:'+Math.round(sizerW)+'px '+Math.round(sizerH)+'px;border-color:'+floorStyle.borderColor+';';
 
   body.innerHTML = controls
+    + '<div class="seatmap-floor-outer">'
     + '<div class="seatmap-floor-wrap" id="seatmapFloorWrap" style="background-color:'+seatMap.floorColor+'">'
-      + '<div class="seatmap-zoom-anchor">'
-        + '<div class="seatmap-zoom-controls">'
-          + '<button class="seatmap-zoom-btn" id="seatmapFitBtn" title="Fit all tables in view"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M8 21H5a2 2 0 0 1-2-2v-3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg></button>'
-          + '<span class="seatmap-zoom-sep"></span>'
-          + '<button class="seatmap-zoom-btn" id="seatmapZoomOut" title="Zoom out">–</button>'
-          + '<span class="seatmap-zoom-pct" id="seatmapZoomPct">'+Math.round(z*100)+'%</span>'
-          + '<button class="seatmap-zoom-btn" id="seatmapZoomIn" title="Zoom in">+</button>'
-        + '</div>'
-        + '<button class="seatmap-edge-arrow top" id="seatmapEdgeUp" title="A table is above — tap to scroll up"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg></button>'
-      + '</div>'
-      + '<div class="seatmap-edge-anchor bottom"><button class="seatmap-edge-arrow bottom" id="seatmapEdgeDown" title="A table is below — tap to scroll down"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12l7 7 7-7"/></svg></button></div>'
-      + '<div class="seatmap-edge-anchor left"><button class="seatmap-edge-arrow left" id="seatmapEdgeLeft" title="A table is to the left — tap to scroll left"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 5l-7 7 7 7"/></svg></button></div>'
-      + '<div class="seatmap-edge-anchor right"><button class="seatmap-edge-arrow right" id="seatmapEdgeRight" title="A table is to the right — tap to scroll right"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></button></div>'
       // The grid is one exact-size, non-repeating image (see
       // floorGridFullSvg) drawn on the sizer. Its inline width/height here
       // is only a first-paint guess — once the sizer is actually in the
@@ -7714,6 +7701,33 @@ function renderSeatFloorPlan(){
           + '<div class="seatmap-snap-guide h" id="snapGuideH"></div>'
         + '</div>'
       + '</div>'
+    + '</div>'
+    // Everything below sits OUTSIDE #seatmapFloorWrap, as a plain overlay
+    // layer positioned over it rather than pinned via position:sticky
+    // inside it. Sticky elements nested in a container that also mixes
+    // overflow:auto (-webkit-overflow-scrolling:touch) with a transform-
+    // scaled descendant (the zoomed canvas) hit a known iOS Safari
+    // compositing bug — the exact combination flashLastAddedTable already
+    // works around elsewhere in this file — where the "stuck" element can
+    // detach and repaint at the wrong place (e.g. pinned to the bottom of
+    // the whole page instead of the wrap). Since the wrap's own box never
+    // moves — only its internal content scrolls — a plain absolutely-
+    // positioned overlay on top of it, living outside the scrolling area
+    // entirely, gets the same "always visible" effect with none of that
+    // risk: nothing here needs sticky at all.
+    + '<div class="seatmap-floor-overlay">'
+      + '<div class="seatmap-zoom-controls">'
+        + '<button class="seatmap-zoom-btn" id="seatmapFitBtn" title="Fit all tables in view"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M8 21H5a2 2 0 0 1-2-2v-3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg></button>'
+        + '<span class="seatmap-zoom-sep"></span>'
+        + '<button class="seatmap-zoom-btn" id="seatmapZoomOut" title="Zoom out">–</button>'
+        + '<span class="seatmap-zoom-pct" id="seatmapZoomPct">'+Math.round(z*100)+'%</span>'
+        + '<button class="seatmap-zoom-btn" id="seatmapZoomIn" title="Zoom in">+</button>'
+      + '</div>'
+      + '<button class="seatmap-edge-arrow top" id="seatmapEdgeUp" title="A table is above — tap to scroll up"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg></button>'
+      + '<button class="seatmap-edge-arrow bottom" id="seatmapEdgeDown" title="A table is below — tap to scroll down"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12l7 7 7-7"/></svg></button>'
+      + '<button class="seatmap-edge-arrow left" id="seatmapEdgeLeft" title="A table is to the left — tap to scroll left"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 5l-7 7 7 7"/></svg></button>'
+      + '<button class="seatmap-edge-arrow right" id="seatmapEdgeRight" title="A table is to the right — tap to scroll right"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></button>'
+    + '</div>'
     + '</div>';
 
   saveSeatMap();
