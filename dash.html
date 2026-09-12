@@ -930,6 +930,14 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-seat.is-couple .seatmap-seat-name{font-weight:800!important;position:relative;z-index:1}
 .seatmap-seat.is-couple.bride .seatmap-seat-name{color:var(--arina-txt)!important}
 .seatmap-seat.is-couple.groom .seatmap-seat-name{color:var(--elnur-txt)!important}
+/* Small in-flow toggle controls at the bottom of each seat card — the
+   card's min-height (not a fixed height) lets it grow to fit them rather
+   than needing to absolutely-position over the name/number text. */
+.seatmap-seat-baby-btn{margin-top:2px;width:18px;height:18px;border-radius:50%;border:1px solid rgba(0,0,0,.12);background:rgba(0,0,0,.05);font-size:9px;line-height:16px;padding:0;cursor:pointer;opacity:.5;flex-shrink:0}
+.seatmap-seat-baby-btn.active{background:#FFE1EC;border-color:#F2A6C4;opacity:1}
+.seatmap-seat.rsvp-yes .seatmap-seat-baby-btn,.seatmap-seat.rsvp-no .seatmap-seat-baby-btn,.seatmap-seat.rsvp-pending .seatmap-seat-baby-btn,.seatmap-seat.is-couple .seatmap-seat-baby-btn{background:rgba(255,255,255,.3);border-color:rgba(255,255,255,.5)}
+.seatmap-seat-head-btn{margin-top:2px;font-family:var(--sans);font-size:7.5px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;padding:1px 6px;border-radius:5px;border:1px solid rgba(0,0,0,.15);background:rgba(0,0,0,.04);color:var(--muted);cursor:pointer;white-space:nowrap;flex-shrink:0}
+.seatmap-seat-head-btn.active{background:#1B3245;border-color:#1B3245;color:#EAF3FB}
 /* Add-a-chair placeholder tile — its lone "+" was inheriting the same
    top-aligned layout as the two-line seat tiles above (num on top, name
    below), which left it stuck near the top of the box instead of centered.
@@ -1061,6 +1069,8 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-node-dot.is-couple{width:13px;height:13px;background:radial-gradient(circle at 35% 30%,#FFF6DC,#E8B84B 55%,#C6892A);border-width:2px}
 .seatmap-node-dot.is-couple.bride{border-color:var(--arina-txt);box-shadow:0 0 6px rgba(230,180,80,.9)}
 .seatmap-node-dot.is-couple.groom{border-color:var(--elnur-txt);box-shadow:0 0 6px rgba(230,180,80,.9)}
+.seatmap-node-dot.is-baby{width:16px;height:16px;background:#FFE1EC;border-color:#F2A6C4;z-index:1}
+.seatmap-baby-badge{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:9px;line-height:1;pointer-events:none;transform:translateY(-.5px)}
 /* Rotate/remove quick-actions on a floor-plan table node itself. */
 .seatmap-node-chairs{position:absolute;left:50%;bottom:-11px;transform:translateX(-50%);display:flex;gap:4px;z-index:2}
 .seatmap-node-chair-btn{width:20px;height:20px;border-radius:50%;border:1.5px solid rgba(255,255,255,.5);background:rgba(0,0,0,.55);color:#fff;font-family:var(--sans);font-size:12px;font-weight:800;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;touch-action:manipulation}
@@ -1819,8 +1829,8 @@ body.lite-mode #liteModeTopBtn {
     </div>
     <div class="seatmap-action-toolbar" id="seatmapActionToolbar">
       <button type="button" class="seatmap-select-count" id="seatmapSelectCount" title="Tap to select/deselect all tables">0 selected</button>
-      <button type="button" class="seatmap-dock-btn" id="seatmapSelectBarRotate" title="Rotate selected"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><polyline points="21 3 21 9 15 9"/></svg></button>
-      <button type="button" class="seatmap-dock-btn" id="seatmapAlignMenuBtn" title="Align, distribute, or arrange selected"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.287 1.288L3 12l5.8 1.9a2 2 0 0 1 1.288 1.287L12 21l1.9-5.8a2 2 0 0 1 1.287-1.288L21 12l-5.8-1.9a2 2 0 0 1-1.288-1.287Z"/></svg></button>
+      <button type="button" class="seatmap-dock-btn" id="seatmapSelectBarRotate" title="Rotate selected"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="10" height="10" rx="1.4"/><path d="M16 6a6.5 6.5 0 1 1-6 3"/><polyline points="20 2.5 20 7 15.5 7"/></svg></button>
+      <button type="button" class="seatmap-dock-btn" id="seatmapAlignMenuBtn" title="Align, distribute, or arrange selected"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="17" y2="18"/></svg></button>
       <button type="button" class="seatmap-dock-btn danger" id="seatmapSelectBarDelete" title="Delete selected"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
       <button type="button" class="seatmap-dock-btn done" id="seatmapSelectBarDone">Done</button>
     </div>
@@ -6591,6 +6601,9 @@ var SEATMAP_GRID_PX = 24; // fixed world-space grid cell size, shared by the ini
    renders) so they're already set no matter which seat-map view — list
    or floor — is opened first. */
 var DEFAULT_FLOOR_COLOR = '#1C2430';
+// A tiny emoji renders more reliably legible at seat-dot scale (11-13px)
+// than a hand-drawn SVG would at that size.
+var SEATMAP_BABY_ICON = '🍼';
 var DEFAULT_TABLE_COLOR = '#C9876A';
 /* One-time forced reset: an earlier session left floorColor/tableColor set
    to a mismatched blue/gray instead of the intended charcoal+rose-gold
@@ -7154,11 +7167,41 @@ function setSeatCount(id, n){
     }
     if(displaced.length && !confirm('Reducing seats will unassign '+displaced.length+' guest(s) ('+displaced.join(', ')+'). Continue?')) return;
     for(var j=n+1;j<=t.seats;j++) delete seatMap.assignments[seatKey(id,j)];
+    if(t.babySeats) t.babySeats = t.babySeats.filter(function(num){ return num<=n; });
+    if(t.headSeat && t.headSeat>n) t.headSeat = null;
   }
   t.seats = n;
   saveSeatMap();
   renderSeatMap();
   if(typeof renderGuestList==='function') renderGuestList();
+}
+
+/* A baby seat / highchair is just a per-seat flag (t.babySeats, a list of
+   seat numbers) rendered as a small badge on that seat's dot — it doesn't
+   change capacity or numbering. On a rectangular table, a baby seat can
+   additionally be pinned to the head of the table (t.headSeat, at most
+   one seat number) instead of sitting in the normal side row; see the
+   headNum handling in tableFloorLayout(). */
+function toggleBabySeat(tableId, n){
+  var t = seatMap.tables.find(function(x){return x.id===tableId;});
+  if(!t) return;
+  if(!t.babySeats) t.babySeats = [];
+  var idx = t.babySeats.indexOf(n);
+  if(idx !== -1){
+    t.babySeats.splice(idx,1);
+    if(t.headSeat === n) t.headSeat = null; // can't stay pinned to the head once it's not a baby seat
+  } else {
+    t.babySeats.push(n);
+  }
+  saveSeatMap();
+  renderSeatMap();
+}
+function toggleHeadSeat(tableId, n){
+  var t = seatMap.tables.find(function(x){return x.id===tableId;});
+  if(!t || t.shape !== 'rect') return;
+  t.headSeat = (t.headSeat === n) ? null : n; // only one seat can sit at the head at a time
+  saveSeatMap();
+  renderSeatMap();
 }
 
 /* Shared "N tables · X of Y seated [· Z unseated]" header line for both
@@ -7518,7 +7561,15 @@ function tableFloorLayout(t){
   var CTRL_SPACE = SEATMAP_CTRL_SPACE;
   if(t.shape === 'rect'){
     var rotated = t.rotation === 90;
-    var sideA = Math.ceil(seats/2), sideB = seats-sideA;
+    // A seat flagged as "head of table" (see t.headSeat, set via the baby-
+    // seat controls in the per-table seat list) is pulled out of the two
+    // normal side rows and given its own slot centered on the short end
+    // instead — everyone else keeps their original seat number, just
+    // split across one fewer spot per row.
+    var headNum = (t.headSeat && t.headSeat>=1 && t.headSeat<=seats) ? t.headSeat : null;
+    var rowNums = [];
+    for(var rn=1; rn<=seats; rn++) if(rn!==headNum) rowNums.push(rn);
+    var sideA = Math.ceil(rowNums.length/2), sideB = rowNums.length-sideA;
     var perSideMax = Math.max(sideA, sideB, 1);
     var longSide = Math.max(70, perSideMax*24 + 14);
     var shortSide = 42;
@@ -7528,13 +7579,14 @@ function tableFloorLayout(t){
     var w = rectW + pad*2 + (rotated?6:0), coreH = rectH + pad*2 + (rotated?0:6);
     var cx = w/2, cy = coreH/2;
     var dots = [];
-    var num = 1;
     if(!rotated){
-      for(var i=0;i<sideA;i++) dots.push({ num:num++, x: cx - rectW/2 + (rectW/(sideA+1))*(i+1), y: cy - rectH/2 - 13 });
-      for(var j=0;j<sideB;j++) dots.push({ num:num++, x: cx - rectW/2 + (rectW/(sideB+1))*(j+1), y: cy + rectH/2 + 13 });
+      for(var i=0;i<sideA;i++) dots.push({ num:rowNums[i], x: cx - rectW/2 + (rectW/(sideA+1))*(i+1), y: cy - rectH/2 - 13 });
+      for(var j=0;j<sideB;j++) dots.push({ num:rowNums[sideA+j], x: cx - rectW/2 + (rectW/(sideB+1))*(j+1), y: cy + rectH/2 + 13 });
+      if(headNum) dots.push({ num:headNum, x: cx - rectW/2 - 13, y: cy, head:true });
     } else {
-      for(var i2=0;i2<sideA;i2++) dots.push({ num:num++, x: cx - rectW/2 - 13, y: cy - rectH/2 + (rectH/(sideA+1))*(i2+1) });
-      for(var j2=0;j2<sideB;j2++) dots.push({ num:num++, x: cx + rectW/2 + 13, y: cy - rectH/2 + (rectH/(sideB+1))*(j2+1) });
+      for(var i2=0;i2<sideA;i2++) dots.push({ num:rowNums[i2], x: cx - rectW/2 - 13, y: cy - rectH/2 + (rectH/(sideA+1))*(i2+1) });
+      for(var j2=0;j2<sideB;j2++) dots.push({ num:rowNums[sideA+j2], x: cx + rectW/2 + 13, y: cy - rectH/2 + (rectH/(sideB+1))*(j2+1) });
+      if(headNum) dots.push({ num:headNum, x: cx, y: cy - rectH/2 - 13, head:true });
     }
     return { w:w, h:coreH+CTRL_SPACE, coreH:coreH, shapeW:rectW, shapeH:rectH, shapeCls:'rect', dots:dots };
   }
@@ -7667,8 +7719,10 @@ function renderSeatFloorPlan(){
       var role = name ? seatCoupleRole(name) : '';
       if(name) filled++;
       var qDot = (name && !role && isGuestQuestionable(name)) ? ' questionable' : '';
-      var dcls = 'seatmap-node-dot'+(role ? ' is-couple '+role : !name ? '' : (state==='yes'?' rsvp-yes':state==='no'?' rsvp-no':' rsvp-pending'))+qDot;
-      return '<div class="'+dcls+'" data-table="'+t.id+'" data-seat="'+d.num+'" title="'+(name?name.replace(/"/g,'&quot;')+(qDot?' (questionable)':''):'Seat '+d.num)+'" style="left:'+d.x+'px;top:'+d.y+'px"></div>';
+      var isBaby = t.babySeats && t.babySeats.indexOf(d.num) !== -1;
+      var dcls = 'seatmap-node-dot'+(role ? ' is-couple '+role : !name ? '' : (state==='yes'?' rsvp-yes':state==='no'?' rsvp-no':' rsvp-pending'))+qDot+(isBaby?' is-baby':'');
+      var babyTitle = isBaby ? (d.head?' — baby seat, head of table':' — baby seat') : '';
+      return '<div class="'+dcls+'" data-table="'+t.id+'" data-seat="'+d.num+'" title="'+(name?name.replace(/"/g,'&quot;')+(qDot?' (questionable)':''):'Seat '+d.num)+babyTitle+'" style="left:'+d.x+'px;top:'+d.y+'px">'+(isBaby?'<span class="seatmap-baby-badge">'+SEATMAP_BABY_ICON+'</span>':'')+'</div>';
     }).join('');
     var shapeCls = 'seatmap-node-shape '+lay.shapeCls+(filled===t.seats && t.seats>0 ? ' full':'');
     var isMultiSel = _multiSelectMode && _multiSelectedIds.indexOf(t.id) !== -1;
@@ -8501,10 +8555,18 @@ function openTableFromFloor(tableId){
     var role = name ? seatCoupleRole(name) : '';
     var stateCls = role ? ' is-couple '+role : !name ? '' : (state==='yes'?' rsvp-yes':state==='no'?' rsvp-no':' rsvp-pending');
     var qCls2 = (name && !role && isGuestQuestionable(name)) ? ' questionable' : '';
-    var cls = 'seatmap-seat'+(name?'':' empty')+stateCls+qCls2;
+    var isBaby = t.babySeats && t.babySeats.indexOf(n) !== -1;
+    var isHead = t.headSeat === n;
+    var cls = 'seatmap-seat'+(name?'':' empty')+stateCls+qCls2+(isBaby?' is-baby':'');
+    // Both little buttons live inside the seat row but stop their click
+    // from bubbling up to the row's own "open assign" handler — tapping
+    // one toggles the flag in place instead of opening the guest picker.
+    var babyBtn = '<button type="button" class="seatmap-seat-baby-btn'+(isBaby?' active':'')+'" data-table="'+t.id+'" data-seat="'+n+'" title="'+(isBaby?'Remove baby seat':'Mark as baby seat')+'">'+SEATMAP_BABY_ICON+'</button>';
+    var headBtn = (t.shape==='rect' && isBaby) ? '<button type="button" class="seatmap-seat-head-btn'+(isHead?' active':'')+'" data-table="'+t.id+'" data-seat="'+n+'" title="'+(isHead?'Remove from head of table':'Place at head of table')+'">Head</button>' : '';
     seatsHtml += '<div class="'+cls+'" data-table="'+t.id+'" data-seat="'+n+'"'+(name?' title="'+name.replace(/"/g,'&quot;')+'"':'')+'>'
       + '<span class="seatmap-seat-num">Seat '+n+'</span>'
       + '<span class="seatmap-seat-name">'+(name?seatFirstName(name):'+ Add')+'</span>'
+      + babyBtn + headBtn
       + '</div>';
   }
   document.getElementById('seatAssignTitle').innerHTML = t.name.replace(/</g,'&lt;')
@@ -8538,6 +8600,20 @@ function openTableFromFloor(tableId){
       openSeatAssign(this.dataset.table, parseInt(this.dataset.seat,10));
     });
   });
+  list.querySelectorAll('.seatmap-seat-baby-btn').forEach(function(btn){
+    btn.addEventListener('click', function(e){
+      e.stopPropagation();
+      toggleBabySeat(this.dataset.table, parseInt(this.dataset.seat,10));
+      openTableFromFloor(tableId); // refresh this sheet in place to reflect the toggle
+    });
+  });
+  list.querySelectorAll('.seatmap-seat-head-btn').forEach(function(btn){
+    btn.addEventListener('click', function(e){
+      e.stopPropagation();
+      toggleHeadSeat(this.dataset.table, parseInt(this.dataset.seat,10));
+      openTableFromFloor(tableId);
+    });
+  });
   var chairsDec = document.getElementById('tsChairsDec');
   var chairsInc = document.getElementById('tsChairsInc');
   if(chairsDec) chairsDec.addEventListener('click', function(){ setSeatCount(tableId, t.seats-1); openTableFromFloor(tableId); });
@@ -8556,6 +8632,7 @@ function openTableFromFloor(tableId){
         var newShape = this.dataset.shape;
         if(newShape === t.shape) return;
         t.shape = newShape;
+        if(newShape !== 'rect') t.headSeat = null; // head-of-table placement only makes sense on a rectangular table
         seatMap.defaultShape = newShape; // future "+ Table" taps match this
         saveSeatMap();
         openTableFromFloor(tableId);
