@@ -978,9 +978,15 @@ body.lite-mode #liteModeTopBtn {
    (Maps, Spotify, iOS share sheets) instead of relying on an icon alone
    to communicate that. .hiding squashes it flat into the bar rather than
    spinning away — a tab doesn't tumble, it gets absorbed. */
-.seatmap-action-fab{flex-shrink:0;width:76px;height:40px;border-radius:20px 20px 0 0;border:1px solid rgba(255,255,255,.16);border-bottom:none;background:rgba(15,28,40,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);color:#EAF3FB;cursor:pointer;box-shadow:0 -6px 22px rgba(8,16,26,.4),inset 0 1px 1px rgba(255,255,255,.14);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding-bottom:1px;clip-path:inset(0 0 0 0 round 20px 20px 0 0);opacity:1;transition:clip-path .3s cubic-bezier(.32,1.6,.5,1),opacity .18s ease-out}
-.seatmap-fab-grabber{width:26px;height:3px;border-radius:2px;background:rgba(234,243,251,.4)}
-.seatmap-action-fab:active{background:rgba(15,28,40,.98)}
+/* Background and border removed per feedback — no dark surface at all now,
+   just the icon/text with a soft shadow underneath for separation from
+   the canvas. Since there's no more opaque backing, the icon and the
+   grabber both pick up their own drop-shadow so they stay legible
+   whatever color the floor happens to be, rather than relying on a dark
+   panel behind them for contrast. */
+.seatmap-action-fab{flex-shrink:0;width:76px;height:40px;border:none;background:none;color:#EAF3FB;cursor:pointer;filter:drop-shadow(0 3px 6px rgba(0,0,0,.45));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding-bottom:1px;clip-path:inset(0 0 0 0 round 20px 20px 0 0);opacity:1;transition:clip-path .3s cubic-bezier(.32,1.6,.5,1),opacity .18s ease-out}
+.seatmap-fab-grabber{width:26px;height:3px;border-radius:2px;background:rgba(234,243,251,.9)}
+.seatmap-action-fab:active{opacity:.6}
 /* Same clip-path approach as the toolbar above, same reason: a scaling
    transform on a backdrop-filter element risks the blurred background
    desyncing from the button's actual shape in Safari. Collapses upward
@@ -1018,7 +1024,7 @@ body.lite-mode #liteModeTopBtn {
    currently visible, so backdrop-filter always has the right, stable
    region to blur. display stays flex at all times — display can't be
    transitioned. */
-.seatmap-action-toolbar{display:flex;flex-direction:column;position:fixed;left:0;right:0;bottom:0;z-index:401;background:rgba(15,28,40,.94);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,.14);border-radius:20px 20px 0 0;padding:12px 16px calc(10px + env(safe-area-inset-bottom,0px));box-shadow:0 -12px 32px rgba(8,16,26,.4);clip-path:circle(0% at 50% 100%);pointer-events:none;transition:clip-path .4s cubic-bezier(.3,1,.4,1)}
+.seatmap-action-toolbar{display:flex;flex-direction:column;position:fixed;left:0;right:0;bottom:0;z-index:401;background:none;border:none;padding:12px 16px calc(10px + env(safe-area-inset-bottom,0px));filter:drop-shadow(0 2px 3px rgba(0,0,0,.5));clip-path:circle(0% at 50% 100%);pointer-events:none;transition:clip-path .4s cubic-bezier(.3,1,.4,1)}
 .seatmap-action-toolbar.open{clip-path:circle(150% at 50% 100%);pointer-events:auto;transition:clip-path .44s cubic-bezier(.22,1,.36,1)}
 .seatmap-toolbar-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid rgba(255,255,255,.12)}
 .seatmap-toolbar-row{display:flex;align-items:stretch;gap:2px}
