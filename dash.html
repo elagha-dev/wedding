@@ -955,6 +955,7 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-summary-pill{font-family:var(--sans);font-size:10.5px;font-weight:700;padding:5px 11px;border-radius:var(--r-pill);background:var(--cream2);color:var(--muted);border:1px solid var(--parchment)}
 .seatmap-view-toggle{flex-shrink:0;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;border:1.5px solid var(--parchment);background:var(--cream2);color:var(--muted);cursor:pointer;padding:0}
 .seatmap-view-toggle.active{background:var(--sky-bg);color:var(--sky);border-color:transparent}
+.seatmap-view-toggle:disabled{opacity:.35;pointer-events:none}
 /* ── Bottom-right Action Dock ──
    A single thumb-reachable control in the bottom-right corner (where a
    right-handed thumb naturally rests on a phone). It's a plain FAB until
@@ -962,11 +963,13 @@ body.lite-mode #liteModeTopBtn {
    toolbar (rotate / align / delete / done) instead of the old bar that
    stretched across the full width of the screen. */
 .seatmap-action-dock{position:fixed;right:14px;bottom:20px;z-index:400;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
-/* Neutral slate rather than the rose used for "+ Table" — this button
-   triggers the (navy) action toolbar, not a creative/add action, so it
-   reads as "open tools" rather than competing with the add-table button
-   for the same warm accent color. */
-.seatmap-action-fab{flex-shrink:0;width:52px;height:52px;border-radius:50%;border:none;background:linear-gradient(135deg,#4A6178,#263B4F);color:#fff;cursor:pointer;box-shadow:0 8px 24px rgba(30,45,60,.4),inset 0 1px 1px rgba(255,255,255,.28);display:flex;align-items:center;justify-content:center}
+/* An "extended FAB" (icon + label pill) rather than an icon-only circle —
+   matches the full-width bar it opens: same frosted dark-navy glass, and
+   the same "label everything" language as the bar's Rotate/Arrange/Save/
+   Delete items, so the trigger reads as part of the same system instead
+   of a separate, differently-styled button bolted on above it. */
+.seatmap-action-fab{flex-shrink:0;display:flex;align-items:center;gap:7px;height:48px;padding:0 18px 0 16px;border-radius:24px;border:1px solid rgba(255,255,255,.16);background:rgba(15,28,40,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);color:#EAF3FB;cursor:pointer;box-shadow:0 10px 26px rgba(8,16,26,.45),inset 0 1px 1px rgba(255,255,255,.14);font-family:var(--sans);font-size:13px;font-weight:800}
+.seatmap-action-fab:active{background:rgba(15,28,40,.98)}
 /* Redesigned as a proper two-tier card rather than one long row of icons:
    a header strip (selection count + Done, divided from the row below)
    and an icon row underneath, grouped by function with thin dividers —
@@ -1867,6 +1870,7 @@ body.lite-mode #liteModeTopBtn {
     </div>
     <button class="seatmap-view-toggle" id="seatmapViewToggle" title="Floor plan view"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></button>
     <button class="seatmap-view-toggle" id="seatmapLayoutsBtn" title="Saved layouts — save this arrangement or load a previous one"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/></svg></button>
+    <button class="seatmap-view-toggle" id="seatmapUndoBtn" title="Undo last change" disabled><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
     <button class="seatmap-add-btn" id="seatmapAddTableBtn">+ Table</button>
     <button class="seatmap-close" id="seatmapCloseBtn">✕</button>
   </div>
@@ -1907,7 +1911,7 @@ body.lite-mode #liteModeTopBtn {
         <button type="button" class="seatmap-dock-btn danger" id="seatmapSelectBarDelete" title="Delete selected"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg><span class="seatmap-toolbar-item-label">Delete</span></button>
       </div>
     </div>
-    <button type="button" class="seatmap-action-fab" id="seatmapSelectModeBtn" title="Select tables to rotate, align, or delete"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="8 12.3 10.7 15 16 9.3"/></svg></button>
+    <button type="button" class="seatmap-action-fab" id="seatmapSelectModeBtn" title="Select tables to rotate, align, or delete"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="8 12.3 10.7 15 16 9.3"/></svg><span>Select</span></button>
   </div>
   <div class="seatmap-assign-banner" id="seatmapAssignBanner" style="display:none">
     <span id="seatmapAssignBannerText"></span>
@@ -6762,6 +6766,7 @@ function loadSeatMap(){
 }
 function saveSeatMap(){
   try{ localStorage.setItem('ww_seatmap', JSON.stringify(seatMap)); }catch(e){}
+  pushSeatMapUndoSnapshot();
   // Cloudflare push removed from here — seat map edits now stay purely
   // local (and instantly responsive) until "Sync Devices" is pressed,
   // instead of writing to the worker on every drag/tap.
@@ -6770,7 +6775,50 @@ function saveSeatMap(){
   // a no-op if the floor plan isn't the screen currently showing.
   if(typeof updateSeatmapEdgeArrows === 'function') updateSeatmapEdgeArrows();
 }
+
+/* ── Undo ──
+   Every meaningful seat-map change (move, rotate, delete, add, seat
+   count, shape, color, baby-seat flags, loading a saved layout — all of
+   it) already funnels through saveSeatMap() above, so that's the one
+   hook point needed for full undo coverage rather than instrumenting
+   every individual mutation separately. Session-only (an in-memory
+   array, not persisted) — reloading the page starts a fresh history,
+   same as most apps' undo. */
+var _seatMapUndoStack = [];
+var SEATMAP_UNDO_MAX = 20;
+function pushSeatMapUndoSnapshot(){
+  var snap = JSON.stringify({
+    tables: seatMap.tables, landmarks: seatMap.landmarks||[], assignments: seatMap.assignments,
+    floorColor: seatMap.floorColor, tableColor: seatMap.tableColor
+  });
+  // Skip exact repeats (e.g. undo's own re-save of the state it just
+  // restored) so the stack only grows on genuine changes.
+  if(_seatMapUndoStack.length && _seatMapUndoStack[_seatMapUndoStack.length-1] === snap) return;
+  _seatMapUndoStack.push(snap);
+  if(_seatMapUndoStack.length > SEATMAP_UNDO_MAX+1) _seatMapUndoStack.shift();
+  updateSeatmapUndoBtn();
+}
+function undoSeatMapChange(){
+  if(_seatMapUndoStack.length < 2) return; // nothing before the current state to go back to
+  _seatMapUndoStack.pop(); // discard the current state
+  var prev = JSON.parse(_seatMapUndoStack[_seatMapUndoStack.length-1]);
+  seatMap.tables = prev.tables;
+  seatMap.landmarks = prev.landmarks;
+  seatMap.assignments = prev.assignments;
+  seatMap.floorColor = prev.floorColor;
+  seatMap.tableColor = prev.tableColor;
+  saveSeatMap(); // re-pushes the same snapshot we just restored to — the dedupe check above makes this a no-op push, not a duplicate
+  renderSeatMap();
+  if(typeof renderGuestList==='function') renderGuestList();
+  updateSeatmapUndoBtn();
+}
+function updateSeatmapUndoBtn(){
+  var btn = document.getElementById('seatmapUndoBtn');
+  if(btn) btn.disabled = _seatMapUndoStack.length < 2;
+}
+
 loadSeatMap();
+pushSeatMapUndoSnapshot(); // baseline snapshot so the very first change this session is itself undoable
 
 /* ── SEAT MAP SYNC ──
    Same shared-blob pattern as the /chat feature: GET /seatmap returns
@@ -8980,6 +9028,9 @@ var _saAssignCancelBtn = document.getElementById('seatmapAssignCancelBtn');
 if(_saAssignCancelBtn) _saAssignCancelBtn.addEventListener('click', cancelAssignFlow);
 var _smLayoutsBtn = document.getElementById('seatmapLayoutsBtn');
 if(_smLayoutsBtn) _smLayoutsBtn.addEventListener('click', openSeatmapLayouts);
+var _smUndoBtn = document.getElementById('seatmapUndoBtn');
+if(_smUndoBtn) _smUndoBtn.addEventListener('click', undoSeatMapChange);
+updateSeatmapUndoBtn(); // sets the correct initial enabled/disabled state now that the button actually exists in the DOM
 var _smLayoutsOverlay = document.getElementById('seatmapLayoutsOverlay');
 if(_smLayoutsOverlay) _smLayoutsOverlay.addEventListener('click', closeSeatmapLayouts);
 var _smLayoutsCloseBtn = document.getElementById('seatmapLayoutsCloseBtn');
