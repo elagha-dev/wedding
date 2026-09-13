@@ -1126,6 +1126,15 @@ body.lite-mode #liteModeTopBtn {
 .seat-assign-row:active{background:var(--cream2)}
 .seat-assign-row-name{font-family:var(--sans);font-size:13.5px;font-weight:700;color:var(--ink2)}
 .seat-assign-row-meta{font-family:var(--sans);font-size:10.5px;color:var(--muted);margin-top:2px}
+.seatmap-layout-save-btn{flex-shrink:0;padding:0 14px;border-radius:var(--r-sm);border:none;background:linear-gradient(135deg,var(--rose),var(--rose-deep));color:#fff;font-family:var(--sans);font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap}
+.seatmap-layout-row{display:flex;align-items:center;gap:8px;padding:10px 10px;border-radius:10px}
+.seatmap-layout-row:active{background:var(--cream2)}
+.seatmap-layout-row-info{flex:1;min-width:0}
+.seatmap-layout-row-name{font-family:var(--sans);font-size:13.5px;font-weight:700;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seatmap-layout-row-meta{font-family:var(--sans);font-size:10.5px;color:var(--muted);margin-top:2px}
+.seatmap-layout-load-btn{flex-shrink:0;padding:6px 12px;border-radius:var(--r-sm);border:1.5px solid var(--parchment);background:var(--cream2);color:var(--ink2);font-family:var(--sans);font-size:11.5px;font-weight:700;cursor:pointer}
+.seatmap-layout-del-btn{flex-shrink:0;width:28px;height:28px;border-radius:50%;border:none;background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+.seatmap-layout-del-btn:active{background:rgba(185,28,28,.1);color:#b91c1c}
 .seat-assign-empty{text-align:center;color:var(--muted);font-size:12.5px;padding:30px 20px}
 .seat-assign-unassign{width:100%;box-sizing:border-box;margin:4px 8px 10px;padding:10px;border-radius:10px;border:1.5px solid rgba(185,28,28,.3);background:rgba(185,28,28,.06);color:#b91c1c;font-family:var(--sans);font-size:12.5px;font-weight:700;cursor:pointer}
 
@@ -1812,6 +1821,7 @@ body.lite-mode #liteModeTopBtn {
       <div class="seatmap-hdr-sub" id="seatmapHdrSub"></div>
     </div>
     <button class="seatmap-view-toggle" id="seatmapViewToggle" title="Floor plan view"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></button>
+    <button class="seatmap-view-toggle" id="seatmapLayoutsBtn" title="Saved layouts — save this arrangement or load a previous one"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/></svg></button>
     <button class="seatmap-add-btn" id="seatmapAddTableBtn">+ Table</button>
     <button class="seatmap-close" id="seatmapCloseBtn">✕</button>
   </div>
@@ -1850,6 +1860,22 @@ body.lite-mode #liteModeTopBtn {
   </div>
 
   <div class="seatmap-trash" id="seatmapTrash"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></div>
+</div>
+
+<!-- Saved seat-map layouts -->
+<div class="seat-assign-overlay" id="seatmapLayoutsOverlay"></div>
+<div class="seat-assign-sheet" id="seatmapLayoutsSheet">
+  <div class="seat-assign-hdr">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px">
+      <div class="seat-assign-title" style="margin-bottom:0">Saved Layouts</div>
+      <button class="seat-assign-close" id="seatmapLayoutsCloseBtn" title="Close" aria-label="Close">✕</button>
+    </div>
+    <div style="display:flex;gap:8px">
+      <input class="seat-assign-search" id="seatmapLayoutsNameInput" type="text" placeholder="Name this layout…" maxlength="40" style="flex:1"/>
+      <button type="button" class="seatmap-layout-save-btn" id="seatmapLayoutsSaveBtn">Save Current</button>
+    </div>
+  </div>
+  <div class="seat-assign-list" id="seatmapLayoutsList"></div>
 </div>
 
 <!-- Assign guest to seat -->
@@ -6662,6 +6688,8 @@ function loadSeatMap(){
   }catch(e){}
   if(!seatMap.assignments) seatMap.assignments = {};
   if(!Array.isArray(seatMap.tables)) seatMap.tables = [];
+  if(!Array.isArray(seatMap.landmarks)) seatMap.landmarks = [];
+  if(!Array.isArray(seatMap.savedLayouts)) seatMap.savedLayouts = [];
   if(!seatMap.floorColor) seatMap.floorColor = DEFAULT_FLOOR_COLOR;
   if(!seatMap.tableColor) seatMap.tableColor = DEFAULT_TABLE_COLOR;
   if(seatMap._colorResetV !== SEATMAP_COLOR_RESET_V){
@@ -7210,6 +7238,91 @@ function toggleHeadSeat(tableId, n){
   t.headSeat = (t.headSeat === n) ? null : n; // only one seat can sit at the head at a time
   saveSeatMap();
   renderSeatMap();
+}
+
+/* ── Saved layouts ──
+   A named snapshot of the whole arrangement (table positions/shapes/
+   seats/baby-seat flags, landmarks, and who's assigned where) so you can
+   try a different formation and get back to an earlier one instead of
+   redoing it by hand. Stored as seatMap.savedLayouts — travels with the
+   rest of the seat map through the same save/sync path, no separate
+   storage or endpoint needed. */
+function openSeatmapLayouts(){
+  var nameInput = document.getElementById('seatmapLayoutsNameInput');
+  if(nameInput) nameInput.value = '';
+  renderSeatmapLayoutsList();
+  var ov = document.getElementById('seatmapLayoutsOverlay'), sh = document.getElementById('seatmapLayoutsSheet');
+  if(ov) ov.classList.add('open');
+  if(sh) sh.classList.add('open');
+}
+function closeSeatmapLayouts(){
+  var ov = document.getElementById('seatmapLayoutsOverlay'), sh = document.getElementById('seatmapLayoutsSheet');
+  if(ov) ov.classList.remove('open');
+  if(sh) sh.classList.remove('open');
+}
+function renderSeatmapLayoutsList(){
+  var list = document.getElementById('seatmapLayoutsList');
+  if(!list) return;
+  var layouts = seatMap.savedLayouts || [];
+  if(!layouts.length){
+    list.innerHTML = '<div class="seat-assign-empty">No saved layouts yet — name this arrangement above and tap Save to create your first one.</div>';
+    return;
+  }
+  list.innerHTML = layouts.slice().reverse().map(function(l){
+    var when = new Date(l.savedAt).toLocaleDateString(undefined,{month:'short', day:'numeric', hour:'numeric', minute:'2-digit'});
+    return '<div class="seatmap-layout-row" data-id="'+l.id+'">'
+      + '<div class="seatmap-layout-row-info"><div class="seatmap-layout-row-name">'+l.name.replace(/</g,'&lt;')+'</div><div class="seatmap-layout-row-meta">'+l.tables.length+' table'+(l.tables.length===1?'':'s')+' · saved '+when+'</div></div>'
+      + '<button type="button" class="seatmap-layout-load-btn" data-id="'+l.id+'">Load</button>'
+      + '<button type="button" class="seatmap-layout-del-btn" data-id="'+l.id+'" title="Delete this saved layout" aria-label="Delete"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>'
+      + '</div>';
+  }).join('');
+  list.querySelectorAll('.seatmap-layout-load-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){ loadSeatmapLayout(this.dataset.id); });
+  });
+  list.querySelectorAll('.seatmap-layout-del-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){ deleteSeatmapLayout(this.dataset.id); });
+  });
+}
+function saveSeatmapLayoutAs(name){
+  name = (name||'').trim() || ('Layout — '+new Date().toLocaleDateString(undefined,{month:'short', day:'numeric'}));
+  if(!seatMap.savedLayouts) seatMap.savedLayouts = [];
+  seatMap.savedLayouts.push({
+    id: 'lay_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
+    name: name,
+    savedAt: Date.now(),
+    // Deep-cloned so later edits to the live arrangement never bleed into
+    // this snapshot.
+    tables: JSON.parse(JSON.stringify(seatMap.tables)),
+    landmarks: JSON.parse(JSON.stringify(seatMap.landmarks||[])),
+    assignments: JSON.parse(JSON.stringify(seatMap.assignments)),
+    floorColor: seatMap.floorColor,
+    tableColor: seatMap.tableColor
+  });
+  saveSeatMap();
+  renderSeatmapLayoutsList();
+  var nameInput = document.getElementById('seatmapLayoutsNameInput');
+  if(nameInput) nameInput.value = '';
+}
+function loadSeatmapLayout(id){
+  var l = (seatMap.savedLayouts||[]).find(function(x){return x.id===id;});
+  if(!l) return;
+  if(!confirm('Load "'+l.name+'"? This replaces the tables, seats, and assignments you currently have — save your current arrangement first if you want to keep it.')) return;
+  seatMap.tables = JSON.parse(JSON.stringify(l.tables));
+  seatMap.landmarks = JSON.parse(JSON.stringify(l.landmarks||[]));
+  seatMap.assignments = JSON.parse(JSON.stringify(l.assignments));
+  seatMap.floorColor = l.floorColor || seatMap.floorColor;
+  seatMap.tableColor = l.tableColor || seatMap.tableColor;
+  saveSeatMap();
+  closeSeatmapLayouts();
+  renderSeatMap();
+  if(typeof renderGuestList==='function') renderGuestList();
+}
+function deleteSeatmapLayout(id){
+  var l = (seatMap.savedLayouts||[]).find(function(x){return x.id===id;});
+  if(!l || !confirm('Delete saved layout "'+l.name+'"? This can\'t be undone.')) return;
+  seatMap.savedLayouts = seatMap.savedLayouts.filter(function(x){return x.id!==id;});
+  saveSeatMap();
+  renderSeatmapLayoutsList();
 }
 
 /* Shared "N tables · X of Y seated [· Z unseated]" header line for both
@@ -8753,6 +8866,20 @@ var _saSearch = document.getElementById('seatAssignSearch');
 if(_saSearch) _saSearch.addEventListener('input', function(){ renderSeatAssignList(this.value); });
 var _saAssignCancelBtn = document.getElementById('seatmapAssignCancelBtn');
 if(_saAssignCancelBtn) _saAssignCancelBtn.addEventListener('click', cancelAssignFlow);
+var _smLayoutsBtn = document.getElementById('seatmapLayoutsBtn');
+if(_smLayoutsBtn) _smLayoutsBtn.addEventListener('click', openSeatmapLayouts);
+var _smLayoutsOverlay = document.getElementById('seatmapLayoutsOverlay');
+if(_smLayoutsOverlay) _smLayoutsOverlay.addEventListener('click', closeSeatmapLayouts);
+var _smLayoutsCloseBtn = document.getElementById('seatmapLayoutsCloseBtn');
+if(_smLayoutsCloseBtn) _smLayoutsCloseBtn.addEventListener('click', closeSeatmapLayouts);
+var _smLayoutsSaveBtn = document.getElementById('seatmapLayoutsSaveBtn');
+var _smLayoutsNameInput = document.getElementById('seatmapLayoutsNameInput');
+if(_smLayoutsSaveBtn) _smLayoutsSaveBtn.addEventListener('click', function(){
+  saveSeatmapLayoutAs(_smLayoutsNameInput ? _smLayoutsNameInput.value : '');
+});
+if(_smLayoutsNameInput) _smLayoutsNameInput.addEventListener('keydown', function(e){
+  if(e.key === 'Enter') saveSeatmapLayoutAs(this.value);
+});
 
 /* iOS Safari anchors position:fixed elements to the *layout* viewport, not
    the visual one — so once the keyboard opens, a bottom-fixed sheet like
