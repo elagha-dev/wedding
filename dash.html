@@ -984,8 +984,17 @@ body.lite-mode #liteModeTopBtn {
    grabber both pick up their own drop-shadow so they stay legible
    whatever color the floor happens to be, rather than relying on a dark
    panel behind them for contrast. */
-.seatmap-action-fab{flex-shrink:0;width:76px;height:40px;border:none;background:none;color:#EAF3FB;cursor:pointer;filter:drop-shadow(0 3px 6px rgba(0,0,0,.45));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding-bottom:1px;clip-path:inset(0 0 0 0 round 20px 20px 0 0);opacity:1;transition:clip-path .3s cubic-bezier(.32,1.6,.5,1),opacity .18s ease-out}
-.seatmap-fab-grabber{width:26px;height:3px;border-radius:2px;background:rgba(234,243,251,.9)}
+/* No fill, no border — the panel's own surface is nothing at all now.
+   What actually makes it legible is that it always sits over the plain
+   cream page background (the canvas has a fixed max height, so this bar
+   is never over the blue floor) — so dark ink text/icons read clearly
+   against that reliably light backdrop, the same way anything else on
+   this page's cream background does. That's a cleaner fix than the
+   translucent-panel compromise: it does what was actually asked
+   (nothing behind the icons but the page itself) instead of splitting
+   the difference. */
+.seatmap-action-fab{flex-shrink:0;width:76px;height:40px;border:none;background:none;color:var(--ink2);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding-bottom:1px;clip-path:inset(0 0 0 0 round 20px 20px 0 0);opacity:1;transition:clip-path .3s cubic-bezier(.32,1.6,.5,1),opacity .18s ease-out}
+.seatmap-fab-grabber{width:26px;height:3px;border-radius:2px;background:var(--soft)}
 .seatmap-action-fab:active{opacity:.6}
 /* Same clip-path approach as the toolbar above, same reason: a scaling
    transform on a backdrop-filter element risks the blurred background
@@ -1024,13 +1033,13 @@ body.lite-mode #liteModeTopBtn {
    currently visible, so backdrop-filter always has the right, stable
    region to blur. display stays flex at all times — display can't be
    transitioned. */
-.seatmap-action-toolbar{display:flex;flex-direction:column;position:fixed;left:0;right:0;bottom:0;z-index:401;background:none;border:none;padding:12px 16px calc(10px + env(safe-area-inset-bottom,0px));filter:drop-shadow(0 2px 3px rgba(0,0,0,.5));clip-path:circle(0% at 50% 100%);pointer-events:none;transition:clip-path .4s cubic-bezier(.3,1,.4,1)}
+.seatmap-action-toolbar{display:flex;flex-direction:column;position:fixed;left:0;right:0;bottom:0;z-index:401;background:none;border:none;padding:12px 16px calc(10px + env(safe-area-inset-bottom,0px));clip-path:circle(0% at 50% 100%);pointer-events:none;transition:clip-path .4s cubic-bezier(.3,1,.4,1)}
 .seatmap-action-toolbar.open{clip-path:circle(150% at 50% 100%);pointer-events:auto;transition:clip-path .44s cubic-bezier(.22,1,.36,1)}
-.seatmap-toolbar-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:10px;margin-bottom:10px}
+.seatmap-toolbar-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--parchment)}
 .seatmap-toolbar-row{display:flex;align-items:stretch;gap:2px}
-.seatmap-select-count{font-family:var(--sans);font-size:12.5px;font-weight:800;color:#EAF3FB;padding:0;white-space:nowrap;flex-shrink:0;border:none;background:transparent;cursor:pointer;-webkit-appearance:none;appearance:none;margin:0;line-height:1.4}
+.seatmap-select-count{font-family:var(--sans);font-size:12.5px;font-weight:800;color:var(--ink2);padding:0;white-space:nowrap;flex-shrink:0;border:none;background:transparent;cursor:pointer;-webkit-appearance:none;appearance:none;margin:0;line-height:1.4}
 .seatmap-select-count:active{opacity:.7}
-.seatmap-toolbar-done{flex-shrink:0;border-radius:9px;padding:6px 15px;font-family:var(--sans);font-size:12.5px;font-weight:800;background:none;border:none;color:#EAF3FB;cursor:pointer}
+.seatmap-toolbar-done{flex-shrink:0;border-radius:9px;padding:6px 15px;font-family:var(--sans);font-size:12.5px;font-weight:800;background:none;border:none;color:var(--ink2);cursor:pointer}
 .seatmap-toolbar-done:active{opacity:.6}
 .seatmap-toolbar-done:active{background:rgba(255,255,255,.24)}
 /* Each item is icon + a small caption, flex:1 so all five spread evenly
@@ -1038,12 +1047,12 @@ body.lite-mode #liteModeTopBtn {
    relying on an unlabeled icon reading correctly on its own. Delete
    keeps its red tint as the only color break in the row, which alone is
    enough to mark it as the odd one out without needing a divider. */
-.seatmap-dock-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:none;background:none;color:#EAF3FB;cursor:pointer;padding:7px 2px;border-radius:12px}
-.seatmap-dock-btn:active{background:rgba(255,255,255,.1)}
+.seatmap-dock-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:none;background:none;color:var(--ink2);cursor:pointer;padding:7px 2px;border-radius:12px}
+.seatmap-dock-btn:active{background:var(--cream2)}
 .seatmap-dock-btn:disabled{opacity:.32;pointer-events:none}
-.seatmap-dock-btn.active{background:rgba(47,111,237,.28);color:#8fb4fb}
-.seatmap-dock-btn.danger{color:#ff8a8a}
-.seatmap-dock-btn.danger:active{background:rgba(220,60,60,.18)}
+.seatmap-dock-btn.active{background:var(--sky-bg);color:var(--sky)}
+.seatmap-dock-btn.danger{color:#b91c1c}
+.seatmap-dock-btn.danger:active{background:rgba(185,28,28,.12)}
 .seatmap-toolbar-item-label{font-family:var(--sans);font-size:9.5px;font-weight:700;letter-spacing:.01em}
 /* Inline "name it and go" popover for Save — replaces navigating away to
    the full Saved Layouts sheet for what should be a two-second action.
