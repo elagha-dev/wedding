@@ -966,18 +966,38 @@ body.lite-mode #liteModeTopBtn {
    triggers the (navy) action toolbar, not a creative/add action, so it
    reads as "open tools" rather than competing with the add-table button
    for the same warm accent color. */
-.seatmap-action-fab{flex-shrink:0;width:52px;height:52px;border-radius:50%;border:none;background:linear-gradient(135deg,#4A6178,#263B4F);color:#fff;cursor:pointer;box-shadow:0 8px 24px rgba(30,45,60,.4);display:flex;align-items:center;justify-content:center}
-.seatmap-action-toolbar{display:none;align-items:center;gap:4px;background:#1B3245;border:1px solid rgba(255,255,255,.1);border-radius:var(--r-sm,12px);padding:7px 8px;box-shadow:0 10px 28px rgba(10,20,32,.45);max-width:calc(100vw - 28px);overflow-x:auto}
+.seatmap-action-fab{flex-shrink:0;width:52px;height:52px;border-radius:50%;border:none;background:linear-gradient(135deg,#4A6178,#263B4F);color:#fff;cursor:pointer;box-shadow:0 8px 24px rgba(30,45,60,.4),inset 0 1px 1px rgba(255,255,255,.28);display:flex;align-items:center;justify-content:center}
+/* Redesigned as a proper two-tier card rather than one long row of icons:
+   a header strip (selection count + Done, divided from the row below)
+   and an icon row underneath, grouped by function with thin dividers —
+   selection helper | transform (rotate/arrange) | save | delete on its
+   own at the far edge, so the destructive action is never adjacent to
+   anything else and can't be mis-tapped reaching for something nearby.
+   Frosted glass (translucent navy + blur) instead of a flat fill for a
+   bit more depth/polish sitting over the canvas. */
+.seatmap-action-toolbar{display:none;flex-direction:column;background:rgba(20,38,54,.86);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:10px 12px 9px;box-shadow:0 16px 36px rgba(8,16,26,.5);max-width:calc(100vw - 28px);position:relative}
 .seatmap-action-toolbar.open{display:flex}
-.seatmap-select-count{font-family:var(--sans);font-size:11px;font-weight:800;color:#EAF3FB;padding:0 6px;white-space:nowrap;flex-shrink:0;border:none;background:transparent;cursor:pointer;-webkit-appearance:none;appearance:none;margin:0;line-height:1.4}
+.seatmap-toolbar-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:8px;margin-bottom:8px;border-bottom:1px solid rgba(255,255,255,.12)}
+.seatmap-toolbar-row{display:flex;align-items:center;gap:5px;overflow-x:auto}
+.seatmap-toolbar-sep{flex-shrink:0;width:1px;align-self:stretch;background:rgba(255,255,255,.14);margin:0 1px}
+.seatmap-select-count{font-family:var(--sans);font-size:11.5px;font-weight:800;color:#EAF3FB;padding:0;white-space:nowrap;flex-shrink:0;border:none;background:transparent;cursor:pointer;-webkit-appearance:none;appearance:none;margin:0;line-height:1.4}
 .seatmap-select-count:active{opacity:.7}
+.seatmap-toolbar-done{flex-shrink:0;border-radius:8px;padding:5px 13px;font-family:var(--sans);font-size:11.5px;font-weight:800;background:rgba(255,255,255,.14);border:none;color:#EAF3FB;cursor:pointer}
+.seatmap-toolbar-done:active{background:rgba(255,255,255,.24)}
 .seatmap-dock-btn{flex-shrink:0;width:36px;height:36px;border-radius:9px;border:1.5px solid rgba(255,255,255,.16);background:rgba(255,255,255,.07);color:#EAF3FB;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
 .seatmap-dock-btn:active{background:rgba(255,255,255,.18)}
 .seatmap-dock-btn:disabled{opacity:.3;pointer-events:none}
 .seatmap-dock-btn.active{background:#2f6fed;border-color:#2f6fed;color:#fff}
-.seatmap-dock-btn.danger{background:rgba(200,58,58,.85);border-color:transparent;color:#fff}
+.seatmap-dock-btn.danger{background:rgba(200,58,58,.85);border-color:transparent;color:#fff;margin-left:auto}
 .seatmap-dock-btn.danger:active{background:rgba(200,58,58,1)}
-.seatmap-dock-btn.done{width:auto;border-radius:9px;padding:0 13px;font-family:var(--sans);font-size:11.5px;font-weight:800;background:rgba(255,255,255,.12);border:none}
+/* Inline "name it and go" popover for Save — replaces navigating away to
+   the full Saved Layouts sheet for what should be a two-second action.
+   Anchored above the row, same pattern as the align dropdown. */
+.seatmap-save-popover{display:none;position:absolute;left:12px;right:12px;bottom:calc(100% + 10px);align-items:center;gap:6px;background:#1B3245;border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:8px;box-shadow:0 10px 28px rgba(8,16,26,.5)}
+.seatmap-save-popover.open{display:flex}
+.seatmap-save-popover input{flex:1;min-width:0;border:1.5px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);border-radius:8px;padding:7px 9px;font-family:var(--sans);font-size:12.5px;color:#EAF3FB;outline:none}
+.seatmap-save-popover input::placeholder{color:rgba(234,243,251,.45)}
+.seatmap-save-popover button{flex-shrink:0;border:none;border-radius:8px;padding:7px 12px;font-family:var(--sans);font-size:12px;font-weight:800;background:linear-gradient(135deg,#4A6178,#263B4F);color:#fff;cursor:pointer}
 /* Alignment popover — opens upward, anchored above the toolbar via the
    dock's column layout (this menu sits before the toolbar in the DOM, and
    the dock is bottom-anchored, so growing/shrinking this menu never moves
@@ -1850,13 +1870,24 @@ body.lite-mode #liteModeTopBtn {
       <button type="button" class="seatmap-align-item" data-action="center"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" stroke-dasharray="2.5 3"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg><span>Center on Canvas</span></button>
     </div>
     <div class="seatmap-action-toolbar" id="seatmapActionToolbar">
-      <button type="button" class="seatmap-select-count" id="seatmapSelectCount" title="Tap to select/deselect all tables">0 selected</button>
-      <button type="button" class="seatmap-dock-btn" id="seatmapSelectAllBtn" title="Select all tables"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><polyline points="8 12 11 15 16 8"/></svg></button>
-      <button type="button" class="seatmap-dock-btn" id="seatmapSelectBarRotate" title="Rotate selected"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L3 8"/></svg></button>
-      <button type="button" class="seatmap-dock-btn" id="seatmapAlignMenuBtn" title="Align, distribute, or arrange selected"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="17" y2="18"/></svg></button>
-      <button type="button" class="seatmap-dock-btn danger" id="seatmapSelectBarDelete" title="Delete selected"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
-      <button type="button" class="seatmap-dock-btn" id="seatmapSelectBarSave" title="Save current layout"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h11l3 3v15a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M8 3v5h8V3"/><path d="M8 21v-7h8v7"/></svg></button>
-      <button type="button" class="seatmap-dock-btn done" id="seatmapSelectBarDone">Done</button>
+      <div class="seatmap-save-popover" id="seatmapSavePopover">
+        <input type="text" id="seatmapSavePopoverInput" placeholder="Name this layout…" maxlength="40" autocomplete="off"/>
+        <button type="button" id="seatmapSavePopoverBtn">Save</button>
+      </div>
+      <div class="seatmap-toolbar-head">
+        <button type="button" class="seatmap-select-count" id="seatmapSelectCount" title="Tap to select/deselect all tables">0 selected</button>
+        <button type="button" class="seatmap-toolbar-done" id="seatmapSelectBarDone">Done</button>
+      </div>
+      <div class="seatmap-toolbar-row">
+        <button type="button" class="seatmap-dock-btn" id="seatmapSelectAllBtn" title="Select all tables"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><polyline points="8 12 11 15 16 8"/></svg></button>
+        <span class="seatmap-toolbar-sep"></span>
+        <button type="button" class="seatmap-dock-btn" id="seatmapSelectBarRotate" title="Rotate selected"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L3 8"/></svg></button>
+        <button type="button" class="seatmap-dock-btn" id="seatmapAlignMenuBtn" title="Align, distribute, or arrange selected"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="17" y2="18"/></svg></button>
+        <span class="seatmap-toolbar-sep"></span>
+        <button type="button" class="seatmap-dock-btn" id="seatmapSelectBarSave" title="Save current layout"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h11l3 3v15a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M8 3v5h8V3"/><path d="M8 21v-7h8v7"/></svg></button>
+        <span class="seatmap-toolbar-sep"></span>
+        <button type="button" class="seatmap-dock-btn danger" id="seatmapSelectBarDelete" title="Delete selected"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
+      </div>
     </div>
     <button type="button" class="seatmap-action-fab" id="seatmapSelectModeBtn" title="Select tables to rotate, align, or delete"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="8 12.3 10.7 15 16 9.3"/></svg></button>
   </div>
@@ -6923,14 +6954,58 @@ function toggleAlignMenu(){
   if(menu) menu.classList.toggle('open', _alignMenuOpen);
   var btn = document.getElementById('seatmapAlignMenuBtn');
   if(btn) btn.classList.toggle('active', _alignMenuOpen);
+  if(_alignMenuOpen) closeSavePopover(); // the two popovers share the same anchor point above the toolbar — only one at a time
 }
 function closeAlignMenu(){
+  closeSavePopover(); // the two share a toolbar context — whatever closes one should close the other
   if(!_alignMenuOpen) return;
   _alignMenuOpen = false;
   var menu = document.getElementById('seatmapAlignMenu');
   if(menu) menu.classList.remove('open');
   var btn = document.getElementById('seatmapAlignMenuBtn');
   if(btn) btn.classList.remove('active');
+}
+
+/* Inline "name it and save" popover, opened from the Save icon in the
+   action toolbar — a two-second alternative to opening the full Saved
+   Layouts sheet (still available from the header's folder icon) when all
+   you want is to check-point the current arrangement before trying
+   something else. */
+var _savePopoverOpen = false;
+function toggleSavePopover(){
+  _savePopoverOpen = !_savePopoverOpen;
+  var pop = document.getElementById('seatmapSavePopover');
+  if(pop) pop.classList.toggle('open', _savePopoverOpen);
+  var btn = document.getElementById('seatmapSelectBarSave');
+  if(btn) btn.classList.toggle('active', _savePopoverOpen);
+  if(_savePopoverOpen){
+    closeAlignMenu();
+    var input = document.getElementById('seatmapSavePopoverInput');
+    if(input){ input.value = ''; setTimeout(function(){ input.focus(); }, 50); }
+  }
+}
+function closeSavePopover(){
+  if(!_savePopoverOpen) return;
+  _savePopoverOpen = false;
+  var pop = document.getElementById('seatmapSavePopover');
+  if(pop) pop.classList.remove('open');
+  var btn = document.getElementById('seatmapSelectBarSave');
+  if(btn) btn.classList.remove('active');
+}
+/* Saves, then gives a quick inline confirmation (the button's own icon
+   flips to a checkmark for a moment) instead of just silently closing —
+   so it's never ambiguous whether the name you typed actually took. */
+function confirmSaveFromPopover(){
+  var input = document.getElementById('seatmapSavePopoverInput');
+  saveSeatmapLayoutAs(input ? input.value : '');
+  var btn = document.getElementById('seatmapSavePopoverBtn');
+  if(btn){
+    var prevText = btn.textContent;
+    btn.textContent = 'Saved ✓';
+    setTimeout(function(){ btn.textContent = prevText; closeSavePopover(); }, 800);
+  } else {
+    closeSavePopover();
+  }
 }
 
 function updateActionDock(){
@@ -8828,7 +8903,16 @@ if(_smSelectAllBtn) _smSelectAllBtn.addEventListener('click', toggleSelectAll);
 var _smSelectBarDelete = document.getElementById('seatmapSelectBarDelete');
 if(_smSelectBarDelete) _smSelectBarDelete.addEventListener('click', deleteMultiSelected);
 var _smSelectBarSave = document.getElementById('seatmapSelectBarSave');
-if(_smSelectBarSave) _smSelectBarSave.addEventListener('click', openSeatmapLayouts);
+if(_smSelectBarSave) _smSelectBarSave.addEventListener('click', function(e){
+  e.stopPropagation();
+  toggleSavePopover();
+});
+var _smSavePopoverBtn = document.getElementById('seatmapSavePopoverBtn');
+if(_smSavePopoverBtn) _smSavePopoverBtn.addEventListener('click', confirmSaveFromPopover);
+var _smSavePopoverInput = document.getElementById('seatmapSavePopoverInput');
+if(_smSavePopoverInput) _smSavePopoverInput.addEventListener('keydown', function(e){
+  if(e.key === 'Enter') confirmSaveFromPopover();
+});
 var _smSelectBarDone = document.getElementById('seatmapSelectBarDone');
 if(_smSelectBarDone) _smSelectBarDone.addEventListener('click', toggleMultiSelectMode);
 var _smAlignMenuBtn = document.getElementById('seatmapAlignMenuBtn');
