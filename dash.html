@@ -987,12 +987,6 @@ body.lite-mode #liteModeTopBtn {
    from the bottom like a blind closing, rounded corners preserved
    throughout, rather than "absorbing" via a scale-squash. */
 .seatmap-action-fab.hiding{clip-path:inset(85% 0 0 0 round 20px 20px 0 0);opacity:0;pointer-events:none;transition:clip-path .24s cubic-bezier(.4,0,1,1),opacity .2s ease-in}
-/* The "there's a tools panel for that" hop — see pulseActionTab(). A
-   translateY hop rather than a scale, same reasoning as everywhere else
-   on this button: keeps clear of the backdrop-filter+transform:scale
-   desync bug, and a plain move doesn't trigger it. */
-@keyframes seatmapFabPulse{0%{transform:translateY(0)}35%{transform:translateY(-7px)}60%{transform:translateY(0)}78%{transform:translateY(-2.5px)}100%{transform:translateY(0)}}
-.seatmap-action-fab.pulse{animation:seatmapFabPulse .55s cubic-bezier(.33,1,.68,1)}
 /* Redesigned as a proper two-tier card rather than one long row of icons:
    a header strip (selection count + Done, divided from the row below)
    and an icon row underneath, grouped by function with thin dividers —
@@ -7027,6 +7021,18 @@ function toggleMultiSelectMode(){
   closeAlignMenu();
   renderSeatFloorPlan();
 }
+/* Done always closes, full stop — unlike the FAB (which only ever runs
+   while the panel's fully closed, so toggling is safe there), Done can
+   now be tapped while the panel is open from a single tapped-selected
+   table with _multiSelectMode still false. Toggling in that case would
+   flip it to true and leave the panel open instead of closing it. */
+function closeActionPanel(){
+  _multiSelectMode = false;
+  _multiSelectedIds = [];
+  _selectedTableId = null;
+  closeAlignMenu();
+  renderSeatFloorPlan();
+}
 function toggleTableInMultiSelect(id){
   var i = _multiSelectedIds.indexOf(id);
   if(i === -1) _multiSelectedIds.push(id);
@@ -7111,19 +7117,6 @@ function confirmSaveFromPopover(){
   }
 }
 
-/* A quick hop on the docked tab whenever a table gets tapped-selected —
-   answers "what does this tools panel have to do with the table I just
-   tapped?" with a visible reaction instead of either staying inert or
-   fully auto-opening the whole bulk-edit bar on every single tap (which
-   would fight with the far more common case of tapping a table to open
-   its seat list and assign a guest). */
-function pulseActionTab(){
-  var fab = document.getElementById('seatmapSelectModeBtn');
-  if(!fab || _multiSelectMode) return; // already open — nothing to point at
-  fab.classList.remove('pulse');
-  void fab.offsetWidth; // force a reflow so re-adding the class restarts the animation even on rapid re-taps
-  fab.classList.add('pulse');
-}
 function updateActionDock(){
   var dock = document.getElementById('seatmapActionDock');
   if(!dock) return;
@@ -7134,9 +7127,15 @@ function updateActionDock(){
 
   var fab = document.getElementById('seatmapSelectModeBtn');
   var toolbar = document.getElementById('seatmapActionToolbar');
-  if(fab) fab.classList.toggle('hiding', _multiSelectMode);
-  if(toolbar) toolbar.classList.toggle('open', _multiSelectMode);
-  if(!_multiSelectMode) closeAlignMenu();
+  // The panel now opens for a single tapped-selected table too, not just
+  // full multi-select mode — see the tap handler in wireFloorZoom() and
+  // toggleTableInMultiSelect() above. _multiSelectedIds is kept in sync
+  // with _selectedTableId outside of full multi-select mode specifically
+  // so this one check covers both cases without duplicating logic.
+  var panelOpen = _multiSelectMode || _multiSelectedIds.length > 0;
+  if(fab) fab.classList.toggle('hiding', panelOpen);
+  if(toolbar) toolbar.classList.toggle('open', panelOpen);
+  if(!panelOpen) closeAlignMenu();
 
   var n = _multiSelectedIds.length;
   var count = document.getElementById('seatmapSelectCount');
@@ -8789,17 +8788,19 @@ function wireFloorDrag(){
           // you can keep picking tables without leaving the mode.
           toggleTableInMultiSelect(id);
         } else if(_selectedTableId === id){
-          // First tap on a table selects it (shows a highlight ring and
-          // becomes what the rotate button next to "+ Table" acts on) rather
-          // than jumping straight into the seat sheet — a second tap on that
-          // same, already-selected table is what actually opens it. Tapping
-          // a different table just moves the selection there instead.
+          // First tap on a table selects it (shows a highlight ring, and
+          // now also opens the tools panel below scoped to just this
+          // table) rather than jumping straight into the seat sheet — a
+          // second tap on that same, already-selected table is what
+          // actually opens it. Tapping a different table just moves the
+          // selection there instead.
           _selectedTableId = null;
+          _multiSelectedIds = []; // closes the tools panel — diving into the seat sheet supersedes it
           openTableFromFloor(id);
         } else {
           _selectedTableId = id;
+          _multiSelectedIds = [id]; // outside full multi-select mode this just mirrors the single selection, so the panel below can open scoped to this one table without changing what a second tap on it does
           renderSeatFloorPlan();
-          pulseActionTab(); // a first tap just highlights the table — this is what tells you the tools tab down below is what acts on it next, without forcing the whole panel open on every tap
         }
       }
       // A drop that actually moved the table can put it past the canvas's
@@ -9031,7 +9032,7 @@ if(_smSavePopoverInput) _smSavePopoverInput.addEventListener('keydown', function
   if(e.key === 'Enter') confirmSaveFromPopover();
 });
 var _smSelectBarDone = document.getElementById('seatmapSelectBarDone');
-if(_smSelectBarDone) _smSelectBarDone.addEventListener('click', toggleMultiSelectMode);
+if(_smSelectBarDone) _smSelectBarDone.addEventListener('click', closeActionPanel);
 var _smAlignMenuBtn = document.getElementById('seatmapAlignMenuBtn');
 if(_smAlignMenuBtn) _smAlignMenuBtn.addEventListener('click', function(e){
   e.stopPropagation();
