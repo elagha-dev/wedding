@@ -977,10 +977,15 @@ body.lite-mode #liteModeTopBtn {
    (Maps, Spotify, iOS share sheets) instead of relying on an icon alone
    to communicate that. .hiding squashes it flat into the bar rather than
    spinning away — a tab doesn't tumble, it gets absorbed. */
-.seatmap-action-fab{flex-shrink:0;width:76px;height:40px;border-radius:20px 20px 0 0;border:1px solid rgba(255,255,255,.16);border-bottom:none;background:rgba(15,28,40,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);color:#EAF3FB;cursor:pointer;box-shadow:0 -6px 22px rgba(8,16,26,.4),inset 0 1px 1px rgba(255,255,255,.14);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding-bottom:1px;transform-origin:50% 100%;transform:scale(1);opacity:1;transition:transform .32s cubic-bezier(.32,1.6,.5,1),opacity .18s ease-out}
+.seatmap-action-fab{flex-shrink:0;width:76px;height:40px;border-radius:20px 20px 0 0;border:1px solid rgba(255,255,255,.16);border-bottom:none;background:rgba(15,28,40,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);color:#EAF3FB;cursor:pointer;box-shadow:0 -6px 22px rgba(8,16,26,.4),inset 0 1px 1px rgba(255,255,255,.14);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding-bottom:1px;clip-path:inset(0 0 0 0 round 20px 20px 0 0);opacity:1;transition:clip-path .3s cubic-bezier(.32,1.6,.5,1),opacity .18s ease-out}
 .seatmap-fab-grabber{width:26px;height:3px;border-radius:2px;background:rgba(234,243,251,.4)}
-.seatmap-action-fab:active{transform:scale(.95);background:rgba(15,28,40,.98)}
-.seatmap-action-fab.hiding{transform:scale(.55,.12);opacity:0;pointer-events:none;transition:transform .26s cubic-bezier(.4,0,1,1),opacity .2s ease-in}
+.seatmap-action-fab:active{background:rgba(15,28,40,.98)}
+/* Same clip-path approach as the toolbar above, same reason: a scaling
+   transform on a backdrop-filter element risks the blurred background
+   desyncing from the button's actual shape in Safari. Collapses upward
+   from the bottom like a blind closing, rounded corners preserved
+   throughout, rather than "absorbing" via a scale-squash. */
+.seatmap-action-fab.hiding{clip-path:inset(85% 0 0 0 round 20px 20px 0 0);opacity:0;pointer-events:none;transition:clip-path .24s cubic-bezier(.4,0,1,1),opacity .2s ease-in}
 /* Redesigned as a proper two-tier card rather than one long row of icons:
    a header strip (selection count + Done, divided from the row below)
    and an icon row underneath, grouped by function with thin dividers —
@@ -1000,16 +1005,20 @@ body.lite-mode #liteModeTopBtn {
    while this becomes the full-width bar once tapped open. */
 /* The morph itself: instead of display:none/flex hard-swapping the FAB
    and this bar (which reads as two unrelated elements taking turns), the
-/* The morph itself: instead of display:none/flex hard-swapping the FAB
-   and this bar (which reads as two unrelated elements taking turns), the
-   bar grows from dead center-bottom — right where the docked tab now
-   sits — expanding out to full width as the tab simultaneously flattens
-   into it (see .seatmap-action-fab.hiding above). The two are timed
-   together so it reads as one continuous shape-shift, not a cut.
-   display stays flex at all times — display can't be transitioned, so
-   visibility is entirely via transform/opacity/pointer-events instead. */
-.seatmap-action-toolbar{display:flex;flex-direction:column;position:fixed;left:0;right:0;bottom:0;z-index:401;background:rgba(15,28,40,.94);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,.14);border-radius:20px 20px 0 0;padding:12px 16px calc(10px + env(safe-area-inset-bottom,0px));box-shadow:0 -12px 32px rgba(8,16,26,.4);transform-origin:50% 100%;transform:scale(.08,.08) translateY(10px);opacity:0;pointer-events:none;transition:transform .38s cubic-bezier(.32,1.5,.44,1),opacity .22s ease-out}
-.seatmap-action-toolbar.open{transform:scale(1,1) translateY(0);opacity:1;pointer-events:auto;transition:transform .42s cubic-bezier(.28,1.5,.4,1),opacity .28s ease-out}
+   bar reveals from dead center-bottom — right where the docked tab sits
+   — expanding out to full width as the tab simultaneously flattens into
+   it (see .seatmap-action-fab.hiding above). Uses clip-path, not
+   transform:scale, on purpose: backdrop-filter (the frosted-glass blur)
+   combined with a scaling transform is a known iOS Safari bug where the
+   blurred background desyncs from the element's actual laid-out size —
+   buttons render in their correct final positions while the dark
+   background only paints over a stale, smaller region. clip-path avoids
+   it entirely: the box's real size never changes, only how much of it is
+   currently visible, so backdrop-filter always has the right, stable
+   region to blur. display stays flex at all times — display can't be
+   transitioned. */
+.seatmap-action-toolbar{display:flex;flex-direction:column;position:fixed;left:0;right:0;bottom:0;z-index:401;background:rgba(15,28,40,.94);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,.14);border-radius:20px 20px 0 0;padding:12px 16px calc(10px + env(safe-area-inset-bottom,0px));box-shadow:0 -12px 32px rgba(8,16,26,.4);clip-path:circle(0% at 50% 100%);pointer-events:none;transition:clip-path .4s cubic-bezier(.3,1,.4,1)}
+.seatmap-action-toolbar.open{clip-path:circle(150% at 50% 100%);pointer-events:auto;transition:clip-path .44s cubic-bezier(.22,1,.36,1)}
 .seatmap-toolbar-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid rgba(255,255,255,.12)}
 .seatmap-toolbar-row{display:flex;align-items:stretch;gap:2px}
 .seatmap-select-count{font-family:var(--sans);font-size:12.5px;font-weight:800;color:#EAF3FB;padding:0;white-space:nowrap;flex-shrink:0;border:none;background:transparent;cursor:pointer;-webkit-appearance:none;appearance:none;margin:0;line-height:1.4}
