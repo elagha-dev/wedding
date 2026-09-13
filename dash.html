@@ -987,6 +987,12 @@ body.lite-mode #liteModeTopBtn {
    from the bottom like a blind closing, rounded corners preserved
    throughout, rather than "absorbing" via a scale-squash. */
 .seatmap-action-fab.hiding{clip-path:inset(85% 0 0 0 round 20px 20px 0 0);opacity:0;pointer-events:none;transition:clip-path .24s cubic-bezier(.4,0,1,1),opacity .2s ease-in}
+/* The "there's a tools panel for that" hop — see pulseActionTab(). A
+   translateY hop rather than a scale, same reasoning as everywhere else
+   on this button: keeps clear of the backdrop-filter+transform:scale
+   desync bug, and a plain move doesn't trigger it. */
+@keyframes seatmapFabPulse{0%{transform:translateY(0)}35%{transform:translateY(-7px)}60%{transform:translateY(0)}78%{transform:translateY(-2.5px)}100%{transform:translateY(0)}}
+.seatmap-action-fab.pulse{animation:seatmapFabPulse .55s cubic-bezier(.33,1,.68,1)}
 /* Redesigned as a proper two-tier card rather than one long row of icons:
    a header strip (selection count + Done, divided from the row below)
    and an icon row underneath, grouped by function with thin dividers —
@@ -1942,7 +1948,7 @@ body.lite-mode #liteModeTopBtn {
         <button type="button" class="seatmap-dock-btn danger" id="seatmapSelectBarDelete" title="Delete selected"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg><span class="seatmap-toolbar-item-label">Delete</span></button>
       </div>
     </div>
-    <button type="button" class="seatmap-action-fab" id="seatmapSelectModeBtn" title="Select tables to rotate, align, or delete"><span class="seatmap-fab-grabber"></span><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="4"/><polyline points="8 12.3 10.7 15 16.3 8.7"/></svg></button>
+    <button type="button" class="seatmap-action-fab" id="seatmapSelectModeBtn" title="Table tools — select tables to rotate, arrange, or delete"><span class="seatmap-fab-grabber"></span><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="14" x2="20" y2="14"/><line x1="4" y1="21" x2="20" y2="21"/><circle cx="9" cy="7" r="2.1" fill="currentColor" stroke="none"/><circle cx="16" cy="14" r="2.1" fill="currentColor" stroke="none"/><circle cx="12" cy="21" r="2.1" fill="currentColor" stroke="none"/></svg></button>
   </div>
   <div class="seatmap-assign-banner" id="seatmapAssignBanner" style="display:none">
     <span id="seatmapAssignBannerText"></span>
@@ -7105,6 +7111,19 @@ function confirmSaveFromPopover(){
   }
 }
 
+/* A quick hop on the docked tab whenever a table gets tapped-selected —
+   answers "what does this tools panel have to do with the table I just
+   tapped?" with a visible reaction instead of either staying inert or
+   fully auto-opening the whole bulk-edit bar on every single tap (which
+   would fight with the far more common case of tapping a table to open
+   its seat list and assign a guest). */
+function pulseActionTab(){
+  var fab = document.getElementById('seatmapSelectModeBtn');
+  if(!fab || _multiSelectMode) return; // already open — nothing to point at
+  fab.classList.remove('pulse');
+  void fab.offsetWidth; // force a reflow so re-adding the class restarts the animation even on rapid re-taps
+  fab.classList.add('pulse');
+}
 function updateActionDock(){
   var dock = document.getElementById('seatmapActionDock');
   if(!dock) return;
@@ -8780,6 +8799,7 @@ function wireFloorDrag(){
         } else {
           _selectedTableId = id;
           renderSeatFloorPlan();
+          pulseActionTab(); // a first tap just highlights the table — this is what tells you the tools tab down below is what acts on it next, without forcing the whole panel open on every tap
         }
       }
       // A drop that actually moved the table can put it past the canvas's
