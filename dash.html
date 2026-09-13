@@ -962,7 +962,11 @@ body.lite-mode #liteModeTopBtn {
    toolbar (rotate / align / delete / done) instead of the old bar that
    stretched across the full width of the screen. */
 .seatmap-action-dock{position:fixed;right:14px;bottom:20px;z-index:400;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
-.seatmap-action-fab{flex-shrink:0;width:52px;height:52px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--rose),var(--rose-deep));color:#fff;cursor:pointer;box-shadow:0 8px 24px rgba(160,97,74,.4);display:flex;align-items:center;justify-content:center}
+/* Neutral slate rather than the rose used for "+ Table" — this button
+   triggers the (navy) action toolbar, not a creative/add action, so it
+   reads as "open tools" rather than competing with the add-table button
+   for the same warm accent color. */
+.seatmap-action-fab{flex-shrink:0;width:52px;height:52px;border-radius:50%;border:none;background:linear-gradient(135deg,#4A6178,#263B4F);color:#fff;cursor:pointer;box-shadow:0 8px 24px rgba(30,45,60,.4);display:flex;align-items:center;justify-content:center}
 .seatmap-action-toolbar{display:none;align-items:center;gap:4px;background:#1B3245;border:1px solid rgba(255,255,255,.1);border-radius:var(--r-sm,12px);padding:7px 8px;box-shadow:0 10px 28px rgba(10,20,32,.45);max-width:calc(100vw - 28px);overflow-x:auto}
 .seatmap-action-toolbar.open{display:flex}
 .seatmap-select-count{font-family:var(--sans);font-size:11px;font-weight:800;color:#EAF3FB;padding:0 6px;white-space:nowrap;flex-shrink:0;border:none;background:transparent;cursor:pointer;-webkit-appearance:none;appearance:none;margin:0;line-height:1.4}
@@ -1847,12 +1851,14 @@ body.lite-mode #liteModeTopBtn {
     </div>
     <div class="seatmap-action-toolbar" id="seatmapActionToolbar">
       <button type="button" class="seatmap-select-count" id="seatmapSelectCount" title="Tap to select/deselect all tables">0 selected</button>
+      <button type="button" class="seatmap-dock-btn" id="seatmapSelectAllBtn" title="Select all tables"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><polyline points="8 12 11 15 16 8"/></svg></button>
       <button type="button" class="seatmap-dock-btn" id="seatmapSelectBarRotate" title="Rotate selected"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L3 8"/></svg></button>
       <button type="button" class="seatmap-dock-btn" id="seatmapAlignMenuBtn" title="Align, distribute, or arrange selected"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="17" y2="18"/></svg></button>
       <button type="button" class="seatmap-dock-btn danger" id="seatmapSelectBarDelete" title="Delete selected"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
+      <button type="button" class="seatmap-dock-btn" id="seatmapSelectBarSave" title="Save current layout"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h11l3 3v15a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M8 3v5h8V3"/><path d="M8 21v-7h8v7"/></svg></button>
       <button type="button" class="seatmap-dock-btn done" id="seatmapSelectBarDone">Done</button>
     </div>
-    <button type="button" class="seatmap-action-fab" id="seatmapSelectModeBtn" title="Select tables to rotate, align, or delete"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="5" width="14" height="14" rx="1.5" stroke-dasharray="3 3.2"/><circle cx="5" cy="5" r="1.7" fill="currentColor" stroke="none"/><circle cx="19" cy="5" r="1.7" fill="currentColor" stroke="none"/><circle cx="5" cy="19" r="1.7" fill="currentColor" stroke="none"/><circle cx="19" cy="19" r="1.7" fill="currentColor" stroke="none"/></svg></button>
+    <button type="button" class="seatmap-action-fab" id="seatmapSelectModeBtn" title="Select tables to rotate, align, or delete"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="8 12.3 10.7 15 16 9.3"/></svg></button>
   </div>
   <div class="seatmap-assign-banner" id="seatmapAssignBanner" style="display:none">
     <span id="seatmapAssignBannerText"></span>
@@ -8817,8 +8823,12 @@ var _smSelectBarRotate = document.getElementById('seatmapSelectBarRotate');
 if(_smSelectBarRotate) _smSelectBarRotate.addEventListener('click', rotateMultiSelected);
 var _smSelectCount = document.getElementById('seatmapSelectCount');
 if(_smSelectCount) _smSelectCount.addEventListener('click', toggleSelectAll);
+var _smSelectAllBtn = document.getElementById('seatmapSelectAllBtn');
+if(_smSelectAllBtn) _smSelectAllBtn.addEventListener('click', toggleSelectAll);
 var _smSelectBarDelete = document.getElementById('seatmapSelectBarDelete');
 if(_smSelectBarDelete) _smSelectBarDelete.addEventListener('click', deleteMultiSelected);
+var _smSelectBarSave = document.getElementById('seatmapSelectBarSave');
+if(_smSelectBarSave) _smSelectBarSave.addEventListener('click', openSeatmapLayouts);
 var _smSelectBarDone = document.getElementById('seatmapSelectBarDone');
 if(_smSelectBarDone) _smSelectBarDone.addEventListener('click', toggleMultiSelectMode);
 var _smAlignMenuBtn = document.getElementById('seatmapAlignMenuBtn');
