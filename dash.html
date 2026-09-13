@@ -993,16 +993,6 @@ body.lite-mode #liteModeTopBtn {
    translucent-panel compromise: it does what was actually asked
    (nothing behind the icons but the page itself) instead of splitting
    the difference. */
-.seatmap-action-fab{flex-shrink:0;display:inline-flex;align-items:center;gap:7px;border:none;background:#1B3245;color:#EAF3FB;cursor:pointer;padding:11px 15px 11px 16px;margin-bottom:8px;border-radius:999px;box-shadow:0 3px 12px rgba(0,0,0,.32);opacity:1;transform:scale(1);transition:opacity .18s ease-out,transform .18s ease-out}
-.seatmap-fab-label{font-family:var(--sans);font-size:12.5px;font-weight:700;color:#EAF3FB;white-space:nowrap}
-.seatmap-fab-chevron{opacity:.55;flex-shrink:0}
-.seatmap-action-fab:active{transform:scale(.95)}
-/* Same clip-path approach as the toolbar above, same reason: a scaling
-   transform on a backdrop-filter element risks the blurred background
-   desyncing from the button's actual shape in Safari. Collapses upward
-   from the bottom like a blind closing, rounded corners preserved
-   throughout, rather than "absorbing" via a scale-squash. */
-.seatmap-action-fab.hiding{opacity:0;transform:scale(.85);pointer-events:none;transition:opacity .18s ease-in,transform .18s ease-in}
 /* Redesigned as a proper two-tier card rather than one long row of icons:
    a header strip (selection count + Done, divided from the row below)
    and an icon row underneath, grouped by function with thin dividers —
@@ -1018,24 +1008,12 @@ body.lite-mode #liteModeTopBtn {
    count + Done as a header strip above it. Escapes the dock's
    bottom-right corner anchoring via its own position:fixed (a fixed
    descendant positions against the viewport regardless of an ancestor's
-   flex layout), so the FAB above it can stay a small corner trigger
-   while this becomes the full-width bar once tapped open. */
-/* The morph itself: instead of display:none/flex hard-swapping the FAB
-   and this bar (which reads as two unrelated elements taking turns), the
-   bar reveals from dead center-bottom — right where the docked tab sits
-   — expanding out to full width as the tab simultaneously flattens into
-   it (see .seatmap-action-fab.hiding above). Uses clip-path, not
-   transform:scale, on purpose: backdrop-filter (the frosted-glass blur)
-   combined with a scaling transform is a known iOS Safari bug where the
-   blurred background desyncs from the element's actual laid-out size —
-   buttons render in their correct final positions while the dark
-   background only paints over a stale, smaller region. clip-path avoids
-   it entirely: the box's real size never changes, only how much of it is
-   currently visible, so backdrop-filter always has the right, stable
-   region to blur. display stays flex at all times — display can't be
+   flex layout). */
+/* No more FAB to tap first — this bar just sits on screen permanently
+   (whenever there's at least one table to act on), buttons disabled
+   until something's selected. display stays flex at all times — display can't be
    transitioned. */
-.seatmap-action-toolbar{display:flex;flex-direction:column;position:fixed;left:0;right:0;bottom:0;z-index:401;background:none;border:none;padding:12px 16px calc(10px + env(safe-area-inset-bottom,0px));clip-path:circle(0% at 50% 100%);pointer-events:none;transition:clip-path .4s cubic-bezier(.3,1,.4,1)}
-.seatmap-action-toolbar.open{clip-path:circle(150% at 50% 100%);pointer-events:auto;transition:clip-path .44s cubic-bezier(.22,1,.36,1)}
+.seatmap-action-toolbar{display:flex;flex-direction:column;position:fixed;left:0;right:0;bottom:0;z-index:401;background:none;border:none;padding:12px 16px calc(10px + env(safe-area-inset-bottom,0px));pointer-events:auto}
 .seatmap-toolbar-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--parchment)}
 .seatmap-toolbar-row{display:flex;align-items:stretch;gap:2px}
 .seatmap-select-count{font-family:var(--sans);font-size:12.5px;font-weight:800;color:var(--ink2);padding:0;white-space:nowrap;flex-shrink:0;border:none;background:transparent;cursor:pointer;-webkit-appearance:none;appearance:none;margin:0;line-height:1.4}
@@ -1056,6 +1034,22 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-dock-btn.active{background:var(--sky-bg);color:var(--sky)}
 .seatmap-dock-btn.danger{color:#b91c1c}
 .seatmap-dock-btn.danger:active{background:rgba(185,28,28,.12)}
+
+/* ── Seatmap confirm sheet ── App's own stand-in for window.confirm(),
+   styled to match the rest of the seatmap's bottom-sheet UI instead of
+   popping the browser's native dialog. Purely visual/promise-based — see
+   showSmConfirm() in the script below. */
+.sm-confirm-overlay{position:fixed;inset:0;z-index:900;background:rgba(35,26,20,.44);display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s ease}
+.sm-confirm-overlay.open{opacity:1;pointer-events:auto}
+.sm-confirm-card{width:100%;max-width:400px;background:#fff;border-radius:20px 20px 0 0;padding:20px 20px calc(16px + env(safe-area-inset-bottom,0px));box-shadow:var(--shadow-lg);transform:translateY(18px);transition:transform .22s cubic-bezier(.22,1,.36,1)}
+.sm-confirm-overlay.open .sm-confirm-card{transform:translateY(0)}
+.sm-confirm-msg{font-family:var(--sans);font-size:14px;line-height:1.5;color:var(--ink2);margin-bottom:18px;font-weight:500}
+.sm-confirm-actions{display:flex;gap:10px}
+.sm-confirm-cancel,.sm-confirm-ok{flex:1;padding:12px;border:none;border-radius:var(--r-pill);font-family:var(--sans);font-size:13.5px;font-weight:700;cursor:pointer}
+.sm-confirm-cancel{background:var(--cream2);color:var(--ink2)}
+.sm-confirm-cancel:active{background:var(--parchment)}
+.sm-confirm-ok{background:var(--red);color:#fff}
+.sm-confirm-ok:active{background:#9c3324}
 .seatmap-toolbar-item-label{font-family:var(--sans);font-size:9.5px;font-weight:700;letter-spacing:.01em}
 /* Inline "name it and go" popover for Save — replaces navigating away to
    the full Saved Layouts sheet for what should be a two-second action.
@@ -1961,11 +1955,6 @@ body.lite-mode #liteModeTopBtn {
         <button type="button" class="seatmap-dock-btn danger" id="seatmapSelectBarDelete" title="Delete selected"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg><span class="seatmap-toolbar-item-label">Delete</span></button>
       </div>
     </div>
-    <button type="button" class="seatmap-action-fab" id="seatmapSelectModeBtn" title="Select tables to rotate, arrange, save, or delete">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="6" x2="20" y2="6"/><circle cx="9" cy="6" r="2" fill="currentColor" stroke="none"/><line x1="4" y1="12" x2="20" y2="12"/><circle cx="15" cy="12" r="2" fill="currentColor" stroke="none"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="11" cy="18" r="2" fill="currentColor" stroke="none"/></svg>
-      <span class="seatmap-fab-label">Select</span>
-      <svg class="seatmap-fab-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 15 12 9 18 15"/></svg>
-    </button>
   </div>
   <div class="seatmap-assign-banner" id="seatmapAssignBanner" style="display:none">
     <span id="seatmapAssignBannerText"></span>
@@ -1973,6 +1962,16 @@ body.lite-mode #liteModeTopBtn {
   </div>
 
   <div class="seatmap-trash" id="seatmapTrash"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></div>
+
+  <div class="sm-confirm-overlay" id="smConfirmOverlay">
+    <div class="sm-confirm-card">
+      <div class="sm-confirm-msg" id="smConfirmMsg"></div>
+      <div class="sm-confirm-actions">
+        <button type="button" class="sm-confirm-cancel" id="smConfirmCancelBtn">Cancel</button>
+        <button type="button" class="sm-confirm-ok" id="smConfirmOkBtn">Delete</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Saved seat-map layouts -->
@@ -6768,12 +6767,10 @@ var QUESTIONABLE_COLOR = '#7c3aed';
    is never invisible/uncertain even if it lands off the visible area. */
 var _lastAddedTableId = null;
 
-/* Multi-select mode — toggled on via the "Select tables" pill in the floor
-   controls. While active, tapping a table adds/removes it from
-   _multiSelectedIds (instead of the single-select/open behaviour above),
-   and the bottom select bar lets you bulk-delete or align the picked
-   tables along a shared edge or center line. */
-var _multiSelectMode = false;
+/* Multi-select — tapping a table adds/removes it from _multiSelectedIds,
+   and the bottom select bar (always on screen, buttons enabled once
+   something's picked) lets you bulk-delete or align the picked tables
+   along a shared edge or center line. */
 var _multiSelectedIds = [];
 
 /* True for the duration of an active table/marker drag. The floor plan
@@ -7031,19 +7028,11 @@ window.seatBadgeHtml = function(name){
    rotate button that only ever acted on a single "last touched" table,
    and a floating delete button) with one compact, thumb-reachable panel
    that always acts on the current selection. */
-function toggleMultiSelectMode(){
-  _multiSelectMode = !_multiSelectMode;
-  _multiSelectedIds = [];
-  closeAlignMenu();
-  renderSeatFloorPlan();
-}
-/* Done always closes, full stop — unlike the FAB (which only ever runs
-   while the panel's fully closed, so toggling is safe there), Done can
-   now be tapped while the panel is open just from having tapped a table
-   directly, with _multiSelectMode still false. Toggling in that case
-   would flip it to true and leave the panel open instead of closing it. */
+/* Done always closes, full stop — clears whatever's selected regardless
+   of how the selection was built up (tapping tables directly, Select
+   all, etc.), since there's no separate "mode" toggle anymore for it to
+   interact with. */
 function closeActionPanel(){
-  _multiSelectMode = false;
   _multiSelectedIds = [];
   closeAlignMenu();
   renderSeatFloorPlan();
@@ -7068,7 +7057,7 @@ function toggleSelectAll(){
 }
 
 /* Alignment popover — opens upward above the compact toolbar. Kept as its
-   own bit of state (separate from _multiSelectMode) so leaving it open
+   own bit of state (separate from the table selection) so leaving it open
    across a render (e.g. right after tapping an align option, before the
    click handler explicitly closes it) doesn't get silently reset. */
 var _alignMenuOpen = false;
@@ -7140,16 +7129,12 @@ function updateActionDock(){
   var show = seatMapView === 'floor' && seatMap.tables.length > 0;
   dock.style.display = show ? 'flex' : 'none';
 
-  var fab = document.getElementById('seatmapSelectModeBtn');
-  var toolbar = document.getElementById('seatmapActionToolbar');
-  // The panel opens as soon as anything's selected — whether that's one
-  // table tapped directly or several picked via the panel/FAB — not just
-  // when formal multi-select mode is on. See the tap handler in
-  // wireFloorZoom() for how a table tap builds up _multiSelectedIds.
-  var panelOpen = _multiSelectMode || _multiSelectedIds.length > 0;
-  if(fab) fab.classList.toggle('hiding', panelOpen);
-  if(toolbar) toolbar.classList.toggle('open', panelOpen);
-  if(!panelOpen) closeAlignMenu();
+  // The toolbar strip is always on screen now (no more separate "Select"
+  // button to tap first) — it just sits there inert until something's
+  // selected, at which point its buttons light up. Closing the align menu
+  // still happens once the selection empties out, since that popover only
+  // makes sense while something's picked.
+  if(_multiSelectedIds.length === 0) closeAlignMenu();
 
   var n = _multiSelectedIds.length;
   var count = document.getElementById('seatmapSelectCount');
@@ -7357,20 +7342,48 @@ function centerSelectedTablesOnCanvas(){
   renderSeatFloorPlan();
 }
 
+/* ── App's own confirm sheet ──
+   Stand-in for window.confirm() that matches the rest of the seatmap's
+   bottom-sheet styling instead of the browser's native dialog box.
+   Returns a Promise<boolean> (resolves true on Delete, false on Cancel
+   or tapping outside), so every call site just becomes a .then(). */
+var _smConfirmResolve = null;
+function showSmConfirm(message, okLabel){
+  return new Promise(function(resolve){
+    var overlay = document.getElementById('smConfirmOverlay');
+    var msg = document.getElementById('smConfirmMsg');
+    var okBtn = document.getElementById('smConfirmOkBtn');
+    if(!overlay || !msg || !okBtn){ resolve(window.confirm(message)); return; } // graceful fallback if the sheet markup is ever missing
+    msg.textContent = message;
+    okBtn.textContent = okLabel || 'Delete';
+    _smConfirmResolve = resolve;
+    overlay.classList.add('open');
+  });
+}
+function _closeSmConfirm(result){
+  var overlay = document.getElementById('smConfirmOverlay');
+  if(overlay) overlay.classList.remove('open');
+  var resolve = _smConfirmResolve;
+  _smConfirmResolve = null;
+  if(resolve) resolve(result);
+}
+
 function deleteMultiSelected(){
   var picked = seatMap.tables.filter(function(t){ return _multiSelectedIds.indexOf(t.id) !== -1; });
   if(!picked.length) return;
   var label = picked.length===1 ? ('"'+picked[0].name+'"') : (picked.length+' tables');
-  if(!confirm('Delete '+label+'? Anyone seated there will be unassigned.')) return;
-  picked.forEach(function(t){
-    for(var n=1;n<=t.seats;n++) delete seatMap.assignments[seatKey(t.id,n)];
+  showSmConfirm('Delete '+label+'? Anyone seated there will be unassigned.', 'Delete').then(function(ok){
+    if(!ok) return;
+    picked.forEach(function(t){
+      for(var n=1;n<=t.seats;n++) delete seatMap.assignments[seatKey(t.id,n)];
+    });
+    var ids = _multiSelectedIds.slice();
+    seatMap.tables = seatMap.tables.filter(function(x){ return ids.indexOf(x.id) === -1; });
+    _multiSelectedIds = [];
+    saveSeatMap();
+    renderSeatMap();
+    if(typeof renderGuestList==='function') renderGuestList();
   });
-  var ids = _multiSelectedIds.slice();
-  seatMap.tables = seatMap.tables.filter(function(x){ return ids.indexOf(x.id) === -1; });
-  _multiSelectedIds = [];
-  saveSeatMap();
-  renderSeatMap();
-  if(typeof renderGuestList==='function') renderGuestList();
 }
 function addTable(){
   // New tables pick up seatMap.defaultShape — the shape you last
@@ -7387,12 +7400,14 @@ function addTable(){
 function removeTable(id){
   var t = seatMap.tables.find(function(x){return x.id===id;});
   if(!t) return;
-  if(!confirm('Delete "'+t.name+'"? Anyone seated there will be unassigned.')) return;
-  for(var n=1;n<=t.seats;n++) delete seatMap.assignments[seatKey(id,n)];
-  seatMap.tables = seatMap.tables.filter(function(x){return x.id!==id;});
-  saveSeatMap();
-  renderSeatMap();
-  if(typeof renderGuestList==='function') renderGuestList();
+  showSmConfirm('Delete "'+t.name+'"? Anyone seated there will be unassigned.', 'Delete').then(function(ok){
+    if(!ok) return;
+    for(var n=1;n<=t.seats;n++) delete seatMap.assignments[seatKey(id,n)];
+    seatMap.tables = seatMap.tables.filter(function(x){return x.id!==id;});
+    saveSeatMap();
+    renderSeatMap();
+    if(typeof renderGuestList==='function') renderGuestList();
+  });
 }
 function renameTable(id, name){
   var t = seatMap.tables.find(function(x){return x.id===id;});
@@ -7529,10 +7544,13 @@ function loadSeatmapLayout(id){
 }
 function deleteSeatmapLayout(id){
   var l = (seatMap.savedLayouts||[]).find(function(x){return x.id===id;});
-  if(!l || !confirm('Delete saved layout "'+l.name+'"? This can\'t be undone.')) return;
-  seatMap.savedLayouts = seatMap.savedLayouts.filter(function(x){return x.id!==id;});
-  saveSeatMap();
-  renderSeatmapLayoutsList();
+  if(!l) return;
+  showSmConfirm('Delete saved layout "'+l.name+'"? This can\'t be undone.', 'Delete').then(function(ok){
+    if(!ok) return;
+    seatMap.savedLayouts = seatMap.savedLayouts.filter(function(x){return x.id!==id;});
+    saveSeatMap();
+    renderSeatmapLayoutsList();
+  });
 }
 
 /* Shared "N tables · X of Y seated [· Z unseated]" header line for both
@@ -7709,7 +7727,6 @@ function setSeatMapView(v){
   var btn = document.getElementById('seatmapViewToggle');
   if(btn) btn.classList.toggle('active', v==='floor');
   // Multi-select/alignment only makes sense on the spatial floor plan.
-  _multiSelectMode = false;
   _multiSelectedIds = [];
   renderSeatMap();
 }
@@ -8667,7 +8684,7 @@ function wireFloorDrag(){
       node.classList.add('dragging');
       try{ node.setPointerCapture(e.pointerId); }catch(err){}
 
-      groupDrag = idAttr === 'tableId' && _multiSelectMode && _multiSelectedIds.length > 1 && _multiSelectedIds.indexOf(node.dataset.tableId) !== -1;
+      groupDrag = idAttr === 'tableId' && _multiSelectedIds.length > 1 && _multiSelectedIds.indexOf(node.dataset.tableId) !== -1;
       if(groupDrag){
         groupStarts = _multiSelectedIds.map(function(id){
           var n = canvas.querySelector('.seatmap-table-node[data-table-id="'+id+'"]');
@@ -8795,12 +8812,7 @@ function wireFloorDrag(){
         saveSeatMap();
       }
       if(!moved){
-        if(_multiSelectMode){
-          // Real multi-select mode (entered via the FAB) — every tap
-          // always just toggles, no special-casing, and never opens the
-          // seat sheet, so you can keep picking tables freely.
-          toggleTableInMultiSelect(id);
-        } else if(_multiSelectedIds.length === 1 && _multiSelectedIds[0] === id){
+        if(_multiSelectedIds.length === 1 && _multiSelectedIds[0] === id){
           // The one-and-only selected table, tapped again — this specific
           // case opens its seat sheet instead of toggling it off, so
           // assigning a guest still only takes two taps on the table
@@ -8849,7 +8861,7 @@ function wireFloorDrag(){
     }
     node.addEventListener('pointerdown', function(e){
       if(e.target.closest('.seatmap-node-dot') || e.target.closest('.seatmap-node-chair-btn')) return;
-      if(_multiSelectMode) return; // taps are for toggling selection here, not the long-press delete
+      if(_multiSelectedIds.length > 0) return; // something's already selected — taps here build the selection, not the long-press delete
       pressStartX = e.clientX; pressStartY = e.clientY;
       cancelLongPress();
       pressTimer = setTimeout(function(){
@@ -8876,8 +8888,8 @@ function wireFloorDrag(){
         l.pos = { x: parseFloat(node.style.left), y: parseFloat(node.style.top) };
         saveSeatMap();
       }
-      if(!moved && confirm('Remove this marker?')) removeLandmark(id);
-      else if(moved) renderSeatFloorPlan();
+      if(!moved) showSmConfirm('Remove this marker?', 'Remove').then(function(ok){ if(ok) removeLandmark(id); });
+      else renderSeatFloorPlan();
     }, function(id){
       removeLandmark(id);
     });
@@ -9032,8 +9044,6 @@ var _smViewToggle = document.getElementById('seatmapViewToggle');
 if(_smViewToggle) _smViewToggle.addEventListener('click', function(){
   setSeatMapView(seatMapView==='floor' ? 'list' : 'floor');
 });
-var _smSelectModeBtn = document.getElementById('seatmapSelectModeBtn');
-if(_smSelectModeBtn) _smSelectModeBtn.addEventListener('click', toggleMultiSelectMode);
 var _smSelectBarRotate = document.getElementById('seatmapSelectBarRotate');
 if(_smSelectBarRotate) _smSelectBarRotate.addEventListener('click', rotateMultiSelected);
 var _smSelectCount = document.getElementById('seatmapSelectCount');
@@ -9153,6 +9163,12 @@ document.addEventListener('click', function(e){
     document.querySelectorAll('.ts-pop.open').forEach(function(p){ p.classList.remove('open'); });
   }
 });
+var _smConfirmOverlay = document.getElementById('smConfirmOverlay');
+var _smConfirmCancelBtn = document.getElementById('smConfirmCancelBtn');
+var _smConfirmOkBtn = document.getElementById('smConfirmOkBtn');
+if(_smConfirmCancelBtn) _smConfirmCancelBtn.addEventListener('click', function(){ _closeSmConfirm(false); });
+if(_smConfirmOkBtn) _smConfirmOkBtn.addEventListener('click', function(){ _closeSmConfirm(true); });
+if(_smConfirmOverlay) _smConfirmOverlay.addEventListener('click', function(e){ if(e.target === _smConfirmOverlay) _closeSmConfirm(false); });
 
 })();
 </script>
