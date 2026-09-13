@@ -956,17 +956,18 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-view-toggle{flex-shrink:0;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;border:1.5px solid var(--parchment);background:var(--cream2);color:var(--muted);cursor:pointer;padding:0}
 .seatmap-view-toggle.active{background:var(--sky-bg);color:var(--sky);border-color:transparent}
 .seatmap-view-toggle:disabled{opacity:.35;pointer-events:none}
-/* ── Bottom-right Action Dock ──
-   A single thumb-reachable control in the bottom-right corner (where a
-   right-handed thumb naturally rests on a phone). It's a plain FAB until
-   one or more tables are selected, then expands in place into a compact
-   toolbar (rotate / align / delete / done) instead of the old bar that
-   stretched across the full width of the screen. */
-/* Bottom-center now, not the bottom-right corner — sets up the tab below
-   to sit flush with the screen edge like a bottom-sheet grabber, and
-   lets the bar-morph grow symmetrically from dead center instead of
-   lopsided from a corner. */
-.seatmap-action-dock{position:fixed;left:50%;bottom:env(safe-area-inset-bottom,0px);transform:translateX(-50%);z-index:400;display:flex;flex-direction:column;align-items:center;gap:8px}
+/* ── Bottom-center Action Dock ──
+   Wraps the docked "Select" tab and, once tapped, the full-width action
+   bar it morphs into (see .seatmap-action-toolbar below). Centered via
+   left:0;right:0;margin:auto rather than the usual
+   left:50%+transform:translateX(-50%) — a transform on this element
+   would make it the containing block for its position:fixed children
+   (the toolbar), which breaks the toolbar's own left:0;right:0 from
+   meaning "full viewport width" and shrinks it down to whatever this
+   dock's own (much narrower, content-sized) box is instead — that was
+   the actual root cause of the toolbar once rendering as a narrow box
+   with content spilling outside it. */
+.seatmap-action-dock{position:fixed;left:0;right:0;width:-webkit-fit-content;width:fit-content;margin:0 auto;bottom:env(safe-area-inset-bottom,0px);z-index:400;display:flex;flex-direction:column;align-items:center;gap:8px}
 /* Breaking from the floating-circle-in-a-corner convention entirely: a
    docked tab flush with the bottom edge, like a bottom-sheet grabber
    that's already peeking up before you've touched anything — it
