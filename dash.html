@@ -966,9 +966,14 @@ body.lite-mode #liteModeTopBtn {
 /* A FAB should be exactly one thing: a circle, one icon, nothing else —
    the pill-with-a-label version was clutter for a button that only ever
    does one job. Keeps the frosted dark-navy glass so it still reads as
-   the same system as the bar it opens, just without the redundant text. */
-.seatmap-action-fab{flex-shrink:0;width:56px;height:56px;border-radius:50%;border:1px solid rgba(255,255,255,.16);background:rgba(15,28,40,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);color:#EAF3FB;cursor:pointer;box-shadow:0 10px 26px rgba(8,16,26,.45),inset 0 1px 1px rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center}
-.seatmap-action-fab:active{background:rgba(15,28,40,.98)}
+   the same system as the bar it opens, just without the redundant text.
+   .hiding animates it away with a shrink+spin rather than a hard
+   display:none — see the toolbar's morph-in below, which this is timed
+   to match, so the circle visibly becomes the bar instead of the two
+   just swapping places. */
+.seatmap-action-fab{flex-shrink:0;width:56px;height:56px;border-radius:50%;border:1px solid rgba(255,255,255,.16);background:rgba(15,28,40,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);color:#EAF3FB;cursor:pointer;box-shadow:0 10px 26px rgba(8,16,26,.45),inset 0 1px 1px rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;transform:scale(1) rotate(0deg);opacity:1;transition:transform .32s cubic-bezier(.32,1.6,.5,1),opacity .18s ease-out}
+.seatmap-action-fab:active{transform:scale(.9);background:rgba(15,28,40,.98)}
+.seatmap-action-fab.hiding{transform:scale(.2) rotate(-45deg);opacity:0;pointer-events:none;transition:transform .28s cubic-bezier(.4,0,1,1),opacity .22s ease-in}
 /* Redesigned as a proper two-tier card rather than one long row of icons:
    a header strip (selection count + Done, divided from the row below)
    and an icon row underneath, grouped by function with thin dividers —
@@ -986,8 +991,18 @@ body.lite-mode #liteModeTopBtn {
    descendant positions against the viewport regardless of an ancestor's
    flex layout), so the FAB above it can stay a small corner trigger
    while this becomes the full-width bar once tapped open. */
-.seatmap-action-toolbar{display:none;flex-direction:column;position:fixed;left:0;right:0;bottom:0;z-index:401;background:rgba(15,28,40,.94);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,.14);border-radius:20px 20px 0 0;padding:12px 16px calc(10px + env(safe-area-inset-bottom,0px));box-shadow:0 -12px 32px rgba(8,16,26,.4)}
-.seatmap-action-toolbar.open{display:flex}
+/* The morph itself: instead of display:none/flex hard-swapping the FAB
+   and this bar (which reads as two unrelated elements taking turns), the
+   bar grows from the bottom-right corner — right where the FAB is
+   sitting — expanding into its full-width shape as the FAB simultaneously
+   shrinks away into that same corner (see .seatmap-action-fab.hiding
+   above). The two are timed together so it reads as one continuous
+   shape-shift, not a cut. transform-origin sits at the corner rather
+   than center so the growth direction matches "coming from the FAB".
+   display stays flex at all times — display can't be transitioned, so
+   visibility is entirely via transform/opacity/pointer-events instead. */
+.seatmap-action-toolbar{display:flex;flex-direction:column;position:fixed;left:0;right:0;bottom:0;z-index:401;background:rgba(15,28,40,.94);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,.14);border-radius:20px 20px 0 0;padding:12px 16px calc(10px + env(safe-area-inset-bottom,0px));box-shadow:0 -12px 32px rgba(8,16,26,.4);transform-origin:calc(100% - 40px) bottom;transform:scale(.08,.08) translateY(10px);opacity:0;pointer-events:none;transition:transform .38s cubic-bezier(.32,1.5,.44,1),opacity .22s ease-out}
+.seatmap-action-toolbar.open{transform:scale(1,1) translateY(0);opacity:1;pointer-events:auto;transition:transform .42s cubic-bezier(.28,1.5,.4,1),opacity .28s ease-out}
 .seatmap-toolbar-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid rgba(255,255,255,.12)}
 .seatmap-toolbar-row{display:flex;align-items:stretch;gap:2px}
 .seatmap-select-count{font-family:var(--sans);font-size:12.5px;font-weight:800;color:#EAF3FB;padding:0;white-space:nowrap;flex-shrink:0;border:none;background:transparent;cursor:pointer;-webkit-appearance:none;appearance:none;margin:0;line-height:1.4}
@@ -7083,7 +7098,7 @@ function updateActionDock(){
 
   var fab = document.getElementById('seatmapSelectModeBtn');
   var toolbar = document.getElementById('seatmapActionToolbar');
-  if(fab) fab.style.display = _multiSelectMode ? 'none' : 'flex';
+  if(fab) fab.classList.toggle('hiding', _multiSelectMode);
   if(toolbar) toolbar.classList.toggle('open', _multiSelectMode);
   if(!_multiSelectMode) closeAlignMenu();
 
