@@ -7236,6 +7236,35 @@ function updateSeatmapUndoBtn(){
 }
 
 loadSeatMap();
+
+/* One-time seed: the first time this loads with no tables configured yet,
+   populate the seat map with the initial table allocation worked out from
+   the planner's seating-plan photos (56 guests, 4 tables). Gated by
+   _seedV so it only ever runs once, and only touches a seat map that has
+   zero tables — it will never overwrite real data you've since entered
+   or rearranged. Same one-shot pattern as _colorResetV above. */
+var SEATMAP_SEED_V = 1;
+(function seedInitialSeatMap(){
+  if(seatMap._seedV === SEATMAP_SEED_V) return;
+  seatMap._seedV = SEATMAP_SEED_V;
+  if(seatMap.tables.length){
+    try{ localStorage.setItem('ww_seatmap', JSON.stringify(seatMap)); }catch(e){}
+    return; // already has real data — mark as seeded, but don't touch it
+  }
+  var TABLES = [
+    { name:'Table 1 — Family & Couple', names:['Lukas','Silas','Mama E','Kris','Papa E','Elea','Elnur','Islam','Arina','Lars','Mama A','Val','Papa A','Selah'] },
+    { name:'Table 2 — Friend Group A', names:['Vane','Kathi','Plievi','Benny','Jenny','Lena','Jonas','Lucas','Felipe','Frankie','Debbie','Jonas G','Simon','Lisa G','Liam!'] },
+    { name:'Table 3 — Friend Group B + Kids', names:['Nikita','Ivar','Anna','Bente','Omi','Rahim','Olga','Zema','Igor','Elisabeth','Pavel','Blake','Kid 1','Kid 2'] },
+    { name:'Table 4 — Friend Group C', names:['Andre','Becky','Masha','Kseniia','Sofa','Valerie','Ilya','Johannes','Ben','Liz','Anna','Steffi','Toma'] }
+  ];
+  TABLES.forEach(function(spec){
+    var t = {id:uid(), name:spec.name, seats:spec.names.length, shape:seatMap.defaultShape||'rect'};
+    seatMap.tables.push(t);
+    spec.names.forEach(function(nm,i){ seatMap.assignments[seatKey(t.id,i+1)] = nm; });
+  });
+  try{ localStorage.setItem('ww_seatmap', JSON.stringify(seatMap)); }catch(e){}
+})();
+
 pushSeatMapUndoSnapshot(); // baseline snapshot so the very first change this session is itself undoable
 
 /* ── SEAT MAP SYNC ──
