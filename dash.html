@@ -901,6 +901,7 @@ body.lite-mode #liteModeTopBtn {
 .agenda-sheet-tab{flex-shrink:0;display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:var(--r-pill);background:var(--cream2);border:1.5px solid transparent;color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:var(--sans)}
 .agenda-sheet-tab.active{background:var(--rose-soft);color:var(--rose-deep);border-color:var(--rose)}
 .agenda-sheet-tab .del{opacity:.5;font-size:11px;padding:0 1px}
+.agenda-sheet-tab .ren{opacity:.6;font-size:10px;padding:0 1px}
 .agenda-sheet-add{flex-shrink:0;width:30px;height:30px;border-radius:50%;border:1.5px dashed var(--soft);background:transparent;color:var(--muted);cursor:pointer;font-size:15px;line-height:1;display:flex;align-items:center;justify-content:center}
 .agenda-body{flex:1;overflow-y:auto;padding:14px 14px 110px}
 .agenda-empty{text-align:center;color:var(--soft);font-size:13px;padding:40px 20px}
@@ -9498,22 +9499,31 @@ if(_smExportOverlay) _smExportOverlay.addEventListener('click', function(e){ if(
       var active = s.id === activeSheetId;
       html += '<div class="agenda-sheet-tab'+(active?' active':'')+'" data-sheet="'+s.id+'">'
             + '<span class="sheet-name">'+escapeHtml(s.name)+'</span>'
+            + (active ? '<span class="ren" data-rename-sheet="'+s.id+'" title="Rename">✎</span>' : '')
             + (agenda.sheets.length>1 ? '<span class="del" data-del-sheet="'+s.id+'" title="Delete sheet">✕</span>' : '')
             + '</div>';
     });
     bar.innerHTML = html + '<button class="agenda-sheet-add" id="agendaAddSheetBtn" title="New sheet">+</button>';
 
+    function renameSheet(id){
+      var s = agenda.sheets.filter(function(x){return x.id===id;})[0];
+      if(!s) return;
+      var name = prompt('Rename sheet', s.name);
+      if(name && name.trim()){ s.name = name.trim(); saveAgenda(); renderAll(); }
+    }
     bar.querySelectorAll('.agenda-sheet-tab').forEach(function(tab){
       tab.addEventListener('click', function(e){
-        if(e.target.hasAttribute('data-del-sheet')) return;
-        activeSheetId = tab.getAttribute('data-sheet');
+        if(e.target.hasAttribute('data-del-sheet') || e.target.hasAttribute('data-rename-sheet')) return;
+        var id = tab.getAttribute('data-sheet');
+        if(id === activeSheetId) return; // already active — use the pencil to rename
+        activeSheetId = id;
         renderAll();
       });
-      tab.querySelector('.sheet-name').addEventListener('dblclick', function(){
-        var s = agenda.sheets.filter(function(x){return x.id===tab.getAttribute('data-sheet');})[0];
-        if(!s) return;
-        var name = prompt('Rename sheet', s.name);
-        if(name && name.trim()){ s.name = name.trim(); saveAgenda(); renderAll(); }
+    });
+    bar.querySelectorAll('[data-rename-sheet]').forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        renameSheet(btn.getAttribute('data-rename-sheet'));
       });
     });
     bar.querySelectorAll('[data-del-sheet]').forEach(function(btn){
@@ -9564,7 +9574,7 @@ if(_smExportOverlay) _smExportOverlay.addEventListener('click', function(e){ if(
       var isAuto = (ev.duration==null);
       html += '<div class="agenda-item" data-ev="'+ev.id+'">'
         + '<div class="agenda-item-rail">'
-          + '<input class="agenda-item-time" data-field="time" placeholder="--:--" value="'+escapeHtml(ev.time||'')+'" />'
+          + '<input class="agenda-item-time" type="time" data-field="time" value="'+escapeHtml(ev.time||'')+'" />'
           + '<div class="agenda-item-dur" data-dur-toggle="'+ev.id+'" title="How long this event lasts, until the next timed event. Tap to set your own.">'
             + (durVal!=null ? (isAuto ? '~'+durLabel(durVal)+' auto' : durLabel(durVal)) : '<span style="opacity:.4">set dur.</span>')
           + '</div>'
@@ -9597,6 +9607,10 @@ if(_smExportOverlay) _smExportOverlay.addEventListener('click', function(e){ if(
           ev[inp.getAttribute('data-field')] = inp.value;
         });
         inp.addEventListener('blur', function(){ saveAgenda(); renderBody(); });
+        inp.addEventListener('change', function(){
+          ev[inp.getAttribute('data-field')] = inp.value;
+          saveAgenda(); renderBody();
+        });
       });
       card.querySelectorAll('[data-move]').forEach(function(btn){
         btn.addEventListener('click', function(){
