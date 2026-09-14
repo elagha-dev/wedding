@@ -926,10 +926,10 @@ body.lite-mode #liteModeTopBtn {
 .agenda-share-btn{width:30px;height:30px;border-radius:50%;border:none;background:var(--cream2);color:var(--rose-deep);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:4px}
 
 /* ── COUNTDOWN ── */
-.countdown-card{margin:14px 0;padding:12px 16px;border-radius:var(--r);background:linear-gradient(135deg,var(--rose),var(--rose-deep));box-shadow:var(--shadow);display:flex;align-items:baseline;gap:8px;color:#fff}
-.countdown-num{font-family:var(--sans);font-size:26px;font-weight:700;line-height:1}
-.countdown-label{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;opacity:.85}
-.countdown-date{margin-left:auto;font-size:11px;font-weight:600;opacity:.85;white-space:nowrap}
+.countdown-card{margin:10px 0 4px;padding:5px 11px;border-radius:var(--r-pill);background:var(--cream2);border:1px solid var(--parchment);display:inline-flex;align-items:baseline;gap:5px;color:var(--muted);width:auto}
+.countdown-num{font-family:var(--sans);font-size:12.5px;font-weight:700;line-height:1;color:var(--rose-deep)}
+.countdown-label{font-size:10px;font-weight:600;color:var(--muted)}
+.countdown-date{margin-left:5px;font-size:9.5px;color:var(--soft);white-space:nowrap}
 
 /* ── AGENDA READ-ONLY SHARE VIEW ── */
 .agenda-ro-screen{position:fixed;inset:0;z-index:5000;background:var(--cream);overflow-y:auto;padding:0 0 40px}
@@ -9445,6 +9445,29 @@ if(_smExportOverlay) _smExportOverlay.addEventListener('click', function(e){ if(
     return m+'m';
   }
 
+  // Accepts loose, human duration text and converts it to a whole number
+  // of minutes, or returns null if it can't be understood. Handles:
+  // plain minutes ("90"), "1h", "1h30", "1h30m", "1hr 30min", "45m",
+  // "45min", and clock-style "1:30".
+  function parseDurationInput(str){
+    if(str==null) return null;
+    str = String(str).trim().toLowerCase();
+    if(str==='') return null;
+    var mColon = /^(\d{1,3}):([0-5]?\d)$/.exec(str);
+    if(mColon) return parseInt(mColon[1],10)*60 + parseInt(mColon[2],10);
+    var mHM = /^(\d+(?:\.\d+)?)\s*(?:h|hr|hrs|hour|hours)\s*(?:(\d+)\s*(?:m|min|mins|minute|minutes)?)?$/.exec(str);
+    if(mHM){
+      var hours = parseFloat(mHM[1]);
+      var mins = mHM[2] ? parseInt(mHM[2],10) : 0;
+      return Math.round(hours*60) + mins;
+    }
+    var mM = /^(\d+(?:\.\d+)?)\s*(?:m|min|mins|minute|minutes)$/.exec(str);
+    if(mM) return Math.round(parseFloat(mM[1]));
+    var mNum = /^(\d+(?:\.\d+)?)$/.exec(str);
+    if(mNum) return Math.round(parseFloat(mNum[1]));
+    return null;
+  }
+
   // Compute the auto duration (to the next event with a valid time) for
   // every event in a sheet, in order. Only events with a parsed time get
   // an auto duration; the last timed event (or one already followed by
@@ -9542,8 +9565,8 @@ if(_smExportOverlay) _smExportOverlay.addEventListener('click', function(e){ if(
       html += '<div class="agenda-item" data-ev="'+ev.id+'">'
         + '<div class="agenda-item-rail">'
           + '<input class="agenda-item-time" data-field="time" placeholder="--:--" value="'+escapeHtml(ev.time||'')+'" />'
-          + '<div class="agenda-item-dur" data-dur-toggle="'+ev.id+'">'
-            + (durVal!=null ? (isAuto ? '~'+durLabel(durVal) : durLabel(durVal)+' ✎') : '<span style="opacity:.4">set dur.</span>')
+          + '<div class="agenda-item-dur" data-dur-toggle="'+ev.id+'" title="How long this event lasts, until the next timed event. Tap to set your own.">'
+            + (durVal!=null ? (isAuto ? '~'+durLabel(durVal)+' auto' : durLabel(durVal)) : '<span style="opacity:.4">set dur.</span>')
           + '</div>'
         + '</div>'
         + '<div class="agenda-item-card">'
@@ -9595,14 +9618,25 @@ if(_smExportOverlay) _smExportOverlay.addEventListener('click', function(e){ if(
       var durToggle = card.querySelector('[data-dur-toggle]');
       if(durToggle) durToggle.addEventListener('click', function(){
         if(durToggle.querySelector('input')) return; // already editing
-        var current = ev.duration!=null ? ev.duration : (ev._auto!=null ? ev._auto : '');
-        durToggle.innerHTML = '<input type="number" min="0" placeholder="min" value="'+(current===''?'':current)+'" />'
+        var current = ev.duration!=null ? ev.duration : ev._auto;
+        var prefill = current!=null ? durLabel(current) : '';
+        durToggle.innerHTML = '<input type="text" inputmode="text" placeholder="90 / 1h30m / 1:30" value="'+escapeHtml(prefill)+'" />'
           + '<span style="cursor:pointer;margin-left:2px" data-clear-dur="1" title="Use automatic">↺</span>';
         var input = durToggle.querySelector('input');
         input.focus(); input.select();
         function commit(){
-          var v = parseInt(input.value,10);
-          ev.duration = isNaN(v) ? null : v;
+          var raw = input.value.trim();
+          if(raw===''){ ev.duration = null; saveAgenda(); renderBody(); return; }
+          var parsed = parseDurationInput(raw);
+          if(parsed==null || parsed<=0){
+            // couldn't understand it — flash red and revert rather than
+            // save something wrong
+            input.style.borderColor = 'var(--red)';
+            input.style.color = 'var(--red)';
+            setTimeout(function(){ renderBody(); }, 1000);
+            return;
+          }
+          ev.duration = parsed; // stored normalized, in minutes
           saveAgenda(); renderBody();
         }
         input.addEventListener('blur', commit);
