@@ -444,8 +444,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
    reads clearly on iOS/Android alike; the wrapping span adds the little
    caret since a <select> can't take a ::after. */
 .rsvp-guess-wrap{position:relative;display:inline-flex;flex-shrink:0}
-.rsvp-guess-wrap::after{content:'▾';position:absolute;right:4px;top:50%;transform:translateY(-50%);font-size:7px;color:inherit;pointer-events:none;opacity:.7}
-.rsvp-guess-select{-webkit-appearance:none;appearance:none;border:1px solid var(--parchment);background:var(--cream2);color:var(--muted);font-family:inherit;font-size:8.5px;font-weight:700;letter-spacing:.02em;border-radius:var(--r-pill);height:18px;line-height:16px;padding:0 14px 0 6px;cursor:pointer;flex-shrink:0;max-width:74px;text-align:center;text-align-last:center}
+.rsvp-guess-select{-webkit-appearance:none;-moz-appearance:none;appearance:none;border:1px solid var(--parchment);border-style:solid;background:var(--cream2);color:var(--muted);font-family:inherit;font-size:8.5px;font-weight:700;letter-spacing:.02em;border-radius:var(--r-pill);height:18px;line-height:16px;padding:0 8px;text-align:center;text-align-last:center;-moz-text-align-last:center;cursor:pointer;flex-shrink:0;max-width:74px}
 .rsvp-guess-select.rsvp-guess-maybe{background:#7c3aed;color:#fff;border:none}
 .rsvp-guess-select.rsvp-guess-yes{background:linear-gradient(135deg,#4ade80,#15803d);color:#fff;border:none;box-shadow:0 1px 5px rgba(21,128,61,.45)}
 .rsvp-guess-select.rsvp-guess-no{background:linear-gradient(135deg,#f87171,#b91c1c);color:#fff;border:none;box-shadow:0 1px 5px rgba(185,28,28,.45)}
