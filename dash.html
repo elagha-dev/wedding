@@ -887,6 +887,42 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-close{width:30px;height:30px;border-radius:50%;border:none;background:var(--cream2);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;line-height:1;flex-shrink:0}
 .seatmap-add-btn{flex-shrink:0;padding:8px 14px;border-radius:var(--r-pill);border:none;background:linear-gradient(135deg,var(--rose),var(--rose-deep));color:#fff;font-family:var(--sans);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
 .seatmap-body{flex:1;overflow-y:auto;padding:14px 14px 100px}
+
+/* ── AGENDA ── */
+.agenda-overlay{position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:398;opacity:0;pointer-events:none;transition:opacity .25s}
+.agenda-overlay.open{opacity:1;pointer-events:all}
+.agenda-screen{position:fixed;inset:0;z-index:399;background:var(--cream);display:flex;flex-direction:column;transform:translateY(100%);transition:transform .28s cubic-bezier(.32,.72,.35,1)}
+.agenda-screen.open{transform:translateY(0)}
+.agenda-hdr{flex-shrink:0;display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--cream);border-bottom:1px solid var(--parchment);box-shadow:0 2px 8px rgba(0,0,0,.03)}
+.agenda-hdr-title{font-family:var(--serif,var(--sans));font-size:17px;font-weight:800;color:var(--ink2);flex:1}
+.agenda-hdr-sub{font-family:var(--sans);font-size:11px;color:var(--muted);font-weight:600}
+.agenda-close{width:30px;height:30px;border-radius:50%;border:none;background:var(--cream2);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;line-height:1;flex-shrink:0}
+.agenda-sheets-bar{flex-shrink:0;display:flex;align-items:center;gap:6px;padding:10px 14px;overflow-x:auto;border-bottom:1px solid var(--parchment);background:var(--cream)}
+.agenda-sheet-tab{flex-shrink:0;display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:var(--r-pill);background:var(--cream2);border:1.5px solid transparent;color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:var(--sans)}
+.agenda-sheet-tab.active{background:var(--rose-soft);color:var(--rose-deep);border-color:var(--rose)}
+.agenda-sheet-tab .del{opacity:.5;font-size:11px;padding:0 1px}
+.agenda-sheet-add{flex-shrink:0;width:30px;height:30px;border-radius:50%;border:1.5px dashed var(--soft);background:transparent;color:var(--muted);cursor:pointer;font-size:15px;line-height:1;display:flex;align-items:center;justify-content:center}
+.agenda-body{flex:1;overflow-y:auto;padding:14px 14px 110px}
+.agenda-empty{text-align:center;color:var(--soft);font-size:13px;padding:40px 20px}
+.agenda-timeline{position:relative}
+.agenda-item{position:relative;display:flex;gap:10px;margin-bottom:10px}
+.agenda-item-rail{flex-shrink:0;width:54px;display:flex;flex-direction:column;align-items:flex-end;padding-top:12px}
+.agenda-item-time{background:transparent;border:none;font-family:var(--sans);font-size:13px;font-weight:700;color:var(--rose-deep);text-align:right;width:54px;padding:0}
+.agenda-item-time::placeholder{color:var(--soft);font-weight:600}
+.agenda-item-dur{font-size:9px;color:var(--muted);margin-top:3px;text-align:right;width:54px;cursor:pointer}
+.agenda-item-dur input{width:38px;background:var(--cream2);border:1px solid var(--parchment);border-radius:6px;font-size:9px;text-align:center;color:var(--ink2);padding:1px 2px;font-family:var(--sans)}
+.agenda-item-card{flex:1;background:#fff;border-radius:var(--r-sm);box-shadow:var(--shadow-sm);border:1px solid rgba(196,149,106,.08);padding:10px 12px;min-width:0}
+.agenda-item-top{display:flex;align-items:center;gap:6px}
+.agenda-item-name{flex:1;border:none;background:transparent;font-family:var(--sans);font-size:14px;font-weight:700;color:var(--ink);min-width:0;padding:2px 0}
+.agenda-item-name::placeholder{color:var(--soft);font-weight:500}
+.agenda-item-move{width:22px;height:22px;border:none;background:transparent;color:var(--soft);cursor:pointer;font-size:13px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.agenda-item-move:disabled{opacity:.25;pointer-events:none}
+.agenda-item-del{width:22px;height:22px;border:none;background:transparent;color:var(--red);cursor:pointer;font-size:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center;opacity:.6}
+.agenda-item-detail-row{display:flex;align-items:center;gap:5px;margin-top:6px}
+.agenda-item-pin{flex-shrink:0;color:var(--soft)}
+.agenda-item-detail{flex:1;border:none;background:transparent;font-family:var(--sans);font-size:11.5px;color:var(--muted);min-width:0;padding:1px 0}
+.agenda-item-detail::placeholder{color:var(--soft)}
+.agenda-add-event-btn{position:fixed;left:16px;right:16px;bottom:20px;z-index:400;padding:13px;border-radius:var(--r-pill);border:none;background:linear-gradient(135deg,var(--rose),var(--rose-deep));color:#fff;font-family:var(--sans);font-size:13px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-lg);max-width:608px;margin:0 auto;display:block}
 .seatmap-empty{text-align:center;color:var(--muted);font-size:13px;padding:60px 24px;line-height:1.7}
 .seatmap-table-card{background:var(--cream);border:1.5px solid var(--parchment);border-radius:var(--r-md,14px);padding:12px 12px 14px;margin-bottom:14px;box-shadow:0 2px 10px rgba(0,0,0,.03)}
 .seatmap-table-hdr{display:flex;align-items:center;gap:6px;margin-bottom:10px}
@@ -1345,6 +1381,8 @@ body.lite-mode #liteModeTopBtn {
   <div style="flex:1"></div>
   <!-- Seat Map — sits right before RSVP, matching pill styling, bright light blue -->
   <button class="seatmap-toolbar-btn" id="seatMapBtn" title="Seat Map"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 11V5.5A1.5 1.5 0 0 1 6.5 4h11A1.5 1.5 0 0 1 19 5.5V11"/><path d="M4 11h16a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1z"/><path d="M5 15v4"/><path d="M19 15v4"/></svg></button>
+  <!-- Agenda -->
+  <button class="seatmap-toolbar-btn" id="agendaBtn" title="Agenda" style="background:linear-gradient(135deg,var(--rose),var(--rose-deep));box-shadow:0 2px 8px rgba(160,97,74,.35)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18"/><path d="M8 2v4"/><path d="M16 2v4"/><path d="M7.5 13h2"/><path d="M7.5 17h4"/></svg></button>
   <!-- RSVP -->
   <button class="rsvp-count-btn" id="rsvpCountBtn" title="RSVP Responses">
     <span class="rc-num" id="rsvpCountNum">—</span>
@@ -1905,6 +1943,20 @@ body.lite-mode #liteModeTopBtn {
   </div>
 </div>
 <!-- SEAT MAP -->
+<div class="agenda-overlay" id="agendaOverlay"></div>
+<div class="agenda-screen" id="agendaScreen">
+  <div class="agenda-hdr">
+    <div style="flex:1;min-width:0">
+      <div class="agenda-hdr-title">Agenda</div>
+      <div class="agenda-hdr-sub" id="agendaHdrSub"></div>
+    </div>
+    <button class="agenda-close" id="agendaCloseBtn">✕</button>
+  </div>
+  <div class="agenda-sheets-bar" id="agendaSheetsBar"></div>
+  <div class="agenda-body" id="agendaBody"></div>
+  <button class="agenda-add-event-btn" id="agendaAddEventBtn">+ Add Event</button>
+</div>
+
 <div class="seatmap-overlay" id="seatmapOverlay"></div>
 <div class="seatmap-screen" id="seatmapScreen">
   <div class="seatmap-hdr">
@@ -9300,6 +9352,284 @@ if(_smExportImageBtn) _smExportImageBtn.addEventListener('click', exportSeatmapI
 if(_smExportPdfBtn) _smExportPdfBtn.addEventListener('click', exportSeatmapPdf);
 if(_smExportOverlay) _smExportOverlay.addEventListener('click', function(e){ if(e.target === _smExportOverlay) closeSeatmapExport(); });
 
+})();
+</script>
+
+<script>
+/* ── AGENDA (run-of-show builder) ─────────────────────────────────────
+   Self-contained: own storage key, own ids, no dependency on the rest
+   of the app's globals. Multiple "sheets" (e.g. Church / Reception),
+   each an ordered list of timed events. Duration between an event and
+   the next timed event is computed automatically; tap it to type a
+   manual override instead. */
+(function(){
+  var STORE_KEY = 'ww_agenda';
+  var agenda = null;
+  var activeSheetId = null;
+
+  function uid(){ return 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+  function defaultAgenda(){
+    return { sheets: [ { id: uid(), name: 'Church', events: [] }, { id: uid(), name: 'Reception', events: [] } ] };
+  }
+
+  function loadAgenda(){
+    try{
+      var raw = localStorage.getItem(STORE_KEY);
+      if(raw){
+        var d = JSON.parse(raw);
+        if(d && Array.isArray(d.sheets) && d.sheets.length) return d;
+      }
+    }catch(e){}
+    return defaultAgenda();
+  }
+  function saveAgenda(){
+    try{ localStorage.setItem(STORE_KEY, JSON.stringify(agenda)); }catch(e){}
+  }
+
+  function getActiveSheet(){
+    var s = agenda.sheets.filter(function(x){ return x.id === activeSheetId; })[0];
+    return s || agenda.sheets[0];
+  }
+
+  // "14:30" -> 870 minutes since midnight; null if empty/invalid
+  function timeToMin(t){
+    if(!t) return null;
+    var m = /^(\d{1,2}):(\d{2})$/.exec(t.trim());
+    if(!m) return null;
+    var h = parseInt(m[1],10), mi = parseInt(m[2],10);
+    if(isNaN(h)||isNaN(mi)) return null;
+    return h*60+mi;
+  }
+  function minToLabel(mins){
+    if(mins==null) return '';
+    mins = ((mins % 1440) + 1440) % 1440;
+    var h = Math.floor(mins/60), m = mins%60;
+    var ap = h>=12 ? 'PM':'AM';
+    var h12 = h%12; if(h12===0) h12=12;
+    return h12+':'+(m<10?'0':'')+m+' '+ap;
+  }
+  function durLabel(mins){
+    if(mins==null || mins<0) return '';
+    var h = Math.floor(mins/60), m = mins%60;
+    if(h && m) return h+'h '+m+'m';
+    if(h) return h+'h';
+    return m+'m';
+  }
+
+  // Compute the auto duration (to the next event with a valid time) for
+  // every event in a sheet, in order. Only events with a parsed time get
+  // an auto duration; the last timed event (or one already followed by
+  // no further timed event) shows nothing unless manually overridden.
+  function computeAutoDurations(sheet){
+    var evs = sheet.events;
+    for(var i=0;i<evs.length;i++){
+      var t1 = timeToMin(evs[i].time);
+      evs[i]._auto = null;
+      if(t1==null) continue;
+      for(var j=i+1;j<evs.length;j++){
+        var t2 = timeToMin(evs[j].time);
+        if(t2!=null){
+          var diff = t2 - t1;
+          if(diff < 0) diff += 1440;
+          evs[i]._auto = diff;
+          break;
+        }
+      }
+    }
+  }
+
+  function renderSheetsBar(){
+    var bar = document.getElementById('agendaSheetsBar');
+    if(!bar) return;
+    var html = '';
+    agenda.sheets.forEach(function(s){
+      var active = s.id === activeSheetId;
+      html += '<div class="agenda-sheet-tab'+(active?' active':'')+'" data-sheet="'+s.id+'">'
+            + '<span class="sheet-name">'+escapeHtml(s.name)+'</span>'
+            + (agenda.sheets.length>1 ? '<span class="del" data-del-sheet="'+s.id+'" title="Delete sheet">✕</span>' : '')
+            + '</div>';
+    });
+    bar.innerHTML = html + '<button class="agenda-sheet-add" id="agendaAddSheetBtn" title="New sheet">+</button>';
+
+    bar.querySelectorAll('.agenda-sheet-tab').forEach(function(tab){
+      tab.addEventListener('click', function(e){
+        if(e.target.hasAttribute('data-del-sheet')) return;
+        activeSheetId = tab.getAttribute('data-sheet');
+        renderAll();
+      });
+      tab.querySelector('.sheet-name').addEventListener('dblclick', function(){
+        var s = agenda.sheets.filter(function(x){return x.id===tab.getAttribute('data-sheet');})[0];
+        if(!s) return;
+        var name = prompt('Rename sheet', s.name);
+        if(name && name.trim()){ s.name = name.trim(); saveAgenda(); renderAll(); }
+      });
+    });
+    bar.querySelectorAll('[data-del-sheet]').forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        var id = btn.getAttribute('data-del-sheet');
+        var s = agenda.sheets.filter(function(x){return x.id===id;})[0];
+        if(!s) return;
+        if(!confirm('Delete "'+s.name+'" and its events?')) return;
+        agenda.sheets = agenda.sheets.filter(function(x){return x.id!==id;});
+        if(activeSheetId===id) activeSheetId = agenda.sheets[0].id;
+        saveAgenda(); renderAll();
+      });
+    });
+    var addBtn = document.getElementById('agendaAddSheetBtn');
+    if(addBtn) addBtn.addEventListener('click', function(){
+      var name = prompt('Name this sheet (e.g. Church, Reception)');
+      if(!name || !name.trim()) return;
+      var s = { id: uid(), name: name.trim(), events: [] };
+      agenda.sheets.push(s);
+      activeSheetId = s.id;
+      saveAgenda(); renderAll();
+    });
+  }
+
+  function escapeHtml(s){
+    return String(s==null?'':s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  function renderBody(){
+    var body = document.getElementById('agendaBody');
+    var sub = document.getElementById('agendaHdrSub');
+    if(!body) return;
+    var sheet = getActiveSheet();
+    if(!sheet){ body.innerHTML=''; return; }
+    computeAutoDurations(sheet);
+    if(sub) sub.textContent = sheet.events.length + (sheet.events.length===1?' event':' events');
+
+    if(!sheet.events.length){
+      body.innerHTML = '<div class="agenda-empty">No events yet — tap "+ Add Event" to start building '+escapeHtml(sheet.name)+'\'s run of show.</div>';
+      return;
+    }
+    var html = '<div class="agenda-timeline">';
+    sheet.events.forEach(function(ev, i){
+      var durVal = (ev.duration!=null) ? ev.duration : ev._auto;
+      var isAuto = (ev.duration==null);
+      html += '<div class="agenda-item" data-ev="'+ev.id+'">'
+        + '<div class="agenda-item-rail">'
+          + '<input class="agenda-item-time" data-field="time" placeholder="--:--" value="'+escapeHtml(ev.time||'')+'" />'
+          + '<div class="agenda-item-dur" data-dur-toggle="'+ev.id+'">'
+            + (durVal!=null ? (isAuto ? '~'+durLabel(durVal) : durLabel(durVal)+' ✎') : '<span style="opacity:.4">set dur.</span>')
+          + '</div>'
+        + '</div>'
+        + '<div class="agenda-item-card">'
+          + '<div class="agenda-item-top">'
+            + '<input class="agenda-item-name" data-field="name" placeholder="Event name" value="'+escapeHtml(ev.name||'')+'" />'
+            + '<button class="agenda-item-move" data-move="up" '+(i===0?'disabled':'')+' title="Move up">↑</button>'
+            + '<button class="agenda-item-move" data-move="down" '+(i===sheet.events.length-1?'disabled':'')+' title="Move down">↓</button>'
+            + '<button class="agenda-item-del" data-del="1" title="Delete event">✕</button>'
+          + '</div>'
+          + '<div class="agenda-item-detail-row">'
+            + '<svg class="agenda-item-pin" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s7-7.58 7-12A7 7 0 0 0 5 10c0 4.42 7 12 7 12Z"/><circle cx="12" cy="10" r="2.6"/></svg>'
+            + '<input class="agenda-item-detail" data-field="detail" placeholder="Location, notes…" value="'+escapeHtml(ev.detail||'')+'" />'
+          + '</div>'
+        + '</div>'
+      + '</div>';
+    });
+    html += '</div>';
+    body.innerHTML = html;
+
+    // wire up per-item controls
+    body.querySelectorAll('.agenda-item').forEach(function(card){
+      var id = card.getAttribute('data-ev');
+      var ev = sheet.events.filter(function(x){return x.id===id;})[0];
+      if(!ev) return;
+
+      card.querySelectorAll('[data-field]').forEach(function(inp){
+        inp.addEventListener('input', function(){
+          ev[inp.getAttribute('data-field')] = inp.value;
+        });
+        inp.addEventListener('blur', function(){ saveAgenda(); renderBody(); });
+      });
+      card.querySelectorAll('[data-move]').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var idx = sheet.events.indexOf(ev);
+          var dir = btn.getAttribute('data-move')==='up' ? -1 : 1;
+          var swapIdx = idx+dir;
+          if(swapIdx<0||swapIdx>=sheet.events.length) return;
+          var tmp = sheet.events[idx];
+          sheet.events[idx] = sheet.events[swapIdx];
+          sheet.events[swapIdx] = tmp;
+          saveAgenda(); renderBody();
+        });
+      });
+      var delBtn = card.querySelector('[data-del]');
+      if(delBtn) delBtn.addEventListener('click', function(){
+        sheet.events = sheet.events.filter(function(x){return x.id!==id;});
+        saveAgenda(); renderBody();
+      });
+      var durToggle = card.querySelector('[data-dur-toggle]');
+      if(durToggle) durToggle.addEventListener('click', function(){
+        if(durToggle.querySelector('input')) return; // already editing
+        var current = ev.duration!=null ? ev.duration : (ev._auto!=null ? ev._auto : '');
+        durToggle.innerHTML = '<input type="number" min="0" placeholder="min" value="'+(current===''?'':current)+'" />'
+          + '<span style="cursor:pointer;margin-left:2px" data-clear-dur="1" title="Use automatic">↺</span>';
+        var input = durToggle.querySelector('input');
+        input.focus(); input.select();
+        function commit(){
+          var v = parseInt(input.value,10);
+          ev.duration = isNaN(v) ? null : v;
+          saveAgenda(); renderBody();
+        }
+        input.addEventListener('blur', commit);
+        input.addEventListener('keydown', function(e){ if(e.key==='Enter') input.blur(); });
+        var clearBtn = durToggle.querySelector('[data-clear-dur]');
+        if(clearBtn) clearBtn.addEventListener('mousedown', function(e){
+          e.preventDefault();
+          ev.duration = null;
+          saveAgenda(); renderBody();
+        });
+      });
+    });
+  }
+
+  function renderAll(){
+    renderSheetsBar();
+    renderBody();
+  }
+
+  function openAgenda(){
+    agenda = loadAgenda();
+    if(!activeSheetId || !agenda.sheets.some(function(s){return s.id===activeSheetId;})){
+      activeSheetId = agenda.sheets[0].id;
+    }
+    renderAll();
+    var overlay = document.getElementById('agendaOverlay');
+    var screen = document.getElementById('agendaScreen');
+    if(overlay) overlay.classList.add('open');
+    if(screen) screen.classList.add('open');
+  }
+  function closeAgenda(){
+    var overlay = document.getElementById('agendaOverlay');
+    var screen = document.getElementById('agendaScreen');
+    if(overlay) overlay.classList.remove('open');
+    if(screen) screen.classList.remove('open');
+  }
+
+  var openBtn = document.getElementById('agendaBtn');
+  if(openBtn) openBtn.addEventListener('click', openAgenda);
+  var closeBtn = document.getElementById('agendaCloseBtn');
+  if(closeBtn) closeBtn.addEventListener('click', closeAgenda);
+  var overlayEl = document.getElementById('agendaOverlay');
+  if(overlayEl) overlayEl.addEventListener('click', closeAgenda);
+  var addEventBtn = document.getElementById('agendaAddEventBtn');
+  if(addEventBtn) addEventBtn.addEventListener('click', function(){
+    if(!agenda) return;
+    var sheet = getActiveSheet();
+    if(!sheet) return;
+    sheet.events.push({ id: uid(), name:'', time:'', duration:null, detail:'' });
+    saveAgenda(); renderBody();
+    // focus the new event's name field
+    var body = document.getElementById('agendaBody');
+    var inputs = body.querySelectorAll('.agenda-item-name');
+    if(inputs.length) inputs[inputs.length-1].focus();
+  });
 })();
 </script>
 </body>
