@@ -120,13 +120,6 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .dash-cell-static{cursor:default}
 .dash-cell-static:hover{border-color:transparent;transform:none}
 .dash-cell-note{font-size:10px;color:var(--muted);text-align:center;margin:-2px 0 14px}
-/* Overview tab — plain boxes with numbers, nothing fancier */
-.ov-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-.ov-box{background:#fff;border-radius:var(--r-sm);padding:14px 8px;text-align:center;border:1.5px solid transparent;box-shadow:var(--shadow-sm);cursor:pointer;transition:all var(--ease)}
-.ov-box:hover{border-color:var(--blush);transform:translateY(-1px)}
-.ov-box-n{font-family:var(--sans);font-size:22px;font-weight:700;line-height:1;margin-bottom:5px;color:var(--ink2)}
-.ov-box-n.g{color:var(--green)}.ov-box-n.a{color:var(--amber)}.ov-box-n.r{color:var(--red)}.ov-box-n.b{color:#5A7FA8}.ov-box-n.ink{color:var(--ink2)}
-.ov-box-l{font-size:8.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .dash-n{font-family:var(--sans);font-size:18px;font-weight:600;line-height:1;margin-bottom:2px}
 .dash-n.g{color:var(--green)}.dash-n.a{color:var(--amber)}.dash-n.r{color:var(--red)}.dash-n.b{color:#5A7FA8}.dash-n.ink{color:var(--ink2)}
 .dash-l{font-size:8px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
@@ -241,7 +234,6 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .f-pill.on-c{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 2px 8px rgba(58,140,92,.25)}
 .f-pill.on-d{background:var(--red);border-color:var(--red);color:#fff;box-shadow:0 2px 8px rgba(192,64,46,.25)}
 .f-pill.on-m{background:#7c3aed;border-color:#7c3aed;color:#fff;box-shadow:0 2px 8px rgba(124,58,237,.25)}
-.f-pill.on-ov{background:linear-gradient(135deg,var(--gold),var(--rose));border-color:var(--rose);color:#fff;box-shadow:0 2px 8px rgba(201,135,106,.3)}
 /* Guest-list filter row restyled as browser-style tabs: flat top corners,
    sitting on a shared baseline rule; the active tab's own bottom border
    overwrites that line in its accent color, so it reads as "attached" to
@@ -257,7 +249,6 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 #filterRow .f-pill.on-c,#filterRow .f-pill.f-sent-pill.on{background:var(--green);border-color:var(--green);color:#fff;border-bottom-color:var(--green);box-shadow:none}
 #filterRow .f-pill.on-d{background:var(--red);border-color:var(--red);color:#fff;border-bottom-color:var(--red);box-shadow:none}
 #filterRow .f-pill.on-m{background:#7c3aed;border-color:#7c3aed;color:#fff;border-bottom-color:#7c3aed;box-shadow:none}
-#filterRow .f-pill.on-ov{background:linear-gradient(135deg,var(--gold),var(--rose));border-color:var(--rose);color:#fff;border-bottom-color:var(--rose);box-shadow:none}
 /* Arina / Elnur filter pills — solid, high-contrast fill (not the pale
    badge tint used elsewhere) specifically so "selected" is unmistakable
    at a glance and never reads the same as "unselected". */
@@ -982,18 +973,21 @@ body.lite-mode #liteModeTopBtn {
 .countdown-num{font-family:var(--sans);font-size:12.5px;font-weight:700;line-height:1;color:var(--rose-deep)}
 .countdown-label{font-size:10px;font-weight:600;color:var(--muted)}
 .countdown-date{margin-left:5px;font-size:9.5px;color:var(--soft);white-space:nowrap}
-/* Countdown pill + the mini stat pills sit on one row, wrapping together
-   on narrow screens instead of the stats stacking underneath. */
-.top-stat-row{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:10px 0 4px}
-.top-stat-row .countdown-card{margin:0}
-/* Compact stat pills sitting next to the countdown — same pill language,
-   just a few key numbers at a glance without opening the guest list. */
-.mini-ov-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.mini-ov-box{display:inline-flex;align-items:baseline;gap:4px;padding:5px 11px;border-radius:var(--r-pill);background:var(--cream2);border:1px solid var(--parchment);cursor:pointer;transition:all var(--ease)}
-.mini-ov-box:hover{border-color:var(--blush)}
-.mini-ov-n{font-family:var(--sans);font-size:12.5px;font-weight:700;line-height:1;color:var(--ink2)}
-.mini-ov-n.g{color:var(--green)}.mini-ov-n.r{color:var(--red)}.mini-ov-n.p{color:#7c3aed}
-.mini-ov-l{font-size:9px;font-weight:600;letter-spacing:.04em;color:var(--muted)}
+/* One self-contained bar under the countdown — three even columns with
+   thin dividers, so it always fits the width instead of pills wrapping
+   unpredictably. This is the single place these numbers live; there's no
+   separate Overview tab duplicating them. */
+.stat-bar{display:flex;align-items:stretch;background:#fff;border:1px solid var(--parchment);border-radius:var(--r-sm);box-shadow:var(--shadow-sm);margin:8px 0 14px;overflow:hidden}
+.stat-bar-item{flex:1;text-align:center;padding:9px 4px;cursor:pointer;transition:background var(--ease)}
+.stat-bar-item:hover{background:var(--cream2)}
+.stat-bar-item:active{background:var(--rose-soft)}
+.stat-bar-div{width:1px;background:var(--parchment);flex-shrink:0}
+.stat-bar-n{font-family:var(--sans);font-size:17px;font-weight:800;line-height:1;color:var(--ink2)}
+.stat-bar-n.g{color:var(--green)}.stat-bar-n.r{color:var(--red)}.stat-bar-n.p{color:#7c3aed}
+.stat-bar-l{font-size:8.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:3px}
+/* Small count badge on the "All" tab — replaces a separate Sent tab */
+.f-pill-badge{display:inline-flex;align-items:center;justify-content:center;min-width:15px;height:15px;padding:0 4px;border-radius:8px;background:rgba(0,0,0,.14);font-size:9px;font-weight:800;line-height:15px;vertical-align:middle;margin-left:2px}
+.f-pill.on .f-pill-badge{background:rgba(255,255,255,.3)}
 
 /* ── AGENDA READ-ONLY SHARE VIEW ── */
 .agenda-ro-screen{position:fixed;inset:0;z-index:5000;background:var(--cream);overflow-y:auto;padding:0 0 40px}
@@ -1570,15 +1564,13 @@ body.lite-mode #liteModeTopBtn {
 
 <div class="wrap">
 
-<div class="top-stat-row">
 <div class="countdown-card" id="countdownCard">
   <div class="countdown-num" id="countdownNum">--</div>
   <div class="countdown-label" id="countdownLabel">days to go</div>
   <div class="countdown-date" id="countdownDateEl"></div>
 </div>
 
-<div class="mini-ov-row" id="miniOvRow" style="display:none"></div>
-</div>
+<div class="stat-bar" id="statBar" style="display:none"></div>
 
 <div class="prog-track" id="progTrack" style="display:none!important"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
 
@@ -2711,26 +2703,30 @@ function renderDashboard(){
   document.getElementById('ovTotal').textContent=total;
   document.getElementById('ovSent').textContent=sent;
   document.getElementById('progFill').style.width=(total?Math.round(sent/total*100):0)+'%';
-  renderMiniOverview();
+  renderStatBar();
 }
 
-// A handful of key numbers next to the countdown card, always visible
-// without opening the guest list. Tapping one jumps straight to that tab.
-function renderMiniOverview(){
-  var row=document.getElementById('miniOvRow');
-  if(!row)return;
+// The one place these numbers live — Confirmed, Declined, and Forecast
+// (confirmed + everyone we're guessing "yes" for: our best current idea of
+// who's actually coming). Always visible under the countdown, no tab to
+// open. Tapping Confirmed/Declined jumps into that guest-list tab;
+// Forecast is a blended number with no single matching tab, so it isn't
+// clickable.
+function renderStatBar(){
+  var bar=document.getElementById('statBar');
+  if(!bar)return;
   var all=importQueue.filter(function(g){return!g.skipped;});
-  if(!all.length){row.style.display='none';return;}
-  var sent=all.filter(function(g){return g.sent;}).length;
+  if(!all.length){bar.style.display='none';return;}
   var confirmed=all.filter(function(g){return getGuestRsvpYesNo(g)===true&&!getGuestRsvpIsGuess(g);}).length;
   var declined=all.filter(function(g){return getGuestRsvpYesNo(g)===false&&!getGuestRsvpIsGuess(g);}).length;
-  var forecast=all.filter(function(g){return guestHasLiveManualStatus(g);}).length;
-  function pill(cls,n,label,gotoFilter){
-    return '<div class="mini-ov-box" data-mini-goto="'+gotoFilter+'"><span class="mini-ov-n '+cls+'">'+n+'</span><span class="mini-ov-l">'+label+'</span></div>';
+  var expecting=all.filter(function(g){return guestHasLiveManualStatus(g)&&g.plannerGuess==='yes';}).length;
+  var forecast=confirmed+expecting;
+  function item(cls,n,label,gotoFilter){
+    return '<div class="stat-bar-item"'+(gotoFilter?' data-mini-goto="'+gotoFilter+'"':'')+'><div class="stat-bar-n '+cls+'">'+n+'</div><div class="stat-bar-l">'+label+'</div></div>';
   }
-  row.innerHTML=pill('',sent,'sent','sent')+pill('g',confirmed,'confirmed','confirmed')+pill('r',declined,'declined','declined')+pill('p',forecast,'forecast','manual');
-  row.style.display='';
-  row.querySelectorAll('[data-mini-goto]').forEach(function(b){
+  bar.innerHTML=item('g',confirmed,'Confirmed','confirmed')+'<div class="stat-bar-div"></div>'+item('r',declined,'Declined','declined')+'<div class="stat-bar-div"></div>'+item('p',forecast,'Forecast','');
+  bar.style.display='';
+  bar.querySelectorAll('[data-mini-goto]').forEach(function(b){
     b.addEventListener('click',function(){
       var ga=document.getElementById('guestArea');
       if(ga)ga.style.display='';
@@ -2751,15 +2747,13 @@ function renderFilterRow(){
   var cCls = importFilter==='confirmed' ? 'on-c' : '';
   var dCls = importFilter==='declined' ? 'on-d' : '';
   var mCls = importFilter==='manual' ? 'on-m' : '';
-  var ovCls = importFilter==='dashboard' ? 'on-ov' : '';
   var notSent=importQueue.filter(function(g){return!g.skipped&&!g.sent;}).length;
   var allBadge = notSent ? ' <span class="f-pill-badge">'+notSent+'</span>' : '';
   row.innerHTML = ''
-    +'<button class="f-pill '+ovCls+'" data-f="dashboard">Overview</button>'
     +'<button class="f-pill'+(isAll?' on':'')+'" data-f="all">All'+allBadge+'</button>'
     +'<button class="f-pill '+cCls+'" data-f="confirmed">Confirmed</button>'
     +'<button class="f-pill '+dCls+'" data-f="declined">Declined</button>'
-    +'<button class="f-pill '+mCls+'" data-f="manual">Forecast</button>';
+    +'<button class="f-pill '+mCls+'" data-f="manual">Guesses</button>';
 
   row.querySelectorAll('[data-f]').forEach(function(b){
     b.addEventListener('click',function(){
@@ -2767,8 +2761,6 @@ function renderFilterRow(){
       selectedIdxs=[];renderFilterRow();renderGuestList();
     });
   });
-  var sfr=document.getElementById('searchFilterRow');
-  if(sfr)sfr.style.display=(importFilter==='dashboard')?'none':'';
 }
 
 /* ══ GUEST LIST ══════════════════════════════ */
