@@ -1914,6 +1914,7 @@ body.lite-mode #liteModeTopBtn {
     </div>
     <button class="seatmap-view-toggle" id="seatmapViewToggle" title="Floor plan view"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></button>
     <button class="seatmap-view-toggle" id="seatmapLayoutsBtn" title="Saved layouts — save this arrangement or load a previous one"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/></svg></button>
+    <button class="seatmap-view-toggle" id="seatmapExportBtn" title="Export seating chart"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3"/><path d="M7 10l5 5 5-5"/><path d="M4 17v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg></button>
     <button class="seatmap-add-btn" id="seatmapAddTableBtn">+ Table</button>
     <button class="seatmap-close" id="seatmapCloseBtn">✕</button>
   </div>
@@ -1969,6 +1970,19 @@ body.lite-mode #liteModeTopBtn {
       <div class="sm-confirm-actions">
         <button type="button" class="sm-confirm-cancel" id="smConfirmCancelBtn">Cancel</button>
         <button type="button" class="sm-confirm-ok" id="smConfirmOkBtn">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Export sheet — pick Image or PDF, then optionally share/save. The
+       two rasterizing libraries are loaded lazily (only once someone
+       actually taps Export) since most sessions never touch this. -->
+  <div class="sm-confirm-overlay" id="seatmapExportOverlay">
+    <div class="sm-confirm-card">
+      <div class="sm-confirm-msg">Export the current floor plan as:</div>
+      <div class="sm-confirm-actions">
+        <button type="button" class="sm-confirm-cancel" id="seatmapExportImageBtn">Image (PNG)</button>
+        <button type="button" class="sm-confirm-ok" id="seatmapExportPdfBtn" style="background:var(--ink)">PDF</button>
       </div>
     </div>
   </div>
@@ -8473,6 +8487,77 @@ var LANDMARK_TYPES = {
 };
 var _markerPickerOpen = false;
 
+/* ── Export (image / PDF) ──
+   Rasterizes the floor plan with html2canvas and either downloads the
+   PNG directly or wraps it in a single-page PDF via jsPDF. Both
+   libraries are loaded lazily from a CDN on first use — most sessions
+   never tap Export, so there's no reason to pay for them upfront.
+   Always captures the floor view at 100% zoom, even if list view is
+   showing or the user's zoomed in/out — otherwise the export could come
+   out cropped, scaled oddly, or (in list view) just blank. Both are
+   restored right after the screenshot is taken. */
+var _smExportLibsPromise = null;
+function _loadScriptTag(src){
+  return new Promise(function(resolve, reject){
+    var s = document.createElement('script');
+    s.src = src;
+    s.onload = function(){ resolve(); };
+    s.onerror = function(){ reject(new Error('Could not load export tools — check your connection and try again.')); };
+    document.head.appendChild(s);
+  });
+}
+function loadSeatmapExportLibs(){
+  if(_smExportLibsPromise) return _smExportLibsPromise;
+  _smExportLibsPromise = Promise.all([
+    (typeof window.html2canvas !== 'undefined') ? Promise.resolve() : _loadScriptTag('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'),
+    (typeof window.jspdf !== 'undefined') ? Promise.resolve() : _loadScriptTag('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js')
+  ]);
+  return _smExportLibsPromise;
+}
+function captureSeatmapFloor(){
+  return loadSeatmapExportLibs().then(function(){
+    if(!seatMap.tables.length) throw new Error('Add at least one table before exporting.');
+    var priorView = seatMapView, priorZoom = seatMapZoom;
+    if(priorView !== 'floor') setSeatMapView('floor');
+    if(priorZoom !== 1) setSeatMapZoom(1);
+    // Give the view-switch/zoom reflow a couple of frames to settle before
+    // the screenshot, so it doesn't capture mid-layout.
+    return new Promise(function(resolve){ requestAnimationFrame(function(){ requestAnimationFrame(resolve); }); }).then(function(){
+      var target = document.querySelector('.seatmap-floor-sizer'); // includes the floor color + grid + every table/marker, but not the off-screen radar pings (those live outside this element)
+      if(!target) throw new Error('Add at least one table before exporting.');
+      return window.html2canvas(target, { backgroundColor: null, scale: 2 }).then(function(canvas){
+        if(priorZoom !== 1) setSeatMapZoom(priorZoom);
+        if(priorView !== 'floor') setSeatMapView(priorView);
+        return canvas;
+      });
+    });
+  });
+}
+function closeSeatmapExport(){
+  var overlay = document.getElementById('seatmapExportOverlay');
+  if(overlay) overlay.classList.remove('open');
+}
+function exportSeatmapImage(){
+  closeSeatmapExport();
+  captureSeatmapFloor().then(function(canvas){
+    var link = document.createElement('a');
+    link.download = 'seating-chart.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  }).catch(function(err){ alert(err.message || 'Could not export the floor plan.'); });
+}
+function exportSeatmapPdf(){
+  closeSeatmapExport();
+  captureSeatmapFloor().then(function(canvas){
+    var jsPDFCtor = window.jspdf && window.jspdf.jsPDF;
+    if(!jsPDFCtor) throw new Error("PDF export isn't available right now — try Image instead.");
+    var w = canvas.width/2, h = canvas.height/2; // /2 undoes the scale:2 capture above, back to real point size
+    var pdf = new jsPDFCtor({ orientation: w >= h ? 'landscape' : 'portrait', unit: 'pt', format: [w, h] });
+    pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, w, h);
+    pdf.save('seating-chart.pdf');
+  }).catch(function(err){ alert(err.message || 'Could not export the floor plan.'); });
+}
+
 function wireFloorAddButtons(){
   var b = document.getElementById('addMarkerBtn');
   if(b) b.addEventListener('click', function(){
@@ -9169,6 +9254,15 @@ var _smConfirmOkBtn = document.getElementById('smConfirmOkBtn');
 if(_smConfirmCancelBtn) _smConfirmCancelBtn.addEventListener('click', function(){ _closeSmConfirm(false); });
 if(_smConfirmOkBtn) _smConfirmOkBtn.addEventListener('click', function(){ _closeSmConfirm(true); });
 if(_smConfirmOverlay) _smConfirmOverlay.addEventListener('click', function(e){ if(e.target === _smConfirmOverlay) _closeSmConfirm(false); });
+
+var _smExportBtn = document.getElementById('seatmapExportBtn');
+var _smExportOverlay = document.getElementById('seatmapExportOverlay');
+var _smExportImageBtn = document.getElementById('seatmapExportImageBtn');
+var _smExportPdfBtn = document.getElementById('seatmapExportPdfBtn');
+if(_smExportBtn) _smExportBtn.addEventListener('click', function(){ if(_smExportOverlay) _smExportOverlay.classList.add('open'); });
+if(_smExportImageBtn) _smExportImageBtn.addEventListener('click', exportSeatmapImage);
+if(_smExportPdfBtn) _smExportPdfBtn.addEventListener('click', exportSeatmapPdf);
+if(_smExportOverlay) _smExportOverlay.addEventListener('click', function(e){ if(e.target === _smExportOverlay) closeSeatmapExport(); });
 
 })();
 </script>
