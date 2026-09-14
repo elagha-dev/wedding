@@ -2009,7 +2009,6 @@ body.lite-mode #liteModeTopBtn {
       <select id="atmHour"></select>
       <span class="atm-colon">:</span>
       <select id="atmMin"></select>
-      <select id="atmAmpm"><option value="AM">AM</option><option value="PM">PM</option></select>
     </div>
     <div class="atm-acts">
       <button type="button" id="atmClear">No time</button>
@@ -9463,27 +9462,15 @@ if(_smExportOverlay) _smExportOverlay.addEventListener('click', function(e){ if(
     if(isNaN(h)||isNaN(mi)) return null;
     return h*60+mi;
   }
+  // 24-hour display everywhere — no AM/PM to misread when scanning a
+  // sorted list (a bare "12:07" then "11:03" reads as out of order to
+  // most people even though noon-then-near-midnight is correct; "24hr
+  // clock" removes the ambiguity entirely instead of explaining it).
   function minToLabel(mins){
     if(mins==null) return '';
     mins = ((mins % 1440) + 1440) % 1440;
     var h = Math.floor(mins/60), m = mins%60;
-    var ap = h>=12 ? 'PM':'AM';
-    var h12 = h%12; if(h12===0) h12=12;
-    return h12+':'+(m<10?'0':'')+m+' '+ap;
-  }
-  function timeToParts(t){
-    var mins = timeToMin(t);
-    if(mins==null) return null;
-    var h24 = Math.floor(mins/60), m = mins%60;
-    var ampm = h24>=12 ? 'PM':'AM';
-    var h12 = h24%12; if(h12===0) h12=12;
-    return { h12:h12, m:m, ampm:ampm };
-  }
-  function partsToTime(h12, m, ampm){
-    h12 = parseInt(h12,10); m = parseInt(m,10);
-    var h24 = h12%12;
-    if(ampm==='PM') h24 += 12;
-    return (h24<10?'0':'')+h24+':'+(m<10?'0':'')+m;
+    return (h<10?'0':'')+h+':'+(m<10?'0':'')+m;
   }
   function durLabel(mins){
     if(mins==null || mins<0) return '';
@@ -9772,16 +9759,15 @@ if(_smExportOverlay) _smExportOverlay.addEventListener('click', function(e){ if(
      Replaces the old cramped native <input type=time> (which, on
      iOS, gets squeezed into a tiny inline stepper when the element is
      narrow — you'd only manage to nudge the hour, never reliably hit
-     the minute). This is a plain modal with three full-size <select>s;
-     tapping any of them opens the OS's own picker UI at full size,
-     regardless of how narrow the trigger button is. */
+     the minute). Plain 24-hour picker (00–23), matching how times are
+     displayed and sorted, so there's no AM/PM to misread. */
   var _timeEditSheet = null, _timeEditEv = null;
   (function populateTimeSelects(){
     var hourSel = document.getElementById('atmHour');
     var minSel = document.getElementById('atmMin');
     if(!hourSel || !minSel) return;
     var hh = '';
-    for(var h=1; h<=12; h++) hh += '<option value="'+h+'">'+h+'</option>';
+    for(var h=0; h<24; h++){ var hv=(h<10?'0':'')+h; hh += '<option value="'+hv+'">'+hv+'</option>'; }
     hourSel.innerHTML = hh;
     var mm = '';
     for(var m=0; m<60; m++){ var mv=(m<10?'0':'')+m; mm += '<option value="'+mv+'">'+mv+'</option>'; }
@@ -9789,13 +9775,13 @@ if(_smExportOverlay) _smExportOverlay.addEventListener('click', function(e){ if(
   })();
   function openTimeModal(sheet, ev){
     _timeEditSheet = sheet; _timeEditEv = ev;
-    var parts = timeToParts(ev.time) || { h12:12, m:0, ampm:'PM' };
+    var mins = timeToMin(ev.time);
+    var h = mins!=null ? Math.floor(mins/60) : 12;
+    var m = mins!=null ? mins%60 : 0;
     var hourSel = document.getElementById('atmHour');
     var minSel = document.getElementById('atmMin');
-    var ampmSel = document.getElementById('atmAmpm');
-    if(hourSel) hourSel.value = String(parts.h12);
-    if(minSel) minSel.value = (parts.m<10?'0':'')+parts.m;
-    if(ampmSel) ampmSel.value = parts.ampm;
+    if(hourSel) hourSel.value = (h<10?'0':'')+h;
+    if(minSel) minSel.value = (m<10?'0':'')+m;
     var bg = document.getElementById('agendaTimeModalBg');
     if(bg) bg.classList.add('open');
   }
@@ -9819,8 +9805,7 @@ if(_smExportOverlay) _smExportOverlay.addEventListener('click', function(e){ if(
     if(_timeEditEv){
       var hourSel = document.getElementById('atmHour');
       var minSel = document.getElementById('atmMin');
-      var ampmSel = document.getElementById('atmAmpm');
-      _timeEditEv.time = partsToTime(hourSel.value, minSel.value, ampmSel.value);
+      _timeEditEv.time = hourSel.value + ':' + minSel.value;
       saveAgenda();
     }
     closeTimeModal();
