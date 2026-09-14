@@ -908,7 +908,7 @@ body.lite-mode #liteModeTopBtn {
 .agenda-timeline{position:relative}
 .agenda-item{position:relative;display:flex;gap:10px;margin-bottom:10px}
 .agenda-item-rail{flex-shrink:0;width:54px;display:flex;flex-direction:column;align-items:flex-end;padding-top:12px}
-.agenda-item-time{background:transparent;border:none;font-family:var(--sans);font-size:13px;font-weight:700;color:var(--rose-deep);text-align:right;width:54px;padding:0}
+.agenda-item-time{background:transparent;border:none;font-family:var(--sans);font-size:13px;font-weight:700;color:var(--rose-deep);text-align:right;width:54px;padding:2px 0;cursor:pointer}
 .agenda-item-time::placeholder{color:var(--soft);font-weight:600}
 .agenda-item-dur{font-size:9px;color:var(--muted);margin-top:3px;text-align:right;width:54px;cursor:pointer}
 .agenda-item-dur input{width:38px;background:var(--cream2);border:1px solid var(--parchment);border-radius:6px;font-size:9px;text-align:center;color:var(--ink2);padding:1px 2px;font-family:var(--sans)}
@@ -920,11 +920,26 @@ body.lite-mode #liteModeTopBtn {
 .agenda-item-move:disabled{opacity:.25;pointer-events:none}
 .agenda-item-del{width:22px;height:22px;border:none;background:transparent;color:var(--red);cursor:pointer;font-size:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center;opacity:.6}
 .agenda-item-detail-row{display:flex;align-items:center;gap:5px;margin-top:6px}
+.agenda-item-hint{font-size:10px;color:var(--soft);margin-top:4px;font-style:italic}
 .agenda-item-pin{flex-shrink:0;color:var(--soft)}
 .agenda-item-detail{flex:1;border:none;background:transparent;font-family:var(--sans);font-size:11.5px;color:var(--muted);min-width:0;padding:1px 0}
 .agenda-item-detail::placeholder{color:var(--soft)}
 .agenda-add-event-btn{position:fixed;left:16px;right:16px;bottom:20px;z-index:400;padding:13px;border-radius:var(--r-pill);border:none;background:linear-gradient(135deg,var(--rose),var(--rose-deep));color:#fff;font-family:var(--sans);font-size:13px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-lg);max-width:608px;margin:0 auto;display:block}
 .agenda-share-btn{width:30px;height:30px;border-radius:50%;border:none;background:var(--cream2);color:var(--rose-deep);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:4px}
+
+/* ── AGENDA TIME PICKER MODAL ── */
+.agenda-time-modal-bg{position:fixed;inset:0;z-index:6000;background:rgba(35,26,20,.4);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s}
+.agenda-time-modal-bg.open{opacity:1;pointer-events:all}
+.agenda-time-modal{background:#fff;border-radius:var(--r);box-shadow:var(--shadow-lg);padding:20px;width:100%;max-width:300px}
+.atm-title{font-family:var(--sans);font-size:14px;font-weight:800;color:var(--ink2);margin-bottom:16px;text-align:center}
+.atm-row{display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:18px}
+.atm-row select{font-family:var(--sans);font-size:17px;font-weight:700;color:var(--ink);border:1.5px solid var(--parchment);border-radius:var(--r-sm);padding:9px 6px;background:var(--cream);text-align:center}
+.atm-colon{font-size:17px;font-weight:800;color:var(--soft)}
+.atm-acts{display:flex;gap:8px}
+.atm-acts button{flex:1;padding:11px 4px;border-radius:var(--r-pill);border:none;font-family:var(--sans);font-size:12px;font-weight:700;cursor:pointer}
+#atmClear{background:var(--cream2);color:var(--muted)}
+#atmCancel{background:var(--cream2);color:var(--muted)}
+#atmSet{background:linear-gradient(135deg,var(--rose),var(--rose-deep));color:#fff}
 
 /* ── COUNTDOWN ── */
 .countdown-card{margin:10px 0 4px;padding:5px 11px;border-radius:var(--r-pill);background:var(--cream2);border:1px solid var(--parchment);display:inline-flex;align-items:baseline;gap:5px;color:var(--muted);width:auto}
@@ -1984,6 +1999,24 @@ body.lite-mode #liteModeTopBtn {
   <div class="agenda-sheets-bar" id="agendaSheetsBar"></div>
   <div class="agenda-body" id="agendaBody"></div>
   <button class="agenda-add-event-btn" id="agendaAddEventBtn">+ Add Event</button>
+</div>
+
+<!-- Time picker modal (used by the Agenda) -->
+<div class="agenda-time-modal-bg" id="agendaTimeModalBg">
+  <div class="agenda-time-modal">
+    <div class="atm-title">Set time</div>
+    <div class="atm-row">
+      <select id="atmHour"></select>
+      <span class="atm-colon">:</span>
+      <select id="atmMin"></select>
+      <select id="atmAmpm"><option value="AM">AM</option><option value="PM">PM</option></select>
+    </div>
+    <div class="atm-acts">
+      <button type="button" id="atmClear">No time</button>
+      <button type="button" id="atmCancel">Cancel</button>
+      <button type="button" id="atmSet">Set</button>
+    </div>
+  </div>
 </div>
 
 <div class="seatmap-overlay" id="seatmapOverlay"></div>
@@ -9438,6 +9471,20 @@ if(_smExportOverlay) _smExportOverlay.addEventListener('click', function(e){ if(
     var h12 = h%12; if(h12===0) h12=12;
     return h12+':'+(m<10?'0':'')+m+' '+ap;
   }
+  function timeToParts(t){
+    var mins = timeToMin(t);
+    if(mins==null) return null;
+    var h24 = Math.floor(mins/60), m = mins%60;
+    var ampm = h24>=12 ? 'PM':'AM';
+    var h12 = h24%12; if(h12===0) h12=12;
+    return { h12:h12, m:m, ampm:ampm };
+  }
+  function partsToTime(h12, m, ampm){
+    h12 = parseInt(h12,10); m = parseInt(m,10);
+    var h24 = h12%12;
+    if(ampm==='PM') h24 += 12;
+    return (h24<10?'0':'')+h24+':'+(m<10?'0':'')+m;
+  }
   function durLabel(mins){
     if(mins==null || mins<0) return '';
     var h = Math.floor(mins/60), m = mins%60;
@@ -9469,6 +9516,20 @@ if(_smExportOverlay) _smExportOverlay.addEventListener('click', function(e){ if(
     return null;
   }
 
+  // Chronological order is automatic: timed events sort ascending by
+  // time; untimed events (no time set yet) stay at the end, in the
+  // order they were added — that's the only group manual up/down
+  // reordering applies to, since a timed event's position is decided
+  // by its time, not by dragging.
+  function sortEvents(sheet){
+    sheet.events.sort(function(a,b){
+      var ta = timeToMin(a.time), tb = timeToMin(b.time);
+      if(ta==null && tb==null) return 0;
+      if(ta==null) return 1;
+      if(tb==null) return -1;
+      return ta-tb;
+    });
+  }
   // Compute the auto duration (to the next event with a valid time) for
   // every event in a sheet, in order. Only events with a parsed time get
   // an auto duration; the last timed event (or one already followed by
@@ -9561,6 +9622,7 @@ if(_smExportOverlay) _smExportOverlay.addEventListener('click', function(e){ if(
     if(!body) return;
     var sheet = getActiveSheet();
     if(!sheet){ body.innerHTML=''; return; }
+    sortEvents(sheet);
     computeAutoDurations(sheet);
     if(sub) sub.textContent = sheet.events.length + (sheet.events.length===1?' event':' events');
 
@@ -9572,9 +9634,14 @@ if(_smExportOverlay) _smExportOverlay.addEventListener('click', function(e){ if(
     sheet.events.forEach(function(ev, i){
       var durVal = (ev.duration!=null) ? ev.duration : ev._auto;
       var isAuto = (ev.duration==null);
+      var isTimed = timeToMin(ev.time)!=null;
+      var prevUntimed = i>0 && timeToMin(sheet.events[i-1].time)==null;
+      var nextUntimed = i<sheet.events.length-1 && timeToMin(sheet.events[i+1].time)==null;
       html += '<div class="agenda-item" data-ev="'+ev.id+'">'
         + '<div class="agenda-item-rail">'
-          + '<input class="agenda-item-time" type="time" data-field="time" value="'+escapeHtml(ev.time||'')+'" />'
+          + '<button type="button" class="agenda-item-time" data-time-toggle="'+ev.id+'" title="Tap to set the time">'
+            + (ev.time ? minToLabel(timeToMin(ev.time)) : '<span style="opacity:.4">--:--</span>')
+          + '</button>'
           + '<div class="agenda-item-dur" data-dur-toggle="'+ev.id+'" title="How long this event lasts, until the next timed event. Tap to set your own.">'
             + (durVal!=null ? (isAuto ? '~'+durLabel(durVal)+' auto' : durLabel(durVal)) : '<span style="opacity:.4">set dur.</span>')
           + '</div>'
@@ -9582,10 +9649,12 @@ if(_smExportOverlay) _smExportOverlay.addEventListener('click', function(e){ if(
         + '<div class="agenda-item-card">'
           + '<div class="agenda-item-top">'
             + '<input class="agenda-item-name" data-field="name" placeholder="Event name" value="'+escapeHtml(ev.name||'')+'" />'
-            + '<button class="agenda-item-move" data-move="up" '+(i===0?'disabled':'')+' title="Move up">↑</button>'
-            + '<button class="agenda-item-move" data-move="down" '+(i===sheet.events.length-1?'disabled':'')+' title="Move down">↓</button>'
+            + (isTimed ? '' :
+                '<button class="agenda-item-move" data-move="up" '+(!prevUntimed?'disabled':'')+' title="Move up">↑</button>'
+              + '<button class="agenda-item-move" data-move="down" '+(!nextUntimed?'disabled':'')+' title="Move down">↓</button>')
             + '<button class="agenda-item-del" data-del="1" title="Delete event">✕</button>'
           + '</div>'
+          + (isTimed ? '' : '<div class="agenda-item-hint">No time set — sort with ↑↓, or tap --:-- to slot it into the timeline</div>')
           + '<div class="agenda-item-detail-row">'
             + '<svg class="agenda-item-pin" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s7-7.58 7-12A7 7 0 0 0 5 10c0 4.42 7 12 7 12Z"/><circle cx="12" cy="10" r="2.6"/></svg>'
             + '<input class="agenda-item-detail" data-field="detail" placeholder="Location, notes…" value="'+escapeHtml(ev.detail||'')+'" />'
@@ -9628,6 +9697,10 @@ if(_smExportOverlay) _smExportOverlay.addEventListener('click', function(e){ if(
       if(delBtn) delBtn.addEventListener('click', function(){
         sheet.events = sheet.events.filter(function(x){return x.id!==id;});
         saveAgenda(); renderBody();
+      });
+      var timeToggle = card.querySelector('[data-time-toggle]');
+      if(timeToggle) timeToggle.addEventListener('click', function(){
+        openTimeModal(sheet, ev);
       });
       var durToggle = card.querySelector('[data-dur-toggle]');
       if(durToggle) durToggle.addEventListener('click', function(){
@@ -9694,6 +9767,66 @@ if(_smExportOverlay) _smExportOverlay.addEventListener('click', function(e){ if(
   if(closeBtn) closeBtn.addEventListener('click', closeAgenda);
   var overlayEl = document.getElementById('agendaOverlay');
   if(overlayEl) overlayEl.addEventListener('click', closeAgenda);
+
+  /* ── Time picker modal ────────────────────────────────────────────
+     Replaces the old cramped native <input type=time> (which, on
+     iOS, gets squeezed into a tiny inline stepper when the element is
+     narrow — you'd only manage to nudge the hour, never reliably hit
+     the minute). This is a plain modal with three full-size <select>s;
+     tapping any of them opens the OS's own picker UI at full size,
+     regardless of how narrow the trigger button is. */
+  var _timeEditSheet = null, _timeEditEv = null;
+  (function populateTimeSelects(){
+    var hourSel = document.getElementById('atmHour');
+    var minSel = document.getElementById('atmMin');
+    if(!hourSel || !minSel) return;
+    var hh = '';
+    for(var h=1; h<=12; h++) hh += '<option value="'+h+'">'+h+'</option>';
+    hourSel.innerHTML = hh;
+    var mm = '';
+    for(var m=0; m<60; m++){ var mv=(m<10?'0':'')+m; mm += '<option value="'+mv+'">'+mv+'</option>'; }
+    minSel.innerHTML = mm;
+  })();
+  function openTimeModal(sheet, ev){
+    _timeEditSheet = sheet; _timeEditEv = ev;
+    var parts = timeToParts(ev.time) || { h12:12, m:0, ampm:'PM' };
+    var hourSel = document.getElementById('atmHour');
+    var minSel = document.getElementById('atmMin');
+    var ampmSel = document.getElementById('atmAmpm');
+    if(hourSel) hourSel.value = String(parts.h12);
+    if(minSel) minSel.value = (parts.m<10?'0':'')+parts.m;
+    if(ampmSel) ampmSel.value = parts.ampm;
+    var bg = document.getElementById('agendaTimeModalBg');
+    if(bg) bg.classList.add('open');
+  }
+  function closeTimeModal(){
+    var bg = document.getElementById('agendaTimeModalBg');
+    if(bg) bg.classList.remove('open');
+    _timeEditSheet = null; _timeEditEv = null;
+  }
+  var atmBg = document.getElementById('agendaTimeModalBg');
+  if(atmBg) atmBg.addEventListener('click', function(e){ if(e.target===atmBg) closeTimeModal(); });
+  var atmCancel = document.getElementById('atmCancel');
+  if(atmCancel) atmCancel.addEventListener('click', closeTimeModal);
+  var atmClear = document.getElementById('atmClear');
+  if(atmClear) atmClear.addEventListener('click', function(){
+    if(_timeEditEv){ _timeEditEv.time = ''; saveAgenda(); }
+    closeTimeModal();
+    renderBody();
+  });
+  var atmSet = document.getElementById('atmSet');
+  if(atmSet) atmSet.addEventListener('click', function(){
+    if(_timeEditEv){
+      var hourSel = document.getElementById('atmHour');
+      var minSel = document.getElementById('atmMin');
+      var ampmSel = document.getElementById('atmAmpm');
+      _timeEditEv.time = partsToTime(hourSel.value, minSel.value, ampmSel.value);
+      saveAgenda();
+    }
+    closeTimeModal();
+    renderBody();
+  });
+
   var addEventBtn = document.getElementById('agendaAddEventBtn');
   if(addEventBtn) addEventBtn.addEventListener('click', function(){
     if(!agenda) return;
