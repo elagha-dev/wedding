@@ -241,7 +241,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
    adapted for a row of mutually-exclusive filters instead of a single
    toggle. Scoped to #filterRow so the tracker's reused .f-pill filter
    bar elsewhere keeps its original pill look. */
-#filterRow{border-bottom:1.5px solid var(--parchment);margin-bottom:10px;padding-bottom:0;gap:3px}
+#filterRow{border-bottom:1.5px solid var(--parchment);margin-bottom:10px;padding-bottom:0;gap:3px;scroll-margin-top:60px}
 #filterRow .f-pill{border-radius:9px 9px 0 0;-webkit-mask-image:none;border:1.5px solid var(--parchment);background:var(--cream2);box-shadow:none;margin-bottom:-1.5px;border-bottom-color:var(--parchment)}
 #filterRow .f-pill:hover{border-color:var(--blush);border-bottom-color:var(--blush)}
 #filterRow .f-pill.on{background:var(--rose);border-color:var(--rose);color:#fff;border-bottom-color:var(--rose);box-shadow:none}
@@ -2710,8 +2710,8 @@ function renderDashboard(){
 // (confirmed + everyone we're guessing "yes" for: our best current idea of
 // who's actually coming). Always visible under the countdown, no tab to
 // open. Tapping Confirmed/Declined jumps into that guest-list tab;
-// Forecast is a blended number with no single matching tab, so it isn't
-// clickable.
+// Forecast is a blended number with no single matching tab, so tapping it
+// just explains what it means instead of navigating anywhere.
 function renderStatBar(){
   var bar=document.getElementById('statBar');
   if(!bar)return;
@@ -2721,10 +2721,10 @@ function renderStatBar(){
   var declined=all.filter(function(g){return getGuestRsvpYesNo(g)===false&&!getGuestRsvpIsGuess(g);}).length;
   var expecting=all.filter(function(g){return guestHasLiveManualStatus(g)&&g.plannerGuess==='yes';}).length;
   var forecast=confirmed+expecting;
-  function item(cls,n,label,gotoFilter){
-    return '<div class="stat-bar-item"'+(gotoFilter?' data-mini-goto="'+gotoFilter+'"':'')+'><div class="stat-bar-n '+cls+'">'+n+'</div><div class="stat-bar-l">'+label+'</div></div>';
+  function item(cls,n,label,gotoFilter,extraAttr){
+    return '<div class="stat-bar-item"'+(gotoFilter?' data-mini-goto="'+gotoFilter+'"':'')+(extraAttr||'')+'><div class="stat-bar-n '+cls+'">'+n+'</div><div class="stat-bar-l">'+label+'</div></div>';
   }
-  bar.innerHTML=item('g',confirmed,'Confirmed','confirmed')+'<div class="stat-bar-div"></div>'+item('r',declined,'Declined','declined')+'<div class="stat-bar-div"></div>'+item('p',forecast,'Forecast','');
+  bar.innerHTML=item('g',confirmed,'Confirmed','confirmed')+'<div class="stat-bar-div"></div>'+item('r',declined,'Declined','declined')+'<div class="stat-bar-div"></div>'+item('p',forecast,'Forecast','',' data-forecast-info="1" style="cursor:pointer"');
   bar.style.display='';
   bar.querySelectorAll('[data-mini-goto]').forEach(function(b){
     b.addEventListener('click',function(){
@@ -2733,10 +2733,14 @@ function renderStatBar(){
       importFilter=this.dataset.miniGoto;
       selectedIdxs=[];renderFilterRow();renderGuestList();
       requestAnimationFrame(function(){
-        var target=document.querySelector('#guestList .sent-with-stats')||document.getElementById('guestListSec');
+        var target=document.getElementById('filterRow')||document.getElementById('guestListSec');
         if(target)target.scrollIntoView({behavior:'smooth',block:'start'});
       });
     });
+  });
+  var fInfo=bar.querySelector('[data-forecast-info]');
+  if(fInfo)fInfo.addEventListener('click',function(){
+    showToastWarn('Forecast = Confirmed ('+confirmed+') + guests we\'re guessing "yes" for ('+expecting+').');
   });
 }
 
