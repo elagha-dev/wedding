@@ -2748,17 +2748,15 @@ function renderMiniOverview(){
 function renderFilterRow(){
   var row=document.getElementById('filterRow');
   var isAll = importFilter==='all';
-  var fCls = importFilter==='followup' ? 'on-f' : '';
-  var sCls = importFilter==='sent' ? 'on' : '';
   var cCls = importFilter==='confirmed' ? 'on-c' : '';
   var dCls = importFilter==='declined' ? 'on-d' : '';
   var mCls = importFilter==='manual' ? 'on-m' : '';
   var ovCls = importFilter==='dashboard' ? 'on-ov' : '';
+  var notSent=importQueue.filter(function(g){return!g.skipped&&!g.sent;}).length;
+  var allBadge = notSent ? ' <span class="f-pill-badge">'+notSent+'</span>' : '';
   row.innerHTML = ''
     +'<button class="f-pill '+ovCls+'" data-f="dashboard">Overview</button>'
-    +'<button class="f-pill'+(isAll?' on':'')+'" data-f="all">All</button>'
-    +'<button class="f-pill f-sent-pill '+sCls+'" data-f="sent">Sent</button>'
-    +'<button class="f-pill '+fCls+'" data-f="followup">Flag</button>'
+    +'<button class="f-pill'+(isAll?' on':'')+'" data-f="all">All'+allBadge+'</button>'
     +'<button class="f-pill '+cCls+'" data-f="confirmed">Confirmed</button>'
     +'<button class="f-pill '+dCls+'" data-f="declined">Declined</button>'
     +'<button class="f-pill '+mCls+'" data-f="manual">Forecast</button>';
