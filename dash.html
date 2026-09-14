@@ -654,7 +654,6 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .deploy-btn{display:none}
 .deploy-btn:hover{border-color:#25D366;color:#25D366}
 .deploy-btn.deploying{border-color:var(--amber);color:var(--amber);animation:spin .8s linear infinite}
-#syncInfoNowBtn.syncing svg{animation:spin .8s linear infinite}
 .deploy-btn.deployed{border-color:#25D366;color:#25D366}
 @keyframes spin{to{transform:rotate(360deg)}}
 .settings-btn{width:32px;height:32px;border-radius:50%;background:var(--cream2);border:none;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--ease)}
@@ -844,7 +843,6 @@ body.lite-mode #dashboard,
 body.lite-mode #updateBanner,
 body.lite-mode .update-banner,
 body.lite-mode .split-bar,
-body.lite-mode #syncInfoBanner,
 body.lite-mode #rsvpChangeBanner,
 body.lite-mode .kb-hint,
 body.lite-mode .g-swipe-action-right,
@@ -1505,33 +1503,12 @@ body.lite-mode #liteModeTopBtn {
 <!-- VERSION INFO POPUP -->
 <div id="deployInfoPopup" class="deploy-info-popup"></div>
 
-<!-- SYNC INFO BANNER -->
-<div id="syncInfoBanner" style="display:flex;background:linear-gradient(135deg,#F2D8CC,#EDD5C5);color:var(--ink2);padding:9px 14px 9px 16px;font-family:var(--sans);font-size:11.5px;font-weight:500;line-height:1.4;align-items:center;gap:10px;border-bottom:1px solid rgba(201,135,106,.2)">
-  <button id="syncInfoNowBtn" title="Tap to sync now" style="flex-shrink:0;background:none;border:none;padding:0;cursor:pointer;color:inherit;display:flex;align-items:center"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></button>
-  <span style="flex:1">Changes don't sync on their own — tap <strong style="color:var(--rose-deep)">⟳ Sync</strong> in the top bar after editing. <span style="text-decoration:underline;cursor:pointer" onclick="document.getElementById('syncInfoNowBtn').click()">Sync now.</span></span>
-  <button onclick="(function(){var b=document.getElementById('syncInfoBanner');b.style.opacity='0';b.style.transition='opacity .3s';setTimeout(function(){b.style.display='none';try{sessionStorage.setItem('syncBannerDismissed','1')}catch(e){}},300)})()" style="background:rgba(160,97,74,.15);border:1px solid rgba(160,97,74,.3);color:var(--rose-deep);border-radius:50%;width:22px;height:22px;font-size:14px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:var(--sans);transition:background .2s" onmouseover="this.style.background='rgba(160,97,74,.25)'" onmouseout="this.style.background='rgba(160,97,74,.15)'">×</button>
-</div>
-
 <!-- GUEST SYNC BANNER -->
 <div id="guestSyncBanner">
   <button id="guestSyncNowBtn" style="display:inline-flex;align-items:center;gap:7px;background:#C9702A;border:none;color:#fff;border-radius:var(--r-pill);padding:8px 16px;font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0;letter-spacing:.04em;box-shadow:0 4px 16px rgba(0,0,0,.2);transition:background .15s" onmouseover="this.style.background='#8B4A12'" onmouseout="this.style.background='#C9702A'"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>Sync now</button>
 </div>
 <script>
 (function(){
-  var infoBtn = document.getElementById('syncInfoNowBtn');
-  if(infoBtn){
-    infoBtn.addEventListener('click', function(){
-      if(infoBtn.classList.contains('syncing')) return;
-      infoBtn.classList.add('syncing');
-      // This banner is about cross-device sync (push local changes, pull
-      // others'), so it triggers syncDevices() — not doSync(), which is
-      // the separate Notion→browser roster pull. syncDevices is defined
-      // later in the script — call via timeout to ensure it's available.
-      setTimeout(function(){ if(typeof syncDevices==='function') syncDevices(); }, 0);
-      setTimeout(function(){ infoBtn.classList.remove('syncing'); }, 1200);
-    });
-  }
-
   var btn = document.getElementById('guestSyncNowBtn');
   var banner = document.getElementById('guestSyncBanner');
   if(!btn) return;
@@ -2327,6 +2304,7 @@ function _pushWithRetry(endpoint,payload,retryKey){
     .catch(function(){
       // queue for retry on next sync
       var existing=_retryQueue.find(function(item){return item.key===retryKey;});
+      var isNewFailure=!existing;
       if(!existing){_retryQueue.push({key:retryKey,endpoint:endpoint,payload:payload,ts:Date.now()});}
       else{existing.payload=payload;existing.ts=Date.now();} // overwrite with latest
       _saveRetryQueue();
@@ -2334,6 +2312,13 @@ function _pushWithRetry(endpoint,payload,retryKey){
       // traffic (/meta, /sent, /unsent, /claims), never the Notion pill
       var dot=document.getElementById('syncDevicesDot');if(dot){dot.style.background='var(--amber)';}
       var lbl=document.getElementById('syncDevicesLabel');if(lbl)lbl.textContent='Push failed!';
+      // Surface it on the page too (once per new failure, not every retry
+      // attempt) — this replaces the old persistent "changes don't sync on
+      // their own" banner, which was removed since most edits already push
+      // immediately; a toast only fires when a push has actually failed.
+      if(isNewFailure&&typeof showActivityToast==='function'){
+        showActivityToast('Couldn\'t sync a change — tap ⟳ Sync Devices, top left');
+      }
     });
 }
 function _flushRetryQueue(){
@@ -6117,11 +6102,6 @@ function doSyncSilent(){
 })();
 
 
-/* ── SYNC INFO BANNER ── */
-(function(){
-  try{ if(sessionStorage.getItem('syncBannerDismissed')){ document.getElementById('syncInfoBanner').style.display='none'; } } catch(e){}
-})();
-
 /* ── ACTIVITY TOAST ── */
 function showActivityToast(msg){
   var t = document.getElementById('activityToast');
@@ -6359,7 +6339,7 @@ function showChatNotif(who, text){
   var COUNT_KEY = 'rsvpLastCount';
   var DATA_KEY  = 'rsvpLastData';
 
-  // Notification banner (created dynamically so it sits below syncInfoBanner)
+  // Notification banner (created dynamically so it sits right below the topbar)
   var banner = document.createElement('div');
   banner.id = 'rsvpChangeBanner';
   banner.style.cssText = 'display:none;background:linear-gradient(135deg,#FDE8EE,#F9D4E0);color:#9B1A44;padding:9px 14px 9px 16px;font-family:var(--sans);font-size:11.5px;font-weight:500;line-height:1.4;align-items:center;gap:10px;border-bottom:1px solid rgba(155,26,68,.15)';
@@ -6367,8 +6347,8 @@ function showChatNotif(who, text){
     + '<span id="rsvpBannerText" style="flex:1"></span>'
     + '<a href="https://docs.google.com/spreadsheets/d/1plydb1KSGgwbxCZzmSD8e12f-Rzzm9-dOlFml4ivUKQ/edit" target="_blank" style="color:#9B1A44;font-weight:700;text-decoration:none;white-space:nowrap;padding:3px 10px;border-radius:100px;background:rgba(155,26,68,.1);border:1px solid rgba(155,26,68,.2);margin-right:6px">View ↗</a>'
     + '<button onclick="document.getElementById(\'rsvpChangeBanner\').style.display=\'none\'" style="background:rgba(155,26,68,.12);border:1px solid rgba(155,26,68,.2);color:#9B1A44;border-radius:50%;width:22px;height:22px;font-size:16px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center">×</button>';
-  var syncBanner = document.getElementById('syncInfoBanner');
-  if(syncBanner && syncBanner.parentNode) syncBanner.parentNode.insertBefore(banner, syncBanner.nextSibling);
+  var topbarEl = document.querySelector('.topbar');
+  if(topbarEl && topbarEl.parentNode) topbarEl.parentNode.insertBefore(banner, topbarEl.nextSibling);
 
   // Fetch via Worker proxy first (avoids Safari CORS block on script.google.com),
   // then silently fall back to direct Apps Script call on non-Safari.
