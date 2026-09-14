@@ -229,6 +229,8 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .f-pill.on-e{background:var(--elnur-bg);border-color:var(--elnur-border);color:var(--elnur-txt)}
 .f-pill.f-sent-pill.on{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 2px 8px rgba(58,140,92,.25)}
 .f-pill.on-c{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 2px 8px rgba(58,140,92,.25)}
+.f-pill.on-d{background:var(--red);border-color:var(--red);color:#fff;box-shadow:0 2px 8px rgba(192,64,46,.25)}
+.f-pill.on-m{background:#7c3aed;border-color:#7c3aed;color:#fff;box-shadow:0 2px 8px rgba(124,58,237,.25)}
 /* Guest-list filter row restyled as browser-style tabs: flat top corners,
    sitting on a shared baseline rule; the active tab's own bottom border
    overwrites that line in its accent color, so it reads as "attached" to
@@ -242,6 +244,8 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 #filterRow .f-pill.on{background:var(--rose);border-color:var(--rose);color:#fff;border-bottom-color:var(--rose);box-shadow:none}
 #filterRow .f-pill.on-f{background:var(--amber-bg);border-color:rgba(176,120,48,.3);color:var(--amber);border-bottom-color:var(--amber-bg)}
 #filterRow .f-pill.on-c,#filterRow .f-pill.f-sent-pill.on{background:var(--green);border-color:var(--green);color:#fff;border-bottom-color:var(--green);box-shadow:none}
+#filterRow .f-pill.on-d{background:var(--red);border-color:var(--red);color:#fff;border-bottom-color:var(--red);box-shadow:none}
+#filterRow .f-pill.on-m{background:#7c3aed;border-color:#7c3aed;color:#fff;border-bottom-color:#7c3aed;box-shadow:none}
 /* Arina / Elnur filter pills — solid, high-contrast fill (not the pale
    badge tint used elsewhere) specifically so "selected" is unmistakable
    at a glance and never reads the same as "unselected". */
@@ -2685,22 +2689,18 @@ function renderDashboard(){
 function renderFilterRow(){
   var row=document.getElementById('filterRow');
   var isAll = importFilter==='all';
-  var isA = importFilter==='Arina';
-  var isE = importFilter==='Elnur';
   var fCls = importFilter==='followup' ? 'on-f' : '';
   var sCls = importFilter==='sent' ? 'on' : '';
   var cCls = importFilter==='confirmed' ? 'on-c' : '';
-  /* Three separate, unambiguous pills — each one is either clearly ON
-     (solid fill, white text) or clearly OFF (plain cream), same pattern
-     as Flag/Sent/Confirmed, so which sender is being viewed is never in
-     doubt. */
+  var dCls = importFilter==='declined' ? 'on-d' : '';
+  var mCls = importFilter==='manual' ? 'on-m' : '';
   row.innerHTML = ''
     +'<button class="f-pill'+(isAll?' on':'')+'" data-f="all">All</button>'
-    +'<button class="f-pill'+(isA?' on-a':'')+'" data-f="Arina">Arina</button>'
-    +'<button class="f-pill'+(isE?' on-e':'')+'" data-f="Elnur">Elnur</button>'
-    +'<button class="f-pill '+fCls+'" data-f="followup">Flag</button>'
     +'<button class="f-pill f-sent-pill '+sCls+'" data-f="sent">Sent</button>'
-    +'<button class="f-pill '+cCls+'" data-f="confirmed">Confirmed</button>';
+    +'<button class="f-pill '+fCls+'" data-f="followup">Flag</button>'
+    +'<button class="f-pill '+cCls+'" data-f="confirmed">Confirmed</button>'
+    +'<button class="f-pill '+dCls+'" data-f="declined">Declined</button>'
+    +'<button class="f-pill '+mCls+'" data-f="manual">Manual</button>';
 
   row.querySelectorAll('[data-f]').forEach(function(b){
     b.addEventListener('click',function(){
@@ -2716,12 +2716,14 @@ function isPartyType(g){ return g.type==='ceremony-party-single'||g.type==='coup
 function getFiltered(){
   return importQueue.filter(function(g){
     if(g.skipped)return false;
-    if(importFilter==='Arina')return g.sender==='Arina';
-    if(importFilter==='Elnur')return g.sender==='Elnur';
     if(importFilter==='followup')return g.followup;
     if(importFilter==='pending')return!g.sent;
     if(importFilter==='sent')return g.sent;
-    if(importFilter==='confirmed')return g.sent&&getGuestRsvpYesNo(g)===true;
+    // Confirmed/Declined = an actual RSVP answer, not just the planner's guess
+    if(importFilter==='confirmed')return getGuestRsvpYesNo(g)===true&&!getGuestRsvpIsGuess(g);
+    if(importFilter==='declined')return getGuestRsvpYesNo(g)===false&&!getGuestRsvpIsGuess(g);
+    // Manual = guests with a hand-entered status (Unsure / Expecting / Unlikely)
+    if(importFilter==='manual')return!!g.questionable||g.plannerGuess==='yes'||g.plannerGuess==='no';
     return true;
   }).filter(function(g){return!searchQuery||(g.name||'').toLowerCase().includes(searchQuery);})
     .filter(function(g){return!groupFilter||(g.group||'')===groupFilter;})
