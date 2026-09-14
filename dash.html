@@ -304,6 +304,8 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-group-toggle.is-open .g-group-chevron{transform:rotate(0deg)}
 .g-group-hdr.sent-with-stats.g-group-toggle::after{content:none}
 .g-group-hdr.g-group-sub{font-size:8px;opacity:.6;padding:4px 2px 3px;margin-top:2px}
+.g-group-body{display:flex;flex-direction:column;gap:8px}
+.g-group-body:empty{display:none}
 
 /* Swipe wrapper — no overflow:hidden so action panels peek out from behind sliding card */
 .g-swipe-wrap{position:relative;border-radius:var(--r-sm);border:none;box-shadow:var(--shadow-sm);background:#fff;overflow:hidden}
@@ -2210,7 +2212,6 @@ var sessionSender='Arina'; // active session
 var todayCount=0; // sent this session
 // Unique per-tab ID so the poller can ignore events this tab generated
 var deviceId=(function(){try{var d=sessionStorage.getItem('ww_device');if(!d){d=Math.random().toString(36).slice(2)+Date.now().toString(36);sessionStorage.setItem('ww_device',d);}return d;}catch(e){return Math.random().toString(36).slice(2);}})();
-var showSent=true; // collapse sent guests
 var expandedFamilyPods={}; // host guest name -> true if their nested kids are expanded
 var expandedGroups={}; // group section key -> true if its cards are expanded (default: collapsed)
 
@@ -2637,7 +2638,7 @@ document.getElementById('settSessE').addEventListener('click',function(){
 })();
 document.getElementById('ovTotal').addEventListener('click',function(){
   var ga=document.getElementById('guestArea');if(ga.style.display==='none')return;
-  importFilter='unsent';showSent=false;renderFilterRow();renderGuestList();
+  importFilter='unsent';renderFilterRow();renderGuestList();
 });
 (function(){
   var reviewBtn=document.getElementById('reviewPairsBtn');
@@ -2983,64 +2984,56 @@ function renderGuestList(){
   // yes/no count and each person's color can never be ambiguous.
   if(sentGuests.length){
     var sentHdrLabel=({confirmed:'Confirmed',declined:'Declined',manual:'Forecast',followup:'Flagged'})[importFilter]||'Church + Party';
-    if(showSent){
-      var sentYes=sentGuests.filter(function(g){return getGuestRsvpYesNo(g)===true;}).length;
-      var sentNo=sentGuests.filter(function(g){return getGuestRsvpYesNo(g)===false;}).length;
-      var sentInner='<span style="flex-shrink:0">'+sentHdrLabel+' ('+sentGuests.length+')</span>'
-        + '<span style="flex:1;height:1px;background:var(--parchment);display:inline-block;min-width:8px"></span>'
-        + entriesCluster(sentGuests.length, sentYes, sentNo, false);
-      // Pairs you've explicitly confirmed in Review Pairs collapse into one
-      // merged card — everyone else (pending / unreviewed / suspicious)
-      // stays as two separate cards so anything unresolved stays visible.
-      // Split into two buckets by invite type: church-only (ceremony, no
-      // reception) get their own subsection below the main list, so
-      // scrolling the Sent list makes it obvious at a glance who's
-      // ceremony-only vs. invited to the full celebration.
-      function isChurchOnly(g){ return (g.type||'').indexOf('party')===-1; }
-      // Count every sent guest individually by their own invite type, so
-      // Party + Church only always adds up to the section total above —
-      // independent of how cards get merged/nested for display below.
-      var churchCount=sentGuests.filter(isChurchOnly).length;
-      var partyCount=sentGuests.length-churchCount;
-      var mergedSeen={};
-      var partyHtml='', churchHtml='';
-      sentGuests.forEach(function(g){
-        var ri=importQueue.indexOf(g);
-        if(mergedSeen[ri])return;
-        if(isNestedElsewhere(g))return; // renders nested under its host parent instead
-        var partnerObj=g.bulkWith?importQueue.find(function(o){return o.name===g.bulkWith;}):null;
-        var partnerInSentList=partnerObj&&sentGuests.indexOf(partnerObj)!==-1;
-        var pKey=partnerObj?pairKey(g.name,partnerObj.name):null;
-        var isConfirmedPair=partnerInSentList&&pKey&&_confirmedPairs[pKey];
-        var cardHtml;
-        if(isConfirmedPair){
-          var partnerRi=importQueue.indexOf(partnerObj);
-          mergedSeen[partnerRi]=true;
-          cardHtml=mergedPairWithKids('<div class="g-pair-merged">'+buildGuestCard(g,'top')+buildGuestCard(partnerObj,'bottom')+'</div>',[g.name,partnerObj.name]);
-        } else {
-          cardHtml=mergedPairWithKids(buildGuestCard(g),[g.name]);
-        }
-        if(isChurchOnly(g)){ churchHtml+=cardHtml; }
-        else { partyHtml+=cardHtml; }
-      });
-      var sentBody='';
-      if(partyHtml){
-        sentBody+=groupSection('party:'+importFilter, '<span style="margin-right:5px">&#x1F389;</span>Party <span style="opacity:.4">('+partyCount+')</span>', partyHtml, 'party-hdr', 'color:#B0762E;border-color:rgba(176,118,46,.25)', true);
+    var sentYes=sentGuests.filter(function(g){return getGuestRsvpYesNo(g)===true;}).length;
+    var sentNo=sentGuests.filter(function(g){return getGuestRsvpYesNo(g)===false;}).length;
+    var sentInner='<span style="flex-shrink:0">'+sentHdrLabel+' ('+sentGuests.length+')</span>'
+      + '<span style="flex:1;height:1px;background:var(--parchment);display:inline-block;min-width:8px"></span>'
+      + entriesCluster(sentGuests.length, sentYes, sentNo, false);
+    // Pairs you've explicitly confirmed in Review Pairs collapse into one
+    // merged card — everyone else (pending / unreviewed / suspicious)
+    // stays as two separate cards so anything unresolved stays visible.
+    // Split into two buckets by invite type: church-only (ceremony, no
+    // reception) get their own subsection below the main list, so
+    // scrolling the Sent list makes it obvious at a glance who's
+    // ceremony-only vs. invited to the full celebration.
+    function isChurchOnly(g){ return (g.type||'').indexOf('party')===-1; }
+    // Count every sent guest individually by their own invite type, so
+    // Party + Church only always adds up to the section total above —
+    // independent of how cards get merged/nested for display below.
+    var churchCount=sentGuests.filter(isChurchOnly).length;
+    var partyCount=sentGuests.length-churchCount;
+    var mergedSeen={};
+    var partyHtml='', churchHtml='';
+    sentGuests.forEach(function(g){
+      var ri=importQueue.indexOf(g);
+      if(mergedSeen[ri])return;
+      if(isNestedElsewhere(g))return; // renders nested under its host parent instead
+      var partnerObj=g.bulkWith?importQueue.find(function(o){return o.name===g.bulkWith;}):null;
+      var partnerInSentList=partnerObj&&sentGuests.indexOf(partnerObj)!==-1;
+      var pKey=partnerObj?pairKey(g.name,partnerObj.name):null;
+      var isConfirmedPair=partnerInSentList&&pKey&&_confirmedPairs[pKey];
+      var cardHtml;
+      if(isConfirmedPair){
+        var partnerRi=importQueue.indexOf(partnerObj);
+        mergedSeen[partnerRi]=true;
+        cardHtml=mergedPairWithKids('<div class="g-pair-merged">'+buildGuestCard(g,'top')+buildGuestCard(partnerObj,'bottom')+'</div>',[g.name,partnerObj.name]);
+      } else {
+        cardHtml=mergedPairWithKids(buildGuestCard(g),[g.name]);
       }
-      if(churchHtml){
-        sentBody+=groupSection('church:'+importFilter, '<span style="margin-right:5px">&#x26EA;</span>Church only <span style="opacity:.4">('+churchCount+')</span>', churchHtml, 'church-only-hdr', 'color:#7C4DBB;border-color:rgba(124,77,187,.2)', true);
-      }
-      html+=groupSection('sent:'+importFilter, sentInner, sentBody, 'sent sent-with-stats', null, true);
-      html+='<button class="show-sent-btn" id="showSentBtn">Hide '+sentHdrLabel.toLowerCase()+'</button>';
-    } else {
-      html+='<button class="show-sent-btn" id="showSentBtn">Show '+sentGuests.length+' '+sentHdrLabel.toLowerCase()+'</button>';
+      if(isChurchOnly(g)){ churchHtml+=cardHtml; }
+      else { partyHtml+=cardHtml; }
+    });
+    var sentBody='';
+    if(partyHtml){
+      sentBody+=groupSection('party:'+importFilter, '<span style="margin-right:5px">&#x1F389;</span>Party <span style="opacity:.4">('+partyCount+')</span>', partyHtml, 'party-hdr', 'color:#B0762E;border-color:rgba(176,118,46,.25)', true);
     }
+    if(churchHtml){
+      sentBody+=groupSection('church:'+importFilter, '<span style="margin-right:5px">&#x26EA;</span>Church only <span style="opacity:.4">('+churchCount+')</span>', churchHtml, 'church-only-hdr', 'color:#7C4DBB;border-color:rgba(124,77,187,.2)', true);
+    }
+    html+=groupSection('sent:'+importFilter, sentInner, sentBody, 'sent sent-with-stats', null, true);
   }
 
   list.innerHTML=html;
-
-  var ssBtn=document.getElementById('showSentBtn');
-  if(ssBtn)ssBtn.addEventListener('click',function(e){e.stopPropagation();showSent=!showSent;renderGuestList();});
 
   // Group section toggles — collapse/expand a section's cards in place
   // (no full re-render) so scroll position and other open sections stay put.
