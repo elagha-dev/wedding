@@ -435,20 +435,24 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .chip-lang{background:var(--parchment);color:var(--muted)}
 .chip-rsvp{background:var(--green-bg);color:var(--green)}
 .chip-child{background:#EAF0FA;color:#4A6EA8}.is-child .g-inner-right .ga-btn-wa,.is-child .g-inner-right .g-del{display:none!important}
-/* Manual-status dropdown — one native <select> covering "questionable"
-   (maybe), "expecting yes", and "expecting no" for a guest who hasn't
-   actually RSVP'd. Blank/muted when unset; a bold flat fill once a choice
-   is made, colored to match the meaning (purple=maybe, matching the old
-   questionable flag; green/red gradient=guess, matching the old Y/N
-   chips). appearance:none strips the native chrome so the fill color
-   reads clearly on iOS/Android alike; the wrapping span adds the little
-   caret since a <select> can't take a ::after. */
-.rsvp-guess-wrap{position:relative;display:inline-flex;flex-shrink:0}
-.rsvp-guess-wrap::after{content:'▾';position:absolute;right:4px;top:50%;transform:translateY(-50%);font-size:7px;color:inherit;pointer-events:none;opacity:.7}
-.rsvp-guess-select{-webkit-appearance:none;appearance:none;border:1.3px dashed var(--parchment);background:var(--cream2);color:var(--muted);font-family:inherit;font-size:8.5px;font-weight:700;letter-spacing:.02em;border-radius:var(--r-pill);height:18px;line-height:16px;padding:0 14px 0 6px;cursor:pointer;flex-shrink:0;max-width:74px}
-.rsvp-guess-select.rsvp-guess-maybe{background:#7c3aed;color:#fff;border:none}
-.rsvp-guess-select.rsvp-guess-yes{background:linear-gradient(135deg,#4ade80,#15803d);color:#fff;border:none;box-shadow:0 1px 5px rgba(21,128,61,.45)}
-.rsvp-guess-select.rsvp-guess-no{background:linear-gradient(135deg,#f87171,#b91c1c);color:#fff;border:none;box-shadow:0 1px 5px rgba(185,28,28,.45)}
+.chip-questionable{background:#7c3aed;color:#fff;border:none;cursor:pointer;font-family:inherit}
+.chip-questionable-add{background:none;color:var(--muted);border:1.3px dashed var(--parchment);cursor:pointer;font-family:inherit;width:18px;padding:0;justify-content:center}
+.chip-questionable-add:active{color:#7c3aed;border-color:#7c3aed}
+/* Planning guess chips — dashed border on both the "add" ghost and the
+   active state signals "guess, not a real answer", distinct from the
+   solid-filled confirmed RSVP colors used elsewhere. */
+/* Planning guess chips — single-icon width, same shape as the "?" unsure
+   button. Inactive = plain dashed ghost (matches chip-questionable-add).
+   Active = a bold gradient fill (not a flat tint) so a guess reads as a
+   confident, deliberate call at a glance — green for "expecting yes", red
+   for "expecting no" — while staying visually distinct from the solid flat
+   green/red used once a REAL RSVP comes in. */
+.chip-plan-yes-add{background:none;color:var(--muted);border:1.3px dashed var(--parchment);cursor:pointer;font-family:inherit;width:18px;padding:0;justify-content:center;font-size:9.5px}
+.chip-plan-yes-add:active{color:#16a34a;border-color:#16a34a}
+.chip-plan-yes{background:linear-gradient(135deg,#4ade80,#15803d);color:#fff;border:none;cursor:pointer;font-family:inherit;width:18px;padding:0;justify-content:center;box-shadow:0 1px 5px rgba(21,128,61,.45);font-size:9.5px}
+.chip-plan-no-add{background:none;color:var(--muted);border:1.3px dashed var(--parchment);cursor:pointer;font-family:inherit;width:18px;padding:0;justify-content:center;font-size:9.5px}
+.chip-plan-no-add:active{color:#dc2626;border-color:#dc2626}
+.chip-plan-no{background:linear-gradient(135deg,#f87171,#b91c1c);color:#fff;border:none;cursor:pointer;font-family:inherit;width:18px;padding:0;justify-content:center;box-shadow:0 1px 5px rgba(185,28,28,.45);font-size:9.5px}
 .chip-role{background:#F0E6F7;color:#6B3FA0;cursor:pointer}
 .chip-role-empty{background:transparent;color:var(--soft);border:1.5px dashed var(--soft)}
 .ga-btn-role{color:#8B5FBF}.ga-btn-role.has-role{color:#6B3FA0;background:#F0E6F7}
@@ -2942,8 +2946,9 @@ function renderGuestList(){
       else if(a==='confirm-no'){g.pendingSent=false;saveGuestMeta();renderGuestList();}
       else if(a==='rsvp-yes'){g.manualRsvp=(g.manualRsvp==='yes')?'':'yes';var qi2y=this.dataset.qi2;var g2y=(qi2y!==undefined&&qi2y!=='')?importQueue[parseInt(qi2y)]:null;if(g2y)g2y.manualRsvp=g.manualRsvp;saveGuestMeta();renderGuestList();renderDashboard();pushMetaToWorker(g).then(function(){if(g2y)pushMetaToWorker(g2y);});}
       else if(a==='rsvp-no'){g.manualRsvp=(g.manualRsvp==='no')?'':'no';var qi2n=this.dataset.qi2;var g2n=(qi2n!==undefined&&qi2n!=='')?importQueue[parseInt(qi2n)]:null;if(g2n)g2n.manualRsvp=g.manualRsvp;saveGuestMeta();renderGuestList();renderDashboard();pushMetaToWorker(g).then(function(){if(g2n)pushMetaToWorker(g2n);});}
-      // toggle-questionable/plan-yes/plan-no removed: superseded by the
-      // single rsvp-guess-select dropdown's 'change' handler below.
+      else if(a==='toggle-questionable'){g.questionable=!g.questionable;saveGuestMeta();renderGuestList();if(typeof renderSeatMap==='function')renderSeatMap();pushMetaToWorker(g);}
+      else if(a==='plan-yes'){g.plannerGuess=(g.plannerGuess==='yes')?'':'yes';saveGuestMeta();renderGuestList();renderDashboard();if(typeof renderSeatMap==='function')renderSeatMap();pushMetaToWorker(g);}
+      else if(a==='plan-no'){g.plannerGuess=(g.plannerGuess==='no')?'':'no';saveGuestMeta();renderGuestList();renderDashboard();if(typeof renderSeatMap==='function')renderSeatMap();pushMetaToWorker(g);}
       else if(a==='unlink-partner'){
         var oldPartner=importQueue.find(function(o){return o.name===g.bulkWith;});
         if(confirm('Unlink '+g.name+' from '+g.bulkWith+'?')){
@@ -4156,28 +4161,33 @@ function buildGuestCard(g, mergedPairPos){
     // submission at all — the most-pending case there is — so that counts
     // as pending here too, or the toggle silently never shows for exactly
     // the guests you're most likely to be unsure about.
-    /* Single manual-status dropdown — combines "questionable", "expecting
-       yes", and "expecting no" into one control instead of three separate
-       chips. A native <select> so it's a real dropdown on mobile, and it's
-       necessarily single-choice, which is the point: for THIS control the
-       four states (blank/maybe/yes/no) really are mutually exclusive, one
-       call per guest. (This doesn't reopen the earlier questionable+guess
-       coexistence — that was about two independently-meant flags; here
-       they're being asked for as one dial.) The manual override buttons in
-       the swipe panel (an actual received answer) are untouched and still
-       always win over whatever's picked here — see getGuestRsvpInfo. */
-    if(!coupleRole && (rsvpClass===' rsvp-pending' || rsvpClass==='' || rsvpClass===' rsvp-yes-guess' || rsvpClass===' rsvp-no-guess')){
-      var guessVal=g.questionable?'maybe':(g.plannerGuess==='yes'?'yes':(g.plannerGuess==='no'?'no':''));
-      var guessCls='rsvp-guess-'+(guessVal||'empty');
-      pillWrap += '<span class="rsvp-guess-wrap">'
-        + '<select class="rsvp-guess-select '+guessCls+'" data-qi="'+ri+'" title="Manual status: no RSVP yet, but your best guess for planning">'
-        + '<option value=""'+(guessVal===''?' selected':'')+'>—</option>'
-        + '<option value="maybe"'+(guessVal==='maybe'?' selected':'')+'>? Maybe</option>'
-        + '<option value="yes"'+(guessVal==='yes'?' selected':'')+'>Y Expecting yes</option>'
-        + '<option value="no"'+(guessVal==='no'?' selected':'')+'>N Expecting no</option>'
-        + '</select></span>';
-    }
+    if(!coupleRole && (rsvpClass===' rsvp-pending' || rsvpClass==='')) pillWrap += g.questionable
+      ? '<button type="button" class="chip chip-questionable" data-qi="'+ri+'" data-action="toggle-questionable" title="Tap to unmark">? Unsure</button>'
+      : '<button type="button" class="chip chip-questionable-add" data-qi="'+ri+'" data-action="toggle-questionable" title="Mark as questionable">?</button>';
 
+    /* Planning guess — for a guest with no real RSVP yet, but the planner
+       is confident enough to guess the outcome for headcount purposes
+       (e.g. "I know they're coming"). Deliberately separate from the
+       manual RSVP override above: a manual override is treated as an
+       actual answer and always wins; a planning guess is only a stand-in
+       and gets silently replaced the moment a real RSVP (or a manual
+       override) comes in — see getGuestRsvpInfo. Independent from
+       "questionable" (that flags seating-chart caution; this feeds the
+       headcount) — a guest can be both "I expect them" and "don't
+       finalize their seat yet" at once. Only offered while there's
+       genuinely nothing better to go on yet — pending/unmatched, or an
+       existing guess the planner may want to change or clear. Uses Y/N
+       letters rather than a check/✗ icon so it can never be mistaken at a
+       glance for the check/✗ "confirmed by phone" override buttons in the
+       swipe panel — same colors, deliberately different glyph. */
+    if(!coupleRole && (rsvpClass===' rsvp-pending' || rsvpClass==='' || rsvpClass===' rsvp-yes-guess' || rsvpClass===' rsvp-no-guess')){
+      pillWrap += g.plannerGuess==='yes'
+        ? '<button type="button" class="chip chip-plan-yes" data-qi="'+ri+'" data-action="plan-yes" title="Planning guess: expecting Yes. Tap to clear.">Y</button>'
+        : '<button type="button" class="chip chip-plan-yes-add" data-qi="'+ri+'" data-action="plan-yes" title="Guess: expecting them to attend (no RSVP yet)">Y</button>';
+      pillWrap += g.plannerGuess==='no'
+        ? '<button type="button" class="chip chip-plan-no" data-qi="'+ri+'" data-action="plan-no" title="Planning guess: expecting No. Tap to clear.">N</button>'
+        : '<button type="button" class="chip chip-plan-no-add" data-qi="'+ri+'" data-action="plan-no" title="Guess: expecting them to decline (no RSVP yet)">N</button>';
+    }
 
     /* Bulk-sent reference: if this guest was sent together with someone else,
        show a small line naming that partner and their current RSVP status —
