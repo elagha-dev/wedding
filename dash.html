@@ -678,6 +678,8 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .stat-pill.total{color:var(--ink2)}
 .stat-pill.sent{color:var(--green);background:var(--green-bg);cursor:pointer}
 .stat-pill.sent:hover{background:rgba(58,140,92,.18)}
+.stat-pill.forecast{color:#7c3aed;background:rgba(124,58,237,.08);cursor:pointer}
+.stat-pill.forecast:hover{background:rgba(124,58,237,.18)}
 .stat-pill.new-guests{color:#7C3AED;background:rgba(124,58,237,.08);cursor:default;animation:newPulse 2.5s ease-in-out 3}
 @keyframes newPulse{0%,100%{box-shadow:none}50%{box-shadow:0 0 0 3px rgba(124,58,237,.15)}}
 .dev-btn{width:32px;height:32px;border-radius:50%;background:var(--cream2);border:none;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--ease);font-size:11px;font-weight:700;font-family:var(--sans)}
@@ -1457,7 +1459,7 @@ body.lite-mode #liteModeTopBtn {
   </button>
   <!-- Stats -->
   <div class="stat-pill total" id="ovTotal" title="Total guests" style="cursor:pointer">0</div>
-  <div class="stat-pill sent" id="ovSent" title="Sent" style="cursor:pointer">0</div>
+  <div class="stat-pill forecast" id="ovForecast" title="Forecast (Confirmed + guesses)" style="cursor:pointer">0</div>
   <button id="reviewPairsBtn" title="Review sent-together pairs" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;border:none;background:var(--amber-bg);color:var(--amber);cursor:pointer;padding:0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></button>
   <div class="stat-pill new-guests" id="ovNew" title="New since last sync" style="display:none"></div>
   <!-- spacer -->
@@ -2679,18 +2681,11 @@ document.getElementById('ovTotal').addEventListener('click',function(){
     }
   });
 })();
-document.getElementById('ovSent').addEventListener('click',function(){
-  var ga=document.getElementById('guestArea');if(ga.style.display==='none')return;
-  importFilter='sent';showSent=true;renderFilterRow();renderGuestList();
-  requestAnimationFrame(function(){requestAnimationFrame(function(){
-    var sentHdr=document.querySelector('.g-group-hdr.sent');
-    if(!sentHdr)return;
-    var topbar=document.querySelector('.topbar');
-    var filters=document.querySelector('.sticky-filters');
-    var offset=(topbar?topbar.offsetHeight:50)+(filters?filters.offsetHeight:110)+8;
-    var rect=sentHdr.getBoundingClientRect();
-    window.scrollBy({top:rect.top-offset,behavior:'smooth'});
-  });});
+document.getElementById('ovForecast').addEventListener('click',function(){
+  var all=importQueue.filter(function(g){return!g.skipped;});
+  var confirmed=all.filter(function(g){return getGuestRsvpYesNo(g)===true&&!getGuestRsvpIsGuess(g);}).length;
+  var expecting=all.filter(function(g){return guestHasLiveManualStatus(g)&&g.plannerGuess==='yes';}).length;
+  showToastWarn('Forecast = Confirmed ('+confirmed+') + guests we\'re guessing "yes" for ('+expecting+').');
 });
 function showSessionToast(who){
   var other=who==='Arina'?'Elnur':'Arina';
@@ -2702,11 +2697,13 @@ function renderDashboard(){
   var pt=document.getElementById('progTrack');
   if(!importQueue.length){pt.style.display='none';return;}
   pt.style.display='';
-  var total=importQueue.filter(function(g){return!g.skipped;}).length,
-      sent=importQueue.filter(function(g){return g.sent;}).length,
-      pending=total-sent;
+  var all=importQueue.filter(function(g){return!g.skipped;});
+  var total=all.length,
+      sent=importQueue.filter(function(g){return g.sent;}).length;
+  var confirmed=all.filter(function(g){return getGuestRsvpYesNo(g)===true&&!getGuestRsvpIsGuess(g);}).length;
+  var expecting=all.filter(function(g){return guestHasLiveManualStatus(g)&&g.plannerGuess==='yes';}).length;
   document.getElementById('ovTotal').textContent=total;
-  document.getElementById('ovSent').textContent=sent;
+  document.getElementById('ovForecast').textContent=confirmed+expecting;
   document.getElementById('progFill').style.width=(total?Math.round(sent/total*100):0)+'%';
   renderStatBar();
 }
