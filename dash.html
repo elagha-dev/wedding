@@ -982,13 +982,17 @@ body.lite-mode #liteModeTopBtn {
 .countdown-num{font-family:var(--sans);font-size:12.5px;font-weight:700;line-height:1;color:var(--rose-deep)}
 .countdown-label{font-size:10px;font-weight:600;color:var(--muted)}
 .countdown-date{margin-left:5px;font-size:9.5px;color:var(--soft);white-space:nowrap}
+/* Countdown pill + the mini stat pills sit on one row, wrapping together
+   on narrow screens instead of the stats stacking underneath. */
+.top-stat-row{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:10px 0 4px}
+.top-stat-row .countdown-card{margin:0}
 /* Compact stat pills sitting next to the countdown — same pill language,
    just a few key numbers at a glance without opening the guest list. */
-.mini-ov-row{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}
+.mini-ov-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .mini-ov-box{display:inline-flex;align-items:baseline;gap:4px;padding:5px 11px;border-radius:var(--r-pill);background:var(--cream2);border:1px solid var(--parchment);cursor:pointer;transition:all var(--ease)}
 .mini-ov-box:hover{border-color:var(--blush)}
 .mini-ov-n{font-family:var(--sans);font-size:12.5px;font-weight:700;line-height:1;color:var(--ink2)}
-.mini-ov-n.g{color:var(--green)}.mini-ov-n.r{color:var(--red)}
+.mini-ov-n.g{color:var(--green)}.mini-ov-n.r{color:var(--red)}.mini-ov-n.p{color:#7c3aed}
 .mini-ov-l{font-size:9px;font-weight:600;letter-spacing:.04em;color:var(--muted)}
 
 /* ── AGENDA READ-ONLY SHARE VIEW ── */
@@ -1566,6 +1570,7 @@ body.lite-mode #liteModeTopBtn {
 
 <div class="wrap">
 
+<div class="top-stat-row">
 <div class="countdown-card" id="countdownCard">
   <div class="countdown-num" id="countdownNum">--</div>
   <div class="countdown-label" id="countdownLabel">days to go</div>
@@ -1573,6 +1578,7 @@ body.lite-mode #liteModeTopBtn {
 </div>
 
 <div class="mini-ov-row" id="miniOvRow" style="display:none"></div>
+</div>
 
 <div class="prog-track" id="progTrack" style="display:none!important"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
 
@@ -2718,10 +2724,11 @@ function renderMiniOverview(){
   var sent=all.filter(function(g){return g.sent;}).length;
   var confirmed=all.filter(function(g){return getGuestRsvpYesNo(g)===true&&!getGuestRsvpIsGuess(g);}).length;
   var declined=all.filter(function(g){return getGuestRsvpYesNo(g)===false&&!getGuestRsvpIsGuess(g);}).length;
+  var forecast=all.filter(function(g){return guestHasLiveManualStatus(g);}).length;
   function pill(cls,n,label,gotoFilter){
     return '<div class="mini-ov-box" data-mini-goto="'+gotoFilter+'"><span class="mini-ov-n '+cls+'">'+n+'</span><span class="mini-ov-l">'+label+'</span></div>';
   }
-  row.innerHTML=pill('',sent,'sent','sent')+pill('g',confirmed,'confirmed','confirmed')+pill('r',declined,'declined','declined');
+  row.innerHTML=pill('',sent,'sent','sent')+pill('g',confirmed,'confirmed','confirmed')+pill('r',declined,'declined','declined')+pill('p',forecast,'forecast','manual');
   row.style.display='';
   row.querySelectorAll('[data-mini-goto]').forEach(function(b){
     b.addEventListener('click',function(){
