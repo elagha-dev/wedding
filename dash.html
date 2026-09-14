@@ -370,14 +370,14 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-swipe-wrap.rsvp-pending .g-card.sent{background:#f59e0b!important}
 .g-swipe-wrap.rsvp-pending .g-card.sent .g-name{color:#fff!important;font-weight:800!important}
 .g-swipe-wrap.rsvp-pending .g-card.sent .g-sent-time{color:rgba(255,255,255,.7)!important}
-/* Planning guess — dashed inset border (not solid) and a soft tint instead
-   of the solid green/red fill used for a confirmed answer, so a guess can
-   never be mistaken for a real RSVP at a glance. Automatically replaced by
-   .rsvp-yes/.rsvp-no styling above the moment a real answer arrives. */
-.g-swipe-wrap.rsvp-yes-guess{box-shadow:inset 3px 0 0 #3A8C5C!important;border:1px dashed rgba(58,140,92,.5)}
+/* Planning guess — a soft tint instead of the solid green/red fill used
+   for a confirmed answer, so a guess can never be mistaken for a real
+   RSVP at a glance. Automatically replaced by .rsvp-yes/.rsvp-no styling
+   above the moment a real answer arrives. */
+.g-swipe-wrap.rsvp-yes-guess{box-shadow:inset 3px 0 0 #3A8C5C!important}
 .g-swipe-wrap.rsvp-yes-guess .g-card.sent{background:rgba(58,140,92,.16)!important}
 .g-swipe-wrap.rsvp-yes-guess .g-card.sent .g-name{color:#1a7a4a!important;font-weight:800!important}
-.g-swipe-wrap.rsvp-no-guess{box-shadow:inset 3px 0 0 #b91c1c!important;border:1px dashed rgba(185,28,28,.5)}
+.g-swipe-wrap.rsvp-no-guess{box-shadow:inset 3px 0 0 #b91c1c!important}
 .g-swipe-wrap.rsvp-no-guess .g-card.sent{background:rgba(185,28,28,.14)!important}
 .g-swipe-wrap.rsvp-no-guess .g-card.sent .g-name{color:#b91c1c!important;font-weight:800!important}
 .g-swipe-wrap:has(.g-card.pending-sent){box-shadow:inset 3px 0 0 var(--rose),var(--shadow-sm)}
