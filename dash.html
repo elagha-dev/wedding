@@ -441,12 +441,18 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 /* Planning guess chips — dashed border on both the "add" ghost and the
    active state signals "guess, not a real answer", distinct from the
    solid-filled confirmed RSVP colors used elsewhere. */
-.chip-plan-yes{background:#eaf5ee;color:#1a7a4a;border:1.3px dashed #1a7a4a;cursor:pointer;font-family:inherit}
-.chip-plan-yes-add{background:none;color:var(--muted);border:1.3px dashed var(--parchment);cursor:pointer;font-family:inherit;padding:0 6px;justify-content:center}
-.chip-plan-yes-add:active{color:#1a7a4a;border-color:#1a7a4a}
-.chip-plan-no{background:#fdecea;color:#b91c1c;border:1.3px dashed #b91c1c;cursor:pointer;font-family:inherit}
-.chip-plan-no-add{background:none;color:var(--muted);border:1.3px dashed var(--parchment);cursor:pointer;font-family:inherit;padding:0 6px;justify-content:center}
-.chip-plan-no-add:active{color:#b91c1c;border-color:#b91c1c}
+/* Planning guess chips — single-icon width, same shape as the "?" unsure
+   button. Inactive = plain dashed ghost (matches chip-questionable-add).
+   Active = a bold gradient fill (not a flat tint) so a guess reads as a
+   confident, deliberate call at a glance — green for "expecting yes", red
+   for "expecting no" — while staying visually distinct from the solid flat
+   green/red used once a REAL RSVP comes in. */
+.chip-plan-yes-add{background:none;color:var(--muted);border:1.3px dashed var(--parchment);cursor:pointer;font-family:inherit;width:18px;padding:0;justify-content:center}
+.chip-plan-yes-add:active{color:#16a34a;border-color:#16a34a}
+.chip-plan-yes{background:linear-gradient(135deg,#4ade80,#15803d);color:#fff;border:none;cursor:pointer;font-family:inherit;width:18px;padding:0;justify-content:center;box-shadow:0 1px 5px rgba(21,128,61,.45)}
+.chip-plan-no-add{background:none;color:var(--muted);border:1.3px dashed var(--parchment);cursor:pointer;font-family:inherit;width:18px;padding:0;justify-content:center}
+.chip-plan-no-add:active{color:#dc2626;border-color:#dc2626}
+.chip-plan-no{background:linear-gradient(135deg,#f87171,#b91c1c);color:#fff;border:none;cursor:pointer;font-family:inherit;width:18px;padding:0;justify-content:center;box-shadow:0 1px 5px rgba(185,28,28,.45)}
 .chip-role{background:#F0E6F7;color:#6B3FA0;cursor:pointer}
 .chip-role-empty{background:transparent;color:var(--soft);border:1.5px dashed var(--soft)}
 .ga-btn-role{color:#8B5FBF}.ga-btn-role.has-role{color:#6B3FA0;background:#F0E6F7}
@@ -4169,11 +4175,11 @@ function buildGuestCard(g, mergedPairPos){
        change or clear. */
     if(!coupleRole && (rsvpClass===' rsvp-pending' || rsvpClass==='' || rsvpClass===' rsvp-yes-guess' || rsvpClass===' rsvp-no-guess')){
       pillWrap += g.plannerGuess==='yes'
-        ? '<button type="button" class="chip chip-plan-yes" data-qi="'+ri+'" data-action="plan-yes" title="Planning guess: expecting Yes. Tap to clear.">~Yes</button>'
-        : '<button type="button" class="chip chip-plan-yes-add" data-qi="'+ri+'" data-action="plan-yes" title="Guess: expecting them to attend (no RSVP yet)">+Y</button>';
+        ? '<button type="button" class="chip chip-plan-yes" data-qi="'+ri+'" data-action="plan-yes" title="Planning guess: expecting Yes. Tap to clear.">✓</button>'
+        : '<button type="button" class="chip chip-plan-yes-add" data-qi="'+ri+'" data-action="plan-yes" title="Guess: expecting them to attend (no RSVP yet)">✓</button>';
       pillWrap += g.plannerGuess==='no'
-        ? '<button type="button" class="chip chip-plan-no" data-qi="'+ri+'" data-action="plan-no" title="Planning guess: expecting No. Tap to clear.">~No</button>'
-        : '<button type="button" class="chip chip-plan-no-add" data-qi="'+ri+'" data-action="plan-no" title="Guess: expecting them to decline (no RSVP yet)">+N</button>';
+        ? '<button type="button" class="chip chip-plan-no" data-qi="'+ri+'" data-action="plan-no" title="Planning guess: expecting No. Tap to clear.">✗</button>'
+        : '<button type="button" class="chip chip-plan-no-add" data-qi="'+ri+'" data-action="plan-no" title="Guess: expecting them to decline (no RSVP yet)">✗</button>';
     }
 
     /* Bulk-sent reference: if this guest was sent together with someone else,
