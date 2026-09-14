@@ -117,6 +117,9 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .dash-cell{background:var(--cream);border-radius:var(--r-sm);padding:10px 12px;text-align:center;border:1.5px solid transparent;cursor:pointer;transition:all var(--ease)}
 .dash-cell:hover{border-color:var(--blush);transform:translateY(-1px)}
 .dash-cell.active{border-color:var(--rose-soft);background:var(--rose-soft)}
+.dash-cell-static{cursor:default}
+.dash-cell-static:hover{border-color:transparent;transform:none}
+.dash-cell-note{font-size:10px;color:var(--muted);text-align:center;margin:-2px 0 14px}
 .dash-n{font-family:var(--sans);font-size:18px;font-weight:600;line-height:1;margin-bottom:2px}
 .dash-n.g{color:var(--green)}.dash-n.a{color:var(--amber)}.dash-n.r{color:var(--red)}.dash-n.b{color:#5A7FA8}.dash-n.ink{color:var(--ink2)}
 .dash-l{font-size:8px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
@@ -231,6 +234,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .f-pill.on-c{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 2px 8px rgba(58,140,92,.25)}
 .f-pill.on-d{background:var(--red);border-color:var(--red);color:#fff;box-shadow:0 2px 8px rgba(192,64,46,.25)}
 .f-pill.on-m{background:#7c3aed;border-color:#7c3aed;color:#fff;box-shadow:0 2px 8px rgba(124,58,237,.25)}
+.f-pill.on-ov{background:linear-gradient(135deg,var(--gold),var(--rose));border-color:var(--rose);color:#fff;box-shadow:0 2px 8px rgba(201,135,106,.3)}
 /* Guest-list filter row restyled as browser-style tabs: flat top corners,
    sitting on a shared baseline rule; the active tab's own bottom border
    overwrites that line in its accent color, so it reads as "attached" to
@@ -246,6 +250,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 #filterRow .f-pill.on-c,#filterRow .f-pill.f-sent-pill.on{background:var(--green);border-color:var(--green);color:#fff;border-bottom-color:var(--green);box-shadow:none}
 #filterRow .f-pill.on-d{background:var(--red);border-color:var(--red);color:#fff;border-bottom-color:var(--red);box-shadow:none}
 #filterRow .f-pill.on-m{background:#7c3aed;border-color:#7c3aed;color:#fff;border-bottom-color:#7c3aed;box-shadow:none}
+#filterRow .f-pill.on-ov{background:linear-gradient(135deg,var(--gold),var(--rose));border-color:var(--rose);color:#fff;border-bottom-color:var(--rose);box-shadow:none}
 /* Arina / Elnur filter pills — solid, high-contrast fill (not the pale
    badge tint used elsewhere) specifically so "selected" is unmistakable
    at a glance and never reads the same as "unselected". */
@@ -1559,7 +1564,7 @@ body.lite-mode #liteModeTopBtn {
     <div class="sticky-filters">
       <div class="sec" id="guestListSec" style="margin:0 0 6px">Guest List</div>
       <div class="filter-row" id="filterRow"></div>
-      <div class="search-filter-row">
+      <div class="search-filter-row" id="searchFilterRow">
         <div class="search-wrap">
           <svg class="search-icon" width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="5.5" cy="5.5" r="4" stroke="#C4AFA4" stroke-width="1.5"/><path d="M9 9L12 12" stroke="#C4AFA4" stroke-width="1.5" stroke-linecap="round"/></svg>
           <input class="search-input" id="searchInput" type="text" placeholder="" name="mainGuestSearchField" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"/>
@@ -2694,7 +2699,9 @@ function renderFilterRow(){
   var cCls = importFilter==='confirmed' ? 'on-c' : '';
   var dCls = importFilter==='declined' ? 'on-d' : '';
   var mCls = importFilter==='manual' ? 'on-m' : '';
+  var ovCls = importFilter==='dashboard' ? 'on-ov' : '';
   row.innerHTML = ''
+    +'<button class="f-pill '+ovCls+'" data-f="dashboard">Overview</button>'
     +'<button class="f-pill'+(isAll?' on':'')+'" data-f="all">All</button>'
     +'<button class="f-pill f-sent-pill '+sCls+'" data-f="sent">Sent</button>'
     +'<button class="f-pill '+fCls+'" data-f="followup">Flag</button>'
@@ -2708,6 +2715,8 @@ function renderFilterRow(){
       selectedIdxs=[];renderFilterRow();renderGuestList();
     });
   });
+  var sfr=document.getElementById('searchFilterRow');
+  if(sfr)sfr.style.display=(importFilter==='dashboard')?'none':'';
 }
 
 /* ══ GUEST LIST ══════════════════════════════ */
@@ -2735,8 +2744,105 @@ function getFiltered(){
     });
 }
 
+/* ══ OVERVIEW TAB ═════════════════════════════
+   A read-only summary of the guest list, reusing the dash-panel/dash-grid/
+   dash-split styling that already existed in the CSS but was never wired
+   up to anything. Every number here is computed with the exact same
+   predicates the tabs themselves use (getGuestRsvpYesNo/IsGuess,
+   guestHasLiveManualStatus), so a count here always matches what you'd
+   see by tapping the matching tab — and most cells ARE that tap, via
+   data-goto, so the numbers stay tied to the guests behind them instead
+   of being a disconnected summary. */
+function buildDashboardOverview(){
+  var all=importQueue.filter(function(g){return!g.skipped;});
+  var total=all.length;
+  if(!total){
+    return '<div class="empty-state">Add some guests first — the overview fills in once there’s data.</div>';
+  }
+  var sent=all.filter(function(g){return g.sent;}).length;
+  var notSent=total-sent;
+  var confirmed=all.filter(function(g){return getGuestRsvpYesNo(g)===true&&!getGuestRsvpIsGuess(g);}).length;
+  var declined=all.filter(function(g){return getGuestRsvpYesNo(g)===false&&!getGuestRsvpIsGuess(g);}).length;
+  var awaiting=Math.max(0,sent-confirmed-declined);
+  var flagged=all.filter(function(g){return g.followup;}).length;
+  var expecting=all.filter(function(g){return guestHasLiveManualStatus(g)&&g.plannerGuess==='yes';}).length;
+  var unlikely=all.filter(function(g){return guestHasLiveManualStatus(g)&&g.plannerGuess==='no';}).length;
+  var unsure=all.filter(function(g){return guestHasLiveManualStatus(g)&&g.questionable;}).length;
+  var forecastTotal=expecting+unlikely+unsure;
+  var sentPct=total?Math.round(sent/total*100):0;
+
+  var arinaAll=all.filter(function(g){return g.sender==='Arina';});
+  var elnurAll=all.filter(function(g){return g.sender==='Elnur';});
+  var arinaSent=arinaAll.filter(function(g){return g.sent;}).length;
+  var elnurSent=elnurAll.filter(function(g){return g.sent;}).length;
+  var arinaConfirmed=arinaAll.filter(function(g){return getGuestRsvpYesNo(g)===true&&!getGuestRsvpIsGuess(g);}).length;
+  var elnurConfirmed=elnurAll.filter(function(g){return getGuestRsvpYesNo(g)===true&&!getGuestRsvpIsGuess(g);}).length;
+
+  var R=30,C=Math.round(2*Math.PI*R*100)/100;
+  var ringOffset=Math.round((C-(sentPct/100)*C)*100)/100;
+
+  function cell(cls,n,label,gotoFilter){
+    return '<div class="dash-cell'+(gotoFilter?'':' dash-cell-static')+'"'+(gotoFilter?' data-goto="'+gotoFilter+'"':'')+'>'
+      +'<div class="dash-n '+cls+'">'+n+'</div><div class="dash-l">'+label+'</div></div>';
+  }
+
+  return '<div class="dash-panel">'
+    +'<div class="dash-header"><span class="dash-title">Overview</span><span class="dash-subtitle">'+total+' guests total</span></div>'
+    +'<div class="dash-body">'
+      +'<div class="dash-top">'
+        +'<div class="dash-ring-wrap"><svg width="72" height="72" viewBox="0 0 72 72">'
+          +'<defs><linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="var(--gold)"/><stop offset="100%" stop-color="var(--rose)"/></linearGradient></defs>'
+          +'<circle class="dash-ring-bg" cx="36" cy="36" r="'+R+'"/>'
+          +'<circle class="dash-ring-fill" cx="36" cy="36" r="'+R+'" stroke-dasharray="'+C+'" stroke-dashoffset="'+ringOffset+'"/>'
+        +'</svg><div class="dash-ring-label"><div class="dash-ring-pct">'+sentPct+'%</div><div class="dash-ring-sub">Sent</div></div></div>'
+        +'<div class="dash-right"><div class="dash-total">Invited <strong>'+total+'</strong> · <strong>'+sent+'</strong> sent · <strong>'+notSent+'</strong> not sent yet</div></div>'
+      +'</div>'
+      +'<div class="dash-grid" style="margin-bottom:8px">'
+        +cell('g',confirmed,'Confirmed','confirmed')
+        +cell('r',declined,'Declined','declined')
+        +cell('b',flagged,'Flagged','followup')
+      +'</div>'
+      +'<div class="dash-cell-note">'+awaiting+' sent guest'+(awaiting===1?'':'s')+' still awaiting a real answer</div>'
+      +'<div class="sec">Forecast — '+forecastTotal+' hand-entered</div>'
+      +'<div class="dash-grid" style="margin-bottom:14px">'
+        +cell('g',expecting,'Expecting','manual')
+        +cell('a',unsure,'Unsure','manual')
+        +cell('r',unlikely,'Unlikely','manual')
+      +'</div>'
+      +'<div class="sec">By sender</div>'
+      +'<div class="dash-split">'
+        +'<div class="dash-person a"><div class="dash-person-name">Arina</div>'
+          +'<div class="dash-person-stats"><span class="dash-person-n">'+arinaSent+'</span><span class="dash-person-detail">of '+arinaAll.length+' sent</span></div>'
+          +'<div class="dash-mini-bar"><div class="dash-mini-fill a" style="width:'+(arinaAll.length?Math.round(arinaSent/arinaAll.length*100):0)+'%"></div></div>'
+          +'<div class="dash-person-detail" style="margin-top:6px">'+arinaConfirmed+' confirmed</div></div>'
+        +'<div class="dash-person e"><div class="dash-person-name">Elnur</div>'
+          +'<div class="dash-person-stats"><span class="dash-person-n">'+elnurSent+'</span><span class="dash-person-detail">of '+elnurAll.length+' sent</span></div>'
+          +'<div class="dash-mini-bar"><div class="dash-mini-fill e" style="width:'+(elnurAll.length?Math.round(elnurSent/elnurAll.length*100):0)+'%"></div></div>'
+          +'<div class="dash-person-detail" style="margin-top:6px">'+elnurConfirmed+' confirmed</div></div>'
+      +'</div>'
+    +'</div>'
+  +'</div>';
+}
+
+function attachDashboardOverviewHandlers(){
+  var list=document.getElementById('guestList');
+  list.querySelectorAll('[data-goto]').forEach(function(cell){
+    cell.addEventListener('click',function(){
+      importFilter=this.dataset.goto;
+      selectedIdxs=[];renderFilterRow();renderGuestList();
+    });
+  });
+}
+
 function renderGuestList(){
-  var list=document.getElementById('guestList'),guests=getFiltered();
+  var list=document.getElementById('guestList');
+  if(importFilter==='dashboard'){
+    list.innerHTML=buildDashboardOverview();
+    attachDashboardOverviewHandlers();
+    updateBulkBar();
+    return;
+  }
+  var guests=getFiltered();
   if(!guests.length){list.innerHTML='<div class="empty-state">No guests match this filter.</div>';updateBulkBar();return;}
   var unsent=guests.filter(function(g){return!g.sent&&!g.isChild;});
   var childGuests=guests.filter(function(g){return g.isChild;});
