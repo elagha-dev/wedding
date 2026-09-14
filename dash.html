@@ -120,6 +120,13 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .dash-cell-static{cursor:default}
 .dash-cell-static:hover{border-color:transparent;transform:none}
 .dash-cell-note{font-size:10px;color:var(--muted);text-align:center;margin:-2px 0 14px}
+/* Overview tab — plain boxes with numbers, nothing fancier */
+.ov-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.ov-box{background:#fff;border-radius:var(--r-sm);padding:14px 8px;text-align:center;border:1.5px solid transparent;box-shadow:var(--shadow-sm);cursor:pointer;transition:all var(--ease)}
+.ov-box:hover{border-color:var(--blush);transform:translateY(-1px)}
+.ov-box-n{font-family:var(--sans);font-size:22px;font-weight:700;line-height:1;margin-bottom:5px;color:var(--ink2)}
+.ov-box-n.g{color:var(--green)}.ov-box-n.a{color:var(--amber)}.ov-box-n.r{color:var(--red)}.ov-box-n.b{color:#5A7FA8}.ov-box-n.ink{color:var(--ink2)}
+.ov-box-l{font-size:8.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .dash-n{font-family:var(--sans);font-size:18px;font-weight:600;line-height:1;margin-bottom:2px}
 .dash-n.g{color:var(--green)}.dash-n.a{color:var(--amber)}.dash-n.r{color:var(--red)}.dash-n.b{color:#5A7FA8}.dash-n.ink{color:var(--ink2)}
 .dash-l{font-size:8px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
@@ -975,6 +982,14 @@ body.lite-mode #liteModeTopBtn {
 .countdown-num{font-family:var(--sans);font-size:12.5px;font-weight:700;line-height:1;color:var(--rose-deep)}
 .countdown-label{font-size:10px;font-weight:600;color:var(--muted)}
 .countdown-date{margin-left:5px;font-size:9.5px;color:var(--soft);white-space:nowrap}
+/* Compact stat pills sitting next to the countdown — same pill language,
+   just a few key numbers at a glance without opening the guest list. */
+.mini-ov-row{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}
+.mini-ov-box{display:inline-flex;align-items:baseline;gap:4px;padding:5px 11px;border-radius:var(--r-pill);background:var(--cream2);border:1px solid var(--parchment);cursor:pointer;transition:all var(--ease)}
+.mini-ov-box:hover{border-color:var(--blush)}
+.mini-ov-n{font-family:var(--sans);font-size:12.5px;font-weight:700;line-height:1;color:var(--ink2)}
+.mini-ov-n.g{color:var(--green)}.mini-ov-n.r{color:var(--red)}
+.mini-ov-l{font-size:9px;font-weight:600;letter-spacing:.04em;color:var(--muted)}
 
 /* ── AGENDA READ-ONLY SHARE VIEW ── */
 .agenda-ro-screen{position:fixed;inset:0;z-index:5000;background:var(--cream);overflow-y:auto;padding:0 0 40px}
@@ -1556,6 +1571,8 @@ body.lite-mode #liteModeTopBtn {
   <div class="countdown-label" id="countdownLabel">days to go</div>
   <div class="countdown-date" id="countdownDateEl"></div>
 </div>
+
+<div class="mini-ov-row" id="miniOvRow" style="display:none"></div>
 
 <div class="prog-track" id="progTrack" style="display:none!important"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
 
@@ -2688,6 +2705,36 @@ function renderDashboard(){
   document.getElementById('ovTotal').textContent=total;
   document.getElementById('ovSent').textContent=sent;
   document.getElementById('progFill').style.width=(total?Math.round(sent/total*100):0)+'%';
+  renderMiniOverview();
+}
+
+// A handful of key numbers next to the countdown card, always visible
+// without opening the guest list. Tapping one jumps straight to that tab.
+function renderMiniOverview(){
+  var row=document.getElementById('miniOvRow');
+  if(!row)return;
+  var all=importQueue.filter(function(g){return!g.skipped;});
+  if(!all.length){row.style.display='none';return;}
+  var sent=all.filter(function(g){return g.sent;}).length;
+  var confirmed=all.filter(function(g){return getGuestRsvpYesNo(g)===true&&!getGuestRsvpIsGuess(g);}).length;
+  var declined=all.filter(function(g){return getGuestRsvpYesNo(g)===false&&!getGuestRsvpIsGuess(g);}).length;
+  function pill(cls,n,label,gotoFilter){
+    return '<div class="mini-ov-box" data-mini-goto="'+gotoFilter+'"><span class="mini-ov-n '+cls+'">'+n+'</span><span class="mini-ov-l">'+label+'</span></div>';
+  }
+  row.innerHTML=pill('',sent,'sent','sent')+pill('g',confirmed,'confirmed','confirmed')+pill('r',declined,'declined','declined');
+  row.style.display='';
+  row.querySelectorAll('[data-mini-goto]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var ga=document.getElementById('guestArea');
+      if(ga)ga.style.display='';
+      importFilter=this.dataset.miniGoto;
+      selectedIdxs=[];renderFilterRow();renderGuestList();
+      requestAnimationFrame(function(){
+        var sec=document.getElementById('guestListSec');
+        if(sec)sec.scrollIntoView({behavior:'smooth',block:'start'});
+      });
+    });
+  });
 }
 
 /* ══ FILTER ROW ══════════════════════════════ */
@@ -2745,14 +2792,10 @@ function getFiltered(){
 }
 
 /* ══ OVERVIEW TAB ═════════════════════════════
-   A read-only summary of the guest list, reusing the dash-panel/dash-grid/
-   dash-split styling that already existed in the CSS but was never wired
-   up to anything. Every number here is computed with the exact same
-   predicates the tabs themselves use (getGuestRsvpYesNo/IsGuess,
-   guestHasLiveManualStatus), so a count here always matches what you'd
-   see by tapping the matching tab — and most cells ARE that tap, via
-   data-goto, so the numbers stay tied to the guests behind them instead
-   of being a disconnected summary. */
+   Plain boxes with numbers — no ring, no percentages, no sender split.
+   Every count uses the exact same predicates the tabs themselves use
+   (getGuestRsvpYesNo/IsGuess, guestHasLiveManualStatus), and most boxes
+   are clickable straight into the matching tab via data-goto. */
 function buildDashboardOverview(){
   var all=importQueue.filter(function(g){return!g.skipped;});
   var total=all.length;
@@ -2760,7 +2803,6 @@ function buildDashboardOverview(){
     return '<div class="empty-state">Add some guests first — the overview fills in once there’s data.</div>';
   }
   var sent=all.filter(function(g){return g.sent;}).length;
-  var notSent=total-sent;
   var confirmed=all.filter(function(g){return getGuestRsvpYesNo(g)===true&&!getGuestRsvpIsGuess(g);}).length;
   var declined=all.filter(function(g){return getGuestRsvpYesNo(g)===false&&!getGuestRsvpIsGuess(g);}).length;
   var awaiting=Math.max(0,sent-confirmed-declined);
@@ -2768,59 +2810,21 @@ function buildDashboardOverview(){
   var expecting=all.filter(function(g){return guestHasLiveManualStatus(g)&&g.plannerGuess==='yes';}).length;
   var unlikely=all.filter(function(g){return guestHasLiveManualStatus(g)&&g.plannerGuess==='no';}).length;
   var unsure=all.filter(function(g){return guestHasLiveManualStatus(g)&&g.questionable;}).length;
-  var forecastTotal=expecting+unlikely+unsure;
-  var sentPct=total?Math.round(sent/total*100):0;
 
-  var arinaAll=all.filter(function(g){return g.sender==='Arina';});
-  var elnurAll=all.filter(function(g){return g.sender==='Elnur';});
-  var arinaSent=arinaAll.filter(function(g){return g.sent;}).length;
-  var elnurSent=elnurAll.filter(function(g){return g.sent;}).length;
-  var arinaConfirmed=arinaAll.filter(function(g){return getGuestRsvpYesNo(g)===true&&!getGuestRsvpIsGuess(g);}).length;
-  var elnurConfirmed=elnurAll.filter(function(g){return getGuestRsvpYesNo(g)===true&&!getGuestRsvpIsGuess(g);}).length;
-
-  var R=30,C=Math.round(2*Math.PI*R*100)/100;
-  var ringOffset=Math.round((C-(sentPct/100)*C)*100)/100;
-
-  function cell(cls,n,label,gotoFilter){
-    return '<div class="dash-cell'+(gotoFilter?'':' dash-cell-static')+'"'+(gotoFilter?' data-goto="'+gotoFilter+'"':'')+'>'
-      +'<div class="dash-n '+cls+'">'+n+'</div><div class="dash-l">'+label+'</div></div>';
+  function box(cls,n,label,gotoFilter){
+    return '<div class="ov-box" data-goto="'+gotoFilter+'"><div class="ov-box-n '+cls+'">'+n+'</div><div class="ov-box-l">'+label+'</div></div>';
   }
 
-  return '<div class="dash-panel">'
-    +'<div class="dash-header"><span class="dash-title">Overview</span><span class="dash-subtitle">'+total+' guests total</span></div>'
-    +'<div class="dash-body">'
-      +'<div class="dash-top">'
-        +'<div class="dash-ring-wrap"><svg width="72" height="72" viewBox="0 0 72 72">'
-          +'<defs><linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="var(--gold)"/><stop offset="100%" stop-color="var(--rose)"/></linearGradient></defs>'
-          +'<circle class="dash-ring-bg" cx="36" cy="36" r="'+R+'"/>'
-          +'<circle class="dash-ring-fill" cx="36" cy="36" r="'+R+'" stroke-dasharray="'+C+'" stroke-dashoffset="'+ringOffset+'"/>'
-        +'</svg><div class="dash-ring-label"><div class="dash-ring-pct">'+sentPct+'%</div><div class="dash-ring-sub">Sent</div></div></div>'
-        +'<div class="dash-right"><div class="dash-total">Invited <strong>'+total+'</strong> · <strong>'+sent+'</strong> sent · <strong>'+notSent+'</strong> not sent yet</div></div>'
-      +'</div>'
-      +'<div class="dash-grid" style="margin-bottom:8px">'
-        +cell('g',confirmed,'Confirmed','confirmed')
-        +cell('r',declined,'Declined','declined')
-        +cell('b',flagged,'Flagged','followup')
-      +'</div>'
-      +'<div class="dash-cell-note">'+awaiting+' sent guest'+(awaiting===1?'':'s')+' still awaiting a real answer</div>'
-      +'<div class="sec">Forecast — '+forecastTotal+' hand-entered</div>'
-      +'<div class="dash-grid" style="margin-bottom:14px">'
-        +cell('g',expecting,'Expecting','manual')
-        +cell('a',unsure,'Unsure','manual')
-        +cell('r',unlikely,'Unlikely','manual')
-      +'</div>'
-      +'<div class="sec">By sender</div>'
-      +'<div class="dash-split">'
-        +'<div class="dash-person a"><div class="dash-person-name">Arina</div>'
-          +'<div class="dash-person-stats"><span class="dash-person-n">'+arinaSent+'</span><span class="dash-person-detail">of '+arinaAll.length+' sent</span></div>'
-          +'<div class="dash-mini-bar"><div class="dash-mini-fill a" style="width:'+(arinaAll.length?Math.round(arinaSent/arinaAll.length*100):0)+'%"></div></div>'
-          +'<div class="dash-person-detail" style="margin-top:6px">'+arinaConfirmed+' confirmed</div></div>'
-        +'<div class="dash-person e"><div class="dash-person-name">Elnur</div>'
-          +'<div class="dash-person-stats"><span class="dash-person-n">'+elnurSent+'</span><span class="dash-person-detail">of '+elnurAll.length+' sent</span></div>'
-          +'<div class="dash-mini-bar"><div class="dash-mini-fill e" style="width:'+(elnurAll.length?Math.round(elnurSent/elnurAll.length*100):0)+'%"></div></div>'
-          +'<div class="dash-person-detail" style="margin-top:6px">'+elnurConfirmed+' confirmed</div></div>'
-      +'</div>'
-    +'</div>'
+  return '<div class="ov-grid">'
+    +box('ink',total,'Total','all')
+    +box('ink',sent,'Sent','sent')
+    +box('b',flagged,'Flagged','followup')
+    +box('g',confirmed,'Confirmed','confirmed')
+    +box('r',declined,'Declined','declined')
+    +box('b',awaiting,'Awaiting','sent')
+    +box('g',expecting,'Expecting','manual')
+    +box('a',unsure,'Unsure','manual')
+    +box('r',unlikely,'Unlikely','manual')
   +'</div>';
 }
 
@@ -4361,6 +4365,7 @@ function buildGuestCard(g, mergedPairPos){
     var senderChipSent=g.sender?('<span class="g-sender-br '+(g.sender==='Arina'?'a':'e')+'">'+(g.sender==='Arina'?'a':'e')+'</span>'):''
     var infoActions='<div class="g-swipe-info-actions">'
       +'<button class="g-undo-btn" data-qi="'+ri+'" data-action="undo" title="Mark as unsent"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8s2-4.5 9.5-4.5a9 9 0 1 1-9 9"/><polyline points="2.5 3 2.5 8 7.5 8"/></svg></button>'
+      +'<button class="ga-btn ga-btn-flag'+(g.followup?' flagged':'')+'" data-qi="'+ri+'" data-action="flag" title="'+(g.followup?'Flagged — tap to remove':'Follow Up')+'">'+(g.followup?'<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M4 3h16l-3 6 3 6H4V3z"/><rect x="3" y="3" width="2" height="18" rx="1"/></svg>':'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3h16l-3 6 3 6H4V3z"/><line x1="4" y1="21" x2="4" y2="3"/></svg>')+'</button>'
       +'<button class="ga-btn ga-btn-role'+(g.role?' has-role':'')+'" data-qi="'+ri+'" data-action="role" title="'+(g.role?'Role: '+g.role:'Assign role')+'"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41 11 3.83A2 2 0 0 0 9.59 3.24L4 3a1 1 0 0 0-1 1l.24 5.59a2 2 0 0 0 .59 1.41l9.58 9.59a2 2 0 0 0 2.83 0l4.35-4.35a2 2 0 0 0 0-2.83z"/><circle cx="7.5" cy="7.5" r="1.2" fill="currentColor" stroke="none"/></svg></button>'
       +'</div>';
     // No delete button here anymore — it made the panel cramped. Instead,
