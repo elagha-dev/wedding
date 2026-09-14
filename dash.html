@@ -2700,7 +2700,7 @@ function renderFilterRow(){
     +'<button class="f-pill '+fCls+'" data-f="followup">Flag</button>'
     +'<button class="f-pill '+cCls+'" data-f="confirmed">Confirmed</button>'
     +'<button class="f-pill '+dCls+'" data-f="declined">Declined</button>'
-    +'<button class="f-pill '+mCls+'" data-f="manual">Manual</button>';
+    +'<button class="f-pill '+mCls+'" data-f="manual">Forecast</button>';
 
   row.querySelectorAll('[data-f]').forEach(function(b){
     b.addEventListener('click',function(){
@@ -2723,7 +2723,7 @@ function getFiltered(){
     if(importFilter==='confirmed')return getGuestRsvpYesNo(g)===true&&!getGuestRsvpIsGuess(g);
     if(importFilter==='declined')return getGuestRsvpYesNo(g)===false&&!getGuestRsvpIsGuess(g);
     // Manual = guests with a hand-entered status (Unsure / Expecting / Unlikely)
-    if(importFilter==='manual')return!!g.questionable||g.plannerGuess==='yes'||g.plannerGuess==='no';
+    if(importFilter==='manual')return guestHasLiveManualStatus(g);
     return true;
   }).filter(function(g){return!searchQuery||(g.name||'').toLowerCase().includes(searchQuery);})
     .filter(function(g){return!groupFilter||(g.group||'')===groupFilter;})
@@ -2850,10 +2850,10 @@ function renderGuestList(){
   // Sent: always shown individually — one card per guest, no merging — so the
   // yes/no count and each person's color can never be ambiguous.
   if(sentGuests.length){
+    var sentHdrLabel=({confirmed:'Confirmed',declined:'Declined',manual:'Forecast',followup:'Flagged'})[importFilter]||'Sent';
     if(showSent){
       var sentYes=sentGuests.filter(function(g){return getGuestRsvpYesNo(g)===true;}).length;
       var sentNo=sentGuests.filter(function(g){return getGuestRsvpYesNo(g)===false;}).length;
-      var sentHdrLabel=importFilter==='confirmed'?'Confirmed':'Sent';
       html+='<div class="g-group-hdr sent sent-with-stats"><span style="flex-shrink:0">'+sentHdrLabel+' ('+sentGuests.length+')</span>'
         + '<span style="flex:1;height:1px;background:var(--parchment);display:inline-block;min-width:8px"></span>'
         + entriesCluster(sentGuests.length, sentYes, sentNo, false) + '</div>';
@@ -2892,7 +2892,7 @@ function renderGuestList(){
       }
       html+='<button class="show-sent-btn" id="showSentBtn">Hide '+sentHdrLabel.toLowerCase()+'</button>';
     } else {
-      html+='<button class="show-sent-btn" id="showSentBtn">Show '+sentGuests.length+' '+(importFilter==='confirmed'?'confirmed':'sent')+'</button>';
+      html+='<button class="show-sent-btn" id="showSentBtn">Show '+sentGuests.length+' '+sentHdrLabel.toLowerCase()+'</button>';
     }
   }
 
@@ -4105,6 +4105,20 @@ function getGuestRsvpIsGuess(g){
   return !!(info&&info.guess);
 }
 
+// Is a hand-entered status (Unsure / Expecting / Unlikely) still actually
+// showing on this guest's card? Mirrors the same gating buildGuestCard uses
+// to decide whether to render the rsvp-guess-select dropdown at all: a real
+// RSVP match or a manual Yes/No override always wins and hides it. Raw
+// g.questionable/g.plannerGuess fields can go stale once that happens (they
+// aren't cleared, just superseded) — this checks whether it's still live,
+// not just whether it was ever set.
+function guestHasLiveManualStatus(g){
+  var isCoupleGuest=g.type==='couple-ceremony'||g.type==='couple-party';
+  var info=getGuestRsvpInfo(g.name, isCoupleGuest, inferPartnerName(g), g.manualRsvp, g.plannerGuess);
+  if(info&&!info.guess) return false; // a real answer or manual override is in effect
+  return !!g.questionable||g.plannerGuess==='yes'||g.plannerGuess==='no';
+}
+
 function buildGuestCard(g, mergedPairPos){
   var ri=importQueue.indexOf(g);
   var isSel=selectedIdxs.indexOf(ri)>-1;
@@ -4192,7 +4206,7 @@ function buildGuestCard(g, mergedPairPos){
       var guessVal=g.questionable?'maybe':(g.plannerGuess==='yes'?'yes':(g.plannerGuess==='no'?'no':''));
       var guessCls='rsvp-guess-'+(guessVal||'empty');
       pillWrap += '<span class="rsvp-guess-wrap">'
-        + '<select class="rsvp-guess-select '+guessCls+'" data-qi="'+ri+'" title="Manual status: no RSVP yet, but your best guess for planning">'
+        + '<select class="rsvp-guess-select '+guessCls+'" data-qi="'+ri+'" title="Forecast: no RSVP yet, but your best guess for planning">'
         + '<option value=""'+(guessVal===''?' selected':'')+'>—</option>'
         + '<option value="maybe"'+(guessVal==='maybe'?' selected':'')+'>Unsure</option>'
         + '<option value="yes"'+(guessVal==='yes'?' selected':'')+'>Expecting</option>'
