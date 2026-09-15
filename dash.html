@@ -8309,8 +8309,6 @@ function unassignSeat(tableId, seatNum){
 }
 // Swap whoever's in two seats — works whether both are occupied (a real
 // swap) or only one is (drags the guest into the empty seat instead).
-// Shared by both the floor-plan dots and the list-view seat tiles so
-// dragging one onto another always behaves the same way.
 function swapSeats(tableA, seatA, tableB, seatB){
   if(tableA===tableB && seatA===seatB) return;
   var keyA = seatKey(tableA, seatA), keyB = seatKey(tableB, seatB);
@@ -8322,6 +8320,38 @@ function swapSeats(tableA, seatA, tableB, seatB){
   saveSeatMap();
   renderSeatMap();
   if(typeof renderGuestList==='function') renderGuestList();
+}
+// Drop the guest from fromSeat into toSeat, sliding everyone between the
+// two over by one — the "insert into the middle" move, as opposed to a
+// straight two-person swap. E.g. dragging seat 2 onto seat 5 moves 3→2,
+// 4→3, 5→4, and the dragged guest lands in 5; nobody just trades places.
+function insertSeatShift(tableId, fromSeat, toSeat){
+  if(fromSeat===toSeat) return;
+  var movingName = seatMap.assignments[seatKey(tableId, fromSeat)];
+  if(fromSeat < toSeat){
+    for(var i=fromSeat; i<toSeat; i++){
+      var nextName = seatMap.assignments[seatKey(tableId, i+1)];
+      if(nextName) seatMap.assignments[seatKey(tableId,i)] = nextName; else delete seatMap.assignments[seatKey(tableId,i)];
+    }
+  } else {
+    for(var j=fromSeat; j>toSeat; j--){
+      var prevName = seatMap.assignments[seatKey(tableId, j-1)];
+      if(prevName) seatMap.assignments[seatKey(tableId,j)] = prevName; else delete seatMap.assignments[seatKey(tableId,j)];
+    }
+  }
+  if(movingName) seatMap.assignments[seatKey(tableId,toSeat)] = movingName; else delete seatMap.assignments[seatKey(tableId,toSeat)];
+  saveSeatMap();
+  renderSeatMap();
+  if(typeof renderGuestList==='function') renderGuestList();
+}
+// Shared drop handler for both the floor-plan dots and the seat tiles.
+// Dropping within the SAME table inserts-and-shifts (there's a natural
+// seat order to slide along, so this is what "put them in the middle"
+// means); dropping onto a DIFFERENT table has no shared order to shift
+// along, so that stays a straight swap.
+function handleSeatDrop(tableA, seatA, tableB, seatB){
+  if(tableA===tableB) insertSeatShift(tableA, seatA, seatB);
+  else swapSeats(tableA, seatA, tableB, seatB);
 }
 
 /* ── View mode: 'list' (default cards) or 'floor' (drag-to-arrange plan) ── */
@@ -8466,7 +8496,7 @@ function renderSeatMap(){
         var overSeat = elUnder && elUnder.closest && elUnder.closest('.seatmap-seat:not(.add-seat)');
         sMoved = false;
         if(overSeat && overSeat!==seat){
-          swapSeats(seat.dataset.table, parseInt(seat.dataset.seat,10), overSeat.dataset.table, parseInt(overSeat.dataset.seat,10));
+          handleSeatDrop(seat.dataset.table, parseInt(seat.dataset.seat,10), overSeat.dataset.table, parseInt(overSeat.dataset.seat,10));
         }
       } else {
         openSeatAssign(seat.dataset.table, parseInt(seat.dataset.seat,10));
@@ -9437,7 +9467,7 @@ function wireFloorDrag(){
         var overDot = elUnder && elUnder.closest && elUnder.closest('.seatmap-node-dot');
         dMoved = false;
         if(overDot && overDot!==dot){
-          swapSeats(dot.dataset.table, parseInt(dot.dataset.seat,10), overDot.dataset.table, parseInt(overDot.dataset.seat,10));
+          handleSeatDrop(dot.dataset.table, parseInt(dot.dataset.seat,10), overDot.dataset.table, parseInt(overDot.dataset.seat,10));
         }
       } else {
         openSeatAssign(dot.dataset.table, parseInt(dot.dataset.seat,10));
@@ -9760,7 +9790,7 @@ function openTableFromFloor(tableId){
         var overSeat = elUnder && elUnder.closest && elUnder.closest('.seatmap-seat');
         tMoved = false;
         if(overSeat && overSeat!==seat){
-          swapSeats(seat.dataset.table, parseInt(seat.dataset.seat,10), overSeat.dataset.table, parseInt(overSeat.dataset.seat,10));
+          handleSeatDrop(seat.dataset.table, parseInt(seat.dataset.seat,10), overSeat.dataset.table, parseInt(overSeat.dataset.seat,10));
           openTableFromFloor(tableId); // refresh this sheet's grid in place — swapSeats already re-rendered the floor plan behind it
           return;
         }
