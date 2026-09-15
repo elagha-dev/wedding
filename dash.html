@@ -7236,36 +7236,51 @@ function updateSeatmapUndoBtn(){
 }
 
 loadSeatMap();
+pushSeatMapUndoSnapshot(); // baseline snapshot so the very first change this session is itself undoable
 
-/* One-time seed: the first time this loads with no tables configured yet,
-   populate the seat map with the initial table allocation worked out from
-   the planner's seating-plan photos (56 guests, 4 tables). Gated by
-   _seedV so it only ever runs once, and only touches a seat map that has
-   zero tables — it will never overwrite real data you've since entered
-   or rearranged. Same one-shot pattern as _colorResetV above. */
-var SEATMAP_SEED_V = 1;
-(function seedInitialSeatMap(){
+/* One-time seed: import the initial table allocation worked out from the
+   planner's seating-plan photos (56 guests, 4 tables).
+   v1 ran at page load and only applied if the seat map had zero tables —
+   silently skipped on a device with leftover/placeholder tables.
+   v2 added a confirm-before-replace step, but still ran at page load,
+   where #seatmapScreen (and the confirm modal nested inside it) is
+   display:none — so the confirm dialog was invisible and its promise
+   never resolved, meaning nothing ever visibly happened either way.
+   v3 fixes that by running from openSeatMap() instead, once the screen
+   is actually on screen — see call site below. Gated by _seedV so it
+   only ever prompts once per device, same one-shot pattern as
+   _colorResetV above. */
+var SEATMAP_SEED_V = 3;
+function seedInitialSeatMapIfNeeded(){
   if(seatMap._seedV === SEATMAP_SEED_V) return;
-  seatMap._seedV = SEATMAP_SEED_V;
-  if(seatMap.tables.length){
-    try{ localStorage.setItem('ww_seatmap', JSON.stringify(seatMap)); }catch(e){}
-    return; // already has real data — mark as seeded, but don't touch it
-  }
   var TABLES = [
     { name:'Table 1 — Family & Couple', names:['Lukas','Silas','Mama E','Kris','Papa E','Elea','Elnur','Islam','Arina','Lars','Mama A','Val','Papa A','Selah'] },
     { name:'Table 2 — Friend Group A', names:['Vane','Kathi','Plievi','Benny','Jenny','Lena','Jonas','Lucas','Felipe','Frankie','Debbie','Jonas G','Simon','Lisa G','Liam!'] },
     { name:'Table 3 — Friend Group B + Kids', names:['Nikita','Ivar','Anna','Bente','Omi','Rahim','Olga','Zema','Igor','Elisabeth','Pavel','Blake','Kid 1','Kid 2'] },
     { name:'Table 4 — Friend Group C', names:['Andre','Becky','Masha','Kseniia','Sofa','Valerie','Ilya','Johannes','Ben','Liz','Anna','Steffi','Toma'] }
   ];
-  TABLES.forEach(function(spec){
-    var t = {id:uid(), name:spec.name, seats:spec.names.length, shape:seatMap.defaultShape||'rect'};
-    seatMap.tables.push(t);
-    spec.names.forEach(function(nm,i){ seatMap.assignments[seatKey(t.id,i+1)] = nm; });
+  function applySeed(){
+    seatMap.tables = [];
+    seatMap.assignments = {};
+    TABLES.forEach(function(spec){
+      var t = {id:uid(), name:spec.name, seats:spec.names.length, shape:seatMap.defaultShape||'rect'};
+      seatMap.tables.push(t);
+      spec.names.forEach(function(nm,i){ seatMap.assignments[seatKey(t.id,i+1)] = nm; });
+    });
+    seatMap._seedV = SEATMAP_SEED_V;
+    try{ localStorage.setItem('ww_seatmap', JSON.stringify(seatMap)); }catch(e){}
+    renderSeatMap();
+  }
+  if(!seatMap.tables.length){
+    applySeed(); // nothing to lose — no need to ask
+    return;
+  }
+  showSmConfirm('Replace the current seat map with the imported plan (56 guests, 4 tables)? Anything already on the seat map will be removed.', 'Replace').then(function(ok){
+    if(ok) applySeed();
+    else seatMap._seedV = SEATMAP_SEED_V; // don't ask again — they said no
+    try{ localStorage.setItem('ww_seatmap', JSON.stringify(seatMap)); }catch(e){}
   });
-  try{ localStorage.setItem('ww_seatmap', JSON.stringify(seatMap)); }catch(e){}
-})();
-
-pushSeatMapUndoSnapshot(); // baseline snapshot so the very first change this session is itself undoable
+}
 
 /* ── SEAT MAP SYNC ──
    Same shared-blob pattern as the /chat feature: GET /seatmap returns
@@ -9528,6 +9543,7 @@ function openSeatMap(){
   document.getElementById('seatmapScreen').classList.add('open');
   // No automatic pull/poll here anymore — press "Sync Devices" to grab
   // whatever another device has saved.
+  seedInitialSeatMapIfNeeded(); // one-time import — screen is visible now, so its confirm dialog is too
 }
 function closeSeatMapScreen(){
   document.getElementById('seatmapOverlay').classList.remove('open');
