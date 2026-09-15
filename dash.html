@@ -4020,15 +4020,30 @@ function getGuestRsvpInfo(name, isCouple, knownPartnerName, manualOverride, plan
       return isHousehold;
     }
 
+    // Confidence tag for whichever strategy below actually finds the match —
+    // 'exact' (identical full name), 'strong' (a surname anchors it, or every
+    // first name in the row is globally unique), or 'weak' (nothing but a
+    // shared first name, which two unrelated households can easily share).
+    // A guest who already has an explicit plannerGuess is deliberately hard
+    // to override: only 'exact'/'strong' evidence is allowed to overrule the
+    // planner's own call, so a coincidental first-name overlap can no longer
+    // silently flip someone the planner marked Unlikely into Confirmed (or
+    // vice versa) — see the guess-priority guard right after matching below.
+    var matchConfidence=null;
+
     /* S1 — exact Full Name */
     match=rows.find(function(r){ return normN(r['Full Name']||r['name']||'')===n; });
+    if(match) matchConfidence='exact';
 
     /* S2 — RSVP Full Name tokens contain all my first names */
-    if(!match) match=rows.find(function(r){
-      if(!rowOk(r)) return false;
-      var rt=toks(normN(r['Full Name']||r['name']||''));
-      return myFNs.length>0&&myFNs.every(function(fn){return rt.indexOf(fn)!==-1;});
-    });
+    if(!match){
+      match=rows.find(function(r){
+        if(!rowOk(r)) return false;
+        var rt=toks(normN(r['Full Name']||r['name']||''));
+        return myFNs.length>0&&myFNs.every(function(fn){return rt.indexOf(fn)!==-1;});
+      });
+      if(match) matchConfidence='weak';
+    }
 
     /* S2b — household row where every first name uniquely identifies exactly
        one guest in the whole list. Guests entered with first-name-only (no
@@ -4039,35 +4054,44 @@ function getGuestRsvpInfo(name, isCouple, knownPartnerName, manualOverride, plan
        "Blake" and "Elisabeth" are each the ONLY guest with that first name
        anywhere in the list, there's no real ambiguity to guard against, so
        it's safe to match. */
-    if(!match) match=rows.find(function(r){
-      var rn=normN(r['Full Name']||r['name']||'');
-      if(rn.indexOf('&')===-1) return false;
-      var rowFirstNames=firstNms(r['Full Name']||r['name']||'');
-      if(rowFirstNames.length<2||rowFirstNames.indexOf(myFNs[0])===-1) return false;
-      return rowFirstNames.every(function(fn){
-        var candidates=importQueue.filter(function(o){
-          return !o.isChild && firstNms(o.name).indexOf(fn)!==-1;
+    if(!match){
+      match=rows.find(function(r){
+        var rn=normN(r['Full Name']||r['name']||'');
+        if(rn.indexOf('&')===-1) return false;
+        var rowFirstNames=firstNms(r['Full Name']||r['name']||'');
+        if(rowFirstNames.length<2||rowFirstNames.indexOf(myFNs[0])===-1) return false;
+        return rowFirstNames.every(function(fn){
+          var candidates=importQueue.filter(function(o){
+            return !o.isChild && firstNms(o.name).indexOf(fn)!==-1;
+          });
+          return candidates.length===1;
         });
-        return candidates.length===1;
-      });
-    })||null;
+      })||null;
+      if(match) matchConfidence='strong';
+    }
 
     /* S3 — shared last name + at least one shared first name (dedup "Jan") */
     if(!match&&myLN){
       var cands=rows.filter(function(r){ return normN(r['Full Name']||r['name']||'').indexOf(myLN)!==-1; });
-      if(cands.length===1) match=cands[0];
-      else if(cands.length>1) match=cands.find(function(r){
-        var rt=toks(normN(r['Full Name']||r['name']||''));
-        return myFNs.some(function(fn){return rt.indexOf(fn)!==-1;});
-      })||null;
+      if(cands.length===1){ match=cands[0]; matchConfidence='strong'; }
+      else if(cands.length>1){
+        match=cands.find(function(r){
+          var rt=toks(normN(r['Full Name']||r['name']||''));
+          return myFNs.some(function(fn){return rt.indexOf(fn)!==-1;});
+        })||null;
+        if(match) matchConfidence='strong';
+      }
     }
 
     /* S4 — my first name appears in Guests Attending of any row */
-    if(!match) match=rows.find(function(r){
-      if(!rowOk(r)) return false;
-      var ga=toks(normN(r['Guests Attending']||r['guests_attending']||''));
-      return ga.length>0&&myFNs.some(function(fn){return ga.indexOf(fn)!==-1;});
-    });
+    if(!match){
+      match=rows.find(function(r){
+        if(!rowOk(r)) return false;
+        var ga=toks(normN(r['Guests Attending']||r['guests_attending']||''));
+        return ga.length>0&&myFNs.some(function(fn){return ga.indexOf(fn)!==-1;});
+      });
+      if(match) matchConfidence='weak';
+    }
 
     /* S5 — surname-confirmed household row. Many joint RSVP submissions come
        back as first-names-only, e.g. "Philipp & Ines" with no surname on the
@@ -4091,9 +4115,21 @@ function getGuestRsvpInfo(name, isCouple, knownPartnerName, manualOverride, plan
           });
         });
       })||null;
+      if(match) matchConfidence='strong';
     }
 
     if(!match) return plannerGuessResult();
+
+    /* Guess-priority guard: the planner already made an explicit call on
+       this guest (Expecting/Unsure/Unlikely). Don't let a merely 'weak'
+       fuzzy match — a bare shared first name, nothing more — override that
+       by mistake. Only an exact name match or a surname-backed match is
+       trusted enough to overrule a human's own guess. This runs before the
+       partner-name guard below since a weak match should never even get
+       that far when a guess is on record. */
+    if((plannerGuess==='yes'||plannerGuess==='no') && matchConfidence==='weak'){
+      return plannerGuessResult();
+    }
 
     /* Guard against a false-positive match: a loose strategy above may have
        matched a household row just because one first name happens to be
