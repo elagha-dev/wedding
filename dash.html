@@ -1280,18 +1280,20 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-node-dot.is-couple.bride{border-color:var(--arina-txt);box-shadow:0 0 6px rgba(230,180,80,.9)}
 .seatmap-node-dot.is-couple.groom{border-color:var(--elnur-txt);box-shadow:0 0 6px rgba(230,180,80,.9)}
 .seatmap-node-dot.is-baby{width:16px;height:16px;background:#FFE1EC;border-color:#F2A6C4;z-index:1}
-/* Legend — sits below the floor canvas (not inside the scrolling wrap),
-   so it's always visible without covering any of the plan itself. Reuses
-   the real .seatmap-node-dot classes for its swatches (just repositioned
-   via the override below) so it can never drift out of sync with what
-   the dots actually look like on the canvas. */
-.seatmap-legend{margin-top:14px;padding:14px 16px 16px;border-radius:16px;background:linear-gradient(165deg,#FFFDFB,var(--cream2));border:1px solid var(--parchment);box-shadow:var(--shadow-sm)}
-.seatmap-legend-title{font-family:var(--serif,var(--sans));font-size:10px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:var(--rose-deep);margin-bottom:11px;display:flex;align-items:center;gap:10px}
-.seatmap-legend-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--rose-soft),transparent)}
-.seatmap-legend-items{display:flex;flex-wrap:wrap;gap:11px 20px}
-.sl-item{display:flex;align-items:center;gap:8px;font-family:var(--sans);font-size:11.5px;font-weight:600;color:var(--ink2)}
-.sl-swatch{flex-shrink:0;width:21px;height:21px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 35% 30%,#F1E8DD,#DED0BF);box-shadow:inset 0 1px 2px rgba(100,60,30,.12)}
-.sl-swatch .seatmap-node-dot{position:static!important;transform:none!important;margin:0;cursor:default}
+/* Legend — a small fixed overlay pinned to a corner of the floor plan
+   viewport (inside .seatmap-floor-overlay, not the scrolling canvas), so
+   it never drifts over a table and never moves as the plan is panned or
+   zoomed. Reuses the real .seatmap-node-dot classes for its swatches (at
+   near-native size) so it can never drift out of sync with what the dots
+   actually look like on the canvas. Kept deliberately plain — no card
+   chrome, no color, no decorative title — since it's reference
+   information, not a UI element competing for attention. */
+.seatmap-legend{position:absolute;left:8px;bottom:8px;z-index:5;max-width:150px;padding:7px 9px;border-radius:8px;background:rgba(253,248,243,.88);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);border:1px solid rgba(0,0,0,.08);pointer-events:none}
+.seatmap-legend-title{font-family:var(--sans);font-size:7.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--soft);margin-bottom:5px}
+.seatmap-legend-items{display:flex;flex-direction:column;gap:3.5px}
+.sl-item{display:flex;align-items:center;gap:6px;font-family:var(--sans);font-size:9px;font-weight:500;color:var(--muted);line-height:1}
+.sl-swatch{flex-shrink:0;width:8px;height:8px;display:flex;align-items:center;justify-content:center}
+.sl-swatch .seatmap-node-dot{position:static!important;width:7px!important;height:7px!important;transform:none!important;margin:0;cursor:default;box-shadow:none!important}
 /* Rotate/remove quick-actions on a floor-plan table node itself. */
 .seatmap-node-chairs{position:absolute;left:50%;bottom:-11px;transform:translateX(-50%);display:flex;gap:4px;z-index:2}
 .seatmap-node-chair-btn{width:20px;height:20px;border-radius:50%;border:1.5px solid rgba(255,255,255,.5);background:rgba(0,0,0,.55);color:#fff;font-family:var(--sans);font-size:12px;font-weight:800;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;touch-action:manipulation}
@@ -8707,9 +8709,9 @@ function renderSeatFloorPlan(){
         + '<button class="seatmap-zoom-btn" id="seatmapZoomIn" title="Zoom in">+</button>'
       + '</div>'
       + '<div class="seatmap-edge-radar" id="seatmapEdgeRadar"></div>'
+      + SEATMAP_LEGEND_HTML
     + '</div>'
-    + '</div>'
-    + SEATMAP_LEGEND_HTML;
+    + '</div>';
 
   saveSeatMap();
   wireFloorDrag();
