@@ -6698,7 +6698,28 @@ function showChatNotif(who, text){
         + '</div>';
     }
 
-    var html = totalHtml + mismatchHtml;
+    var seatMismatches = buildSeatCountMismatches();
+    var seatMismatchHtml = '';
+    if(seatMismatches.length){
+      var smEntries = seatMismatches.map(function(m){
+        var guestsHtml = m.matchedGuests.map(function(n){ return '<strong>' + n + '</strong>'; }).join(', ');
+        return '<div style="padding:7px 8px;border-left:3px solid var(--red);border-radius:0 6px 6px 0;margin-bottom:4px;background:rgba(185,28,28,.05)">'
+          + '<div style="font-weight:600;font-size:12px">' + m.submittedAs + '</div>'
+          + '<div style="font-size:10px;color:var(--soft);margin-top:2px">Submission says <strong>' + m.seats + '</strong> seat' + (m.seats===1?'':'s') + ', but ' + m.matchedGuests.length + ' guest record' + (m.matchedGuests.length===1?'':'s') + ' matched to it: ' + guestsHtml + '</div>'
+          + '</div>';
+      }).join('');
+      seatMismatchHtml = '<div>'
+        + '<div class="rsvp-sec-hdr" data-sec="seatmismatch" style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--red);padding:4px 2px 8px;display:flex;align-items:center;gap:5px;cursor:pointer;user-select:none">'
+        + '<span style="flex-shrink:0">&#9888; Duplicate matches</span>'
+        + '<span style="flex:1;height:1px;background:var(--parchment);display:inline-block;min-width:8px"></span>'
+        + '<span style="font-size:9px;font-weight:700;color:var(--red)">' + seatMismatches.length + '</span>'
+        + '<span class="rsvp-chev" style="font-size:8px;color:var(--soft);transition:transform .2s;display:inline-block;line-height:1;flex-shrink:0;margin-left:5px">&#9650;</span>'
+        + '</div>'
+        + '<div class="rsvp-sec-body" id="rsvp-sec-seatmismatch">' + smEntries + '</div>'
+        + '</div>';
+    }
+
+    var html = totalHtml + mismatchHtml + seatMismatchHtml;
     if(withVenue.length)      html += sectionHtml('venue',  'Church &amp; Party', withVenue,      'var(--green-bg)', 'var(--green)', '4px', showSectionStats);
     if(churchOnly.length)     html += sectionHtml('church', 'Church Only',        churchOnly,     'var(--amber-bg)', 'var(--amber)', '12px', showSectionStats);
     if(uncategorised.length){
