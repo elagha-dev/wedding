@@ -6467,6 +6467,42 @@ function showChatNotif(who, text){
     banner.style.display = 'flex';
   }
 
+  // Finds every confirmed guest whose invite-type tag (Party vs Church only
+  // — set by the planner when the guest was added) disagrees with what
+  // their own matched RSVP submission actually said. This is exactly the
+  // kind of drift that makes the sidebar's per-guest tag counts (Confirmed
+  // → Party/Church Only) diverge from this drawer's per-submission seat
+  // totals (Church & Party/Church Only) below — two different tallies that
+  // usually agree, except where a guest's tag and their household's actual
+  // form answer don't match up.
+  function rowIsPartyVenue(r){
+    if(!r) return null;
+    function isTruthy(v){ var s=(v||'').toString().trim().toLowerCase(); return s==='yes'||s==='true'||s==='1'; }
+    if(r['Invited to Party'] !== undefined) return isTruthy(r['Invited to Party']);
+    if(r['Church'] !== undefined || r['Party'] !== undefined) return isTruthy(r['Church']) && isTruthy(r['Party']);
+    var att = (r['Ceremony Attendance'] || r['Party Attending'] || r.attendance || '').toString().toLowerCase();
+    if(att.indexOf('both') !== -1 || att.indexOf('party') !== -1 || att.indexOf('venue') !== -1) return true;
+    if(att.indexOf('church') !== -1) return false;
+    return null; // this row's own fields don't say either way — can't compare
+  }
+  function buildInviteTypeMismatches(){
+    var out = [];
+    if(typeof importQueue==='undefined') return out;
+    importQueue.filter(function(g){ return !g.skipped; }).forEach(function(g){
+      if(getGuestRsvpYesNo(g)!==true || getGuestRsvpIsGuess(g)) return; // real confirmed RSVPs only
+      var isCoupleGuest = g.type==='couple-ceremony'||g.type==='couple-party';
+      var info = getGuestRsvpInfo(g.name, isCoupleGuest, inferPartnerName(g), g.manualRsvp, g.plannerGuess);
+      if(!info || !info.row) return; // manual override — no raw submission to check against
+      var actualParty = rowIsPartyVenue(info.row);
+      if(actualParty===null) return;
+      var taggedParty = isPartyType(g);
+      if(actualParty!==taggedParty){
+        out.push({ name:g.name, tagged: taggedParty?'Party':'Church only', actual: actualParty?'Church & Party':'Church only' });
+      }
+    });
+    return out;
+  }
+
   // Render drawer content
   function renderDrawer(data){
     var body = document.getElementById('rsvpDrawerBody');
@@ -6606,7 +6642,27 @@ function showChatNotif(who, text){
     var populatedCount = [withVenue, churchOnly, uncategorised].filter(function(arr){ return arr.length > 0; }).length;
     var showSectionStats = populatedCount > 1;
 
-    var html = totalHtml;
+    var mismatches = buildInviteTypeMismatches();
+    var mismatchHtml = '';
+    if(mismatches.length){
+      var mmEntries = mismatches.map(function(m){
+        return '<div style="padding:7px 8px;border-left:3px solid var(--red);border-radius:0 6px 6px 0;margin-bottom:4px;background:rgba(185,28,28,.05)">'
+          + '<div style="font-weight:600;font-size:12px">' + m.name + '</div>'
+          + '<div style="font-size:10px;color:var(--soft);margin-top:2px">Tagged <strong>' + m.tagged + '</strong>, but their RSVP said <strong>' + m.actual + '</strong></div>'
+          + '</div>';
+      }).join('');
+      mismatchHtml = '<div>'
+        + '<div class="rsvp-sec-hdr" data-sec="mismatch" style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--red);padding:4px 2px 8px;display:flex;align-items:center;gap:5px;cursor:pointer;user-select:none">'
+        + '<span style="flex-shrink:0">&#9888; Type mismatches</span>'
+        + '<span style="flex:1;height:1px;background:var(--parchment);display:inline-block;min-width:8px"></span>'
+        + '<span style="font-size:9px;font-weight:700;color:var(--red)">' + mismatches.length + '</span>'
+        + '<span class="rsvp-chev" style="font-size:8px;color:var(--soft);transition:transform .2s;display:inline-block;line-height:1;flex-shrink:0;margin-left:5px">&#9650;</span>'
+        + '</div>'
+        + '<div class="rsvp-sec-body" id="rsvp-sec-mismatch">' + mmEntries + '</div>'
+        + '</div>';
+    }
+
+    var html = totalHtml + mismatchHtml;
     if(withVenue.length)      html += sectionHtml('venue',  'Church &amp; Party', withVenue,      'var(--green-bg)', 'var(--green)', '4px', showSectionStats);
     if(churchOnly.length)     html += sectionHtml('church', 'Church Only',        churchOnly,     'var(--amber-bg)', 'var(--amber)', '12px', showSectionStats);
     if(uncategorised.length){
