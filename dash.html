@@ -6531,8 +6531,12 @@ function showChatNotif(who, text){
     // the sheet, only a seat number does. Fold any such kid into whichever
     // row their linked parent(s) matched (via the planner-assigned
     // parentNames link) so they're not miscounted as an unexplained extra
-    // seat / phantom duplicate match.
-    confirmedGuests.filter(function(g){ return g.isChild && g.parentNames; }).forEach(function(kid){
+    // seat / phantom duplicate match. NOTE: this deliberately does not
+    // require isChild — the actual "link a kid to their parent(s)" panel
+    // lets you link ANY guest record via parentNames regardless of whether
+    // isChild is set, and plenty of real kid records never get that flag,
+    // so gating on isChild here silently dropped them.
+    confirmedGuests.filter(function(g){ return g.parentNames; }).forEach(function(kid){
       var parentNames = _parentNameList(kid.parentNames);
       Object.keys(byRowKey).forEach(function(key){
         var entry = byRowKey[key];
