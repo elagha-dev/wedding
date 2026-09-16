@@ -6510,6 +6510,12 @@ function showChatNotif(who, text){
   // per-submission seat total — with no venue disagreement at all, which
   // is exactly why buildInviteTypeMismatches() can come back empty even
   // when the two totals clearly don't match.
+  var DISMISSED_KEY = 'ww_dismissed_seat_mismatches';
+  function _loadDismissedSeatMismatches(){ try{ return JSON.parse(localStorage.getItem(DISMISSED_KEY))||{}; }catch(e){ return {}; } }
+  function _saveDismissedSeatMismatches(){ try{ localStorage.setItem(DISMISSED_KEY, JSON.stringify(_dismissedSeatMismatches)); }catch(e){} }
+  var _dismissedSeatMismatches = _loadDismissedSeatMismatches();
+  var _lastDrawerData = null;
+
   function buildSeatCountMismatches(){
     var out = [];
     if(typeof importQueue==='undefined') return out;
@@ -6569,6 +6575,7 @@ function showChatNotif(who, text){
       var maxExpected = coreNamesArr.length + kidNamesArr.length; // + linked kids, who may or may not (baby on lap)
       if(seats < minExpected){
         out.push({
+          key: key,
           submittedAs: entry.row['Full Name']||entry.row['name']||'(unnamed)',
           seats: seats,
           matchedGuests: coreNamesArr.concat(kidNamesArr),
@@ -6577,6 +6584,7 @@ function showChatNotif(who, text){
         });
       } else if(seats > maxExpected){
         out.push({
+          key: key,
           submittedAs: entry.row['Full Name']||entry.row['name']||'(unnamed)',
           seats: seats,
           matchedGuests: coreNamesArr.concat(kidNamesArr),
@@ -6592,6 +6600,7 @@ function showChatNotif(who, text){
 
   // Render drawer content
   function renderDrawer(data){
+    _lastDrawerData = data;
     var body = document.getElementById('rsvpDrawerBody');
     var countEl = document.getElementById('rsvpDrawerCount');
     if(!body) return;
@@ -6749,9 +6758,11 @@ function showChatNotif(who, text){
         + '</div>';
     }
 
-    var seatMismatches = buildSeatCountMismatches();
+    var seatMismatchesAll = buildSeatCountMismatches();
+    var seatMismatches = seatMismatchesAll.filter(function(m){ return !_dismissedSeatMismatches[m.key]; });
+    var dismissedList = seatMismatchesAll.filter(function(m){ return _dismissedSeatMismatches[m.key]; });
     var seatMismatchHtml = '';
-    if(seatMismatches.length){
+    if(seatMismatches.length || dismissedList.length){
       var smEntries = seatMismatches.map(function(m){
         var guestsHtml = m.matchedGuests.map(function(n){ return '<strong>' + n + '</strong>'; }).join(', ');
         var kidNote = m.hasLinkedKids ? ', even counting linked kids' : '';
@@ -6759,10 +6770,26 @@ function showChatNotif(who, text){
           ? 'Submission says <strong>' + m.seats + '</strong> seat' + (m.seats===1?'':'s') + ' — fewer than the ' + m.matchedGuests.length + ' guest record' + (m.matchedGuests.length===1?'':'s') + ' matched to it (likely a duplicate match): ' + guestsHtml
           : 'Submission says <strong>' + m.seats + '</strong> seat' + (m.seats===1?'':'s') + ' — more than the ' + m.matchedGuests.length + ' matched guest record' + (m.matchedGuests.length===1?'':'s') + ' account for' + kidNote + ': ' + guestsHtml;
         return '<div style="padding:7px 8px;border-left:3px solid var(--red);border-radius:0 6px 6px 0;margin-bottom:4px;background:rgba(185,28,28,.05)">'
+          + '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">'
           + '<div style="font-weight:600;font-size:12px">' + m.submittedAs + '</div>'
+          + '<button class="sm-dismiss-btn" data-sm-key="' + m.key.replace(/"/g,'&quot;') + '" title="Already explained — hide this" style="flex-shrink:0;border:1px solid var(--parchment);background:#fff;color:var(--muted);border-radius:100px;padding:2px 8px;font-size:9px;font-weight:700;cursor:pointer;white-space:nowrap">Explained</button>'
+          + '</div>'
           + '<div style="font-size:10px;color:var(--soft);margin-top:2px">' + msg + '</div>'
           + '</div>';
       }).join('');
+      if(dismissedList.length){
+        smEntries += '<div class="sm-dismissed-toggle" style="padding:6px 8px;font-size:10px;color:var(--muted);cursor:pointer;text-decoration:underline;text-underline-offset:2px">' + dismissedList.length + ' marked as explained — show</div>'
+          + '<div class="sm-dismissed-body" style="display:none">' + dismissedList.map(function(m){
+            var guestsHtml = m.matchedGuests.map(function(n){ return '<strong>' + n + '</strong>'; }).join(', ');
+            return '<div style="padding:7px 8px;border-left:3px solid var(--parchment);border-radius:0 6px 6px 0;margin-bottom:4px;opacity:.6">'
+              + '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">'
+              + '<div style="font-weight:600;font-size:12px">' + m.submittedAs + '</div>'
+              + '<button class="sm-undismiss-btn" data-sm-key="' + m.key.replace(/"/g,'&quot;') + '" style="flex-shrink:0;border:1px solid var(--parchment);background:#fff;color:var(--muted);border-radius:100px;padding:2px 8px;font-size:9px;font-weight:700;cursor:pointer;white-space:nowrap">Undo</button>'
+              + '</div>'
+              + '<div style="font-size:10px;color:var(--soft);margin-top:2px">Seats: ' + m.seats + ' · ' + guestsHtml + '</div>'
+              + '</div>';
+          }).join('') + '</div>';
+      }
       seatMismatchHtml = '<div>'
         + '<div class="rsvp-sec-hdr" data-sec="seatmismatch" style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--red);padding:4px 2px 8px;display:flex;align-items:center;gap:5px;cursor:pointer;user-select:none">'
         + '<span style="flex-shrink:0">&#9888; Duplicate matches</span>'
@@ -6792,6 +6819,35 @@ function showChatNotif(who, text){
         var open = sec.style.display !== 'none';
         sec.style.display = open ? 'none' : '';
         if(chev) chev.style.transform = open ? 'rotate(180deg)' : '';
+      });
+    });
+
+    // Duplicate-matches: mark as explained / undo, and reveal dismissed ones
+    body.querySelectorAll('.sm-dismiss-btn').forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        _dismissedSeatMismatches[this.dataset.smKey] = true;
+        _saveDismissedSeatMismatches();
+        renderDrawer(_lastDrawerData);
+      });
+    });
+    body.querySelectorAll('.sm-undismiss-btn').forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        delete _dismissedSeatMismatches[this.dataset.smKey];
+        _saveDismissedSeatMismatches();
+        renderDrawer(_lastDrawerData);
+      });
+    });
+    body.querySelectorAll('.sm-dismissed-toggle').forEach(function(el){
+      el.addEventListener('click', function(e){
+        e.stopPropagation();
+        var target = this.nextElementSibling;
+        if(!target) return;
+        var open = target.style.display !== 'none';
+        target.style.display = open ? 'none' : '';
+        var n = this.textContent.match(/^\d+/);
+        this.textContent = (n ? n[0] : '') + ' marked as explained — ' + (open ? 'show' : 'hide');
       });
     });
 
