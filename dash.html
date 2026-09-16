@@ -6502,14 +6502,16 @@ function showChatNotif(who, text){
     });
     return out;
   }
-  // A second, likely more common source of drift: several DIFFERENT guest
-  // records in the list can all fuzzy-match to the SAME submitted form row
-  // (a household that RSVP'd once for the whole family). If more guest
-  // records land on a row than that row's own "Total Seats" number says,
-  // the sidebar's per-guest tally comes out higher than this drawer's
-  // per-submission seat total — with no venue disagreement at all, which
-  // is exactly why buildInviteTypeMismatches() can come back empty even
-  // when the two totals clearly don't match.
+  // A second, likely more common source of drift: how many guest RECORDS in
+  // the planner match a submission vs. how many SEATS that submission's own
+  // "Total Seats" field reports. Two distinct failure directions, both
+  // surfaced under "Seat count mismatches" (deliberately NOT called
+  // "duplicate matches" — only one of the two directions actually is one):
+  //  - fewer seats than matched records → a real duplicate: too many guest
+  //    records fuzzy-matched onto the same submission.
+  //  - more seats than matched records (even counting linked kids, who may
+  //    or may not need their own seat) → a gap: a guest missing from the
+  //    list, or a kid that hasn't been linked to a parent yet.
   var DISMISSED_KEY = 'ww_dismissed_seat_mismatches';
   function _loadDismissedSeatMismatches(){ try{ return JSON.parse(localStorage.getItem(DISMISSED_KEY))||{}; }catch(e){ return {}; } }
   function _saveDismissedSeatMismatches(){ try{ localStorage.setItem(DISMISSED_KEY, JSON.stringify(_dismissedSeatMismatches)); }catch(e){} }
@@ -6800,7 +6802,7 @@ function showChatNotif(who, text){
       }
       seatMismatchHtml = '<div>'
         + '<div class="rsvp-sec-hdr" data-sec="seatmismatch" style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--red);padding:4px 2px 8px;display:flex;align-items:center;gap:5px;cursor:pointer;user-select:none">'
-        + '<span style="flex-shrink:0">&#9888; Duplicate matches</span>'
+        + '<span style="flex-shrink:0">&#9888; Guest count mismatches</span>'
         + '<span style="flex:1;height:1px;background:var(--parchment);display:inline-block;min-width:8px"></span>'
         + '<span style="font-size:9px;font-weight:700;color:var(--red)">' + seatMismatches.length + '</span>'
         + '<span class="rsvp-chev" style="font-size:8px;color:var(--soft);transition:transform .2s;display:inline-block;line-height:1;flex-shrink:0;margin-left:5px">&#9650;</span>'
