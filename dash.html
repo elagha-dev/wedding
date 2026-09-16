@@ -6502,6 +6502,42 @@ function showChatNotif(who, text){
     });
     return out;
   }
+  // A second, likely more common source of drift: several DIFFERENT guest
+  // records in the list can all fuzzy-match to the SAME submitted form row
+  // (a household that RSVP'd once for the whole family). If more guest
+  // records land on a row than that row's own "Total Seats" number says,
+  // the sidebar's per-guest tally comes out higher than this drawer's
+  // per-submission seat total — with no venue disagreement at all, which
+  // is exactly why buildInviteTypeMismatches() can come back empty even
+  // when the two totals clearly don't match.
+  function buildSeatCountMismatches(){
+    var out = [];
+    if(typeof importQueue==='undefined') return out;
+    var byRowKey = {};
+    importQueue.filter(function(g){ return !g.skipped; }).forEach(function(g){
+      if(getGuestRsvpYesNo(g)!==true || getGuestRsvpIsGuess(g)) return;
+      var isCoupleGuest = g.type==='couple-ceremony'||g.type==='couple-party';
+      var info = getGuestRsvpInfo(g.name, isCoupleGuest, inferPartnerName(g), g.manualRsvp, g.plannerGuess);
+      if(!info || !info.row) return;
+      var key = (info.row['Full Name']||info.row['name']||'').toString().trim().toLowerCase();
+      if(!key) return;
+      if(!byRowKey[key]) byRowKey[key] = { row: info.row, guests: [] };
+      byRowKey[key].guests.push(g.name);
+    });
+    Object.keys(byRowKey).forEach(function(key){
+      var entry = byRowKey[key];
+      var seatsVal = entry.row['Total Seats'] !== undefined ? entry.row['Total Seats'] : entry.row['seats'];
+      var seats = parseInt(seatsVal, 10);
+      if(!isNaN(seats) && seats !== entry.guests.length){
+        out.push({
+          submittedAs: entry.row['Full Name']||entry.row['name']||'(unnamed)',
+          seats: seats,
+          matchedGuests: entry.guests
+        });
+      }
+    });
+    return out;
+  }
 
   // Render drawer content
   function renderDrawer(data){
