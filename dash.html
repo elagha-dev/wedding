@@ -1021,6 +1021,7 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-seat{width:64px;min-height:52px;border-radius:10px;border:1.5px solid var(--parchment);background:var(--cream2);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2px;cursor:pointer;padding:8px 3px 5px;text-align:center;transition:transform .1s;touch-action:none}
 .seatmap-seat:active{transform:scale(.95)}
 .seatmap-seat.seat-tile-dragging{opacity:.92;position:relative;z-index:6;box-shadow:0 6px 18px rgba(0,0,0,.28);pointer-events:none;transition:none}
+.seatmap-seat.seat-tile-shift-preview{transition:transform .16s cubic-bezier(.3,.7,.3,1);position:relative;z-index:2}
 .seatmap-seat.seat-tile-drop-target{box-shadow:0 0 0 2.5px #2f6fed inset;transform:scale(1.05)}
 .seatmap-seat-num{font-family:var(--sans);font-size:9px;font-weight:800;letter-spacing:.03em;color:var(--soft);text-transform:uppercase}
 .seatmap-seat-name{font-family:var(--sans);font-size:10.5px;font-weight:700;color:var(--ink2);line-height:1.2;word-break:break-word;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
@@ -8353,6 +8354,104 @@ function handleSeatDrop(tableA, seatA, tableB, seatB){
   if(tableA===tableB) insertSeatShift(tableA, seatA, seatB);
   else swapSeats(tableA, seatA, tableB, seatB);
 }
+// Wires tap-to-assign + drag-to-swap onto every seat tile matching
+// `selector` inside `container`. While dragging within the same table, the
+// seats in between visually slide over — using each tile's own measured
+// on-screen position rather than assumed grid math, so it's correct even
+// where the row wraps — to preview exactly where things will land if you
+// let go right there. Dropping onto a different table skips the preview
+// (see handleSeatDrop) and just swaps the two on release.
+// opts.afterDrop(): called after a same-view drop commits (e.g. to refresh
+// a sheet that isn't itself torn down and rebuilt by renderSeatMap()).
+// opts.beforeTap(): called before a plain tap opens the assign sheet (e.g.
+// to close a sheet that's already open first).
+function wireSeatTileDragSwap(container, selector, opts){
+  opts = opts || {};
+  container.querySelectorAll(selector).forEach(function(seat){
+    var sDown=false, sMoved=false, sStartX=0, sStartY=0;
+    var fromTable, fromSeatNum, orderedTiles=null, shiftedSeats=[], currentTarget=null;
+    seat.addEventListener('pointerdown', function(e){
+      sDown = true; sMoved = false; currentTarget = null; orderedTiles = null; shiftedSeats = [];
+      sStartX = e.clientX; sStartY = e.clientY;
+      fromTable = seat.dataset.table; fromSeatNum = parseInt(seat.dataset.seat,10);
+      try{ seat.setPointerCapture(e.pointerId); }catch(err){}
+    });
+    seat.addEventListener('pointermove', function(e){
+      if(!sDown) return;
+      var dx = e.clientX-sStartX, dy = e.clientY-sStartY;
+      if(!sMoved && (Math.abs(dx)>8 || Math.abs(dy)>8)){
+        sMoved = true;
+        seat.classList.add('seat-tile-dragging');
+        // Snapshot every seat tile at this table's ORIGINAL position (no
+        // transform on any of them yet) once, up front — every preview
+        // shift below is calculated against this fixed snapshot rather
+        // than re-measuring each frame, so a chain of several tiles
+        // sliding at once all land exactly on each other's real slots.
+        orderedTiles = Array.prototype.slice.call(container.querySelectorAll(selector))
+          .filter(function(el){ return el.dataset.table===fromTable; })
+          .map(function(el){ return { el:el, seat:parseInt(el.dataset.seat,10), rect:el.getBoundingClientRect() }; })
+          .sort(function(a,b){ return a.seat-b.seat; });
+      }
+      if(!sMoved) return;
+      seat.style.transform = 'translate('+dx+'px,'+dy+'px) scale(1.06)';
+      var elUnder = document.elementFromPoint(e.clientX, e.clientY);
+      var overSeat = elUnder && elUnder.closest && elUnder.closest(selector);
+      var target = (overSeat && overSeat!==seat) ? overSeat : null;
+      currentTarget = target;
+      container.querySelectorAll('.seat-tile-drop-target').forEach(function(d){ if(d!==target) d.classList.remove('seat-tile-drop-target'); });
+      if(target) target.classList.add('seat-tile-drop-target');
+      var newShifted = [];
+      if(target && target.dataset.table===fromTable && orderedTiles){
+        var hoverSeatNum = parseInt(target.dataset.seat,10);
+        var map = {}; orderedTiles.forEach(function(t){ map[t.seat]=t; });
+        var lo, hi, dir;
+        if(hoverSeatNum>fromSeatNum){ lo=fromSeatNum+1; hi=hoverSeatNum; dir=-1; }
+        else if(hoverSeatNum<fromSeatNum){ lo=hoverSeatNum; hi=fromSeatNum-1; dir=1; }
+        else { lo=1; hi=0; dir=0; }
+        for(var k=lo;k<=hi;k++){
+          var cur=map[k], dest=map[k+dir];
+          if(cur && dest){
+            cur.el.style.transform = 'translate('+(dest.rect.left-cur.rect.left)+'px,'+(dest.rect.top-cur.rect.top)+'px)';
+            cur.el.classList.add('seat-tile-shift-preview');
+            newShifted.push(k);
+          }
+        }
+      }
+      shiftedSeats.forEach(function(k){
+        if(newShifted.indexOf(k)===-1){
+          var m = orderedTiles && orderedTiles.filter(function(t){return t.seat===k;})[0];
+          if(m){ m.el.style.transform=''; m.el.classList.remove('seat-tile-shift-preview'); }
+        }
+      });
+      shiftedSeats = newShifted;
+    });
+    function endSeatDrag(e){
+      if(!sDown) return;
+      sDown = false;
+      var wasMoved = sMoved, target = currentTarget;
+      sMoved = false; currentTarget = null;
+      seat.classList.remove('seat-tile-dragging');
+      seat.style.transform = '';
+      container.querySelectorAll('.seat-tile-drop-target').forEach(function(d){ d.classList.remove('seat-tile-drop-target'); });
+      // A successful drop re-renders the whole seat map (fresh elements,
+      // no leftover inline styles) — this cleanup only matters when the
+      // drag ends without landing on a seat.
+      if(orderedTiles) orderedTiles.forEach(function(t){ if(t.el!==seat){ t.el.style.transform=''; t.el.classList.remove('seat-tile-shift-preview'); } });
+      orderedTiles = null; shiftedSeats = [];
+      if(wasMoved){
+        if(target){
+          handleSeatDrop(fromTable, fromSeatNum, target.dataset.table, parseInt(target.dataset.seat,10));
+          if(typeof opts.afterDrop==='function') opts.afterDrop();
+        }
+      } else {
+        if(typeof opts.beforeTap==='function') opts.beforeTap();
+        openSeatAssign(fromTable, fromSeatNum);
+      }
+    }
+    seat.addEventListener('pointerup', endSeatDrag);
+    seat.addEventListener('pointercancel', endSeatDrag);
+  });
+}
 
 /* ── View mode: 'list' (default cards) or 'floor' (drag-to-arrange plan) ── */
 var seatMapView = (function(){
@@ -8462,49 +8561,11 @@ function renderSeatMap(){
     });
   });
   // Tap a seat to assign/open it; press-and-drag one seat tile onto another
-  // to swap the two guests (or move a guest into an empty seat). Mirrors
-  // the same drag-to-swap gesture used on the floor-plan dots.
-  body.querySelectorAll('.seatmap-seat:not(.add-seat)').forEach(function(seat){
-    var sDown=false, sMoved=false, sStartX=0, sStartY=0;
-    seat.addEventListener('pointerdown', function(e){
-      sDown = true; sMoved = false;
-      sStartX = e.clientX; sStartY = e.clientY;
-      try{ seat.setPointerCapture(e.pointerId); }catch(err){}
-    });
-    seat.addEventListener('pointermove', function(e){
-      if(!sDown) return;
-      var dx = e.clientX-sStartX, dy = e.clientY-sStartY;
-      if(!sMoved && (Math.abs(dx)>8 || Math.abs(dy)>8)){
-        sMoved = true;
-        seat.classList.add('seat-tile-dragging');
-      }
-      if(!sMoved) return;
-      seat.style.transform = 'translate('+dx+'px,'+dy+'px) scale(1.06)';
-      var elUnder = document.elementFromPoint(e.clientX, e.clientY);
-      var overSeat = elUnder && elUnder.closest && elUnder.closest('.seatmap-seat:not(.add-seat)');
-      body.querySelectorAll('.seat-tile-drop-target').forEach(function(d){ if(d!==overSeat) d.classList.remove('seat-tile-drop-target'); });
-      if(overSeat && overSeat!==seat) overSeat.classList.add('seat-tile-drop-target');
-    });
-    function endSeatDrag(e){
-      if(!sDown) return;
-      sDown = false;
-      seat.classList.remove('seat-tile-dragging');
-      seat.style.transform = '';
-      body.querySelectorAll('.seat-tile-drop-target').forEach(function(d){ d.classList.remove('seat-tile-drop-target'); });
-      if(sMoved){
-        var elUnder = document.elementFromPoint(e.clientX, e.clientY);
-        var overSeat = elUnder && elUnder.closest && elUnder.closest('.seatmap-seat:not(.add-seat)');
-        sMoved = false;
-        if(overSeat && overSeat!==seat){
-          handleSeatDrop(seat.dataset.table, parseInt(seat.dataset.seat,10), overSeat.dataset.table, parseInt(overSeat.dataset.seat,10));
-        }
-      } else {
-        openSeatAssign(seat.dataset.table, parseInt(seat.dataset.seat,10));
-      }
-    }
-    seat.addEventListener('pointerup', endSeatDrag);
-    seat.addEventListener('pointercancel', endSeatDrag);
-  });
+  // to swap the two guests (or move a guest into an empty seat) — with a
+  // live preview of seats sliding over to make room. Mirrors the same
+  // gesture used on the floor-plan dots (which show a highlight only, since
+  // dots don't sit in a line to slide along).
+  wireSeatTileDragSwap(body, '.seatmap-seat:not(.add-seat)');
   body.querySelectorAll('.seatmap-seat.add-seat').forEach(function(tile){
     tile.addEventListener('click', function(){
       var id = this.dataset.table;
@@ -9764,49 +9825,9 @@ function openTableFromFloor(tableId){
     + '<button class="seatmap-mini-btn" id="tsChairsInc" title="More chairs">+</button>'
     + '</div>';
   list.innerHTML = chairsBar + '<div class="seatmap-seats" style="padding:2px 2px 14px">'+seatsHtml+'</div>';
-  list.querySelectorAll('.seatmap-seat').forEach(function(seat){
-    var tDown=false, tMoved=false, tStartX=0, tStartY=0;
-    seat.addEventListener('pointerdown', function(e){
-      tDown = true; tMoved = false;
-      tStartX = e.clientX; tStartY = e.clientY;
-      try{ seat.setPointerCapture(e.pointerId); }catch(err){}
-    });
-    seat.addEventListener('pointermove', function(e){
-      if(!tDown) return;
-      var dx = e.clientX-tStartX, dy = e.clientY-tStartY;
-      if(!tMoved && (Math.abs(dx)>8 || Math.abs(dy)>8)){
-        tMoved = true;
-        seat.classList.add('seat-tile-dragging');
-      }
-      if(!tMoved) return;
-      seat.style.transform = 'translate('+dx+'px,'+dy+'px) scale(1.06)';
-      var elUnder = document.elementFromPoint(e.clientX, e.clientY);
-      var overSeat = elUnder && elUnder.closest && elUnder.closest('.seatmap-seat');
-      list.querySelectorAll('.seat-tile-drop-target').forEach(function(d){ if(d!==overSeat) d.classList.remove('seat-tile-drop-target'); });
-      if(overSeat && overSeat!==seat) overSeat.classList.add('seat-tile-drop-target');
-    });
-    function endTileDrag(e){
-      if(!tDown) return;
-      tDown = false;
-      seat.style.transform = '';
-      if(tMoved){
-        var elUnder = document.elementFromPoint(e.clientX, e.clientY);
-        var overSeat = elUnder && elUnder.closest && elUnder.closest('.seatmap-seat');
-        tMoved = false;
-        if(overSeat && overSeat!==seat){
-          handleSeatDrop(seat.dataset.table, parseInt(seat.dataset.seat,10), overSeat.dataset.table, parseInt(overSeat.dataset.seat,10));
-          openTableFromFloor(tableId); // refresh this sheet's grid in place — swapSeats already re-rendered the floor plan behind it
-          return;
-        }
-        seat.classList.remove('seat-tile-dragging');
-        list.querySelectorAll('.seat-tile-drop-target').forEach(function(d){ d.classList.remove('seat-tile-drop-target'); });
-      } else {
-        closeSeatAssign();
-        openSeatAssign(seat.dataset.table, parseInt(seat.dataset.seat,10));
-      }
-    }
-    seat.addEventListener('pointerup', endTileDrag);
-    seat.addEventListener('pointercancel', endTileDrag);
+  wireSeatTileDragSwap(list, '.seatmap-seat', {
+    beforeTap: closeSeatAssign,
+    afterDrop: function(){ openTableFromFloor(tableId); } // refresh this sheet's grid in place — handleSeatDrop already re-rendered the floor plan behind it
   });
   var chairsDec = document.getElementById('tsChairsDec');
   var chairsInc = document.getElementById('tsChairsInc');
