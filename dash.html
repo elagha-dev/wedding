@@ -6513,26 +6513,43 @@ function showChatNotif(who, text){
   function buildSeatCountMismatches(){
     var out = [];
     if(typeof importQueue==='undefined') return out;
+    var confirmedGuests = importQueue.filter(function(g){ return !g.skipped; });
     var byRowKey = {};
-    importQueue.filter(function(g){ return !g.skipped; }).forEach(function(g){
+    confirmedGuests.forEach(function(g){
       if(getGuestRsvpYesNo(g)!==true || getGuestRsvpIsGuess(g)) return;
       var isCoupleGuest = g.type==='couple-ceremony'||g.type==='couple-party';
       var info = getGuestRsvpInfo(g.name, isCoupleGuest, inferPartnerName(g), g.manualRsvp, g.plannerGuess);
       if(!info || !info.row) return;
       var key = (info.row['Full Name']||info.row['name']||'').toString().trim().toLowerCase();
       if(!key) return;
-      if(!byRowKey[key]) byRowKey[key] = { row: info.row, guests: [] };
-      byRowKey[key].guests.push(g.name);
+      if(!byRowKey[key]) byRowKey[key] = { row: info.row, guestNames: {} };
+      byRowKey[key].guestNames[g.name] = true;
+    });
+    // Kids riding on a parent's RSVP: the household's "Total Seats" already
+    // counts them ("bringing our kid"), but the kid's own guest record often
+    // has no submission of its own to match — their name never appears in
+    // the sheet, only a seat number does. Fold any such kid into whichever
+    // row their linked parent(s) matched (via the planner-assigned
+    // parentNames link) so they're not miscounted as an unexplained extra
+    // seat / phantom duplicate match.
+    confirmedGuests.filter(function(g){ return g.isChild && g.parentNames; }).forEach(function(kid){
+      var parentNames = _parentNameList(kid.parentNames);
+      Object.keys(byRowKey).forEach(function(key){
+        var entry = byRowKey[key];
+        var hasParentHere = parentNames.some(function(pn){ return entry.guestNames[pn]; });
+        if(hasParentHere) entry.guestNames[kid.name] = true;
+      });
     });
     Object.keys(byRowKey).forEach(function(key){
       var entry = byRowKey[key];
+      var guestNamesArr = Object.keys(entry.guestNames);
       var seatsVal = entry.row['Total Seats'] !== undefined ? entry.row['Total Seats'] : entry.row['seats'];
       var seats = parseInt(seatsVal, 10);
-      if(!isNaN(seats) && seats !== entry.guests.length){
+      if(!isNaN(seats) && seats !== guestNamesArr.length){
         out.push({
           submittedAs: entry.row['Full Name']||entry.row['name']||'(unnamed)',
           seats: seats,
-          matchedGuests: entry.guests
+          matchedGuests: guestNamesArr
         });
       }
     });
