@@ -8369,10 +8369,36 @@ function wireSeatTileDragSwap(container, selector, opts){
   opts = opts || {};
   container.querySelectorAll(selector).forEach(function(seat){
     var sDown=false, sMoved=false, sStartX=0, sStartY=0;
-    var fromTable, fromSeatNum, orderedTiles=null, shiftedSeats=[], currentTarget=null;
+    var fromTable, fromSeatNum, orderedTiles=null, shiftedSeats=[];
     var lastHoverKey=null, rafPending=false, lastEvt=null;
+    // Find the hovered seat by testing the pointer against each seat's
+    // ORIGINAL (pre-drag) position — not a live DOM hit-test. A live
+    // elementFromPoint would hit whatever tile is VISUALLY there right now,
+    // but the tiles being previewed are themselves sliding around during
+    // the drag, so hit-testing their current (animating) position creates a
+    // feedback loop: a box sliding toward the finger gets detected as "under
+    // the finger," which shifts the range, which moves more boxes, which
+    // changes what elementFromPoint finds next frame — the erratic
+    // "bunny-hopping." Testing against the fixed original slots instead
+    // means the hover target only depends on where seats actually live, not
+    // on whatever's mid-animation.
+    function findHoverTarget(x, y){
+      if(orderedTiles){
+        for(var i=0;i<orderedTiles.length;i++){
+          var t = orderedTiles[i];
+          if(t.seat===fromSeatNum) continue;
+          var r = t.rect;
+          if(x>=r.left && x<=r.right && y>=r.top && y<=r.bottom) return t.el;
+        }
+      }
+      // Seats at a different table are never animated by this drag, so a
+      // normal live hit-test for them is completely reliable.
+      var elUnder = document.elementFromPoint(x, y);
+      var overSeat = elUnder && elUnder.closest && elUnder.closest(selector);
+      return (overSeat && overSeat!==seat && overSeat.dataset.table!==fromTable) ? overSeat : null;
+    }
     seat.addEventListener('pointerdown', function(e){
-      sDown = true; sMoved = false; currentTarget = null; orderedTiles = null; shiftedSeats = []; lastHoverKey = null;
+      sDown = true; sMoved = false; orderedTiles = null; shiftedSeats = []; lastHoverKey = null;
       sStartX = e.clientX; sStartY = e.clientY;
       fromTable = seat.dataset.table; fromSeatNum = parseInt(seat.dataset.seat,10);
       try{ seat.setPointerCapture(e.pointerId); }catch(err){}
@@ -8408,11 +8434,8 @@ function wireSeatTileDragSwap(container, selector, opts){
       rafPending = false;
       if(!sDown || !sMoved || !lastEvt) return;
       var e = lastEvt;
-      var elUnder = document.elementFromPoint(e.clientX, e.clientY);
-      var overSeat = elUnder && elUnder.closest && elUnder.closest(selector);
-      var target = (overSeat && overSeat!==seat) ? overSeat : null;
+      var target = findHoverTarget(e.clientX, e.clientY);
       var hoverKey = target ? (target.dataset.table+'-'+target.dataset.seat) : null;
-      currentTarget = target;
       // Skip re-running the whole preview calculation while the finger is
       // still over the exact same seat it was last frame — this is what
       // was making the boxes look like they were re-slamming into place
@@ -8457,7 +8480,7 @@ function wireSeatTileDragSwap(container, selector, opts){
       if(!sDown) return;
       sDown = false;
       var wasMoved = sMoved;
-      sMoved = false; currentTarget = null;
+      sMoved = false;
       seat.classList.remove('seat-tile-dragging');
       seat.style.transform = '';
       container.querySelectorAll('.seat-tile-drop-target').forEach(function(d){ d.classList.remove('seat-tile-drop-target'); });
@@ -8471,17 +8494,13 @@ function wireSeatTileDragSwap(container, selector, opts){
       setTimeout(function(){
         if(tilesToSettle) tilesToSettle.forEach(function(t){ if(t.el) t.el.classList.remove('seat-tile-shift-preview'); });
       }, 260);
-      orderedTiles = null; shiftedSeats = [];
       if(wasMoved){
         // Figure out the drop target fresh, right here, from this exact
-        // release event — not from whatever the throttled preview last
-        // landed on. The preview is allowed to lag a frame behind for
-        // smoothness; the actual drop can't, or letting go right after a
-        // fast move could land on wherever your finger was a frame ago
-        // instead of where it actually is now.
-        var elUnder = document.elementFromPoint(e.clientX, e.clientY);
-        var overSeat = elUnder && elUnder.closest && elUnder.closest(selector);
-        var target = (overSeat && overSeat!==seat) ? overSeat : null;
+        // release event (same snapshot-based lookup as the live preview) —
+        // not from a live hit-test, for the same reason as above: at the
+        // instant of release, the tile under the finger may itself still be
+        // mid-slide, so a live hit-test could catch the wrong one.
+        var target = findHoverTarget(e.clientX, e.clientY);
         if(target){
           handleSeatDrop(fromTable, fromSeatNum, target.dataset.table, parseInt(target.dataset.seat,10));
           if(typeof opts.afterDrop==='function') opts.afterDrop();
@@ -8490,6 +8509,7 @@ function wireSeatTileDragSwap(container, selector, opts){
         if(typeof opts.beforeTap==='function') opts.beforeTap();
         openSeatAssign(fromTable, fromSeatNum);
       }
+      orderedTiles = null; shiftedSeats = [];
     }
     seat.addEventListener('pointerup', endSeatDrag);
     seat.addEventListener('pointercancel', endSeatDrag);
