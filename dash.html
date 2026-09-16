@@ -6522,40 +6522,50 @@ function showChatNotif(who, text){
       if(!info || !info.row) return;
       var key = (info.row['Full Name']||info.row['name']||'').toString().trim().toLowerCase();
       if(!key) return;
-      if(!byRowKey[key]) byRowKey[key] = { row: info.row, guestNames: {} };
-      byRowKey[key].guestNames[g.name] = true;
+      if(!byRowKey[key]) byRowKey[key] = { row: info.row, coreNames: {}, kidNames: {} };
+      byRowKey[key].coreNames[g.name] = true;
     });
-    // Kids riding on a parent's RSVP: the household's "Total Seats" already
-    // counts them ("bringing our kid"), but the kid's own guest record often
-    // has no submission of its own to match — their name never appears in
-    // the sheet, only a seat number does. Fold any such kid into whichever
-    // row their linked parent(s) matched (via the planner-assigned
-    // parentNames link) so they're not miscounted as an unexplained extra
-    // seat / phantom duplicate match. NOTE: this deliberately does not
-    // require isChild — the actual "link a kid to their parent(s)" panel
-    // lets you link ANY guest record via parentNames regardless of whether
-    // isChild is set, and plenty of real kid records never get that flag,
-    // so gating on isChild here silently dropped them.
+    // Kids/babies linked to a parent don't force an exact seat count: a baby
+    // riding on a lap is often never mentioned as a seat on the RSVP at all,
+    // even though the planner still lists them as a guest — while an older
+    // kid usually DOES get their own seat. Since a guest record alone can't
+    // tell us which, a linked kid widens the row's *acceptable* seat range
+    // (coreCount .. coreCount + linkedKids) instead of demanding an exact
+    // match. Only outside that range is it worth flagging.
     confirmedGuests.filter(function(g){ return g.parentNames; }).forEach(function(kid){
       var parentNames = _parentNameList(kid.parentNames);
       Object.keys(byRowKey).forEach(function(key){
         var entry = byRowKey[key];
-        var hasParentHere = parentNames.some(function(pn){ return entry.guestNames[pn]; });
-        if(hasParentHere) entry.guestNames[kid.name] = true;
+        var hasParentHere = parentNames.some(function(pn){ return entry.coreNames[pn]; });
+        if(hasParentHere && !entry.coreNames[kid.name]) entry.kidNames[kid.name] = true;
       });
     });
     Object.keys(byRowKey).forEach(function(key){
       var entry = byRowKey[key];
-      var guestNamesArr = Object.keys(entry.guestNames);
+      var coreNamesArr = Object.keys(entry.coreNames);
+      var kidNamesArr = Object.keys(entry.kidNames);
       var seatsVal = entry.row['Total Seats'] !== undefined ? entry.row['Total Seats'] : entry.row['seats'];
       var seats = parseInt(seatsVal, 10);
-      if(!isNaN(seats) && seats !== guestNamesArr.length){
+      if(isNaN(seats)) return;
+      var minExpected = coreNamesArr.length;                     // every matched adult needs a seat
+      var maxExpected = coreNamesArr.length + kidNamesArr.length; // + linked kids, who may or may not (baby on lap)
+      if(seats < minExpected){
         out.push({
           submittedAs: entry.row['Full Name']||entry.row['name']||'(unnamed)',
           seats: seats,
-          matchedGuests: guestNamesArr
+          matchedGuests: coreNamesArr.concat(kidNamesArr),
+          reason: 'fewer'
+        });
+      } else if(seats > maxExpected){
+        out.push({
+          submittedAs: entry.row['Full Name']||entry.row['name']||'(unnamed)',
+          seats: seats,
+          matchedGuests: coreNamesArr.concat(kidNamesArr),
+          reason: 'more'
         });
       }
+      // seats landing inside [minExpected, maxExpected] → within the
+      // baby-on-lap range, not flagged.
     });
     return out;
   }
@@ -6724,9 +6734,12 @@ function showChatNotif(who, text){
     if(seatMismatches.length){
       var smEntries = seatMismatches.map(function(m){
         var guestsHtml = m.matchedGuests.map(function(n){ return '<strong>' + n + '</strong>'; }).join(', ');
+        var msg = m.reason==='fewer'
+          ? 'Submission says <strong>' + m.seats + '</strong> seat' + (m.seats===1?'':'s') + ' — fewer than the ' + m.matchedGuests.length + ' guest record' + (m.matchedGuests.length===1?'':'s') + ' matched to it (likely a duplicate match): ' + guestsHtml
+          : 'Submission says <strong>' + m.seats + '</strong> seat' + (m.seats===1?'':'s') + ' — more than the ' + m.matchedGuests.length + ' matched guest record' + (m.matchedGuests.length===1?'':'s') + ' account for, even counting linked kids: ' + guestsHtml;
         return '<div style="padding:7px 8px;border-left:3px solid var(--red);border-radius:0 6px 6px 0;margin-bottom:4px;background:rgba(185,28,28,.05)">'
           + '<div style="font-weight:600;font-size:12px">' + m.submittedAs + '</div>'
-          + '<div style="font-size:10px;color:var(--soft);margin-top:2px">Submission says <strong>' + m.seats + '</strong> seat' + (m.seats===1?'':'s') + ', but ' + m.matchedGuests.length + ' guest record' + (m.matchedGuests.length===1?'':'s') + ' matched to it: ' + guestsHtml + '</div>'
+          + '<div style="font-size:10px;color:var(--soft);margin-top:2px">' + msg + '</div>'
           + '</div>';
       }).join('');
       seatMismatchHtml = '<div>'
