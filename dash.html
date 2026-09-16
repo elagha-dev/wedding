@@ -6525,6 +6525,24 @@ function showChatNotif(who, text){
       if(!byRowKey[key]) byRowKey[key] = { row: info.row, coreNames: {}, kidNames: {} };
       byRowKey[key].coreNames[g.name] = true;
     });
+    // A guest can be "accounted for" on a row two ways beyond their own
+    // matched submission: (a) they're a manual-override / no-row guest whose
+    // partner's own RSVP already covers the household (e.g. Blake marked
+    // manually while Elisabeth's real submission is what matched), or (b)
+    // they're a kid linked to a parent who matched. Fold both in before
+    // judging the seat count, so neither shows up as a phantom gap.
+    confirmedGuests.forEach(function(g){
+      if(getGuestRsvpYesNo(g)!==true || getGuestRsvpIsGuess(g)) return;
+      var isCoupleGuest = g.type==='couple-ceremony'||g.type==='couple-party';
+      var info = getGuestRsvpInfo(g.name, isCoupleGuest, inferPartnerName(g), g.manualRsvp, g.plannerGuess);
+      if(info && info.row) return; // already in core from the pass above
+      var partnerName = inferPartnerName(g);
+      if(!partnerName) return;
+      Object.keys(byRowKey).forEach(function(key){
+        var entry = byRowKey[key];
+        if(entry.coreNames[partnerName] && !entry.coreNames[g.name]) entry.coreNames[g.name] = true;
+      });
+    });
     // Kids/babies linked to a parent don't force an exact seat count: a baby
     // riding on a lap is often never mentioned as a seat on the RSVP at all,
     // even though the planner still lists them as a guest — while an older
@@ -6554,6 +6572,7 @@ function showChatNotif(who, text){
           submittedAs: entry.row['Full Name']||entry.row['name']||'(unnamed)',
           seats: seats,
           matchedGuests: coreNamesArr.concat(kidNamesArr),
+          hasLinkedKids: kidNamesArr.length>0,
           reason: 'fewer'
         });
       } else if(seats > maxExpected){
@@ -6561,6 +6580,7 @@ function showChatNotif(who, text){
           submittedAs: entry.row['Full Name']||entry.row['name']||'(unnamed)',
           seats: seats,
           matchedGuests: coreNamesArr.concat(kidNamesArr),
+          hasLinkedKids: kidNamesArr.length>0,
           reason: 'more'
         });
       }
@@ -6734,9 +6754,10 @@ function showChatNotif(who, text){
     if(seatMismatches.length){
       var smEntries = seatMismatches.map(function(m){
         var guestsHtml = m.matchedGuests.map(function(n){ return '<strong>' + n + '</strong>'; }).join(', ');
+        var kidNote = m.hasLinkedKids ? ', even counting linked kids' : '';
         var msg = m.reason==='fewer'
           ? 'Submission says <strong>' + m.seats + '</strong> seat' + (m.seats===1?'':'s') + ' — fewer than the ' + m.matchedGuests.length + ' guest record' + (m.matchedGuests.length===1?'':'s') + ' matched to it (likely a duplicate match): ' + guestsHtml
-          : 'Submission says <strong>' + m.seats + '</strong> seat' + (m.seats===1?'':'s') + ' — more than the ' + m.matchedGuests.length + ' matched guest record' + (m.matchedGuests.length===1?'':'s') + ' account for, even counting linked kids: ' + guestsHtml;
+          : 'Submission says <strong>' + m.seats + '</strong> seat' + (m.seats===1?'':'s') + ' — more than the ' + m.matchedGuests.length + ' matched guest record' + (m.matchedGuests.length===1?'':'s') + ' account for' + kidNote + ': ' + guestsHtml;
         return '<div style="padding:7px 8px;border-left:3px solid var(--red);border-radius:0 6px 6px 0;margin-bottom:4px;background:rgba(185,28,28,.05)">'
           + '<div style="font-weight:600;font-size:12px">' + m.submittedAs + '</div>'
           + '<div style="font-size:10px;color:var(--soft);margin-top:2px">' + msg + '</div>'
