@@ -6764,29 +6764,37 @@ function showChatNotif(who, text){
     var seatMismatchHtml = '';
     if(seatMismatches.length || dismissedList.length){
       var smEntries = seatMismatches.map(function(m){
-        var guestsHtml = m.matchedGuests.map(function(n){ return '<strong>' + n + '</strong>'; }).join(', ');
-        var kidNote = m.hasLinkedKids ? ', even counting linked kids' : '';
-        var msg = m.reason==='fewer'
-          ? 'Submission says <strong>' + m.seats + '</strong> seat' + (m.seats===1?'':'s') + ' — fewer than the ' + m.matchedGuests.length + ' guest record' + (m.matchedGuests.length===1?'':'s') + ' matched to it (likely a duplicate match): ' + guestsHtml
-          : 'Submission says <strong>' + m.seats + '</strong> seat' + (m.seats===1?'':'s') + ' — more than the ' + m.matchedGuests.length + ' matched guest record' + (m.matchedGuests.length===1?'':'s') + ' account for' + kidNote + ': ' + guestsHtml;
+        var guestsHtml = m.matchedGuests.join(', ');
+        var headline, body;
+        if(m.reason==='fewer'){
+          headline = 'More guest records than seats';
+          body = 'This submission reported <strong>' + m.seats + '</strong> seat' + (m.seats===1?'':'s') + ', but <strong>' + m.matchedGuests.length + '</strong> guest record' + (m.matchedGuests.length===1?'':'s') + ' in your list matched to it. Likely a duplicate — one of these may be the same person entered twice.';
+        } else {
+          headline = 'More seats than matched guests';
+          body = 'This submission reported <strong>' + m.seats + '</strong> seat' + (m.seats===1?'':'s') + ', but only <strong>' + m.matchedGuests.length + '</strong> guest record' + (m.matchedGuests.length===1?'':'s') + ' in your list matched to it' + (m.hasLinkedKids ? ' (linked kids included)' : '') + '. A guest may be missing from your list, or a kid may still need linking to a parent.';
+        }
         return '<div style="padding:7px 8px;border-left:3px solid var(--red);border-radius:0 6px 6px 0;margin-bottom:4px;background:rgba(185,28,28,.05)">'
           + '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">'
-          + '<div style="font-weight:600;font-size:12px">' + m.submittedAs + '</div>'
+          + '<div><div style="font-weight:600;font-size:12px">' + m.submittedAs + '</div>'
+          + '<div style="font-size:9px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:.04em;margin-top:1px">' + headline + '</div></div>'
           + '<button class="sm-dismiss-btn" data-sm-key="' + m.key.replace(/"/g,'&quot;') + '" title="Already explained — hide this" style="flex-shrink:0;border:1px solid var(--parchment);background:#fff;color:var(--muted);border-radius:100px;padding:2px 8px;font-size:9px;font-weight:700;cursor:pointer;white-space:nowrap">Explained</button>'
           + '</div>'
-          + '<div style="font-size:10px;color:var(--soft);margin-top:2px">' + msg + '</div>'
+          + '<div style="font-size:10px;color:var(--soft);margin-top:4px;line-height:1.5">' + body + '</div>'
+          + '<div style="font-size:10px;color:var(--ink);margin-top:4px"><span style="color:var(--muted)">Matched guests:</span> ' + guestsHtml + '</div>'
           + '</div>';
       }).join('');
       if(dismissedList.length){
         smEntries += '<div class="sm-dismissed-toggle" style="padding:6px 8px;font-size:10px;color:var(--muted);cursor:pointer;text-decoration:underline;text-underline-offset:2px">' + dismissedList.length + ' marked as explained — show</div>'
           + '<div class="sm-dismissed-body" style="display:none">' + dismissedList.map(function(m){
-            var guestsHtml = m.matchedGuests.map(function(n){ return '<strong>' + n + '</strong>'; }).join(', ');
+            var guestsHtml = m.matchedGuests.join(', ');
+            var headline = m.reason==='fewer' ? 'More guest records than seats' : 'More seats than matched guests';
             return '<div style="padding:7px 8px;border-left:3px solid var(--parchment);border-radius:0 6px 6px 0;margin-bottom:4px;opacity:.6">'
               + '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">'
-              + '<div style="font-weight:600;font-size:12px">' + m.submittedAs + '</div>'
+              + '<div><div style="font-weight:600;font-size:12px">' + m.submittedAs + '</div>'
+              + '<div style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-top:1px">' + headline + '</div></div>'
               + '<button class="sm-undismiss-btn" data-sm-key="' + m.key.replace(/"/g,'&quot;') + '" style="flex-shrink:0;border:1px solid var(--parchment);background:#fff;color:var(--muted);border-radius:100px;padding:2px 8px;font-size:9px;font-weight:700;cursor:pointer;white-space:nowrap">Undo</button>'
               + '</div>'
-              + '<div style="font-size:10px;color:var(--soft);margin-top:2px">Seats: ' + m.seats + ' · ' + guestsHtml + '</div>'
+              + '<div style="font-size:10px;color:var(--soft);margin-top:4px"><span style="color:var(--muted)">' + m.seats + ' seats · Matched:</span> ' + guestsHtml + '</div>'
               + '</div>';
           }).join('') + '</div>';
       }
