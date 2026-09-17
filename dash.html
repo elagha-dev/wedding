@@ -291,11 +291,18 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
    the FAB at bottom-right (bottom:100px) so it never overlaps either.
    Lives inside #guestArea so it shows/hides along with the guest list
    itself automatically, with no separate visibility logic to keep in sync. */
-.az-rail{position:fixed;top:140px;bottom:100px;right:2px;z-index:85;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;width:16px}
-.az-rail-letter{display:block;width:16px;padding:0;border:none;background:none;color:var(--rose-deep);font-family:var(--sans);font-size:9px;font-weight:800;line-height:1.35;cursor:pointer;text-align:center}
-.az-rail-letter.disabled{color:var(--parchment);cursor:default}
+.az-rail{position:fixed;top:140px;bottom:100px;right:2px;z-index:85;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;width:20px;touch-action:none}
+.az-rail-letter{display:block;width:20px;padding:1px 0;border:none;background:none;color:var(--rose-deep);font-family:var(--sans);font-size:9px;font-weight:800;line-height:1.35;cursor:pointer;text-align:center}
+.az-rail-letter.disabled{color:var(--parchment)}
 .az-jump-highlight{animation:azJumpFlash 1.4s ease}
 @keyframes azJumpFlash{0%,100%{box-shadow:none}15%{box-shadow:0 0 0 2.5px var(--rose) inset}}
+/* Big magnified letter callout, iOS-contacts-index style — shown while a
+   finger is actually down on the rail, positioned level with the touch so
+   it's readable without covering what you're aiming at (tiny 9px letters
+   otherwise, genuinely hard to tell apart mid-press). */
+.az-rail-bubble{position:fixed;right:28px;z-index:95;width:52px;height:52px;border-radius:50%;background:var(--rose-deep);color:#fff;display:none;align-items:center;justify-content:center;font-family:var(--sans);font-size:23px;font-weight:800;box-shadow:0 4px 16px rgba(0,0,0,.3);pointer-events:none;transform:translateY(-50%)}
+.az-rail-bubble.show{display:flex}
+.az-rail-bubble.disabled{background:var(--soft)}
 /* Confirmed-pair merge: two guest cards drawn as one unit, divided by a
    hairline instead of the usual gap+shadow+rounded-corners-on-both. */
 .g-pair-merged{display:flex;flex-direction:column;border-radius:var(--r-sm);overflow:hidden;box-shadow:var(--shadow-sm)}
@@ -1640,6 +1647,7 @@ body.lite-mode #liteModeTopBtn {
     </div>
     <div class="guest-list" id="guestList"></div>
     <div class="az-rail" id="azRail"></div>
+    <div class="az-rail-bubble" id="azRailBubble"></div>
     <div class="list-footer">
       <button class="list-btn dng" id="clearGuestBtn">Clear list</button>
     </div>
@@ -2899,6 +2907,7 @@ function _azLetterFor(name){
 }
 function renderAzRail(){
   var rail=document.getElementById('azRail');
+  var bubble=document.getElementById('azRailBubble');
   if(!rail) return;
   var idx={};
   document.querySelectorAll('#guestList .g-swipe-wrap[data-qi]').forEach(function(el){
@@ -2911,38 +2920,81 @@ function renderAzRail(){
   var letters='ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
   rail.innerHTML=letters.map(function(L){
     var has=!!idx[L];
-    return '<button type="button" class="az-rail-letter'+(has?'':' disabled')+'" data-letter="'+L+'"'+(has?'':' disabled')+'>'+L+'</button>';
+    return '<span class="az-rail-letter'+(has?'':' disabled')+'" data-letter="'+L+'">'+L+'</span>';
   }).join('');
-  rail.querySelectorAll('.az-rail-letter:not(.disabled)').forEach(function(btn){
-    btn.addEventListener('click',function(){
-      var letter=this.dataset.letter;
-      function jump(){
-        var target=null;
-        document.querySelectorAll('#guestList .g-swipe-wrap[data-qi]').forEach(function(el){
-          if(target) return;
-          var qi=parseInt(el.dataset.qi,10);
-          var g=importQueue[qi];
-          if(g && _azLetterFor(g.name)===letter) target=el;
-        });
-        if(!target) return;
-        var rect=target.getBoundingClientRect();
-        var y=rect.top+window.scrollY-130; // clears the sticky filter bar
-        window.scrollTo({top:Math.max(0,y),behavior:'smooth'});
-        target.classList.add('az-jump-highlight');
-        setTimeout(function(){target.classList.remove('az-jump-highlight');},1400);
-      }
-      if(sortMode!=='az'){
-        sortMode='az';
-        try{sessionStorage.setItem('ww_sort',sortMode);}catch(e){}
-        var sortBtnEl=document.getElementById('sortBtn');
-        if(sortBtnEl){sortBtnEl.textContent='A→Z';sortBtnEl.classList.add('on');}
-        renderGuestList(); // rebuilds the DOM in az order, then calls renderAzRail() itself
-        setTimeout(jump,60); // let the re-render settle before measuring positions
-      } else {
-        jump();
-      }
-    });
-  });
+
+  function jumpToLetter(letter){
+    function jump(){
+      var target=null;
+      document.querySelectorAll('#guestList .g-swipe-wrap[data-qi]').forEach(function(el){
+        if(target) return;
+        var qi=parseInt(el.dataset.qi,10);
+        var g=importQueue[qi];
+        if(g && _azLetterFor(g.name)===letter) target=el;
+      });
+      if(!target) return;
+      var rect=target.getBoundingClientRect();
+      var y=rect.top+window.scrollY-130; // clears the sticky filter bar
+      window.scrollTo({top:Math.max(0,y),behavior:'smooth'});
+      target.classList.add('az-jump-highlight');
+      setTimeout(function(){target.classList.remove('az-jump-highlight');},1400);
+    }
+    if(sortMode!=='az'){
+      sortMode='az';
+      try{sessionStorage.setItem('ww_sort',sortMode);}catch(e){}
+      var sortBtnEl=document.getElementById('sortBtn');
+      if(sortBtnEl){sortBtnEl.textContent='A→Z';sortBtnEl.classList.add('on');}
+      renderGuestList(); // rebuilds the DOM in az order, then calls renderAzRail() itself
+      setTimeout(jump,60); // let the re-render settle before measuring positions
+    } else {
+      jump();
+    }
+  }
+
+  // Slide-to-scrub: the touch doesn't need to stay locked onto one tiny
+  // 9px-tall letter — elementFromPoint on every move means dragging a
+  // finger up/down the rail sweeps through letters the way the iOS
+  // Contacts index does, with the big bubble making it obvious which one
+  // you're currently on before you lift your finger.
+  var activeLetter=null;
+  function updateFromPoint(x,y){
+    var el=document.elementFromPoint(x,y);
+    var letterEl=el&&el.closest?el.closest('.az-rail-letter'):null;
+    if(!letterEl){
+      // Off the ends of the rail (finger slid past A or Z) — clamp to
+      // whichever end is closest rather than losing the scrub entirely.
+      var railRect=rail.getBoundingClientRect();
+      letterEl = y<railRect.top ? rail.firstElementChild : rail.lastElementChild;
+    }
+    if(!letterEl) return;
+    var letter=letterEl.dataset.letter;
+    var enabled=!letterEl.classList.contains('disabled');
+    activeLetter = enabled ? letter : null;
+    if(bubble){
+      bubble.textContent=letter;
+      bubble.style.top=y+'px';
+      bubble.classList.toggle('disabled', !enabled);
+      bubble.classList.add('show');
+    }
+  }
+  function onStart(e){
+    e.preventDefault();
+    try{ rail.setPointerCapture(e.pointerId); }catch(err){}
+    updateFromPoint(e.clientX, e.clientY);
+  }
+  function onMove(e){
+    if(!bubble || !bubble.classList.contains('show')) return;
+    updateFromPoint(e.clientX, e.clientY);
+  }
+  function onEnd(){
+    if(bubble) bubble.classList.remove('show');
+    if(activeLetter) jumpToLetter(activeLetter);
+    activeLetter=null;
+  }
+  rail.addEventListener('pointerdown', onStart);
+  rail.addEventListener('pointermove', onMove);
+  rail.addEventListener('pointerup', onEnd);
+  rail.addEventListener('pointercancel', onEnd);
 }
 
 function renderGuestList(){
