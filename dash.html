@@ -630,7 +630,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .split-btn-half{background:var(--parchment);color:var(--ink2)}.split-btn-half:hover{background:var(--blush)}
 
 /* ── UNDO TOAST ── */
-#undoToast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);z-index:300;background:var(--ink);color:#fff;padding:10px 16px 10px 18px;border-radius:16px;font-size:12px;font-weight:500;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow-lg);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;white-space:normal;max-width:calc(100vw - 32px);width:max-content}
+#undoToast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);z-index:415;background:var(--ink);color:#fff;padding:10px 16px 10px 18px;border-radius:16px;font-size:12px;font-weight:500;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow-lg);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;white-space:normal;max-width:calc(100vw - 32px);width:max-content}
 #undoToast.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:all}
 #undoToastBtn{padding:4px 12px;border-radius:var(--r-pill);background:#fff;color:var(--ink);border:none;font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0}
 
@@ -8469,7 +8469,17 @@ function openSeatAssign(tableId, seatNum){
     hideAssignBanner();
     if(!already){
       assignGuestToSeat(tableId, seatNum, name);
-      openUnseatedPanel(); // straight back to the list to keep placing guests
+      var t = seatMap.tables.find(function(x){return x.id===tableId;});
+      // Confirm what just happened before doing anything else — going
+      // straight back to the unseated list (the old behavior) meant the
+      // seat you just filled disappeared instantly, with no way to tell
+      // whether it actually landed on the right chair.
+      showUndo('Seated ' + seatFirstName(name) + ' — ' + (t?t.name:'table') + ', Seat ' + seatNum, function(){
+        unassignSeat(tableId, seatNum);
+      });
+      setTimeout(function(){
+        if(getUnseatedGuests().length) openUnseatedPanel(); // keep placing guests
+      }, 900);
       return;
     }
     // Tapped an already-filled seat instead — drop the pending guest and
