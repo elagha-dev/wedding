@@ -286,6 +286,16 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 
 /* ── GUEST CARD ── */
 .guest-list{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+/* A–Z jump rail — fixed to the right edge, letters with no matching guest
+   dimmed out. Kept clear of the sticky filter bar above (top:140px) and
+   the FAB at bottom-right (bottom:100px) so it never overlaps either.
+   Lives inside #guestArea so it shows/hides along with the guest list
+   itself automatically, with no separate visibility logic to keep in sync. */
+.az-rail{position:fixed;top:140px;bottom:100px;right:2px;z-index:85;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;width:16px}
+.az-rail-letter{display:block;width:16px;padding:0;border:none;background:none;color:var(--rose-deep);font-family:var(--sans);font-size:9px;font-weight:800;line-height:1.35;cursor:pointer;text-align:center}
+.az-rail-letter.disabled{color:var(--parchment);cursor:default}
+.az-jump-highlight{animation:azJumpFlash 1.4s ease}
+@keyframes azJumpFlash{0%,100%{box-shadow:none}15%{box-shadow:0 0 0 2.5px var(--rose) inset}}
 /* Confirmed-pair merge: two guest cards drawn as one unit, divided by a
    hairline instead of the usual gap+shadow+rounded-corners-on-both. */
 .g-pair-merged{display:flex;flex-direction:column;border-radius:var(--r-sm);overflow:hidden;box-shadow:var(--shadow-sm)}
@@ -1629,6 +1639,7 @@ body.lite-mode #liteModeTopBtn {
       <button class="bulk-send" id="bulkSend">Send Invite</button>
     </div>
     <div class="guest-list" id="guestList"></div>
+    <div class="az-rail" id="azRail"></div>
     <div class="list-footer">
       <button class="list-btn dng" id="clearGuestBtn">Clear list</button>
     </div>
@@ -2873,12 +2884,75 @@ function attachDashboardOverviewHandlers(){
   });
 }
 
+// A–Z jump rail: maps each letter to the first currently-rendered guest
+// card whose name starts with it (diacritics folded, so "Örjan" indexes
+// under O), and scrolls straight to it on tap. Guests are grouped by
+// Family Group before anything else, so a literal alphabetical rail can't
+// perfectly line up with the visual sections — but it still gets you to
+// roughly the right spot instantly instead of scrolling past 100+ cards,
+// and forcing A→Z sort mode on tap keeps it predictable rather than
+// jumping into whatever the default import order happens to be.
+function _azLetterFor(name){
+  var c=(name||'').trim().charAt(0).toUpperCase();
+  if(c.normalize) c=c.normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  return /^[A-Z]$/.test(c)?c:'#';
+}
+function renderAzRail(){
+  var rail=document.getElementById('azRail');
+  if(!rail) return;
+  var idx={};
+  document.querySelectorAll('#guestList .g-swipe-wrap[data-qi]').forEach(function(el){
+    var qi=parseInt(el.dataset.qi,10);
+    var g=importQueue[qi];
+    if(!g) return;
+    var letter=_azLetterFor(g.name);
+    if(!(letter in idx)) idx[letter]=true;
+  });
+  var letters='ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  rail.innerHTML=letters.map(function(L){
+    var has=!!idx[L];
+    return '<button type="button" class="az-rail-letter'+(has?'':' disabled')+'" data-letter="'+L+'"'+(has?'':' disabled')+'>'+L+'</button>';
+  }).join('');
+  rail.querySelectorAll('.az-rail-letter:not(.disabled)').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var letter=this.dataset.letter;
+      function jump(){
+        var target=null;
+        document.querySelectorAll('#guestList .g-swipe-wrap[data-qi]').forEach(function(el){
+          if(target) return;
+          var qi=parseInt(el.dataset.qi,10);
+          var g=importQueue[qi];
+          if(g && _azLetterFor(g.name)===letter) target=el;
+        });
+        if(!target) return;
+        var rect=target.getBoundingClientRect();
+        var y=rect.top+window.scrollY-130; // clears the sticky filter bar
+        window.scrollTo({top:Math.max(0,y),behavior:'smooth'});
+        target.classList.add('az-jump-highlight');
+        setTimeout(function(){target.classList.remove('az-jump-highlight');},1400);
+      }
+      if(sortMode!=='az'){
+        sortMode='az';
+        try{sessionStorage.setItem('ww_sort',sortMode);}catch(e){}
+        var sortBtnEl=document.getElementById('sortBtn');
+        if(sortBtnEl){sortBtnEl.textContent='A→Z';sortBtnEl.classList.add('on');}
+        renderGuestList(); // rebuilds the DOM in az order, then calls renderAzRail() itself
+        setTimeout(jump,60); // let the re-render settle before measuring positions
+      } else {
+        jump();
+      }
+    });
+  });
+}
+
 function renderGuestList(){
   var list=document.getElementById('guestList');
   if(importFilter==='dashboard'){
     list.innerHTML=buildDashboardOverview();
     attachDashboardOverviewHandlers();
     updateBulkBar();
+    var azRail0=document.getElementById('azRail');
+    if(azRail0) azRail0.innerHTML=''; // no name-ordered cards on this tab — nothing to jump to
     return;
   }
   var guests=getFiltered();
@@ -3166,6 +3240,7 @@ function renderGuestList(){
   updateBulkBar();
   initSplitBar();
   if(typeof refreshSeatBadges==='function') refreshSeatBadges();
+  if(typeof renderAzRail==='function') renderAzRail();
 }
 
 function buildPairSentCard(g1,g2){
