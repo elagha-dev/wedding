@@ -8323,21 +8323,85 @@ function deleteSeatmapLayout(id){
   });
 }
 
-/* Shared "N tables · X of Y seated [· Z unseated]" header line for both
-   views — the unseated count is a live link straight into the checklist
-   of who still needs a seat. */
+/* Shared "N tables · X of Y seated [· Z unseated] [· W need review]" header
+   line for both views — the unseated count is a live link straight into the
+   checklist of who still needs a seat; "need review" is the reverse case,
+   a seat still occupied by someone who shouldn't be (deleted/removed/no). */
 function seatmapSetHdrSub(baseText){
   var sub = document.getElementById('seatmapHdrSub');
   if(!sub) return;
   if(!baseText){ sub.innerHTML = ''; return; }
   var n = getUnseatedGuests().length;
-  sub.innerHTML = baseText + (n ? ' · <button type="button" class="seatmap-unseated-link" id="seatmapUnseatedBtn">'+n+' unseated</button>' : '');
+  var g = getGhostSeatedGuests().length;
+  var extra = '';
+  if(n) extra += ' · <button type="button" class="seatmap-unseated-link" id="seatmapUnseatedBtn">'+n+' unseated</button>';
+  if(g) extra += ' · <button type="button" class="seatmap-unseated-link" id="seatmapGhostBtn" style="color:#b91c1c">'+g+' need review</button>';
+  sub.innerHTML = baseText + extra;
   var btn = document.getElementById('seatmapUnseatedBtn');
   if(btn) btn.addEventListener('click', openUnseatedPanel);
+  var gbtn = document.getElementById('seatmapGhostBtn');
+  if(gbtn) gbtn.addEventListener('click', openGhostSeatsPanel);
 }
 
 /* ── Assignment ── */
 var _assignCtx = null;
+
+/* ── Ghost seats ──
+   The reverse of "unseated guests": a seat that's still occupied by a name
+   which no longer belongs there — the guest was deleted, removed, or
+   RSVP'd no after already being seated. These don't get cleaned up
+   automatically since nothing else in the app watches for it. */
+function getGhostSeatedGuests(){
+  var out = [];
+  var queue = typeof importQueue!=='undefined' ? importQueue : [];
+  var byName = {};
+  queue.forEach(function(g){ byName[g.name] = g; });
+  seatMap.tables.forEach(function(t){
+    for(var n=1;n<=t.seats;n++){
+      var name = seatMap.assignments[seatKey(t.id,n)];
+      if(!name) continue;
+      if(seatCoupleRole(name)) continue; // the couple themselves aren't guest-list entries
+      var g = byName[name];
+      var reason = null;
+      if(!g) reason = 'no longer in your guest list';
+      else if(g.skipped) reason = 'removed from your guest list';
+      else if(getGuestRsvpYesNo(g)===false) reason = "RSVP'd no";
+      if(reason) out.push({tableId:t.id, tableName:t.name, seatNum:n, name:name, reason:reason});
+    }
+  });
+  return out;
+}
+function openGhostSeatsPanel(){
+  _unseatedMode = false;
+  _assignCtx = null;
+  var ghosts = getGhostSeatedGuests();
+  document.getElementById('seatAssignTitle').textContent = ghosts.length ? ('Seats needing review ('+ghosts.length+')') : 'Seats needing review';
+  var srch = document.getElementById('seatAssignSearch');
+  srch.style.display = 'none';
+  document.getElementById('seatAssignUnassignBtn').style.display = 'none';
+  var kidToggle0 = document.getElementById('seatAssignKidToggle');
+  if(kidToggle0) kidToggle0.style.display = 'none';
+  var list = document.getElementById('seatAssignList');
+  if(!ghosts.length){
+    list.innerHTML = '<div class="seat-assign-empty">Every occupied seat matches a currently-confirmed guest. 🎉</div>';
+  } else {
+    list.innerHTML = ghosts.map(function(gh){
+      return '<div class="seat-assign-row" data-table-id="'+gh.tableId+'" data-seat-num="'+gh.seatNum+'">'
+        + '<div><div class="seat-assign-row-name">'+gh.name+'</div><div class="seat-assign-row-meta">'+gh.tableName+' · Seat '+gh.seatNum+' — '+gh.reason+'</div></div>'
+        + '<span style="width:9px;height:9px;border-radius:50%;background:#b91c1c;flex-shrink:0"></span>'
+        + '</div>';
+    }).join('');
+    list.querySelectorAll('.seat-assign-row').forEach(function(row){
+      row.addEventListener('click', function(){
+        var tableId = this.dataset.tableId, seatNum = parseInt(this.dataset.seatNum,10);
+        closeSeatAssign();
+        openSeatAssign(tableId, seatNum); // reopens the normal per-seat picker, unassign button included
+      });
+    });
+  }
+  document.getElementById('seatAssignOverlay').classList.add('open');
+  document.getElementById('seatAssignSheet').classList.add('open','tall');
+}
 
 /* ── Unseated guests ──
    The "who's actually left to seat" checklist: everyone who isn't
