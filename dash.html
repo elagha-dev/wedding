@@ -1017,8 +1017,8 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-mini-btn:hover{border-color:var(--blush);color:var(--ink2)}
 .seatmap-mini-btn.danger{color:#b91c1c}
 .seatmap-seat-count{font-family:var(--sans);font-size:11px;font-weight:700;color:var(--muted);min-width:44px;text-align:center;flex-shrink:0}
-.seatmap-seats{display:flex;flex-wrap:wrap;gap:7px}
-.seatmap-seat{width:64px;min-height:52px;border-radius:10px;border:1.5px solid var(--parchment);background:var(--cream2);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2px;cursor:pointer;padding:8px 3px 5px;text-align:center;transition:transform .1s;touch-action:none}
+.seatmap-seats{display:flex;flex-wrap:wrap;gap:9px}
+.seatmap-seat{width:70px;min-height:58px;border-radius:10px;border:1.5px solid var(--parchment);background:var(--cream2);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2px;cursor:pointer;padding:9px 3px 6px;text-align:center;transition:transform .1s;touch-action:none}
 .seatmap-seat:active{transform:scale(.95)}
 .seatmap-seat.seat-tile-dragging{opacity:.92;position:relative;z-index:6;box-shadow:0 6px 18px rgba(0,0,0,.28);pointer-events:none;transition:none}
 .seatmap-seat.seat-tile-shift-preview{transition:transform .42s cubic-bezier(.16,.85,.3,1);position:relative;z-index:2;will-change:transform}
@@ -1275,6 +1275,20 @@ body.lite-mode #liteModeTopBtn {
 .seatmap-table-node-name{font-family:var(--sans);font-size:10.5px;font-weight:800;text-align:center;line-height:1.1;word-break:break-word;max-width:90%;padding:0 3px}
 .seatmap-table-node-meta{font-family:var(--sans);font-size:9px;font-weight:700}
 .seatmap-node-dot{position:absolute;width:11px;height:11px;border-radius:50%;background:rgba(255,255,255,.28);border:1.5px solid rgba(255,255,255,.4);transform:translate(-50%,-50%);cursor:pointer;touch-action:none}
+/* The dot itself stays tiny on purpose — it's what keeps the floor plan
+   spatially accurate. But an 11px circle is genuinely hard to land a
+   fingertip on, especially with several seats packed close around one
+   table, which was forcing a zoom-in just to place a guest. This
+   invisible pseudo-element widens the actual tappable/draggable area well
+   past the visible dot without changing how the floor plan looks or
+   measures — pointer/touch events landing anywhere in this padded zone
+   still resolve to the real dot underneath, since a pseudo-element isn't
+   a separate hit-testable node. Kept modest (not the full ~44px a11y
+   target) specifically because seats sit close together around a table;
+   going bigger risks one seat's padding stealing taps meant for its
+   neighbor. */
+.seatmap-node-dot::before{content:'';position:absolute;inset:-7px;border-radius:50%}
+.seatmap-node-dot.is-couple::before,.seatmap-node-dot.is-baby::before{inset:-6px}
 .seatmap-node-dot.seat-dot-dragging{opacity:.85;z-index:8;box-shadow:0 4px 14px rgba(0,0,0,.5);pointer-events:none;transition:none}
 .seatmap-node-dot.seat-dot-drop-target{transform:translate(-50%,-50%) scale(1.45);box-shadow:0 0 0 3px #2f6fed,0 0 10px 2px rgba(47,111,237,.6);z-index:4}
 .seatmap-node-dot.rsvp-yes{background:#3A8C5C;border-color:#5fd393}
@@ -6811,7 +6825,53 @@ function showChatNotif(who, text){
         + '</div>';
     }
 
-    var html = totalHtml + mismatchHtml + seatMismatchHtml;
+  // Kids flagged as a kid in your import but never actually linked to a
+  // parent — the OTHER half of the linking gap. Guest count mismatches only
+  // catches this indirectly, and only for rows where the math happens to
+  // come out wrong; a kid can go unlinked for months without ever tripping
+  // that check if nothing else about their row looks off. Surface it
+  // directly instead of waiting for the seat math to notice.
+  function getOrphanedKids(){
+    var queue = typeof importQueue!=='undefined' ? importQueue : [];
+    return queue.filter(function(g){ return !g.skipped && g.isChild && !g.parentNames; });
+  }
+  // Jumps straight into the existing "link a kid to their parent(s)" panel
+  // (Pairs Review → family tree tab) with this kid already picked, so
+  // fixing one just takes searching for the parent and tapping Link.
+  function openOrphanKidLinker(kidName){
+    var modal = document.getElementById('pairsReviewModal');
+    if(!modal) return;
+    _pairsReviewTab = 'tree';
+    _matchTabOpen = false;
+    _parentLinkOpen = true;
+    _parentLinkKids = [kidName];
+    _parentLinkParents = [];
+    if(typeof renderPairsReview==='function') renderPairsReview();
+    modal.style.display = 'flex';
+  }
+
+  function buildOrphanKidsHtml(){
+    var kids = getOrphanedKids();
+    if(!kids.length) return '';
+    var entries = kids.map(function(g){
+      return '<div style="padding:7px 8px;border-left:3px solid var(--amber);border-radius:0 6px 6px 0;margin-bottom:4px;background:rgba(180,83,9,.06);display:flex;align-items:center;justify-content:space-between;gap:8px">'
+        + '<div style="font-weight:600;font-size:12px">' + g.name + '</div>'
+        + '<button class="orphan-kid-link-btn" data-kid-name="' + g.name.replace(/"/g,'&quot;') + '" style="flex-shrink:0;border:1px solid var(--parchment);background:#fff;color:var(--ink);border-radius:100px;padding:3px 10px;font-size:9px;font-weight:700;cursor:pointer;white-space:nowrap">Link to parent</button>'
+        + '</div>';
+    }).join('');
+    return '<div>'
+      + '<div class="rsvp-sec-hdr" data-sec="orphankids" style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);padding:4px 2px 8px;display:flex;align-items:center;gap:5px;cursor:pointer;user-select:none">'
+      + '<span style="flex-shrink:0">&#9888; Kids not linked to a parent</span>'
+      + '<span style="flex:1;height:1px;background:var(--parchment);display:inline-block;min-width:8px"></span>'
+      + '<span style="font-size:9px;font-weight:700;color:var(--amber)">' + kids.length + '</span>'
+      + '<span class="rsvp-chev" style="font-size:8px;color:var(--soft);transition:transform .2s;display:inline-block;line-height:1;flex-shrink:0;margin-left:5px">&#9650;</span>'
+      + '</div>'
+      + '<div class="rsvp-sec-body" id="rsvp-sec-orphankids">' + entries + '</div>'
+      + '</div>';
+  }
+
+  var orphanKidsHtml = buildOrphanKidsHtml();
+  var html = totalHtml + mismatchHtml + seatMismatchHtml + orphanKidsHtml;
     if(withVenue.length)      html += sectionHtml('venue',  'Church &amp; Party', withVenue,      'var(--green-bg)', 'var(--green)', '4px', showSectionStats);
     if(churchOnly.length)     html += sectionHtml('church', 'Church Only',        churchOnly,     'var(--amber-bg)', 'var(--amber)', '12px', showSectionStats);
     if(uncategorised.length){
@@ -6858,6 +6918,12 @@ function showChatNotif(who, text){
         target.style.display = open ? 'none' : '';
         var n = this.textContent.match(/^\d+/);
         this.textContent = (n ? n[0] : '') + ' marked as explained — ' + (open ? 'show' : 'hide');
+      });
+    });
+    body.querySelectorAll('.orphan-kid-link-btn').forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        openOrphanKidLinker(this.dataset.kidName);
       });
     });
 
