@@ -4266,6 +4266,20 @@ function getGuestRsvpInfo(name, isCouple, knownPartnerName, manualOverride, plan
 
     if(!match) return plannerGuessResult();
 
+    /* Partner-confirmed upgrade: a bare first-name hit (S2/S4) on a household
+       row is only 'weak' in general, but if we KNOW this guest's partner and
+       that partner's first name is also in the row (e.g. Jan Eisleben matching
+       "Jan & Martina" with partner Martina Eisleben), it's the right household
+       — treat it as 'strong' so a leftover Unsure/Expecting/Unlikely guess
+       can't block the real RSVP. */
+    if(matchConfidence==='weak' && knownPartnerName){
+      var _mfn=(match['Full Name']||match['name']||'').toString();
+      if(_mfn.indexOf('&')!==-1){
+        var _pfn=firstNms(knownPartnerName)[0]||'';
+        if(_pfn && toks(normN(_mfn)).indexOf(_pfn)!==-1) matchConfidence='strong';
+      }
+    }
+
     /* Guess-priority guard: the planner already made an explicit call on
        this guest (Expecting/Unsure/Unlikely). Don't let a merely 'weak'
        fuzzy match — a bare shared first name, nothing more — override that
