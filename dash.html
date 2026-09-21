@@ -1489,6 +1489,24 @@ body.mono-bar .topbar #rvBellBtn svg{color:var(--ink2)!important;stroke:var(--in
 body.mono-bar .topbar .rsvp-count-btn .rc-num,
 body.mono-bar .topbar .stat-pill{color:var(--ink2)!important}
 body.mono-bar #presenceMeGroup .presence-avatar.is-me{box-shadow:0 0 0 2px var(--cream),0 0 0 3.5px var(--soft)!important}
+
+/* ── Settings: collapsible categories ── */
+.s-intro{font-size:12px;color:var(--muted);margin:2px 2px 12px}
+.s-acc{background:#fff;border:1px solid var(--parchment);border-radius:14px;margin-bottom:8px;overflow:hidden}
+.s-acc>summary{list-style:none;display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.s-acc>summary::-webkit-details-marker{display:none}
+.s-acc-ic{width:34px;height:34px;border-radius:10px;background:var(--cream2);color:var(--rose-deep);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.s-acc-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.s-acc-txt b{font-size:14px;font-weight:700;color:var(--ink2)}
+.s-acc-txt small{font-size:11px;color:var(--muted);line-height:1.3}
+.s-acc-chev{font-size:22px;color:var(--soft);line-height:1;transition:transform .2s}
+.s-acc[open]>summary .s-acc-chev{transform:rotate(90deg)}
+.s-acc[open]>summary{border-bottom:1px solid var(--parchment)}
+.s-acc-body{padding:8px 14px 6px}
+.s-acc-body .s-section{margin-bottom:6px}
+.s-acc-body .s-section-label{display:none}
+.s-acc-danger .s-acc-ic{background:var(--red-bg);color:var(--red)}
+.s-acc-danger .s-acc-txt b{color:var(--red)}
 </style>
 </head>
 <body>
@@ -1764,7 +1782,10 @@ body.mono-bar #presenceMeGroup .presence-avatar.is-me{box-shadow:0 0 0 2px var(-
     </div>
   </div>
   <div class="settings-body">
-
+    <div class="s-intro">Tap a category to open it.</div>
+    <details class="s-acc">
+      <summary><span class="s-acc-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="1.5"/><circle cx="17.5" cy="10.5" r="1.5"/><circle cx="8.5" cy="7.5" r="1.5"/><circle cx="6.5" cy="12.5" r="1.5"/><path d="M12 2a10 10 0 1 0 0 20c1.1 0 2-.9 2-2 0-.5-.2-1-.5-1.3-.3-.4-.5-.8-.5-1.3 0-1.1.9-2 2-2H18a4 4 0 0 0 4-4c0-5.5-4.5-9.4-10-9.4z"/></svg></span><span class="s-acc-txt"><b>Look &amp; feel</b><small>Colors, theme and card size</small></span><span class="s-acc-chev">&#8250;</span></summary>
+      <div class="s-acc-body">
     <!-- SECTION: Appearance -->
     <div class="s-section">
       <div class="s-section-label">Appearance</div>
@@ -1776,66 +1797,32 @@ body.mono-bar #presenceMeGroup .presence-avatar.is-me{box-shadow:0 0 0 2px var(-
       </div>
     </div>
 
-    <!-- SECTION: Developer (manual sending lives here, shown first) -->
+    <!-- SECTION: Appearance -->
     <div class="s-section">
-      <div class="s-section-label">Developer</div>
+      <div class="s-section-label">Appearance</div>
       <div class="s-row">
-        <div class="s-row-info"><div class="s-row-title">Manual sending</div><div class="s-row-sub">Add a single guest or couple by hand</div></div>
-        <button class="s-btn-small" id="sManualSendBtn">New invite</button>
-      </div>
-      <div class="s-row">
-        <div class="s-row-info"><div class="s-row-title">Last deployed</div><div class="s-row-sub">When this file was last pushed to GitHub</div></div>
-        <span id="sAppVersion" style="font-family:var(--sans);font-size:11px;font-weight:700;color:var(--muted);background:var(--parchment);padding:5px 10px;border-radius:var(--r-pill)"></span>
-      </div>
-      <div class="s-row">
-        <div class="s-row-info"><div class="s-row-title">Dev mode</div><div class="s-row-sub">Highlight layout regions and inspect elements</div></div>
-        <button class="dev-btn" id="devBtnSettings" title="Dev mode"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
-      </div>
-      <!-- Switches moved here from the topbar to keep it uncluttered -->
-      <div class="s-row s-switch-row">
-        <div class="s-row-info"><div class="s-row-title">Version info</div><div class="s-row-sub">Show last-deployed date/time stamp</div></div>
-        <button id="deployStampBtn" title="Toggle version info" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:20px;height:32px;border-radius:10px;border:none;background:var(--parchment);cursor:pointer;padding:0;position:relative;transition:background .25s">
-          <span id="deployStampThumb" style="position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.18);transition:transform .25s;display:block"></span>
-        </button>
-      </div>
-      <div class="s-row s-switch-row">
-        <div class="s-row-info"><div class="s-row-title">Lite Mode</div><div class="s-row-sub">Simplified, faster guest cards</div></div>
-        <button id="liteModeTopBtn" title="Toggle Lite Mode" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:20px;height:32px;border-radius:10px;border:none;background:var(--parchment);cursor:pointer;padding:0;position:relative;transition:background .25s">
-          <span id="liteModeThumb" style="position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.18);transition:transform .25s;display:block"></span>
-        </button>
-      </div>
-      <div class="s-row s-switch-row">
-        <div class="s-row-info"><div class="s-row-title">Sending mode</div><div class="s-row-sub">Faster Notion checks while sending invites</div></div>
-        <button id="sendingModeBtn" title="Sending mode — faster Notion checks" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:20px;height:32px;border-radius:10px;border:none;background:var(--parchment);cursor:pointer;padding:0;position:relative;transition:background .25s">
-          <span id="sendingModeThumb" style="position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.18);transition:transform .25s;display:block"></span>
-        </button>
-      </div>
-    </div>
-
-    <!-- SECTION: People -->
-    <div class="s-section">
-      <div class="s-section-label">People</div>
-      <div class="s-row" style="display:none">
-        <div class="s-row-info"><div class="s-row-title">You are</div><div class="s-row-sub">Which sender's session this is</div></div>
-        <div class="session-toggle" style="flex-shrink:0">
-          <button class="sess-btn on-a" id="settSessA" data-who="Arina">A</button>
-          <button class="sess-btn" id="settSessE" data-who="Elnur">E</button>
+        <div class="s-row-info"><div class="s-row-title">Theme</div></div>
+        <div class="s-seg" id="sTheme">
+          <button class="s-seg-btn active" data-val="warm">Warm</button>
+          <button class="s-seg-btn" data-val="sage">Sage</button>
+          <button class="s-seg-btn" data-val="slate">Slate</button>
         </div>
       </div>
       <div class="s-row">
-        <div class="s-row-info"><div class="s-row-title">Switch user</div><div class="s-row-sub">Re-show the who-are-you picker</div></div>
-        <button class="s-btn-small" onclick="try{localStorage.removeItem('ww_who');}catch(e){}location.reload()">Switch</button>
+        <div class="s-row-info"><div class="s-row-title">Compact cards</div><div class="s-row-sub">Smaller card padding</div></div>
+        <label class="s-toggle"><input type="checkbox" id="sCompact"/><span class="s-toggle-track"></span></label>
       </div>
       <div class="s-row">
-        <div class="s-row-info"><div class="s-row-title">Sender 1 name</div><div class="s-row-sub">Shown on cards and filters</div></div>
-        <input class="s-input" id="sNameA" value="Arina" maxlength="20"/>
-      </div>
-      <div class="s-row">
-        <div class="s-row-info"><div class="s-row-title">Sender 2 name</div><div class="s-row-sub">Shown on cards and filters</div></div>
-        <input class="s-input" id="sNameE" value="Elnur" maxlength="20"/>
+        <div class="s-row-info"><div class="s-row-title">Lite mode</div><div class="s-row-sub">Hides chat, AI, RSVP, dashboard &amp; animations — better for older devices</div></div>
+        <label class="s-toggle"><input type="checkbox" id="sLiteMode"/><span class="s-toggle-track"></span></label>
       </div>
     </div>
 
+      </div>
+    </details>
+    <details class="s-acc">
+      <summary><span class="s-acc-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg></span><span class="s-acc-txt"><b>Wedding details</b><small>Date, times and addresses used in invites</small></span><span class="s-acc-chev">&#8250;</span></summary>
+      <div class="s-acc-body">
     <!-- SECTION: Event -->
     <div class="s-section">
       <div class="s-section-label">Event</div>
@@ -1874,6 +1861,11 @@ body.mono-bar #presenceMeGroup .presence-avatar.is-me{box-shadow:0 0 0 2px var(-
       </div>
     </div>
 
+      </div>
+    </details>
+    <details class="s-acc">
+      <summary><span class="s-acc-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><span class="s-acc-txt"><b>Invite messages</b><small>The text sent to guests (English and German)</small></span><span class="s-acc-chev">&#8250;</span></summary>
+      <div class="s-acc-body">
     <!-- SECTION: Message template -->
     <div class="s-section">
       <div class="s-section-label">Message Template</div>
@@ -1895,6 +1887,11 @@ body.mono-bar #presenceMeGroup .presence-avatar.is-me{box-shadow:0 0 0 2px var(-
       </div>
     </div>
 
+      </div>
+    </details>
+    <details class="s-acc">
+      <summary><span class="s-acc-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg></span><span class="s-acc-txt"><b>Guest groups</b><small>The groups you sort guests into</small></span><span class="s-acc-chev">&#8250;</span></summary>
+      <div class="s-acc-body">
     <!-- SECTION: Guest Groups -->
     <div class="s-section">
       <div class="s-section-label">Guest Groups</div>
@@ -1902,6 +1899,40 @@ body.mono-bar #presenceMeGroup .presence-avatar.is-me{box-shadow:0 0 0 2px var(-
       <button class="s-add-btn" id="sAddGroup">+ Add group</button>
     </div>
 
+      </div>
+    </details>
+    <details class="s-acc">
+      <summary><span class="s-acc-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span><span class="s-acc-txt"><b>You &amp; sender names</b><small>Who is using this, and how names show on cards</small></span><span class="s-acc-chev">&#8250;</span></summary>
+      <div class="s-acc-body">
+    <!-- SECTION: People -->
+    <div class="s-section">
+      <div class="s-section-label">People</div>
+      <div class="s-row" style="display:none">
+        <div class="s-row-info"><div class="s-row-title">You are</div><div class="s-row-sub">Which sender's session this is</div></div>
+        <div class="session-toggle" style="flex-shrink:0">
+          <button class="sess-btn on-a" id="settSessA" data-who="Arina">A</button>
+          <button class="sess-btn" id="settSessE" data-who="Elnur">E</button>
+        </div>
+      </div>
+      <div class="s-row">
+        <div class="s-row-info"><div class="s-row-title">Switch user</div><div class="s-row-sub">Re-show the who-are-you picker</div></div>
+        <button class="s-btn-small" onclick="try{localStorage.removeItem('ww_who');}catch(e){}location.reload()">Switch</button>
+      </div>
+      <div class="s-row">
+        <div class="s-row-info"><div class="s-row-title">Sender 1 name</div><div class="s-row-sub">Shown on cards and filters</div></div>
+        <input class="s-input" id="sNameA" value="Arina" maxlength="20"/>
+      </div>
+      <div class="s-row">
+        <div class="s-row-info"><div class="s-row-title">Sender 2 name</div><div class="s-row-sub">Shown on cards and filters</div></div>
+        <input class="s-input" id="sNameE" value="Elnur" maxlength="20"/>
+      </div>
+    </div>
+
+      </div>
+    </details>
+    <details class="s-acc">
+      <summary><span class="s-acc-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span><span class="s-acc-txt"><b>Swipe &amp; sound</b><small>How swiping a guest card behaves</small></span><span class="s-acc-chev">&#8250;</span></summary>
+      <div class="s-acc-body">
     <!-- SECTION: Swipe -->
     <div class="s-section">
       <div class="s-section-label">Swipe</div>
@@ -1919,27 +1950,11 @@ body.mono-bar #presenceMeGroup .presence-avatar.is-me{box-shadow:0 0 0 2px var(-
       </div>
     </div>
 
-    <!-- SECTION: Appearance -->
-    <div class="s-section">
-      <div class="s-section-label">Appearance</div>
-      <div class="s-row">
-        <div class="s-row-info"><div class="s-row-title">Theme</div></div>
-        <div class="s-seg" id="sTheme">
-          <button class="s-seg-btn active" data-val="warm">Warm</button>
-          <button class="s-seg-btn" data-val="sage">Sage</button>
-          <button class="s-seg-btn" data-val="slate">Slate</button>
-        </div>
       </div>
-      <div class="s-row">
-        <div class="s-row-info"><div class="s-row-title">Compact cards</div><div class="s-row-sub">Smaller card padding</div></div>
-        <label class="s-toggle"><input type="checkbox" id="sCompact"/><span class="s-toggle-track"></span></label>
-      </div>
-      <div class="s-row">
-        <div class="s-row-info"><div class="s-row-title">Lite mode</div><div class="s-row-sub">Hides chat, AI, RSVP, dashboard &amp; animations — better for older devices</div></div>
-        <label class="s-toggle"><input type="checkbox" id="sLiteMode"/><span class="s-toggle-track"></span></label>
-      </div>
-    </div>
-
+    </details>
+    <details class="s-acc">
+      <summary><span class="s-acc-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.5 15a9 9 0 1 1-2.1-9.4L23 10"/></svg></span><span class="s-acc-txt"><b>Sync &amp; updates</b><small>Notion, other devices and new versions</small></span><span class="s-acc-chev">&#8250;</span></summary>
+      <div class="s-acc-body">
     <!-- SECTION: Sync -->
     <div class="s-section">
       <div class="s-section-label">Sync</div>
@@ -1967,6 +1982,52 @@ body.mono-bar #presenceMeGroup .presence-avatar.is-me{box-shadow:0 0 0 2px var(-
       </div>
     </div>
 
+      </div>
+    </details>
+    <details class="s-acc">
+      <summary><span class="s-acc-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a6 6 0 0 1-7.9 7.9l-6.9 6.9a2.1 2.1 0 0 1-3-3l6.9-6.9a6 6 0 0 1 7.9-7.9z"/></svg></span><span class="s-acc-txt"><b>Advanced</b><small>Manual sending, dev tools and version info</small></span><span class="s-acc-chev">&#8250;</span></summary>
+      <div class="s-acc-body">
+    <!-- SECTION: Developer (manual sending lives here, shown first) -->
+    <div class="s-section">
+      <div class="s-section-label">Developer</div>
+      <div class="s-row">
+        <div class="s-row-info"><div class="s-row-title">Manual sending</div><div class="s-row-sub">Add a single guest or couple by hand</div></div>
+        <button class="s-btn-small" id="sManualSendBtn">New invite</button>
+      </div>
+      <div class="s-row">
+        <div class="s-row-info"><div class="s-row-title">Last deployed</div><div class="s-row-sub">When this file was last pushed to GitHub</div></div>
+        <span id="sAppVersion" style="font-family:var(--sans);font-size:11px;font-weight:700;color:var(--muted);background:var(--parchment);padding:5px 10px;border-radius:var(--r-pill)"></span>
+      </div>
+      <div class="s-row">
+        <div class="s-row-info"><div class="s-row-title">Dev mode</div><div class="s-row-sub">Highlight layout regions and inspect elements</div></div>
+        <button class="dev-btn" id="devBtnSettings" title="Dev mode"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      </div>
+      <!-- Switches moved here from the topbar to keep it uncluttered -->
+      <div class="s-row s-switch-row">
+        <div class="s-row-info"><div class="s-row-title">Version info</div><div class="s-row-sub">Show last-deployed date/time stamp</div></div>
+        <button id="deployStampBtn" title="Toggle version info" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:20px;height:32px;border-radius:10px;border:none;background:var(--parchment);cursor:pointer;padding:0;position:relative;transition:background .25s">
+          <span id="deployStampThumb" style="position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.18);transition:transform .25s;display:block"></span>
+        </button>
+      </div>
+      <div class="s-row s-switch-row">
+        <div class="s-row-info"><div class="s-row-title">Lite Mode</div><div class="s-row-sub">Simplified, faster guest cards</div></div>
+        <button id="liteModeTopBtn" title="Toggle Lite Mode" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:20px;height:32px;border-radius:10px;border:none;background:var(--parchment);cursor:pointer;padding:0;position:relative;transition:background .25s">
+          <span id="liteModeThumb" style="position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.18);transition:transform .25s;display:block"></span>
+        </button>
+      </div>
+      <div class="s-row s-switch-row" style="display:none">
+        <div class="s-row-info"><div class="s-row-title">Sending mode</div><div class="s-row-sub">Faster Notion checks while sending invites</div></div>
+        <button id="sendingModeBtn" title="Sending mode — faster Notion checks" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:20px;height:32px;border-radius:10px;border:none;background:var(--parchment);cursor:pointer;padding:0;position:relative;transition:background .25s">
+          <span id="sendingModeThumb" style="position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.18);transition:transform .25s;display:block"></span>
+        </button>
+      </div>
+    </div>
+
+      </div>
+    </details>
+    <details class="s-acc s-acc-danger">
+      <summary><span class="s-acc-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></span><span class="s-acc-txt"><b>Reset</b><small>Wipe all guest data and settings</small></span><span class="s-acc-chev">&#8250;</span></summary>
+      <div class="s-acc-body">
     <!-- SECTION: Danger -->
     <div class="s-section">
       <div class="s-section-label" style="color:var(--red)">Danger Zone</div>
@@ -1975,6 +2036,9 @@ body.mono-bar #presenceMeGroup .presence-avatar.is-me{box-shadow:0 0 0 2px var(-
         <button class="s-danger-btn" id="sHardReset">Reset</button>
       </div>
     </div>
+
+      </div>
+    </details>
 
   </div>
 </div>
@@ -11619,6 +11683,17 @@ if(_smExportOverlay) _smExportOverlay.addEventListener('click', function(e){ if(
     try{ localStorage.setItem(KEY,next?'1':'0'); }catch(e){}
     apply(next);
   });
+})();
+</script>
+
+<script>
+/* Settings: keep only one category open at a time */
+(function(){
+  document.addEventListener('toggle',function(e){
+    var t=e.target;
+    if(!t||!t.classList||!t.classList.contains('s-acc')||!t.open) return;
+    document.querySelectorAll('#settingsDrawer details.s-acc[open]').forEach(function(o){ if(o!==t) o.open=false; });
+  },true);
 })();
 </script>
 </body>
