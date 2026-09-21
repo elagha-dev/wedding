@@ -291,18 +291,12 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
    the FAB at bottom-right (bottom:100px) so it never overlaps either.
    Lives inside #guestArea so it shows/hides along with the guest list
    itself automatically, with no separate visibility logic to keep in sync. */
-.az-rail{position:fixed;top:140px;bottom:100px;right:2px;z-index:85;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;width:20px;touch-action:none}
-.az-rail-letter{display:block;width:20px;padding:1px 0;border:none;background:none;color:var(--rose-deep);font-family:var(--sans);font-size:9px;font-weight:800;line-height:1.35;cursor:pointer;text-align:center}
-.az-rail-letter.disabled{color:var(--parchment)}
 .az-jump-highlight{animation:azJumpFlash 1.4s ease}
 @keyframes azJumpFlash{0%,100%{box-shadow:none}15%{box-shadow:0 0 0 2.5px var(--rose) inset}}
 /* Big magnified letter callout, iOS-contacts-index style — shown while a
    finger is actually down on the rail, positioned level with the touch so
    it's readable without covering what you're aiming at (tiny 9px letters
    otherwise, genuinely hard to tell apart mid-press). */
-.az-rail-bubble{position:fixed;right:28px;z-index:95;width:52px;height:52px;border-radius:50%;background:var(--rose-deep);color:#fff;display:none;align-items:center;justify-content:center;font-family:var(--sans);font-size:23px;font-weight:800;box-shadow:0 4px 16px rgba(0,0,0,.3);pointer-events:none;transform:translateY(-50%)}
-.az-rail-bubble.show{display:flex}
-.az-rail-bubble.disabled{background:var(--soft)}
 /* Confirmed-pair merge: two guest cards drawn as one unit, divided by a
    hairline instead of the usual gap+shadow+rounded-corners-on-both. */
 .g-pair-merged{display:flex;flex-direction:column;border-radius:var(--r-sm);overflow:hidden;box-shadow:var(--shadow-sm)}
@@ -1444,6 +1438,31 @@ body.lite-mode #liteModeTopBtn {
 .g-swipe-wrap.rsvp-no .g-card.sent .g-seat-badge-dot,
 .g-swipe-wrap.rsvp-pending .g-card.sent .g-seat-badge-dot{background:#fff!important}
 
+
+/* ── RSVP review / notification panel ── */
+#rvDrawer{position:fixed;top:0;right:0;bottom:0;width:340px;max-width:95vw;background:var(--cream);z-index:302;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);border-left:1px solid var(--parchment);display:flex;flex-direction:column;box-shadow:-4px 0 24px rgba(0,0,0,.08)}
+#rvDrawer.open{transform:translateX(0)}
+#rvOverlay{position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:301;opacity:0;pointer-events:none;transition:opacity .3s}
+#rvOverlay.open{opacity:1;pointer-events:all}
+.rv-sec{font-size:9px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin:14px 2px 8px}
+.rv-sec:first-child{margin-top:2px}
+.rv-card{background:#fff;border:1px solid var(--parchment);border-left:3px solid var(--amber);border-radius:12px;padding:12px;margin-bottom:10px}
+.rv-kind{font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--amber);margin-bottom:4px}
+.rv-title{font-size:14px;font-weight:700;color:var(--ink2);line-height:1.3;margin-bottom:4px}
+.rv-body{font-size:12px;color:var(--muted);line-height:1.45;margin-bottom:8px}
+.rv-form{background:var(--cream2);border-radius:10px;padding:8px 10px;margin:6px 0}
+.rv-form-name{font-size:13px;font-weight:700;color:var(--ink2)}
+.rv-form-meta{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.5}
+.rv-tag{display:inline-block;border-radius:100px;padding:1px 7px;font-size:9px;font-weight:800;letter-spacing:.05em;margin-right:4px}
+.rv-tag.y{background:#d4f5e2;color:#1a7a4a}.rv-tag.n{background:#fde8e8;color:#b91c1c}
+.rv-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.rv-btn{border:none;border-radius:100px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;background:var(--cream2);color:var(--ink2);font-family:inherit}
+.rv-btn.pri{background:var(--green);color:#fff}
+.rv-btn.neg{background:#fde8e8;color:#b91c1c}
+.rv-hist{font-size:12px;color:var(--ink2);line-height:1.4;padding:8px 0;border-bottom:1px solid var(--parchment)}
+.rv-hist small{display:block;color:var(--muted);font-size:10px;margin-top:2px}
+.rv-hist button{border:none;background:none;color:var(--rose-deep);font-size:11px;font-weight:700;cursor:pointer;padding:2px 0;margin-top:2px;font-family:inherit}
+.rv-empty{text-align:center;color:var(--muted);font-size:12px;padding:18px 8px}
 </style>
 </head>
 <body>
@@ -1520,6 +1539,7 @@ body.lite-mode #liteModeTopBtn {
   <div class="stat-pill total" id="ovTotal" title="Total guests" style="cursor:pointer">0</div>
   <div class="stat-pill forecast" id="ovForecast" title="Forecast (Confirmed + guesses)" style="cursor:pointer">0</div>
   <button id="reviewPairsBtn" title="Review sent-together pairs" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;border:none;background:var(--amber-bg);color:var(--amber);cursor:pointer;padding:0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></button>
+  <button id="rvBellBtn" title="Review notifications" style="position:relative;flex-shrink:0;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;border:none;background:var(--cream2);color:var(--rose-deep);cursor:pointer;padding:0"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span id="rvBellBadge" style="display:none;position:absolute;top:-3px;right:-3px;min-width:15px;height:15px;padding:0 4px;border-radius:8px;background:#c0392b;color:#fff;font-size:9px;font-weight:800;line-height:15px;text-align:center;box-sizing:border-box"></span></button>
   <div class="stat-pill new-guests" id="ovNew" title="New since last sync" style="display:none"></div>
   <!-- spacer -->
   <div style="flex:1"></div>
@@ -1646,8 +1666,6 @@ body.lite-mode #liteModeTopBtn {
       <button class="bulk-send" id="bulkSend">Send Invite</button>
     </div>
     <div class="guest-list" id="guestList"></div>
-    <div class="az-rail" id="azRail"></div>
-    <div class="az-rail-bubble" id="azRailBubble"></div>
     <div class="list-footer">
       <button class="list-btn dng" id="clearGuestBtn">Clear list</button>
     </div>
@@ -4085,7 +4103,7 @@ function renderPairsReview(){
   });
 })();
 
-function getGuestRsvpInfo(name, isCouple, knownPartnerName, manualOverride, plannerGuess){
+function _getGuestRsvpInfoBase(name, isCouple, knownPartnerName, manualOverride, plannerGuess){
   /* Manual override — set by a human directly on a guest who can't RSVP
      themselves (children, guests replying by phone, etc). Always wins over
      automatic matching; skips it entirely. */
@@ -4337,6 +4355,14 @@ function getGuestRsvpInfo(name, isCouple, knownPartnerName, manualOverride, plan
     var isYes=att&&att!=='no'&&att!=='declined'&&att!=='';
     var isNo=att==='no'||att==='declined';
 
+    /* Per-event answers (ceremony vs party). 'Evening Attendance' only counts
+       when the household was actually invited to the party. Someone who
+       skips the ceremony but comes to the party is ATTENDING, not declined. */
+    var cer=_rsvpYN(match['Ceremony Attendance']!==undefined?match['Ceremony Attendance']:match['attendance']);
+    var eve=(_rsvpYN(match['Invited to Party'])==='no')?null:_rsvpYN(match['Evening Attendance']);
+    if(isNo && eve==='yes'){ isYes=true; isNo=false; }
+    var narrowedOut=false;
+
     /* Per-person breakdown for couple cards */
     var persons=[];
     var gaStr=(match['Guests Attending']||match['guests_attending']||'').toString().trim();
@@ -4358,15 +4384,162 @@ function getGuestRsvpInfo(name, isCouple, knownPartnerName, manualOverride, plan
       var thisPersonAttending=myFNs.length>0 && myFNs.some(function(fn){ return myGaToks.indexOf(fn)!==-1; });
       isYes=thisPersonAttending;
       isNo=!thisPersonAttending;
+      narrowedOut=!thisPersonAttending;
     }
 
-    return {isYes:isYes,isNo:isNo,matched:true,persons:persons,guestsAttending:gaStr,row:match};
+    return {isYes:isYes,isNo:isNo,matched:true,persons:persons,guestsAttending:gaStr,row:match,ceremony:cer,evening:eve,narrowedOut:narrowedOut};
   }catch(e){ return plannerGuessResult(); }
+}
+
+
+/* ════════════════════════════════════════════════════════════════════
+   RSVP REVIEW — clear matches are applied automatically; doubtful ones
+   become items in the notification panel for a person to decide.
+   Decisions/history are stored on THIS device (localStorage), same as
+   the confirmed/dismissed pair lists.
+   ════════════════════════════════════════════════════════════════════ */
+function _rsvpYN(v){
+  var s=(v===null||v===undefined)?'':String(v).trim().toLowerCase();
+  if(!s) return null;
+  if(s==='no'||s==='false'||s==='0'||s==='declined'||s.indexOf('not ')===0) return 'no';
+  return 'yes';
+}
+var RV_KEY='ww_rsvp_review';
+function _rvLoad(){
+  try{ var o=JSON.parse(localStorage.getItem(RV_KEY)||'{}');
+    return {decisions:o.decisions||{},dismissed:o.dismissed||{},history:o.history||[],autoLogged:o.autoLogged||{}};
+  }catch(e){ return {decisions:{},dismissed:{},history:[],autoLogged:{}}; }
+}
+var _rv=_rvLoad();
+function _rvSave(){
+  try{ localStorage.setItem(RV_KEY,JSON.stringify({decisions:_rv.decisions,dismissed:_rv.dismissed,history:_rv.history.slice(-200),autoLogged:_rv.autoLogged})); }catch(e){}
+}
+function _rvNorm(s){ return (s||'').toString().trim().toLowerCase().replace(/\s+/g,' '); }
+function _rvRowId(r){ return ((r['Full Name']||r.name||'')+'|'+(r['Date & Time']||r.timestamp||'')).trim(); }
+function _rvRows(){
+  try{ var c=JSON.parse(localStorage.getItem('rsvpLastData')); return (c&&Array.isArray(c.rsvpRows))?c.rsvpRows:[]; }
+  catch(e){ return []; }
+}
+function _rvWho(){ try{ return localStorage.getItem('ww_who')||''; }catch(e){ return ''; } }
+function _rvLog(kind,guest,text,rowId){
+  _rv.history.push({ts:Date.now(),kind:kind,guest:guest,text:text,by:_rvWho(),rowId:rowId||''});
+  _rvSave();
+}
+function _rvFindGuest(name){
+  if(typeof importQueue==='undefined') return null;
+  for(var i=0;i<importQueue.length;i++){ if(importQueue[i].name===name) return importQueue[i]; }
+  return null;
+}
+
+/* Separate first-name-only (or same-surname) forms that could be THIS guest's own
+   RSVP. 'clear' = safe to apply silently (only one candidate, and either it carries
+   the guest's surname or nobody else shares the first name). Anything else that
+   still looks possible is 'doubtful' and goes to the review panel. */
+function _rvOwnCandidates(g,rows){
+  var d=_rv.decisions[g.name]||{}; var rej=d.rejected||[];
+  var toks=function(x){ return _rvNorm(x).split(/[\s,]+/).filter(Boolean); };
+  var mt=toks(g.name); var fn=mt[0]||''; var ln=mt.length>1?mt[mt.length-1]:'';
+  var cands=rows.filter(function(r){
+    var rn=_rvNorm(r['Full Name']||r.name||'');
+    if(!rn||rn.indexOf('&')!==-1) return false;
+    if(rej.indexOf(_rvRowId(r))!==-1) return false;
+    var t=toks(rn);
+    if(t[0]!==fn) return false;
+    if(t.length>1&&ln&&t[t.length-1]!==ln) return false;
+    var other=importQueue.some(function(o){ return o!==g&&_rvNorm(o.name)===rn; });
+    return !other;
+  });
+  var sameFirst=importQueue.filter(function(o){
+    return !o.isChild&&!(typeof isKidsGroup==='function'&&isKidsGroup(o))&&_rvNorm(o.name).split(' ')[0]===fn;
+  });
+  var clear=null;
+  if(cands.length===1){
+    var ct=toks(cands[0]['Full Name']||cands[0].name||'');
+    var hasSurname=ct.length>1&&ct[ct.length-1]===ln&&!!ln;
+    if(hasSurname||sameFirst.length===1) clear=cands[0];
+  }
+  return {clear:clear,doubtful:clear?[]:cands,sameFirst:sameFirst};
+}
+function _rvInfoFromOwnRow(row){
+  var cer=_rsvpYN(row['Ceremony Attendance']!==undefined?row['Ceremony Attendance']:row['attendance']);
+  var eve=(_rsvpYN(row['Invited to Party'])==='no')?null:_rsvpYN(row['Evening Attendance']);
+  var isYes=(cer==='yes')||(eve==='yes');
+  var isNo=!isYes&&(cer==='no'||eve==='no');
+  return {isYes:isYes,isNo:isNo,matched:true,persons:[],guestsAttending:(row['Guests Attending']||'').toString().trim(),row:row,own:true,ceremony:cer,evening:eve};
+}
+function _rvNoteAuto(g,row){
+  var key=g.name+'>'+_rvRowId(row);
+  if(_rv.autoLogged[key]) return;
+  _rv.autoLogged[key]=Date.now();
+  var t=_rvNorm(row['Full Name']||row.name||'').split(' ');
+  var why=(t.length>1)?'it carries the same surname':'no other guest shares the first name';
+  _rvLog('auto',g.name,'Matched the separate form from "'+(row['Full Name']||row.name)+'" to '+g.name+' automatically ('+why+').',_rvRowId(row));
+}
+
+function getGuestRsvpInfo(name,isCouple,knownPartnerName,manualOverride,plannerGuess){
+  var base=_getGuestRsvpInfoBase(name,isCouple,knownPartnerName,manualOverride,plannerGuess);
+  if(manualOverride==='yes'||manualOverride==='no') return base;
+  /* A form a person has explicitly marked "not this guest" never counts for them. */
+  var _rej=(_rv.decisions[name]||{}).rejected;
+  if(base&&base.row&&_rej&&_rej.length&&_rej.indexOf(_rvRowId(base.row))!==-1){
+    base=(plannerGuess==='yes')?{isYes:true,isNo:false,matched:true,persons:[],guestsAttending:'',row:null,guess:true}
+        :(plannerGuess==='no')?{isYes:false,isNo:true,matched:true,persons:[],guestsAttending:'',row:null,guess:true}:null;
+  }
+  if(isCouple||!name||name.indexOf('&')!==-1) return base;
+  // Only guests with no real answer of their own yet: no match, just a planner
+  // guess, or their household's form leaves them out of "Guests Attending".
+  if(base&&!base.guess&&!base.narrowedOut) return base;
+  var g=_rvFindGuest(name);
+  if(!g||g.isChild||(typeof isKidsGroup==='function'&&isKidsGroup(g))) return base;
+  if(!knownPartnerName&&!(base&&base.narrowedOut)) return base;
+  var rows=_rvRows();
+  var dec=_rv.decisions[name];
+  if(dec&&dec.link){
+    for(var i=0;i<rows.length;i++){ if(_rvRowId(rows[i])===dec.link) return _rvInfoFromOwnRow(rows[i]); }
+  }
+  var c=_rvOwnCandidates(g,rows);
+  if(c.clear){ _rvNoteAuto(g,c.clear); return _rvInfoFromOwnRow(c.clear); }
+  if(base&&base.narrowedOut){
+    return {isYes:false,isNo:false,matched:true,needsOwn:true,persons:[],guestsAttending:base.guestsAttending,row:base.row};
+  }
+  return base;
+}
+
+/* Everything that needs a person's decision right now. */
+function rvBuildItems(){
+  var rows=_rvRows(); var items=[];
+  if(typeof importQueue==='undefined') return items;
+  importQueue.forEach(function(g){
+    if(!g||g.skipped||g.isChild||(typeof isKidsGroup==='function'&&isKidsGroup(g))||g.manualRsvp) return;
+    if(g.name.indexOf('&')!==-1) return;
+    if(g.type==='couple-ceremony'||g.type==='couple-party') return;
+    var partner=inferPartnerName(g);
+    var base=_getGuestRsvpInfoBase(g.name,false,partner,'',g.plannerGuess);
+    var _rj=(_rv.decisions[g.name]||{}).rejected;
+    if(base&&base.row&&_rj&&_rj.length&&_rj.indexOf(_rvRowId(base.row))!==-1) base=null;
+    if(base&&!base.guess&&!base.narrowedOut) return;
+    if(!partner&&!(base&&base.narrowedOut)) return;
+    var dec=_rv.decisions[g.name]||{};
+    if(dec.link&&rows.some(function(r){ return _rvRowId(r)===dec.link; })) return;
+    var c=_rvOwnCandidates(g,rows);
+    if(c.clear) return;
+    if(c.doubtful.length){
+      var key='cand|'+g.name+'|'+c.doubtful.map(_rvRowId).join('~');
+      if(_rv.dismissed[key]) return;
+      items.push({type:'candidate',key:key,guest:g,base:(base&&base.narrowedOut)?base:null,cands:c.doubtful,sameFirst:c.sameFirst});
+    } else if(base&&base.narrowedOut){
+      var key2='needs|'+g.name+'|'+_rvRowId(base.row);
+      if(_rv.dismissed[key2]) return;
+      items.push({type:'needs',key:key2,guest:g,base:base,cands:[],sameFirst:[]});
+    }
+  });
+  return items;
 }
 
 function getGuestRsvpPill(name, isCouple, knownPartnerName, manualOverride, plannerGuess){
   var info=getGuestRsvpInfo(name, isCouple, knownPartnerName, manualOverride, plannerGuess);
   if(!info) return '';
+  if(info.needsOwn) return '<span title="Their household form does not list them — waiting for their own RSVP" style="background:var(--amber-bg);color:var(--amber);border:1px solid rgba(176,120,48,.3);border-radius:100px;padding:2px 8px;font-size:8px;font-weight:800;letter-spacing:.06em;flex-shrink:0;white-space:nowrap">NEEDS OWN RSVP</span>';
   /* For couples: show per-person mini tags — color (not a symbol) carries yes/no */
   if(info.persons&&info.persons.length>1){
     return info.persons.map(function(p){
@@ -4383,6 +4556,13 @@ function getGuestRsvpPill(name, isCouple, knownPartnerName, manualOverride, plan
      for the same fact. Render nothing for a guess; a real match still gets
      the normal solid pill below. */
   if(info.guess) return '';
+  /* Coming to only ONE of the two events: show which, instead of a bare check. */
+  if(info.ceremony&&info.evening&&info.ceremony!==info.evening&&(info.isYes||info.isNo)){
+    function _evTag(lbl,v){ return v==='yes'
+      ?'<span style="background:#d4f5e2;color:#1a7a4a;border-radius:100px;padding:2px 8px;font-size:8px;font-weight:800;letter-spacing:.06em;flex-shrink:0">'+lbl+' \u2713</span>'
+      :'<span style="background:#fde8e8;color:#b91c1c;border-radius:100px;padding:2px 8px;font-size:8px;font-weight:800;letter-spacing:.06em;flex-shrink:0">'+lbl+' \u2715</span>'; }
+    return _evTag('CHURCH',info.ceremony)+_evTag('PARTY',info.evening);
+  }
   if(info.isYes) return '<span style="width:16px;height:16px;background:var(--green-bg);color:var(--green);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0" title="RSVP: Yes"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>';
   if(info.isNo)  return '<span style="width:16px;height:16px;background:var(--red-bg);color:var(--red);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0" title="RSVP: No"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>';
   return '<span style="background:var(--cream2);color:var(--muted);border-radius:100px;padding:2px 8px;font-size:8px;font-weight:700;letter-spacing:.06em;flex-shrink:0">RSVP ?</span>';
@@ -7206,6 +7386,17 @@ function showChatNotif(who, text){
 })();
 
 </script>
+
+<!-- RSVP REVIEW PANEL -->
+<div id="rvOverlay"></div>
+<div id="rvDrawer">
+  <div class="rsvp-drawer-hdr">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+    <span class="rsvp-drawer-title">Needs your review</span>
+    <button class="rsvp-drawer-close" id="rvClose">&times;</button>
+  </div>
+  <div class="rsvp-drawer-body" id="rvBody"></div>
+</div>
 
 <!-- RSVP DRAWER -->
 <div class="rsvp-drawer-overlay" id="rsvpDrawerOverlay"></div>
@@ -11183,6 +11374,156 @@ if(_smExportOverlay) _smExportOverlay.addEventListener('click', function(e){ if(
   }
   render();
   setInterval(render, 60*60*1000); // refresh hourly in case the tab stays open
+})();
+</script>
+
+<script>
+/* RSVP review panel — UI. Matching/decision logic lives in rvBuildItems() etc. above. */
+(function(){
+  var items=[];
+  function $(id){ return document.getElementById(id); }
+  function esc(x){ return String(x==null?'':x).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function fmtD(str){
+    if(!str) return '';
+    var d=new Date(str); if(isNaN(d.getTime())) return String(str).split('T')[0];
+    return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+  }
+  function fmtTs(ts){
+    var d=new Date(ts);
+    return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'})+', '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+  }
+  function first(n){ return String(n||'').split(' ')[0]; }
+  function tag(lbl,v){ return v?'<span class="rv-tag '+(v==='yes'?'y':'n')+'">'+lbl+' '+(v==='yes'?'\u2713':'\u2715')+'</span>':''; }
+  function formBox(r){
+    var cer=_rsvpYN(r['Ceremony Attendance']);
+    var eve=(_rsvpYN(r['Invited to Party'])==='no')?null:_rsvpYN(r['Evening Attendance']);
+    var ga=(r['Guests Attending']||'').toString().trim();
+    var seats=r['Total Seats'];
+    return '<div class="rv-form"><div class="rv-form-name">\u201c'+esc(r['Full Name']||r.name||'')+'\u201d</div>'
+      +'<div class="rv-form-meta">'+esc(fmtD(r['Date & Time']||r.timestamp))+' \u00b7 '+tag('Church',cer)+tag('Party',eve)
+      +(ga?'<br>Guests attending: '+esc(ga):'')+((seats!==undefined&&seats!=='')?' \u00b7 Seats: '+esc(seats):'')+'</div></div>';
+  }
+  function claimedBy(g,row){
+    var rid=_rvRowId(row), out=[];
+    importQueue.forEach(function(o){
+      if(o===g||o.skipped) return;
+      var b=_getGuestRsvpInfoBase(o.name,false,inferPartnerName(o),'',o.plannerGuess);
+      if(b&&b.row&&_rvRowId(b.row)===rid) out.push(o.name);
+    });
+    return out;
+  }
+  function itemHtml(it,i){
+    var g=it.guest, fn=first(g.name), h='';
+    if(it.type==='needs'){
+      var hh=it.base.row, hn=hh['Full Name']||hh.name||'';
+      h+='<div class="rv-card"><div class="rv-kind">Needs own RSVP</div>'
+        +'<div class="rv-title">'+esc(g.name)+' isn\u2019t listed in \u201c'+esc(hn)+'\u201d</div>'
+        +'<div class="rv-body">The '+esc(fmtD(hh['Date & Time']||hh.timestamp))+' form lists only <b>'+esc(it.base.guestsAttending||'someone else')+'</b> as attending, and no separate form from '+esc(fn)+' has arrived. '
+        +'Until then they show as \u201cNeeds own RSVP\u201d rather than Declined.</div>'
+        +formBox(hh)
+        +'<div class="rv-actions"><button class="rv-btn neg" data-act="notcoming" data-i="'+i+'">Not coming</button>'
+        +'<button class="rv-btn" data-act="wait" data-i="'+i+'">Wait for their form</button></div></div>';
+    } else {
+      var why=it.sameFirst.length>1
+        ?it.sameFirst.length+' guests share the first name \u201c'+esc(fn)+'\u201d: '+it.sameFirst.map(function(o){return esc(o.name);}).join(', ')+'.'
+        :'This form has a first name only, so it can\u2019t be confirmed as theirs.';
+      h+='<div class="rv-card"><div class="rv-kind">Please confirm</div>'
+        +'<div class="rv-title">Is this form '+esc(g.name)+'\u2019s own RSVP?</div>'
+        +'<div class="rv-body">'+(it.base?'Their household form (\u201c'+esc(it.base.row['Full Name']||'')+'\u201d, '+esc(fmtD(it.base.row['Date & Time']))+') lists only <b>'+esc(it.base.guestsAttending||'someone else')+'</b>. ':'No RSVP is matched to '+esc(fn)+' yet. ')
+        +esc(why)+'</div>';
+      it.cands.forEach(function(r,j){
+        var cb=claimedBy(g,r);
+        h+=formBox(r)
+          +(cb.length?'<div class="rv-body" style="margin:0 0 4px">Currently counted for <b>'+cb.map(esc).join(', ')+'</b>.</div>':'')
+          +'<div class="rv-actions" style="margin-top:0"><button class="rv-btn pri" data-act="link" data-i="'+i+'" data-j="'+j+'">Yes, it\u2019s '+esc(fn)+'</button>'
+          +'<button class="rv-btn neg" data-act="reject" data-i="'+i+'" data-j="'+j+'">Not them</button></div>';
+      });
+      h+='<div class="rv-actions"><button class="rv-btn" data-act="wait" data-i="'+i+'">Decide later</button></div></div>';
+    }
+    return h;
+  }
+  function render(){
+    var body=$('rvBody'); if(!body) return;
+    items=rvBuildItems();
+    var h='<div class="rv-sec">Needs your decision ('+items.length+')</div>';
+    h+=items.length?items.map(itemHtml).join(''):'<div class="rv-empty">Nothing to review right now.</div>';
+    var hist=_rv.history.slice().reverse().slice(0,40);
+    h+='<div class="rv-sec">History</div>';
+    if(!hist.length) h+='<div class="rv-empty">No changes yet.</div>';
+    hist.forEach(function(e,k){
+      var canUndo=e.kind==='auto'&&e.rowId&&!((_rv.decisions[e.guest]||{}).rejected||[]).some(function(x){return x===e.rowId;});
+      h+='<div class="rv-hist">'+esc(e.text)+'<small>'+esc(fmtTs(e.ts))+(e.by?' \u00b7 '+esc(e.by):'')+'</small>'
+        +(canUndo?'<button data-act="undo" data-g="'+esc(e.guest)+'" data-r="'+esc(e.rowId)+'">Not them \u2014 undo</button>':'')+'</div>';
+    });
+    body.innerHTML=h;
+  }
+  window.rvBadge=function(){
+    var n=rvBuildItems().length, b=$('rvBellBadge');
+    if(b){ b.textContent=n>9?'9+':n; b.style.display=n?'block':'none'; }
+  };
+  function refreshAll(){
+    try{ renderGuestList(); }catch(e){}
+    try{ renderDashboard(); }catch(e){}
+    render(); window.rvBadge();
+  }
+  function setOpen(o){
+    var d=$('rvDrawer'), ov=$('rvOverlay'); if(!d) return;
+    d.classList.toggle('open',o); ov.classList.toggle('open',o);
+    if(o) render();
+  }
+  function rejectRow(gname,rid){
+    var d=_rv.decisions[gname]=_rv.decisions[gname]||{rejected:[]};
+    d.rejected=d.rejected||[];
+    if(d.rejected.indexOf(rid)===-1) d.rejected.push(rid);
+  }
+  function act(e){
+    var t=e.target.closest?e.target.closest('[data-act]'):null; if(!t) return;
+    var a=t.dataset.act, it=items[parseInt(t.dataset.i,10)];
+    if(a==='undo'){
+      var gn=t.dataset.g, rid=t.dataset.r;
+      rejectRow(gn,rid);
+      _rvLog('reject',gn,'Undid the automatic match \u2014 that form is not '+gn+'\u2019s.',rid);
+      refreshAll(); return;
+    }
+    if(!it) return;
+    var g=it.guest;
+    if(a==='link'||a==='reject'){
+      var row=it.cands[parseInt(t.dataset.j,10)]; if(!row) return;
+      var rid2=_rvRowId(row), nm=(row['Full Name']||row.name||'');
+      if(a==='link'){
+        var prev=(_rv.decisions[g.name]||{}).rejected||[];
+        _rv.decisions[g.name]={link:rid2,rejected:prev};
+        // the same form can't belong to a different guest who only matched it by first name
+        claimedBy(g,row).forEach(function(n){ rejectRow(n,rid2); });
+        _rvLog('link',g.name,'Confirmed: the form from \u201c'+nm+'\u201d ('+fmtD(row['Date & Time'])+') is '+g.name+'\u2019s own RSVP.',rid2);
+      } else {
+        rejectRow(g.name,rid2);
+        _rvLog('reject',g.name,'Marked the form from \u201c'+nm+'\u201d ('+fmtD(row['Date & Time'])+') as NOT '+g.name+'.',rid2);
+      }
+    } else if(a==='wait'){
+      _rv.dismissed[it.key]=Date.now();
+      _rvLog('wait',g.name,'Left for later: '+g.name+(it.type==='needs'?' \u2014 waiting for their own form.':' \u2014 form not confirmed yet.'));
+    } else if(a==='notcoming'){
+      g.manualRsvp='no';
+      try{ saveGuestMeta(); }catch(err){}
+      try{ pushMetaToWorker(g); }catch(err){}
+      _rvLog('no',g.name,'Marked '+g.name+' as not coming.');
+    }
+    _rvSave(); refreshAll();
+  }
+  document.addEventListener('DOMContentLoaded',function(){
+    var bell=$('rvBellBtn'); if(bell) bell.addEventListener('click',function(){ setOpen(true); });
+    var c=$('rvClose'); if(c) c.addEventListener('click',function(){ setOpen(false); });
+    var ov=$('rvOverlay'); if(ov) ov.addEventListener('click',function(){ setOpen(false); });
+    var b=$('rvBody'); if(b) b.addEventListener('click',act);
+  });
+  // keep the badge fresh: after every guest-list render, and on a light timer (new RSVPs arrive by polling)
+  var _rgl0=window.renderGuestList;
+  if(typeof _rgl0==='function'){
+    window.renderGuestList=function(){ var r=_rgl0.apply(this,arguments); try{ window.rvBadge(); }catch(e){} return r; };
+  }
+  setInterval(function(){ try{ window.rvBadge(); var d=$('rvDrawer'); if(d&&d.classList.contains('open')) render(); }catch(e){} },8000);
+  setTimeout(function(){ try{ window.rvBadge(); }catch(e){} },2000);
 })();
 </script>
 </body>
