@@ -4161,9 +4161,27 @@ function getGuestRsvpInfo(name, isCouple, knownPartnerName, manualOverride, plan
     // solo-row match, so a same-first-name stranger's RSVP got attributed
     // to this guest outright.
     function rowOk(r){
-      var isHousehold=normN(r['Full Name']||r['name']||'').indexOf('&')!==-1;
+      var rowName=normN(r['Full Name']||r['name']||'');
+      var isHousehold=rowName.indexOf('&')!==-1;
       if(isTrulySolo) return !isHousehold;
-      return isHousehold;
+      if(!isHousehold) return false;
+      /* Shadowing fix: several household rows can share my first name (e.g.
+         "Jan & Elli" AND "Jan & Martina"). Since matching takes the FIRST row
+         that passes, an unrelated "Jan & Elli" used to win and then get thrown
+         out by the partner guard, so the real "Jan & Martina" row was never
+         even tried. So here, only accept a household row that also contains
+         my partner's first name (or the first name of another adult who shares
+         my surname). If I have no partner info at all, keep the old behaviour. */
+      var rt=toks(rowName);
+      var pf=[];
+      if(knownPartnerName) pf=pf.concat(firstNms(knownPartnerName));
+      if(myLN){
+        importQueue.forEach(function(o){
+          if(o.name!==name && !o.isChild && lastNm(o.name)===myLN) pf=pf.concat(firstNms(o.name));
+        });
+      }
+      if(!pf.length) return true;
+      return pf.some(function(f){return rt.indexOf(f)!==-1;});
     }
 
     // Confidence tag for whichever strategy below actually finds the match —
