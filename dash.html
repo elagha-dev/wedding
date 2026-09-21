@@ -1470,6 +1470,25 @@ body.lite-mode #liteModeTopBtn {
 #presenceOther img{width:100%;height:100%}
 #presenceOther .presence-dot{width:11px;height:11px;bottom:0;right:0}
 #presenceOther .chat-unread{top:-4px;right:-4px}
+
+/* ── No color mode: top bar buttons become plain beige with darker line icons ── */
+body.mono-bar .topbar .sync-pill,
+body.mono-bar .topbar .stat-pill,
+body.mono-bar .topbar .seatmap-toolbar-btn,
+body.mono-bar .topbar .rsvp-count-btn,
+body.mono-bar .topbar #reviewPairsBtn,
+body.mono-bar .topbar #rvBellBtn,
+body.mono-bar .topbar .sync-pill:hover,
+body.mono-bar .topbar .seatmap-toolbar-btn:hover,
+body.mono-bar .topbar .rsvp-count-btn:hover{
+  background:var(--parchment)!important;color:var(--ink2)!important;box-shadow:none!important;border:none!important}
+body.mono-bar .topbar .sync-pill svg,
+body.mono-bar .topbar .seatmap-toolbar-btn svg,
+body.mono-bar .topbar #reviewPairsBtn svg,
+body.mono-bar .topbar #rvBellBtn svg{color:var(--ink2)!important;stroke:var(--ink2)!important;stroke-width:2.4!important}
+body.mono-bar .topbar .rsvp-count-btn .rc-num,
+body.mono-bar .topbar .stat-pill{color:var(--ink2)!important}
+body.mono-bar #presenceMeGroup .presence-avatar.is-me{box-shadow:0 0 0 2px var(--cream),0 0 0 3.5px var(--soft)!important}
 </style>
 </head>
 <body>
@@ -1745,6 +1764,17 @@ body.lite-mode #liteModeTopBtn {
     </div>
   </div>
   <div class="settings-body">
+
+    <!-- SECTION: Appearance -->
+    <div class="s-section">
+      <div class="s-section-label">Appearance</div>
+      <div class="s-row s-switch-row">
+        <div class="s-row-info"><div class="s-row-title">No color mode</div><div class="s-row-sub">Top bar buttons in plain beige with darker line icons</div></div>
+        <button id="monoBarBtn" title="Toggle no color mode" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:20px;height:32px;border-radius:10px;border:none;background:var(--parchment);cursor:pointer;padding:0;position:relative;transition:background .25s">
+          <span id="monoBarThumb" style="position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.18);transition:transform .25s;display:block"></span>
+        </button>
+      </div>
+    </div>
 
     <!-- SECTION: Developer (manual sending lives here, shown first) -->
     <div class="s-section">
@@ -11568,6 +11598,27 @@ if(_smExportOverlay) _smExportOverlay.addEventListener('click', function(e){ if(
   }
   setInterval(function(){ try{ window.rvBadge(); var d=$('rvDrawer'); if(d&&d.classList.contains('open')) render(); }catch(e){} },8000);
   setTimeout(function(){ try{ window.rvBadge(); }catch(e){} },2000);
+})();
+</script>
+
+<script>
+/* No color mode (top bar) — persisted on this device */
+(function(){
+  var KEY='ww_mono_bar';
+  function load(){ try{ return localStorage.getItem(KEY)==='1'; }catch(e){ return false; } }
+  function apply(on){
+    document.body.classList.toggle('mono-bar',!!on);
+    var b=document.getElementById('monoBarBtn'), t=document.getElementById('monoBarThumb');
+    if(b) b.style.background=on?'var(--rose)':'var(--parchment)';
+    if(t) t.style.transform=on?'translateY(12px)':'translateY(0)';
+  }
+  apply(load());
+  var b=document.getElementById('monoBarBtn');
+  if(b) b.addEventListener('click',function(){
+    var next=!document.body.classList.contains('mono-bar');
+    try{ localStorage.setItem(KEY,next?'1':'0'); }catch(e){}
+    apply(next);
+  });
 })();
 </script>
 </body>
