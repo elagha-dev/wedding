@@ -4549,7 +4549,10 @@ function _rvOwnCandidates(g,rows){
     if(t[0]!==fn) return false;
     if(t.length>1&&ln&&t[t.length-1]!==ln) return false;
     var other=importQueue.some(function(o){ return o!==g&&_rvNorm(o.name)===rn; });
-    return !other;
+    if(other) return false;
+    var rid=_rvRowId(r);
+    for(var gn in _rv.decisions){ if(gn!==g.name&&_rv.decisions[gn]&&_rv.decisions[gn].link===rid) return false; }
+    return true;
   });
   var sameFirst=importQueue.filter(function(o){
     return !o.isChild&&!(typeof isKidsGroup==='function'&&isKidsGroup(o))&&_rvNorm(o.name).split(' ')[0]===fn;
@@ -4590,6 +4593,8 @@ function getGuestRsvpInfo(name,isCouple,knownPartnerName,manualOverride,plannerG
   /* Only a joint card ("A & B") is skipped. A single person whose invite TYPE is
      couple-ceremony/couple-party still has their own card and their own answer. */
   if(!name||name.indexOf('&')!==-1) return base;
+  { var _d0=_rv.decisions[name];
+    if(_d0&&_d0.link){ var _rs=_rvRows(); for(var _k=0;_k<_rs.length;_k++){ if(_rvRowId(_rs[_k])===_d0.link) return _rvInfoFromOwnRow(_rs[_k]); } } }
   // Only guests with no real answer of their own yet: no match, just a planner
   // guess, or their household's form leaves them out of "Guests Attending".
   if(base&&!base.guess&&!base.narrowedOut) return base;
@@ -4613,28 +4618,46 @@ function getGuestRsvpInfo(name,isCouple,knownPartnerName,manualOverride,plannerG
 function rvBuildItems(){
   var rows=_rvRows(); var items=[];
   if(typeof importQueue==='undefined') return items;
+  var forms={};  // rowId -> {row, guests:[{g,base,manual}]}
+  function addForm(row,g,base,manual){
+    var id=_rvRowId(row);
+    var f=forms[id]||(forms[id]={row:row,guests:[]});
+    f.guests.push({g:g,base:base,manual:manual});
+  }
   importQueue.forEach(function(g){
-    if(!g||g.skipped||g.isChild||(typeof isKidsGroup==='function'&&isKidsGroup(g))||g.manualRsvp) return;
+    if(!g||g.skipped||g.isChild||(typeof isKidsGroup==='function'&&isKidsGroup(g))) return;
     if(g.name.indexOf('&')!==-1) return;
+    var dec=_rv.decisions[g.name]||{};
+    if(dec.link&&rows.some(function(r){ return _rvRowId(r)===dec.link; })) return;
     var partner=inferPartnerName(g);
-    var base=_getGuestRsvpInfoBase(g.name,(g.type==='couple-ceremony'||g.type==='couple-party'),partner,'',g.plannerGuess);
-    var _rj=(_rv.decisions[g.name]||{}).rejected;
+    var isC=(g.type==='couple-ceremony'||g.type==='couple-party');
+    if(g.manualRsvp){
+      // A manual answer is never overridden silently — but if a separate form could be
+      // theirs, ask, so the manual placeholder can be replaced by the real answer.
+      var cm=_rvOwnCandidates(g,rows);
+      (cm.clear?[cm.clear]:cm.doubtful).forEach(function(r){ addForm(r,g,null,g.manualRsvp); });
+      return;
+    }
+    var base=_getGuestRsvpInfoBase(g.name,isC,partner,'',g.plannerGuess);
+    var _rj=dec.rejected;
     if(base&&base.row&&_rj&&_rj.length&&_rj.indexOf(_rvRowId(base.row))!==-1) base=null;
     if(base&&!base.guess&&!base.narrowedOut) return;
     if(!partner&&!(base&&base.narrowedOut)) return;
-    var dec=_rv.decisions[g.name]||{};
-    if(dec.link&&rows.some(function(r){ return _rvRowId(r)===dec.link; })) return;
     var c=_rvOwnCandidates(g,rows);
     if(c.clear) return;
     if(c.doubtful.length){
-      var key='cand|'+g.name+'|'+c.doubtful.map(_rvRowId).join('~');
-      if(_rv.dismissed[key]) return;
-      items.push({type:'candidate',key:key,guest:g,base:(base&&base.narrowedOut)?base:null,cands:c.doubtful,sameFirst:c.sameFirst});
+      c.doubtful.forEach(function(r){ addForm(r,g,(base&&base.narrowedOut)?base:null,''); });
     } else if(base&&base.narrowedOut){
       var key2='needs|'+g.name+'|'+_rvRowId(base.row);
       if(_rv.dismissed[key2]) return;
       items.push({type:'needs',key:key2,guest:g,base:base,cands:[],sameFirst:[]});
     }
+  });
+  Object.keys(forms).forEach(function(id){
+    var f=forms[id];
+    var key='form|'+id+'|'+f.guests.map(function(x){return x.g.name;}).sort().join('~');
+    if(_rv.dismissed[key]) return;
+    items.push({type:'form',key:key,row:f.row,rowId:id,guests:f.guests});
   });
   return items;
 }
@@ -11515,14 +11538,14 @@ if(_smExportOverlay) _smExportOverlay.addEventListener('click', function(e){ if(
   function claimedBy(g,row){
     var rid=_rvRowId(row), out=[];
     importQueue.forEach(function(o){
-      if(o===g||o.skipped) return;
+      if((g&&o===g)||o.skipped) return;
       var b=_getGuestRsvpInfoBase(o.name,false,inferPartnerName(o),'',o.plannerGuess);
       if(b&&b.row&&_rvRowId(b.row)===rid) out.push(o.name);
     });
     return out;
   }
   function itemHtml(it,i){
-    var g=it.guest, fn=first(g.name), h='';
+    var g=it.guest||{name:''}, fn=first(g.name), h='';
     if(it.type==='needs'){
       var hh=it.base.row, hn=hh['Full Name']||hh.name||'';
       h+='<div class="rv-card"><div class="rv-kind">Needs own RSVP</div>'
@@ -11533,21 +11556,28 @@ if(_smExportOverlay) _smExportOverlay.addEventListener('click', function(e){ if(
         +'<div class="rv-actions"><button class="rv-btn neg" data-act="notcoming" data-i="'+i+'">Not coming</button>'
         +'<button class="rv-btn" data-act="wait" data-i="'+i+'">Wait for their form</button></div></div>';
     } else {
-      var why=it.sameFirst.length>1
-        ?it.sameFirst.length+' guests share the first name \u201c'+esc(fn)+'\u201d: '+it.sameFirst.map(function(o){return esc(o.name);}).join(', ')+'.'
-        :'This form has a first name only, so it can\u2019t be confirmed as theirs.';
+      var gs=it.guests, r0=it.row, fn0=first(gs[0].g.name);
+      var multi=gs.length>1;
+      var sameNames=importQueue.filter(function(o){ return !o.isChild&&_rvNorm(o.name).split(' ')[0]===_rvNorm(gs[0].g.name).split(' ')[0]; }).map(function(o){return o.name;});
       h+='<div class="rv-card"><div class="rv-kind">Please confirm</div>'
-        +'<div class="rv-title">Is this form '+esc(g.name)+'\u2019s own RSVP?</div>'
-        +'<div class="rv-body">'+(it.base?'Their household form (\u201c'+esc(it.base.row['Full Name']||'')+'\u201d, '+esc(fmtD(it.base.row['Date & Time']))+') lists only <b>'+esc(it.base.guestsAttending||'someone else')+'</b>. ':'No RSVP is matched to '+esc(fn)+' yet. ')
-        +esc(why)+'</div>';
-      it.cands.forEach(function(r,j){
-        var cb=claimedBy(g,r);
-        h+=formBox(r)
-          +(cb.length?'<div class="rv-body" style="margin:0 0 4px">Currently counted for <b>'+cb.map(esc).join(', ')+'</b>.</div>':'')
-          +'<div class="rv-actions" style="margin-top:0"><button class="rv-btn pri" data-act="link" data-i="'+i+'" data-j="'+j+'">Yes, it\u2019s '+esc(fn)+'</button>'
-          +'<button class="rv-btn neg" data-act="reject" data-i="'+i+'" data-j="'+j+'">Not them</button></div>';
+        +'<div class="rv-title">'+(multi?'Whose form is this?':'Is this form '+esc(gs[0].g.name)+'\u2019s own RSVP?')+'</div>'
+        +'<div class="rv-body">'
+        +(sameNames.length>1?sameNames.length+' guests share the first name \u201c'+esc(fn0)+'\u201d: '+sameNames.map(esc).join(', ')+'. ':'This form has a first name only, so it can\u2019t be confirmed as theirs. ')
+        +gs.map(function(x){
+            var t='';
+            if(x.manual) t+='<b>'+esc(x.g.name)+'</b> is set manually to <b>'+esc(x.manual==='yes'?'Yes':'No')+'</b> \u2014 confirming replaces that with the form\u2019s answer. ';
+            if(x.base) t+='<b>'+esc(x.g.name)+'</b>\u2019s household form ('+esc(x.base.row['Full Name']||'')+') lists only '+esc(x.base.guestsAttending||'someone else')+'. ';
+            return t;
+          }).join('')
+        +'</div>'+formBox(r0);
+      var cb=claimedBy(null,r0).filter(function(n){ return !gs.some(function(x){return x.g.name===n;}); });
+      if(cb.length) h+='<div class="rv-body" style="margin:0 0 4px">Currently counted for <b>'+cb.map(esc).join(', ')+'</b>.</div>';
+      h+='<div class="rv-actions">';
+      gs.forEach(function(x){
+        h+='<button class="rv-btn pri" data-act="linkto" data-i="'+i+'" data-g="'+esc(x.g.name)+'">'+((multi||sameNames.length>1)?'Yes, it\u2019s '+esc(x.g.name):'Yes, it\u2019s '+esc(first(x.g.name)))+'</button>';
       });
-      h+='<div class="rv-actions"><button class="rv-btn" data-act="wait" data-i="'+i+'">Decide later</button></div></div>';
+      h+='<button class="rv-btn neg" data-act="none" data-i="'+i+'">'+(multi?'None of them':'Not them')+'</button>'
+        +'<button class="rv-btn" data-act="wait" data-i="'+i+'">Decide later</button></div></div>';
     }
     return h;
   }
@@ -11595,23 +11625,37 @@ if(_smExportOverlay) _smExportOverlay.addEventListener('click', function(e){ if(
       refreshAll(); return;
     }
     if(!it) return;
-    var g=it.guest;
-    if(a==='link'||a==='reject'){
-      var row=it.cands[parseInt(t.dataset.j,10)]; if(!row) return;
-      var rid2=_rvRowId(row), nm=(row['Full Name']||row.name||'');
-      if(a==='link'){
-        var prev=(_rv.decisions[g.name]||{}).rejected||[];
-        _rv.decisions[g.name]={link:rid2,rejected:prev};
-        // the same form can't belong to a different guest who only matched it by first name
-        claimedBy(g,row).forEach(function(n){ rejectRow(n,rid2); });
-        _rvLog('link',g.name,'Confirmed: the form from \u201c'+nm+'\u201d ('+fmtD(row['Date & Time'])+') is '+g.name+'\u2019s own RSVP.',rid2);
-      } else {
-        rejectRow(g.name,rid2);
-        _rvLog('reject',g.name,'Marked the form from \u201c'+nm+'\u201d ('+fmtD(row['Date & Time'])+') as NOT '+g.name+'.',rid2);
+    if(it.type==='form'){
+      var nm=(it.row['Full Name']||it.row.name||''), dt=fmtD(it.row['Date & Time']);
+      if(a==='linkto'){
+        var pick=null; it.guests.forEach(function(x){ if(x.g.name===t.dataset.g) pick=x; });
+        if(!pick) return;
+        var prev=(_rv.decisions[pick.g.name]||{}).rejected||[];
+        _rv.decisions[pick.g.name]={link:it.rowId,rejected:prev};
+        var extra='';
+        if(pick.g.manualRsvp){
+          extra=' The manual '+(pick.g.manualRsvp==='yes'?'Yes':'No')+' was replaced by the form\u2019s answer.';
+          pick.g.manualRsvp='';
+          try{ saveGuestMeta(); }catch(err){}
+          try{ pushMetaToWorker(pick.g); }catch(err){}
+        }
+        it.guests.forEach(function(x){ if(x!==pick) rejectRow(x.g.name,it.rowId); });
+        claimedBy(pick.g,it.row).forEach(function(n){ rejectRow(n,it.rowId); });
+        _rvLog('link',pick.g.name,'Confirmed: the form from \u201c'+nm+'\u201d ('+dt+') is '+pick.g.name+'\u2019s own RSVP.'+extra,it.rowId);
+      } else if(a==='none'){
+        var names=it.guests.map(function(x){return x.g.name;});
+        it.guests.forEach(function(x){ rejectRow(x.g.name,it.rowId); });
+        _rvLog('reject',names.join(', '),'Marked the form from \u201c'+nm+'\u201d ('+dt+') as NOT belonging to '+names.join(' or ')+'.',it.rowId);
+      } else if(a==='wait'){
+        _rv.dismissed[it.key]=Date.now();
+        _rvLog('wait',it.guests[0].g.name,'Left for later: form from \u201c'+nm+'\u201d not confirmed yet.');
       }
-    } else if(a==='wait'){
+      _rvSave(); refreshAll(); return;
+    }
+    var g=it.guest;
+    if(a==='wait'){
       _rv.dismissed[it.key]=Date.now();
-      _rvLog('wait',g.name,'Left for later: '+g.name+(it.type==='needs'?' \u2014 waiting for their own form.':' \u2014 form not confirmed yet.'));
+      _rvLog('wait',g.name,'Left for later: '+g.name+' \u2014 waiting for their own form.');
     } else if(a==='notcoming'){
       g.manualRsvp='no';
       try{ saveGuestMeta(); }catch(err){}
