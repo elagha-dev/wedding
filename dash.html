@@ -4489,7 +4489,7 @@ function _getGuestRsvpInfoBase(name, isCouple, knownPartnerName, manualOverride,
       narrowedOut=!thisPersonAttending;
     }
 
-    return {isYes:isYes,isNo:isNo,matched:true,persons:persons,guestsAttending:gaStr,row:match,ceremony:cer,evening:eve,narrowedOut:narrowedOut};
+    return {isYes:isYes,isNo:isNo,matched:true,persons:persons,guestsAttending:gaStr,row:match,ceremony:cer,evening:eve,narrowedOut:narrowedOut,conf:matchConfidence};
   }catch(e){ return plannerGuessResult(); }
 }
 
@@ -4565,6 +4565,55 @@ function _rvOwnCandidates(g,rows){
   }
   return {clear:clear,doubtful:clear?[]:cands,sameFirst:sameFirst};
 }
+/* A bare first-name form ("Nico") that the matcher already attached to a guest, although
+   other guests share that first name — so it is not really settled who it belongs to. */
+function _rvAmbig(g,row){
+  var rn=_rvNorm(row['Full Name']||row.name||''); if(!rn||rn.indexOf('&')!==-1) return false;
+  var t=rn.split(/[\s,]+/).filter(Boolean); if(t.length!==1) return false;
+  var fn=_rvNorm(g.name).split(' ')[0]; if(t[0]!==fn) return false;
+  return importQueue.filter(function(o){ return !o.isChild&&!(typeof isKidsGroup==='function'&&isKidsGroup(o))&&_rvNorm(o.name).split(' ')[0]===fn; }).length>1;
+}
+/* The guest's own reliable form answer, ignoring any manual override: an exact/strong match
+   (never a bare first name shared by several guests, never "not listed in a household form"). */
+function _rvFormAnswer(g){
+  var partner=inferPartnerName(g);
+  var isC=(g.type==='couple-ceremony'||g.type==='couple-party');
+  var ub=_getGuestRsvpInfoBase(g.name,isC,partner,'',g.plannerGuess);
+  var rj=(_rv.decisions[g.name]||{}).rejected;
+  if(ub&&ub.row&&rj&&rj.length&&rj.indexOf(_rvRowId(ub.row))!==-1) return null;
+  if(!ub||ub.guess||ub.narrowedOut||!ub.row) return null;
+  if(ub.conf!=='exact'&&ub.conf!=='strong') return null;
+  if(_rvAmbig(g,ub.row)) return null;
+  if(!ub.isYes&&!ub.isNo) return null;
+  return {ans:ub.isYes?'yes':'no',row:ub.row};
+}
+var _rvReconciling=false;
+/* A real RSVP takes over a manual one. Same answer -> the manual override is quietly removed
+   (logged, with undo). Different answer -> handled as a 'conflict' item in the panel. */
+function rvReconcile(){
+  if(_rvReconciling||typeof importQueue==='undefined') return false;
+  var changed=[];
+  importQueue.forEach(function(g){
+    if(!g||g.skipped||g.isChild||g.name.indexOf('&')!==-1) return;
+    if(g.manualRsvp!=='yes'&&g.manualRsvp!=='no') return;
+    var f=_rvFormAnswer(g);
+    if(!f||f.ans!==g.manualRsvp) return;
+    var was=g.manualRsvp;
+    g.manualRsvp='';
+    changed.push(g);
+    _rv.history.push({ts:Date.now(),kind:'auto',guest:g.name,by:_rvWho(),rowId:'',restore:was,
+      text:'Manual '+(was==='yes'?'Yes':'No')+' removed for '+g.name+' \u2014 their form ('+(function(x){var d=new Date(x);return isNaN(d.getTime())?String(x||'').split('T')[0]:d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});})(f.row['Date & Time'])+') says the same, so the form now drives their status.'});
+  });
+  if(!changed.length) return false;
+  _rvSave();
+  _rvReconciling=true;
+  try{ saveGuestMeta(); }catch(e){}
+  changed.forEach(function(g){ try{ pushMetaToWorker(g); }catch(e){} });
+  try{ renderGuestList(); }catch(e){}
+  try{ renderDashboard(); }catch(e){}
+  _rvReconciling=false;
+  return true;
+}
 function _rvInfoFromOwnRow(row){
   var cer=_rsvpYN(row['Ceremony Attendance']!==undefined?row['Ceremony Attendance']:row['attendance']);
   var eve=(_rsvpYN(row['Invited to Party'])==='no')?null:_rsvpYN(row['Evening Attendance']);
@@ -4634,14 +4683,28 @@ function rvBuildItems(){
     if(g.manualRsvp){
       // A manual answer is never overridden silently — but if a separate form could be
       // theirs, ask, so the manual placeholder can be replaced by the real answer.
+      // …but only if they have no real answer of their own yet. Someone whose household form
+      // already lists them (e.g. "Ben & Anna" → Anna) does not need another form found for them.
+      var fa=_rvFormAnswer(g);
+      if(fa){
+        if(fa.ans!==g.manualRsvp){
+          var ckey='conf|'+g.name+'|'+_rvRowId(fa.row)+'|'+fa.ans+'|'+g.manualRsvp;
+          if(!_rv.dismissed[ckey]) items.push({type:'conflict',key:ckey,guest:g,row:fa.row,formAns:fa.ans,manual:g.manualRsvp});
+        }
+        return;
+      }
+      var ub=_getGuestRsvpInfoBase(g.name,isC,partner,'',g.plannerGuess);
+      var _rj0=dec.rejected;
+      if(ub&&ub.row&&_rj0&&_rj0.length&&_rj0.indexOf(_rvRowId(ub.row))!==-1) ub=null;
+      if(ub&&!ub.guess&&!ub.narrowedOut){ if(ub.row&&_rvAmbig(g,ub.row)) addForm(ub.row,g,null,g.manualRsvp); return; }
       var cm=_rvOwnCandidates(g,rows);
-      (cm.clear?[cm.clear]:cm.doubtful).forEach(function(r){ addForm(r,g,null,g.manualRsvp); });
+      (cm.clear?[cm.clear]:cm.doubtful).forEach(function(r){ addForm(r,g,(ub&&ub.narrowedOut)?ub:null,g.manualRsvp); });
       return;
     }
     var base=_getGuestRsvpInfoBase(g.name,isC,partner,'',g.plannerGuess);
     var _rj=dec.rejected;
     if(base&&base.row&&_rj&&_rj.length&&_rj.indexOf(_rvRowId(base.row))!==-1) base=null;
-    if(base&&!base.guess&&!base.narrowedOut) return;
+    if(base&&!base.guess&&!base.narrowedOut){ if(base.row&&_rvAmbig(g,base.row)) addForm(base.row,g,null,''); return; }
     if(!partner&&!(base&&base.narrowedOut)) return;
     var c=_rvOwnCandidates(g,rows);
     if(c.clear) return;
@@ -11546,6 +11609,15 @@ if(_smExportOverlay) _smExportOverlay.addEventListener('click', function(e){ if(
   }
   function itemHtml(it,i){
     var g=it.guest||{name:''}, fn=first(g.name), h='';
+    if(it.type==='conflict'){
+      var fa=it.formAns==='yes'?'Yes':'No', ma=it.manual==='yes'?'Yes':'No';
+      return '<div class="rv-card"><div class="rv-kind">Form and manual answer differ</div>'
+        +'<div class="rv-title">'+esc(g.name)+': form says '+fa+', manual says '+ma+'</div>'
+        +'<div class="rv-body">Their own form ('+esc(fmtD(it.row['Date & Time']))+') says <b>'+fa+'</b>, but you set <b>'+ma+'</b> by hand. Which one should count?</div>'
+        +formBox(it.row)
+        +'<div class="rv-actions"><button class="rv-btn pri" data-act="useform" data-i="'+i+'">Use the form ('+fa+')</button>'
+        +'<button class="rv-btn" data-act="keepmanual" data-i="'+i+'">Keep my manual '+ma+'</button></div></div>';
+    }
     if(it.type==='needs'){
       var hh=it.base.row, hn=hh['Full Name']||hh.name||'';
       h+='<div class="rv-card"><div class="rv-kind">Needs own RSVP</div>'
@@ -11597,6 +11669,7 @@ if(_smExportOverlay) _smExportOverlay.addEventListener('click', function(e){ if(
     body.innerHTML=h;
   }
   window.rvBadge=function(){
+    try{ rvReconcile(); }catch(e){}
     var n=rvBuildItems().length, b=$('rvBellBadge');
     if(b){ b.textContent=n>9?'9+':n; b.style.display=n?'block':'none'; }
   };
@@ -11653,6 +11726,18 @@ if(_smExportOverlay) _smExportOverlay.addEventListener('click', function(e){ if(
       _rvSave(); refreshAll(); return;
     }
     var g=it.guest;
+    if(it.type==='conflict'){
+      if(a==='useform'){
+        var was=g.manualRsvp; g.manualRsvp='';
+        try{ saveGuestMeta(); }catch(err){} try{ pushMetaToWorker(g); }catch(err){}
+        _rv.history.push({ts:Date.now(),kind:'link',guest:g.name,by:_rvWho(),rowId:'',restore:was,
+          text:'Used '+g.name+'\u2019s form ('+it.formAns.toUpperCase()+') instead of the manual '+(was==='yes'?'Yes':'No')+'.'});
+      } else if(a==='keepmanual'){
+        _rv.dismissed[it.key]=Date.now();
+        _rvLog('wait',g.name,'Kept the manual '+(it.manual==='yes'?'Yes':'No')+' for '+g.name+' (their form says '+it.formAns.toUpperCase()+').');
+      }
+      _rvSave(); refreshAll(); return;
+    }
     if(a==='wait'){
       _rv.dismissed[it.key]=Date.now();
       _rvLog('wait',g.name,'Left for later: '+g.name+' \u2014 waiting for their own form.');
