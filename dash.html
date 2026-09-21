@@ -4205,6 +4205,22 @@ function renderPairsReview(){
   });
 })();
 
+/* Parse the cached RSVP data ONCE per change instead of once per call (the guest list asks
+   for every guest's status several times per render). Read-only: callers must not mutate it. */
+var _rvRawC=null,_rvObjC=null;
+function _rvCachedData(){
+  var raw=null; try{ raw=localStorage.getItem('rsvpLastData'); }catch(e){}
+  if(raw===_rvRawC&&_rvObjC) return _rvObjC;
+  try{ _rvObjC=JSON.parse(raw); }catch(e){ _rvObjC=null; }
+  /* If a household submitted twice, the NEWEST form must win (matching takes the first hit, so
+     order newest-first). Rows without a readable date sort last; equal dates keep stored order. */
+  if(_rvObjC&&Array.isArray(_rvObjC.rsvpRows)){
+    _rvObjC.rsvpRows=_rvObjC.rsvpRows.map(function(r,i){
+      var t=Date.parse(r&&(r['Date & Time']||r.timestamp)); return {r:r,i:i,t:isNaN(t)?-Infinity:t};
+    }).sort(function(a,b){ return (b.t===a.t)?(a.i-b.i):(b.t>a.t?1:-1); }).map(function(x){ return x.r; });
+  }
+  _rvRawC=raw; return _rvObjC;
+}
 function _getGuestRsvpInfoBase(name, isCouple, knownPartnerName, manualOverride, plannerGuess){
   /* Manual override — set by a human directly on a guest who can't RSVP
      themselves (children, guests replying by phone, etc). Always wins over
@@ -4223,7 +4239,7 @@ function _getGuestRsvpInfoBase(name, isCouple, knownPartnerName, manualOverride,
     return null;
   }
   try{
-    var cached=JSON.parse(localStorage.getItem('rsvpLastData'));
+    var cached=_rvCachedData();
     if(!cached||!Array.isArray(cached.rsvpRows)) return plannerGuessResult();
     var rows=cached.rsvpRows;
 
@@ -4280,9 +4296,20 @@ function _getGuestRsvpInfoBase(name, isCouple, knownPartnerName, manualOverride,
     // her own RSVP) was the actual bug: nothing downstream re-checks a
     // solo-row match, so a same-first-name stranger's RSVP got attributed
     // to this guest outright.
+    /* Computed once per call (not once per row): how often each normalized guest name occurs,
+       and the first names of my partner + adults sharing my surname. */
+    var _nameCount=null, _pfList=null;
     function rowOk(r){
       var rowName=normN(r['Full Name']||r['name']||'');
       var isHousehold=rowName.indexOf('&')!==-1;
+      /* A form carrying ANOTHER guest's exact full name (e.g. "Valerie" when a guest is
+         listed as just "Valerie") belongs to that guest, not to someone who only
+         shares the first name. */
+      if(!isHousehold&&rowName&&typeof importQueue!=='undefined'){
+        if(!_nameCount){ _nameCount={}; importQueue.forEach(function(o){ var k=normN(o.name); _nameCount[k]=(_nameCount[k]||0)+1; }); }
+        var _others=(_nameCount[rowName]||0)-(rowName===normN(name)?1:0);
+        if(_others>0) return false;
+      }
       if(isTrulySolo) return !isHousehold;
       if(!isHousehold) return false;
       /* Shadowing fix: several household rows can share my first name (e.g.
@@ -4292,17 +4319,20 @@ function _getGuestRsvpInfoBase(name, isCouple, knownPartnerName, manualOverride,
          even tried. So here, only accept a household row that also contains
          my partner's first name (or the first name of another adult who shares
          my surname). If I have no partner info at all, keep the old behaviour. */
-      var rt=toks(rowName);
-      var pf=[];
-      if(knownPartnerName) pf=pf.concat(firstNms(knownPartnerName));
-      if(myLN){
-        importQueue.forEach(function(o){
-          if(o.name!==name && !o.isChild && lastNm(o.name)===myLN) pf=pf.concat(firstNms(o.name));
-        });
+      if(!_pfList){
+        _pfList=[];
+        if(knownPartnerName) _pfList=_pfList.concat(firstNms(knownPartnerName));
+        if(myLN){
+          importQueue.forEach(function(o){
+            if(o.name!==name && !o.isChild && lastNm(o.name)===myLN) _pfList=_pfList.concat(firstNms(o.name));
+          });
+        }
       }
-      if(!pf.length) return true;
-      return pf.some(function(f){return rt.indexOf(f)!==-1;});
+      if(!_pfList.length) return true;
+      var rt=toks(rowName);
+      return _pfList.some(function(f){return rt.indexOf(f)!==-1;});
     }
+
 
     // Confidence tag for whichever strategy below actually finds the match —
     // 'exact' (identical full name), 'strong' (a surname anchors it, or every
@@ -4519,7 +4549,7 @@ function _rvSave(){
 function _rvNorm(s){ return (s||'').toString().trim().toLowerCase().replace(/\s+/g,' '); }
 function _rvRowId(r){ return ((r['Full Name']||r.name||'')+'|'+(r['Date & Time']||r.timestamp||'')).trim(); }
 function _rvRows(){
-  try{ var c=JSON.parse(localStorage.getItem('rsvpLastData')); return (c&&Array.isArray(c.rsvpRows))?c.rsvpRows:[]; }
+  try{ var c=_rvCachedData(); return (c&&Array.isArray(c.rsvpRows))?c.rsvpRows:[]; }
   catch(e){ return []; }
 }
 function _rvWho(){ try{ return localStorage.getItem('ww_who')||''; }catch(e){ return ''; } }
@@ -4554,9 +4584,8 @@ function _rvOwnCandidates(g,rows){
     for(var gn in _rv.decisions){ if(gn!==g.name&&_rv.decisions[gn]&&_rv.decisions[gn].link===rid) return false; }
     return true;
   });
-  var sameFirst=importQueue.filter(function(o){
-    return !o.isChild&&!(typeof isKidsGroup==='function'&&isKidsGroup(o))&&_rvNorm(o.name).split(' ')[0]===fn;
-  });
+  var sameFirst=_rvOpenSameFirst(fn);
+  if(sameFirst.indexOf(g)===-1) sameFirst.push(g);
   var clear=null;
   if(cands.length===1){
     var ct=toks(cands[0]['Full Name']||cands[0].name||'');
@@ -4565,13 +4594,36 @@ function _rvOwnCandidates(g,rows){
   }
   return {clear:clear,doubtful:clear?[]:cands,sameFirst:sameFirst};
 }
+/* Has this guest already got a reliable answer of their own (or a confirmed link)?
+   Deliberately does not call _rvAmbig, so it can be used to decide ambiguity without looping. */
+function _rvSettled(o){
+  var d=_rv.decisions[o.name]; if(d&&d.link) return true;
+  var b=_getGuestRsvpInfoBase(o.name,(o.type==='couple-ceremony'||o.type==='couple-party'),inferPartnerName(o),'',o.plannerGuess);
+  var rj=d&&d.rejected;
+  if(b&&b.row&&rj&&rj.length&&rj.indexOf(_rvRowId(b.row))!==-1) return false;
+  if(!b||!b.row||b.guess||b.narrowedOut) return false;
+  if(b.conf!=='exact'&&b.conf!=='strong') return false;
+  if(!b.isYes&&!b.isNo) return false;
+  var rn=_rvNorm(b.row['Full Name']||b.row.name||'');
+  if(rn.indexOf('&')===-1 && rn.split(/[\s,]+/).filter(Boolean).length===1 && rn!==_rvNorm(o.name)) return false; // bare first name only
+  return true;
+}
+/* Guests sharing this first name who STILL have no reliable answer — the only people a bare
+   first-name form can realistically belong to. */
+function _rvOpenSameFirst(fn){
+  return importQueue.filter(function(o){
+    return o&&!o.skipped&&!o.isChild&&!(typeof isKidsGroup==='function'&&isKidsGroup(o))&&o.name.indexOf('&')===-1
+      &&_rvNorm(o.name).split(' ')[0]===fn&&!_rvSettled(o);
+  });
+}
 /* A bare first-name form ("Nico") that the matcher already attached to a guest, although
    other guests share that first name — so it is not really settled who it belongs to. */
 function _rvAmbig(g,row){
   var rn=_rvNorm(row['Full Name']||row.name||''); if(!rn||rn.indexOf('&')!==-1) return false;
   var t=rn.split(/[\s,]+/).filter(Boolean); if(t.length!==1) return false;
+  if(rn===_rvNorm(g.name)) return false;   // the form carries this guest's exact full name (e.g. a guest listed as just "Valerie")
   var fn=_rvNorm(g.name).split(' ')[0]; if(t[0]!==fn) return false;
-  return importQueue.filter(function(o){ return !o.isChild&&!(typeof isKidsGroup==='function'&&isKidsGroup(o))&&_rvNorm(o.name).split(' ')[0]===fn; }).length>1;
+  return _rvOpenSameFirst(fn).length>1;
 }
 /* The guest's own reliable form answer, ignoring any manual override: an exact/strong match
    (never a bare first name shared by several guests, never "not listed in a household form"). */
@@ -4601,8 +4653,9 @@ function rvReconcile(){
     var was=g.manualRsvp;
     g.manualRsvp='';
     changed.push(g);
-    _rv.history.push({ts:Date.now(),kind:'auto',guest:g.name,by:_rvWho(),rowId:'',restore:was,
-      text:'Manual '+(was==='yes'?'Yes':'No')+' removed for '+g.name+' \u2014 their form ('+(function(x){var d=new Date(x);return isNaN(d.getTime())?String(x||'').split('T')[0]:d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});})(f.row['Date & Time'])+') says the same, so the form now drives their status.'});
+    var _txt='Manual '+(was==='yes'?'Yes':'No')+' removed for '+g.name+' \u2014 their form ('+(function(x){var d=new Date(x);return isNaN(d.getTime())?String(x||'').split('T')[0]:d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});})(f.row['Date & Time'])+') says the same, so the form now drives their status.';
+    if(!_rv.history.slice(-30).some(function(h){ return h.text===_txt&&(Date.now()-h.ts)<6*3600*1000; }))
+      _rv.history.push({ts:Date.now(),kind:'auto',guest:g.name,by:_rvWho(),rowId:'',restore:was,text:_txt});
   });
   if(!changed.length) return false;
   _rvSave();
@@ -4658,7 +4711,8 @@ function getGuestRsvpInfo(name,isCouple,knownPartnerName,manualOverride,plannerG
   var c=_rvOwnCandidates(g,rows);
   if(c.clear){ _rvNoteAuto(g,c.clear); return _rvInfoFromOwnRow(c.clear); }
   if(base&&base.narrowedOut){
-    return {isYes:false,isNo:false,matched:true,needsOwn:true,persons:[],guestsAttending:base.guestsAttending,row:base.row};
+    var _pg=(plannerGuess==='yes')?{isYes:true,isNo:false,guess:true}:(plannerGuess==='no')?{isYes:false,isNo:true,guess:true}:{isYes:false,isNo:false};
+    return {isYes:_pg.isYes,isNo:_pg.isNo,guess:!!_pg.guess,matched:true,needsOwn:true,persons:[],guestsAttending:base.guestsAttending,row:base.row};
   }
   return base;
 }
@@ -4722,7 +4776,8 @@ function rvBuildItems(){
     if(_rv.dismissed[key]) return;
     items.push({type:'form',key:key,row:f.row,rowId:id,guests:f.guests});
   });
-  return items;
+  var _seen={};
+  return items.filter(function(it){ if(_seen[it.key]) return false; _seen[it.key]=1; return true; });
 }
 
 function getGuestRsvpPill(name, isCouple, knownPartnerName, manualOverride, plannerGuess){
@@ -4838,6 +4893,11 @@ function debugNoMatch(g, partnerName){
 
 // Individual guest's own yes/no (already narrowed to that specific person by
 // getGuestRsvpInfo's household logic), for tallying up e.g. the Sent section.
+function guestNeedsOwnRsvp(g){
+  var isC=g.type==='couple-ceremony'||g.type==='couple-party';
+  var info=getGuestRsvpInfo(g.name, isC, inferPartnerName(g), g.manualRsvp, g.plannerGuess);
+  return !!(info&&info.needsOwn);
+}
 function getGuestRsvpYesNo(g){
   var isCoupleGuest=g.type==='couple-ceremony'||g.type==='couple-party';
   var info=getGuestRsvpInfo(g.name, isCoupleGuest, inferPartnerName(g), g.manualRsvp, g.plannerGuess);
@@ -9031,6 +9091,7 @@ function getUnseatedGuests(){
     if(g.skipped) return false;
     if(typeof isPartyType==='function' && !isPartyType(g)) return false;
     if(getSeatForGuest(g.name)) return false;
+    if(guestNeedsOwnRsvp(g)) return false; // household form leaves them out — wait for their own RSVP
     return getGuestRsvpYesNo(g) !== false; // keep yes + still-pending, drop declined
   }).sort(function(a,b){
     var sa = getGuestRsvpYesNo(a)===true ? 0 : 1, sb = getGuestRsvpYesNo(b)===true ? 0 : 1;
@@ -11630,11 +11691,11 @@ if(_smExportOverlay) _smExportOverlay.addEventListener('click', function(e){ if(
     } else {
       var gs=it.guests, r0=it.row, fn0=first(gs[0].g.name);
       var multi=gs.length>1;
-      var sameNames=importQueue.filter(function(o){ return !o.isChild&&_rvNorm(o.name).split(' ')[0]===_rvNorm(gs[0].g.name).split(' ')[0]; }).map(function(o){return o.name;});
+      var sameNames=_rvOpenSameFirst(_rvNorm(gs[0].g.name).split(' ')[0]).map(function(o){return o.name;});
       h+='<div class="rv-card"><div class="rv-kind">Please confirm</div>'
         +'<div class="rv-title">'+(multi?'Whose form is this?':'Is this form '+esc(gs[0].g.name)+'\u2019s own RSVP?')+'</div>'
         +'<div class="rv-body">'
-        +(sameNames.length>1?sameNames.length+' guests share the first name \u201c'+esc(fn0)+'\u201d: '+sameNames.map(esc).join(', ')+'. ':'This form has a first name only, so it can\u2019t be confirmed as theirs. ')
+        +(sameNames.length>1?sameNames.length+' guests named \u201c'+esc(fn0)+'\u201d still have no answer of their own: '+sameNames.map(esc).join(', ')+'. ':'This form has a first name only, so it can\u2019t be confirmed as theirs. ')
         +gs.map(function(x){
             var t='';
             if(x.manual) t+='<b>'+esc(x.g.name)+'</b> is set manually to <b>'+esc(x.manual==='yes'?'Yes':'No')+'</b> \u2014 confirming replaces that with the form\u2019s answer. ';
@@ -11789,7 +11850,7 @@ if(_smExportOverlay) _smExportOverlay.addEventListener('click', function(e){ if(
   if(typeof _rgl0==='function'){
     window.renderGuestList=function(){ var r=_rgl0.apply(this,arguments); try{ window.rvBadge(); }catch(e){} return r; };
   }
-  setInterval(function(){ try{ window.rvBadge(); var d=$('rvDrawer'); if(d&&d.classList.contains('open')) render(); }catch(e){} },8000);
+  setInterval(function(){ try{ if(document.hidden) return; window.rvBadge(); var d=$('rvDrawer'); if(d&&d.classList.contains('open')) render(); }catch(e){} },8000);
   setTimeout(function(){ try{ window.rvBadge(); }catch(e){} },2000);
 })();
 </script>
