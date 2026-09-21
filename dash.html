@@ -4485,7 +4485,9 @@ function getGuestRsvpInfo(name,isCouple,knownPartnerName,manualOverride,plannerG
     base=(plannerGuess==='yes')?{isYes:true,isNo:false,matched:true,persons:[],guestsAttending:'',row:null,guess:true}
         :(plannerGuess==='no')?{isYes:false,isNo:true,matched:true,persons:[],guestsAttending:'',row:null,guess:true}:null;
   }
-  if(isCouple||!name||name.indexOf('&')!==-1) return base;
+  /* Only a joint card ("A & B") is skipped. A single person whose invite TYPE is
+     couple-ceremony/couple-party still has their own card and their own answer. */
+  if(!name||name.indexOf('&')!==-1) return base;
   // Only guests with no real answer of their own yet: no match, just a planner
   // guess, or their household's form leaves them out of "Guests Attending".
   if(base&&!base.guess&&!base.narrowedOut) return base;
@@ -4512,9 +4514,8 @@ function rvBuildItems(){
   importQueue.forEach(function(g){
     if(!g||g.skipped||g.isChild||(typeof isKidsGroup==='function'&&isKidsGroup(g))||g.manualRsvp) return;
     if(g.name.indexOf('&')!==-1) return;
-    if(g.type==='couple-ceremony'||g.type==='couple-party') return;
     var partner=inferPartnerName(g);
-    var base=_getGuestRsvpInfoBase(g.name,false,partner,'',g.plannerGuess);
+    var base=_getGuestRsvpInfoBase(g.name,(g.type==='couple-ceremony'||g.type==='couple-party'),partner,'',g.plannerGuess);
     var _rj=(_rv.decisions[g.name]||{}).rejected;
     if(base&&base.row&&_rj&&_rj.length&&_rj.indexOf(_rvRowId(base.row))!==-1) base=null;
     if(base&&!base.guess&&!base.narrowedOut) return;
@@ -7396,6 +7397,12 @@ function showChatNotif(who, text){
     <button class="rsvp-drawer-close" id="rvClose">&times;</button>
   </div>
   <div class="rsvp-drawer-body" id="rvBody"></div>
+  <details id="rvDiag" style="border-top:1px solid var(--parchment);padding:8px 12px;flex-shrink:0;background:var(--cream)">
+    <summary style="font-size:11px;font-weight:700;color:var(--muted);cursor:pointer">Diagnose a guest (copy &amp; send to Claude)</summary>
+    <input id="rvDiagIn" type="text" placeholder="Type a name, e.g. Ben" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="width:100%;box-sizing:border-box;margin:8px 0 6px;padding:8px 10px;border:1px solid var(--parchment);border-radius:10px;font-size:14px;font-family:inherit;background:#fff">
+    <textarea id="rvDiagOut" readonly style="width:100%;box-sizing:border-box;height:130px;font-size:10px;font-family:monospace;border:1px solid var(--parchment);border-radius:10px;padding:6px;background:#fff"></textarea>
+    <button class="rv-btn" id="rvDiagCopy" style="margin-top:6px">Copy</button>
+  </details>
 </div>
 
 <!-- RSVP DRAWER -->
@@ -11511,7 +11518,36 @@ if(_smExportOverlay) _smExportOverlay.addEventListener('click', function(e){ if(
     }
     _rvSave(); refreshAll();
   }
+  function diag(q){
+    q=_rvNorm(q); if(!q) return '';
+    var rows=_rvRows(), out=[];
+    var gs=importQueue.filter(function(g){ return _rvNorm(g.name).indexOf(q)!==-1; }).slice(0,6);
+    if(!gs.length) return 'No guest name contains "'+q+'".';
+    gs.forEach(function(g){
+      var isC=g.type==='couple-ceremony'||g.type==='couple-party';
+      var partner=inferPartnerName(g);
+      var b=_getGuestRsvpInfoBase(g.name,isC,partner,g.manualRsvp,g.plannerGuess);
+      var f=getGuestRsvpInfo(g.name,isC,partner,g.manualRsvp,g.plannerGuess);
+      var c=(g.name.indexOf('&')===-1)?_rvOwnCandidates(g,rows):null;
+      function sm(i){ return i?JSON.stringify({yes:i.isYes,no:i.isNo,guess:!!i.guess,narrowedOut:!!i.narrowedOut,needsOwn:!!i.needsOwn,own:!!i.own,church:i.ceremony,party:i.evening,row:i.row?(i.row['Full Name']||i.row.name):null}):'null'; }
+      out.push('GUEST '+g.name+'\n type='+g.type+' group='+(g.group||'')+' isChild='+!!g.isChild+' sent='+!!g.sent+'\n bulkWith='+(g.bulkWith||'')+' inferredPartner='+(partner||'')+'\n manualRsvp='+(g.manualRsvp||'')+' plannerGuess='+(g.plannerGuess||'')+' questionable='+!!g.questionable
+        +'\n base='+sm(b)+'\n final='+sm(f)
+        +(c?'\n ownForm: clear='+(c.clear?(c.clear['Full Name']):'none')+' doubtful=['+c.doubtful.map(function(r){return r['Full Name'];}).join(' | ')+'] sameFirstName=['+c.sameFirst.map(function(o){return o.name;}).join(' | ')+']':'')
+        +'\n decisions='+JSON.stringify(_rv.decisions[g.name]||{}));
+    });
+    var fn=q.split(' ')[0];
+    var rr=rows.filter(function(r){ return _rvNorm(r['Full Name']||r.name).split(/[\s&,]+/).indexOf(fn)!==-1; });
+    out.push('RSVP ROWS with "'+fn+'": '+rr.length);
+    rr.forEach(function(r){ out.push(' '+JSON.stringify({name:r['Full Name'],date:r['Date & Time'],church:r['Ceremony Attendance'],party:r['Evening Attendance'],invitedParty:r['Invited to Party'],guests:r['Guests Attending'],seats:r['Total Seats']})); });
+    return out.join('\n');
+  }
   document.addEventListener('DOMContentLoaded',function(){
+    var di=$('rvDiagIn'); if(di) di.addEventListener('input',function(){ var o=$('rvDiagOut'); if(o) o.value=diag(di.value); });
+    var dc=$('rvDiagCopy'); if(dc) dc.addEventListener('click',function(){
+      var o=$('rvDiagOut'); if(!o) return; o.select(); o.setSelectionRange(0,99999);
+      try{ if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(o.value); else document.execCommand('copy'); }catch(e){ try{ document.execCommand('copy'); }catch(e2){} }
+      dc.textContent='Copied'; setTimeout(function(){ dc.textContent='Copy'; },1500);
+    });
     var bell=$('rvBellBtn'); if(bell) bell.addEventListener('click',function(){ setOpen(true); });
     var c=$('rvClose'); if(c) c.addEventListener('click',function(){ setOpen(false); });
     var ov=$('rvOverlay'); if(ov) ov.addEventListener('click',function(){ setOpen(false); });
