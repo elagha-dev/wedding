@@ -1463,6 +1463,13 @@ body.lite-mode #liteModeTopBtn {
 .rv-hist small{display:block;color:var(--muted);font-size:10px;margin-top:2px}
 .rv-hist button{border:none;background:none;color:var(--rose-deep);font-size:11px;font-weight:700;cursor:pointer;padding:2px 0;margin-top:2px;font-family:inherit}
 .rv-empty{text-align:center;color:var(--muted);font-size:12px;padding:18px 8px}
+
+/* Chat: floating avatar, bottom-left (moved out of the top bar). All ids/classes unchanged so
+   presence dot, unread badge, and open-on-tap keep working exactly as before. */
+#presenceOther{position:fixed;left:14px;bottom:calc(24px + env(safe-area-inset-bottom,0px));width:46px;height:46px;z-index:90;box-shadow:0 4px 18px rgba(35,26,20,.28);background:var(--cream);padding:2px;box-sizing:border-box;border-radius:50%}
+#presenceOther img{width:100%;height:100%}
+#presenceOther .presence-dot{width:11px;height:11px;bottom:0;right:0}
+#presenceOther .chat-unread{top:-4px;right:-4px}
 </style>
 </head>
 <body>
@@ -1539,7 +1546,6 @@ body.lite-mode #liteModeTopBtn {
   <div class="stat-pill total" id="ovTotal" title="Total guests" style="cursor:pointer">0</div>
   <div class="stat-pill forecast" id="ovForecast" title="Forecast (Confirmed + guesses)" style="cursor:pointer">0</div>
   <button id="reviewPairsBtn" title="Review sent-together pairs" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;border:none;background:var(--amber-bg);color:var(--amber);cursor:pointer;padding:0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></button>
-  <button id="rvBellBtn" title="Review notifications" style="position:relative;flex-shrink:0;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;border:none;background:var(--cream2);color:var(--rose-deep);cursor:pointer;padding:0"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span id="rvBellBadge" style="display:none;position:absolute;top:-3px;right:-3px;min-width:15px;height:15px;padding:0 4px;border-radius:8px;background:#c0392b;color:#fff;font-size:9px;font-weight:800;line-height:15px;text-align:center;box-sizing:border-box"></span></button>
   <div class="stat-pill new-guests" id="ovNew" title="New since last sync" style="display:none"></div>
   <!-- spacer -->
   <div style="flex:1"></div>
@@ -1557,13 +1563,7 @@ body.lite-mode #liteModeTopBtn {
   <button class="deploy-btn" id="deployBtn" title="Deploy to GitHub" style="display:none"></button>
   <!-- Dev mode -->
   <button class="dev-btn" id="devBtn" style="display:none" title="Dev mode"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
-  <!-- Other person avatar (presence) -->
-  <div class="presence-avatar is-offline" id="presenceOther" style="flex-shrink:0;display:none" title="Chat">
-    <img id="presenceOtherImg" src="" alt="" onerror="this.style.display='none';var fb=document.getElementById('presenceOtherFallback');if(fb){fb.style.display='flex';}">
-    <span id="presenceOtherFallback" style="display:none;position:absolute;inset:0;border-radius:50%;background:linear-gradient(135deg,var(--rose),var(--rose-deep));color:#fff;font-family:var(--sans);font-size:13px;font-weight:700;align-items:center;justify-content:center;"></span>
-    <span class="presence-dot"></span>
-    <span class="chat-unread" id="chatUnread"></span>
-  </div>
+  <button id="rvBellBtn" class="seatmap-toolbar-btn" title="Review notifications" style="position:relative;background:linear-gradient(135deg,#2DD4BF,#0D9488);box-shadow:0 2px 8px rgba(13,148,136,.4)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span id="rvBellBadge" style="display:none;position:absolute;top:-3px;right:-3px;min-width:15px;height:15px;padding:0 4px;border-radius:8px;background:#c0392b;color:#fff;font-size:9px;font-weight:800;line-height:15px;text-align:center;box-sizing:border-box"></span></button>
   <!-- Who-am-I: avatar + clear name pill, colour-coded per person → opens settings -->
   <div id="presenceMeGroup" style="flex-shrink:0;display:flex;align-items:center;gap:6px;cursor:pointer">
     <div class="presence-avatar is-me is-online" id="presenceMe" title="Settings" style="flex-shrink:0">
@@ -1959,6 +1959,14 @@ body.lite-mode #liteModeTopBtn {
 
 
 <!-- FAB -->
+<!-- Other person avatar (presence) -->
+  <div class="presence-avatar is-offline" id="presenceOther" style="flex-shrink:0;display:none" title="Chat">
+    <img id="presenceOtherImg" src="" alt="" onerror="this.style.display='none';var fb=document.getElementById('presenceOtherFallback');if(fb){fb.style.display='flex';}">
+    <span id="presenceOtherFallback" style="display:none;position:absolute;inset:0;border-radius:50%;background:linear-gradient(135deg,var(--rose),var(--rose-deep));color:#fff;font-family:var(--sans);font-size:13px;font-weight:700;align-items:center;justify-content:center;"></span>
+    <span class="presence-dot"></span>
+    <span class="chat-unread" id="chatUnread"></span>
+  </div>
+
 <div class="fab">
   <button class="fab-main" id="fabMain" title="Scroll to top">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
