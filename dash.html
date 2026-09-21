@@ -4303,7 +4303,15 @@ function getGuestRsvpInfo(name, isCouple, knownPartnerName, manualOverride, plan
       var partnerFN=firstNms(knownPartnerName)[0]||'';
       var matchTokens=toks(normN(matchFullName));
       if(partnerFN && matchTokens.indexOf(partnerFN)===-1){
-        return plannerGuessResult();
+        /* The recorded partner (bulkWith) may be stale/wrong. Before giving up,
+           accept the row if another adult with MY surname is named in it
+           (e.g. Jan Eisleben vs "Jan & Martina" with Martina Eisleben). */
+        var _surnameMate=myLN && importQueue.some(function(o){
+          return o.name!==name && !o.isChild
+            && lastName(o.name).toLowerCase()===myLN
+            && firstNms(o.name).some(function(f){return matchTokens.indexOf(f)!==-1;});
+        });
+        if(!_surnameMate) return plannerGuessResult();
       }
     }
 
