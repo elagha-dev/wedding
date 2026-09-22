@@ -7585,6 +7585,7 @@ function showChatNotif(who, text){
 
       // Cache data for drawer
       try{ localStorage.setItem(DATA_KEY, JSON.stringify(data)); } catch(e){}
+      try{ if(window.rvRefreshNow) window.rvRefreshNow(); }catch(e){}
       // Re-render tracker so RSVP pills appear
       if(typeof renderTracker === "function") renderTracker();
 
@@ -7612,7 +7613,7 @@ function showChatNotif(who, text){
     var body = document.getElementById('rsvpDrawerBody');
     if(body) body.innerHTML = '<div class="rsvp-empty">Loading…</div>';
     fetchStats().then(function(data){
-      if(data){ renderDrawer(data); try{ localStorage.setItem(DATA_KEY, JSON.stringify(data)); }catch(e){} }
+      if(data){ renderDrawer(data); try{ localStorage.setItem(DATA_KEY, JSON.stringify(data)); }catch(e){} try{ if(window.rvRefreshNow) window.rvRefreshNow(); }catch(e){} }
       else {
         try{ var cached = JSON.parse(localStorage.getItem(DATA_KEY)); if(cached) renderDrawer(cached); else if(body) body.innerHTML='<div class="rsvp-empty">Could not load — check Apps Script is deployed.</div>'; }catch(e){}
       }
@@ -11755,11 +11756,11 @@ if(_smExportOverlay) _smExportOverlay.addEventListener('click', function(e){ if(
       }
       histInner+=histRow(e); i2++;
     }
-    h+='<details class="rv-hist-toggle"><summary>History ('+hist.length+(hist.length>=60?'+':'')+')</summary>'+histInner+'</details>';
+    var _histOpen=(function(){ var d0=$('rvBody'); var t=d0&&d0.querySelector('.rv-hist-toggle'); return t?t.open:false; })();
+    h+='<details class="rv-hist-toggle"'+(_histOpen?' open':'')+'><summary>History ('+hist.length+(hist.length>=60?'+':'')+')</summary>'+histInner+'</details>';
     body.innerHTML=h;
   }
   window.rvBadge=function(){
-    try{ rvReconcile(); }catch(e){}
     var n=rvBuildItems().length, b=$('rvBellBadge');
     if(b){ b.textContent=n>9?'9+':n; b.style.display=n?'block':'none'; }
   };
@@ -11879,8 +11880,21 @@ if(_smExportOverlay) _smExportOverlay.addEventListener('click', function(e){ if(
   if(typeof _rgl0==='function'){
     window.renderGuestList=function(){ var r=_rgl0.apply(this,arguments); try{ window.rvBadge(); }catch(e){} return r; };
   }
-  setInterval(function(){ try{ if(document.hidden) return; window.rvBadge(); var d=$('rvDrawer'); if(d&&d.classList.contains('open')) render(); }catch(e){} },8000);
-  setTimeout(function(){ try{ window.rvBadge(); }catch(e){} },2000);
+  /* Refreshed right when new RSVP data actually lands (see rvRefreshNow calls above), when the
+     tab regains focus, and when the bell panel is opened — not on a timer, since new RSVPs are
+     rare events, not a continuous stream. A slow safety-net poll (10 min) covers anything that
+     updates rsvpLastData without going through those two spots. */
+  window.rvRefreshNow=function(){
+    try{
+      var changed=rvReconcile();
+      window.rvBadge();
+      var d=$('rvDrawer');
+      if(d&&d.classList.contains('open')&&(changed||true)) render();
+    }catch(e){}
+  };
+  document.addEventListener('visibilitychange',function(){ if(!document.hidden) window.rvRefreshNow(); });
+  setInterval(function(){ if(!document.hidden) window.rvRefreshNow(); },10*60*1000);
+  setTimeout(function(){ window.rvRefreshNow(); },2000);
 })();
 </script>
 
