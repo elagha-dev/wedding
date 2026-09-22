@@ -1462,6 +1462,16 @@ body.lite-mode #liteModeTopBtn {
 .rv-hist{font-size:12px;color:var(--ink2);line-height:1.4;padding:8px 0;border-bottom:1px solid var(--parchment)}
 .rv-hist small{display:block;color:var(--muted);font-size:10px;margin-top:2px}
 .rv-hist button{border:none;background:none;color:var(--rose-deep);font-size:11px;font-weight:700;cursor:pointer;padding:2px 0;margin-top:2px;font-family:inherit}
+.rv-hist-group{background:var(--cream2);border-radius:10px;margin-bottom:2px;overflow:hidden}
+.rv-hist-group>summary{list-style:none;cursor:pointer;padding:8px 10px;font-size:12px;font-weight:700;color:var(--ink2);-webkit-tap-highlight-color:transparent}
+.rv-hist-group>summary::-webkit-details-marker{display:none}
+.rv-hist-group>summary small{display:block;font-weight:400;color:var(--muted);font-size:10px;margin-top:2px}
+.rv-hist-group .rv-hist{padding:8px 10px;border-bottom:1px solid var(--parchment);background:#fff}
+.rv-hist-group .rv-hist:last-child{border-bottom:none}
+.rv-hist-toggle{margin-top:4px}
+.rv-hist-toggle>summary{list-style:none;cursor:pointer;padding:6px 2px;font-size:9px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);-webkit-tap-highlight-color:transparent}
+.rv-hist-toggle>summary::-webkit-details-marker{display:none}
+.rv-hist-toggle[open]>summary{margin-bottom:4px}
 .rv-empty{text-align:center;color:var(--muted);font-size:12px;padding:18px 8px}
 
 /* Chat: floating avatar, bottom-left (moved out of the top bar). All ids/classes unchanged so
@@ -11719,14 +11729,33 @@ if(_smExportOverlay) _smExportOverlay.addEventListener('click', function(e){ if(
     items=rvBuildItems();
     var h='<div class="rv-sec">Needs your decision ('+items.length+')</div>';
     h+=items.length?items.map(itemHtml).join(''):'<div class="rv-empty">Nothing to review right now.</div>';
-    var hist=_rv.history.slice().reverse().slice(0,40);
-    h+='<div class="rv-sec">History</div>';
-    if(!hist.length) h+='<div class="rv-empty">No changes yet.</div>';
-    hist.forEach(function(e,k){
+    var hist=_rv.history.slice().reverse().slice(0,60);
+    var histInner='';
+    if(!hist.length) histInner='<div class="rv-empty">No changes yet.</div>';
+    function histRow(e){
       var canUndo=e.kind==='auto'&&e.rowId&&!((_rv.decisions[e.guest]||{}).rejected||[]).some(function(x){return x===e.rowId;});
-      h+='<div class="rv-hist">'+esc(e.text)+'<small>'+esc(fmtTs(e.ts))+(e.by?' \u00b7 '+esc(e.by):'')+'</small>'
+      return '<div class="rv-hist">'+esc(e.text)+'<small>'+esc(fmtTs(e.ts))+(e.by?' \u00b7 '+esc(e.by):'')+'</small>'
         +(canUndo?'<button data-act="undo" data-g="'+esc(e.guest)+'" data-r="'+esc(e.rowId)+'">Not them \u2014 undo</button>':'')+'</div>';
-    });
+    }
+    /* A one-off cleanup can silently clear several guests' manual answers within the same
+       minute (each one WAS a real change, just not one worth 8 separate lines). Group those
+       consecutive "manual answer matched the form" entries into one collapsed summary. */
+    var i2=0;
+    while(i2<hist.length){
+      var e=hist[i2];
+      if(e.kind==='auto'&&!e.rowId){
+        var grp=[e], j2=i2+1;
+        while(j2<hist.length && hist[j2].kind==='auto' && !hist[j2].rowId && Math.abs(hist[j2].ts-e.ts)<2*60*1000){ grp.push(hist[j2]); j2++; }
+        if(grp.length>1){
+          var names=grp.map(function(x){return x.guest;});
+          histInner+='<details class="rv-hist-group"><summary>'+grp.length+' manual answers matched their forms and were cleared automatically<small>'+esc(fmtTs(e.ts))+(e.by?' \u00b7 '+esc(e.by):'')+' \u00b7 '+esc(names.slice(0,3).join(', '))+(names.length>3?' +'+(names.length-3)+' more':'')+'</small></summary>'
+            +grp.map(histRow).join('')+'</details>';
+          i2=j2; continue;
+        }
+      }
+      histInner+=histRow(e); i2++;
+    }
+    h+='<details class="rv-hist-toggle"><summary>History ('+hist.length+(hist.length>=60?'+':'')+')</summary>'+histInner+'</details>';
     body.innerHTML=h;
   }
   window.rvBadge=function(){
