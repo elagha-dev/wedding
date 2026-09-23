@@ -1517,6 +1517,18 @@ body.mono-bar #presenceMeGroup .presence-avatar.is-me{box-shadow:0 0 0 2px var(-
 .s-acc-body .s-section-label{display:none}
 .s-acc-danger .s-acc-ic{background:var(--red-bg);color:var(--red)}
 .s-acc-danger .s-acc-txt b{color:var(--red)}
+.ty-group{margin-bottom:14px}
+.ty-group h4{font-size:12px;font-weight:800;color:var(--ink2);margin:0 0 6px;display:flex;align-items:center;justify-content:space-between}
+.ty-group h4 span{font-weight:400;color:var(--muted);font-size:11px}
+.ty-list{width:100%;box-sizing:border-box;min-height:64px;font-size:13px;font-family:inherit;line-height:1.6;border:1px solid var(--parchment);border-radius:10px;padding:8px 10px;background:#fff;color:var(--ink2);resize:vertical}
+.ty-copy{margin-top:6px}
+.chip-thanks{display:inline-flex;align-items:center;gap:3px;font-size:9px;font-weight:800;letter-spacing:.03em;padding:2px 7px 2px 5px;border-radius:100px;border:1px solid var(--parchment);background:#fff;color:var(--muted);cursor:pointer;font-family:inherit;flex-shrink:0}
+.chip-thanks svg{opacity:.55}
+.chip-thanks.on{background:var(--green-bg,#d4f5e2);border-color:transparent;color:var(--green,#1a7a4a)}
+.chip-thanks.on svg{opacity:1}
+.ty-name-row{display:flex;align-items:center;gap:8px;padding:4px 2px;font-size:13px;color:var(--ink2)}
+.ty-name-row input{width:16px;height:16px;flex-shrink:0;accent-color:var(--green,#1a7a4a)}
+.ty-name-row.done{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--soft)}
 </style>
 </head>
 <body>
@@ -2035,6 +2047,15 @@ body.mono-bar #presenceMeGroup .presence-avatar.is-me{box-shadow:0 0 0 2px var(-
 
       </div>
     </details>
+    <details class="s-acc" id="tyAcc">
+      <summary><span class="s-acc-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a4.9 4.9 0 0 0-7 0L12 6.3l-1.8-1.7a4.9 4.9 0 1 0-7 7L12 20l8.8-8.4a4.9 4.9 0 0 0 0-7z"/></svg></span><span class="s-acc-txt"><b>Thank-you letters</b><small>Party guests, split by who sent their invite</small></span><span class="s-acc-chev">&#8250;</span></summary>
+      <div class="s-acc-body">
+    <div class="s-section">
+      <div class="s-row-info" style="margin-bottom:10px"><div class="s-row-sub">Everyone confirmed for the party, split by who sent their invite, so you and Arina can divide the thank-you letters. Names only \u2014 the dashboard doesn\u2019t store addresses.</div></div>
+      <div id="tyOut">Open this to load the list.</div>
+    </div>
+      </div>
+    </details>
     <details class="s-acc s-acc-danger">
       <summary><span class="s-acc-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></span><span class="s-acc-txt"><b>Reset</b><small>Wipe all guest data and settings</small></span><span class="s-acc-chev">&#8250;</span></summary>
       <div class="s-acc-body">
@@ -2469,7 +2490,7 @@ function saveGuestMeta(){
   try{
     var m={};
     importQueue.forEach(function(g){
-      m[g.name]={note:g.note||'',role:g.role||'',followup:!!g.followup,skipped:!!g.skipped,pendingSent:!!g.pendingSent,sent:!!g.sent,sentAt:g.sentAt||'',sentBy:g.sentBy||'',msgLang:g.msgLang||'',bulkWith:g.bulkWith||'',sentGroupId:g.sentGroupId||'',sender:g.sender||'',phone:g.phone||'',type:g.type||'',lang:g.lang||'',group:g.group||'',manualRsvp:g.manualRsvp||'',parentNames:g.parentNames||'',questionable:!!g.questionable,plannerGuess:g.plannerGuess||''};
+      m[g.name]={note:g.note||'',role:g.role||'',followup:!!g.followup,thanksSent:!!g.thanksSent,thanksSentAt:g.thanksSentAt||'',skipped:!!g.skipped,pendingSent:!!g.pendingSent,sent:!!g.sent,sentAt:g.sentAt||'',sentBy:g.sentBy||'',msgLang:g.msgLang||'',bulkWith:g.bulkWith||'',sentGroupId:g.sentGroupId||'',sender:g.sender||'',phone:g.phone||'',type:g.type||'',lang:g.lang||'',group:g.group||'',manualRsvp:g.manualRsvp||'',parentNames:g.parentNames||'',questionable:!!g.questionable,plannerGuess:g.plannerGuess||''};
     });
     localStorage.setItem('ww_gm',JSON.stringify(m));
     if(importQueue.length)localStorage.setItem('ww_pending',JSON.stringify(importQueue));
@@ -2545,7 +2566,9 @@ function pushMetaToWorker(g){
   _localWrites[g.name].parentNames=g.parentNames||'';
   _localWrites[g.name].questionable=!!g.questionable;
   _localWrites[g.name].plannerGuess=g.plannerGuess||'';
-  return _pushWithRetry('/meta',{name:g.name,followup:!!g.followup,note:g.note||'',role:g.role||'',manualRsvp:g.manualRsvp||'',bulkWith:g.bulkWith||'',sentGroupId:g.sentGroupId||'',parentNames:g.parentNames||'',questionable:!!g.questionable,plannerGuess:g.plannerGuess||''},'meta:'+g.name);
+  _localWrites[g.name].thanksSent=!!g.thanksSent;
+  _localWrites[g.name].thanksSentAt=g.thanksSentAt||'';
+  return _pushWithRetry('/meta',{name:g.name,followup:!!g.followup,thanksSent:!!g.thanksSent,thanksSentAt:g.thanksSentAt||'',note:g.note||'',role:g.role||'',manualRsvp:g.manualRsvp||'',bulkWith:g.bulkWith||'',sentGroupId:g.sentGroupId||'',parentNames:g.parentNames||'',questionable:!!g.questionable,plannerGuess:g.plannerGuess||''},'meta:'+g.name);
 }
 function pushSentToWorker(name){
   if(!workerUrl||!name)return;
@@ -2572,6 +2595,7 @@ function applyGuestMeta(){
       if(!g.note&&d.note)g.note=d.note;
       if(!g.role&&d.role)g.role=d.role;
       if(!g.followup&&d.followup)g.followup=!!d.followup;
+      if(!g.thanksSent&&d.thanksSent){g.thanksSent=!!d.thanksSent;g.thanksSentAt=d.thanksSentAt||'';}
       // local-only fields always from local:
       g.skipped=!!d.skipped;
       g.pendingSent=!!d.pendingSent;
@@ -3362,6 +3386,7 @@ function renderGuestList(){
       if(a==='wa'){openLangModal(g,ri);return;}
       else if(a==='unsent'||a==='undo'){var prevSentAt=g.sentAt;g.sent=false;g.sentAt='';g.pendingSent=false;todayCount=Math.max(0,todayCount-1);updateTodayBadge();pushUnsentToWorker(g.name);saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();showUndo('Reset '+g.name+' to unsent',function(){g.sent=true;g.sentAt=prevSentAt;todayCount++;updateTodayBadge();pushSentToWorker(g.name);saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();});return;}
       else if(a==='flag'){g.followup=!g.followup;saveGuestMeta();pushMetaToWorker(g);renderGuestList();renderDashboard();}
+      else if(a==='thanks'){g.thanksSent=!g.thanksSent;g.thanksSentAt=g.thanksSent?ts():'';saveGuestMeta();pushMetaToWorker(g);renderGuestList();try{renderThankYou();}catch(e){}}
       else if(a==='claim'){claimGuest(g.name);}
       else if(a==='note')openNoteModal(ri);
       else if(a==='role')openRoleModal(ri);
@@ -5002,6 +5027,17 @@ function buildGuestCard(g, mergedPairPos){
     // The couple aren't "guests" RSVPing to their own wedding — swap the RSVP
     // pill for a small role badge instead, in their existing brand color.
     if(coupleRole)pillWrap='<span class="chip chip-couple-role '+coupleRole+'"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>'+(coupleRole==='bride'?'Bride':'Groom')+'</span>';
+    /* Thank-you-letter checkbox — only makes sense once someone is actually
+       confirmed for the party; before that there's nothing to thank them for
+       yet. Sits right on the card face (not behind a swipe) since it's
+       something you tick off in a batch while writing letters. */
+    var thanksEligible=!coupleRole&&typeof isPartyType==='function'&&isPartyType(g)&&getGuestRsvpYesNo(g)===true;
+    if(thanksEligible){
+      pillWrap += '<button class="chip chip-thanks'+(g.thanksSent?' on':'')+'" data-qi="'+ri+'" data-action="thanks" title="'+(g.thanksSent?'Thank-you letter sent — tap to undo':'Mark thank-you letter as sent')+'">'
+        +'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
+        +(g.thanksSent?'Thanked':'Thank you')+'</button>';
+    }
+
     // A separate "questionable" flag, layered on top of (never replacing)
     // the actual yes/no/pending pill above. Only makes sense for guests
     // who haven't given a real answer yet — once someone's said yes or no,
@@ -6184,6 +6220,9 @@ function pollGuestState(){
         }
         if(remote.followup!==undefined&&local.followup===undefined&&remote.followup!==g.followup){
           g.followup=remote.followup;dirty=true;
+        }
+        if(remote.thanksSent!==undefined&&local.thanksSent===undefined&&remote.thanksSent!==g.thanksSent){
+          g.thanksSent=remote.thanksSent;g.thanksSentAt=remote.thanksSentAt||'';dirty=true;
         }
         if(remote.note!==undefined&&local.note===undefined&&remote.note!==g.note){
           g.note=remote.note;dirty=true;
@@ -11840,6 +11879,60 @@ if(_smExportOverlay) _smExportOverlay.addEventListener('click', function(e){ if(
     }
     _rvSave(); refreshAll();
   }
+  /* Thank-you letters: everyone confirmed for the party (not just church), split by who
+     originally sent their invite, so writing the letters can be split too. */
+  function partyConfirmedGuests(){
+    if(typeof importQueue==='undefined') return [];
+    return importQueue.filter(function(g){
+      if(!g||g.skipped||g.isChild||g.name.indexOf('&')!==-1) return false;
+      if(typeof isPartyType==='function'&&!isPartyType(g)) return false;
+      try{ return getGuestRsvpYesNo(g)===true; }catch(e){ return false; }
+    }).sort(function(a,b){ return a.name.localeCompare(b.name); });
+  }
+  function renderThankYou(){
+    var out=$('tyOut'); if(!out) return;
+    var guests=partyConfirmedGuests();
+    var byBoth={Arina:[],Elnur:[],'':[]};
+    guests.forEach(function(g){ (byBoth[g.sentBy]!==undefined?byBoth[g.sentBy]:byBoth['']).push(g); });
+    function nameRow(g){
+      var ri=importQueue.indexOf(g);
+      return '<label class="ty-name-row'+(g.thanksSent?' done':'')+'"><input type="checkbox" data-ty-toggle="'+ri+'"'+(g.thanksSent?' checked':'')+'>'+esc(g.name)+'</label>';
+    }
+    function block(label,list,taName){
+      var done=list.filter(function(g){return g.thanksSent;}).length;
+      return '<div class="ty-group"><h4>'+esc(label)+' <span>'+done+' / '+list.length+' sent</span></h4>'
+        +list.map(nameRow).join('')
+        +'<textarea class="ty-list" id="'+taName+'" readonly style="margin-top:6px">'+esc(list.map(function(g){return g.name;}).join('\n'))+'</textarea>'
+        +'<button class="rv-btn ty-copy" data-ty-copy="'+taName+'">Copy names</button></div>';
+    }
+    var h='';
+    h+=block('Sent by Arina',byBoth.Arina,'tyArina');
+    h+=block('Sent by Elnur',byBoth.Elnur,'tyElnur');
+    if(byBoth[''].length) h+=block('No sender recorded',byBoth[''],'tyNone');
+    var totalDone=guests.filter(function(g){return g.thanksSent;}).length;
+    h+='<div class="rv-body" style="margin-top:2px">Thank-you letters sent: '+totalDone+' / '+guests.length+'. Tick a box here, or tap "Thank you" on a guest\\u2019s card \\u2014 either way stays in sync.</div>';
+    out.innerHTML=h||'<div class="rv-empty">No one is confirmed for the party yet.</div>';
+  }
+  document.addEventListener('DOMContentLoaded',function(){
+    var acc=$('tyAcc');
+    if(acc) acc.addEventListener('toggle',function(){ if(acc.open) renderThankYou(); });
+    document.addEventListener('change',function(e){
+      var cb=e.target.closest&&e.target.closest('[data-ty-toggle]'); if(!cb) return;
+      var g=importQueue[parseInt(cb.dataset.tyToggle,10)]; if(!g) return;
+      g.thanksSent=cb.checked; g.thanksSentAt=g.thanksSent?ts():'';
+      try{ saveGuestMeta(); }catch(err){} try{ pushMetaToWorker(g); }catch(err){}
+      try{ renderGuestList(); }catch(err){}
+      renderThankYou();
+    });
+    document.addEventListener('click',function(e){
+      var b=e.target.closest&&e.target.closest('[data-ty-copy]'); if(!b) return;
+      var ta=$(b.dataset.tyCopy); if(!ta) return;
+      ta.select(); ta.setSelectionRange(0,99999);
+      try{ if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(ta.value); else document.execCommand('copy'); }
+      catch(err){ try{ document.execCommand('copy'); }catch(e2){} }
+      var t0=b.textContent; b.textContent='Copied'; setTimeout(function(){ b.textContent=t0; },1500);
+    });
+  });
   function diag(q){
     q=_rvNorm(q); if(!q) return '';
     var rows=_rvRows(), out=[];
