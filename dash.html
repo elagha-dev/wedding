@@ -2952,6 +2952,16 @@ function renderStatBar(){
 }
 
 /* ══ FILTER ROW ══════════════════════════════ */
+/* A guest is "missing a thank-you letter" when the card would show the
+   thank-you icon (confirmed for the party, not the couple themselves) and
+   it hasn't been ticked yet. Same rule as the icon on the card. */
+function guestNeedsThanks(g){
+  if(!g||g.skipped||g.name==='Arina'||g.name==='Elnur')return false;
+  if(!isPartyType(g))return false;
+  try{ if(getGuestRsvpYesNo(g)!==true)return false; }catch(e){ return false; }
+  return !g.thanksSent;
+}
+
 function renderFilterRow(){
   var row=document.getElementById('filterRow');
   var isAll = importFilter==='all';
@@ -2960,11 +2970,15 @@ function renderFilterRow(){
   var mCls = importFilter==='manual' ? 'on-m' : '';
   var notSent=importQueue.filter(function(g){return!g.skipped&&!g.sent;}).length;
   var allBadge = notSent ? ' <span class="f-pill-badge">'+notSent+'</span>' : '';
+  var tCls = importFilter==='thanks' ? 'on-f' : '';
+  var thanksN=importQueue.filter(guestNeedsThanks).length;
+  var thanksBadge = thanksN ? ' <span class="f-pill-badge">'+thanksN+'</span>' : '';
   row.innerHTML = ''
     +'<button class="f-pill'+(isAll?' on':'')+'" data-f="all">All'+allBadge+'</button>'
     +'<button class="f-pill '+cCls+'" data-f="confirmed">Confirmed</button>'
     +'<button class="f-pill '+dCls+'" data-f="declined">Declined</button>'
-    +'<button class="f-pill '+mCls+'" data-f="manual">Guesses</button>';
+    +'<button class="f-pill '+mCls+'" data-f="manual">Guesses</button>'
+    +'<button class="f-pill '+tCls+'" data-f="thanks">Thank you'+thanksBadge+'</button>';
 
   row.querySelectorAll('[data-f]').forEach(function(b){
     b.addEventListener('click',function(){
@@ -2988,6 +3002,8 @@ function getFiltered(){
     if(importFilter==='declined')return getGuestRsvpYesNo(g)===false&&!getGuestRsvpIsGuess(g);
     // Manual = guests with a hand-entered status (Unsure / Expecting / Unlikely)
     if(importFilter==='manual')return guestHasLiveManualStatus(g);
+    // Thank-you = confirmed party guests whose letter hasn't been sent yet
+    if(importFilter==='thanks')return guestNeedsThanks(g);
     return true;
   }).filter(function(g){return!searchQuery||(g.name||'').toLowerCase().includes(searchQuery);})
     .filter(function(g){return!groupFilter||(g.group||'')===groupFilter;})
@@ -3294,7 +3310,7 @@ function renderGuestList(){
   // Sent: always shown individually — one card per guest, no merging — so the
   // yes/no count and each person's color can never be ambiguous.
   if(sentGuests.length){
-    var sentHdrLabel=({confirmed:'Confirmed',declined:'Declined',manual:'Forecast',followup:'Flagged'})[importFilter]||'Church + Party';
+    var sentHdrLabel=({confirmed:'Confirmed',declined:'Declined',manual:'Forecast',followup:'Flagged',thanks:'Thank-you letter missing'})[importFilter]||'Church + Party';
     var sentYes=sentGuests.filter(function(g){return getGuestRsvpYesNo(g)===true;}).length;
     var sentNo=sentGuests.filter(function(g){return getGuestRsvpYesNo(g)===false;}).length;
     var sentInner='<span style="flex-shrink:0">'+sentHdrLabel+' ('+sentGuests.length+')</span>'
@@ -3390,7 +3406,7 @@ function renderGuestList(){
         g.thanksSent=!g.thanksSent;g.thanksSentAt=g.thanksSent?ts():'';
         var _tp=g.bulkWith?importQueue.find(function(o){return o.name===g.bulkWith;}):null;
         if(_tp){ _tp.thanksSent=g.thanksSent; _tp.thanksSentAt=g.thanksSentAt; } // couples get ONE letter, so their checkbox stays in sync
-        saveGuestMeta();pushMetaToWorker(g);if(_tp)pushMetaToWorker(_tp);renderGuestList();try{renderThankYou();}catch(e){}
+        saveGuestMeta();pushMetaToWorker(g);if(_tp)pushMetaToWorker(_tp);renderGuestList();try{renderFilterRow();}catch(e){}try{renderThankYou();}catch(e){}
       }
       else if(a==='claim'){claimGuest(g.name);}
       else if(a==='note')openNoteModal(ri);
@@ -11948,7 +11964,7 @@ if(_smExportOverlay) _smExportOverlay.addEventListener('click', function(e){ if(
         g.thanksSent=val; g.thanksSentAt=when;
         try{ saveGuestMeta(); }catch(err){} try{ pushMetaToWorker(g); }catch(err){}
       });
-      try{ renderGuestList(); }catch(err){}
+      try{ renderGuestList(); }catch(err){} try{ renderFilterRow(); }catch(err){}
       renderThankYou();
     });
     document.addEventListener('click',function(e){
