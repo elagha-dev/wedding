@@ -4873,6 +4873,9 @@ function getGuestRsvpPill(name, isCouple, knownPartnerName, manualOverride, plan
      for the same fact. Render nothing for a guess; a real match still gets
      the normal solid pill below. */
   if(info.guess) return '';
+  /* Hand-set answer (no RSVP form behind it): tag it so it can be spotted and changed.
+     Swipe the card left for the Yes/No buttons, or use the bell panel's "Marked by hand" list. */
+  var _mTag=info.manual?'<span title="Set by hand, not from an RSVP form \u2014 swipe left to change" style="background:var(--amber-bg);color:var(--amber);border:1px solid rgba(176,120,48,.35);border-radius:100px;padding:1px 6px;font-size:7.5px;font-weight:800;letter-spacing:.06em;flex-shrink:0;white-space:nowrap">&#9998; MANUAL</span>':'';
   /* Coming to only ONE of the two events: show which, instead of a bare check. */
   if(info.ceremony&&info.evening&&info.ceremony!==info.evening&&(info.isYes||info.isNo)){
     function _evTag(lbl,v){ return v==='yes'
@@ -4880,8 +4883,8 @@ function getGuestRsvpPill(name, isCouple, knownPartnerName, manualOverride, plan
       :'<span style="background:#fde8e8;color:#b91c1c;border-radius:100px;padding:2px 8px;font-size:8px;font-weight:800;letter-spacing:.06em;flex-shrink:0">'+lbl+' \u2715</span>'; }
     return _evTag('CHURCH',info.ceremony)+_evTag('PARTY',info.evening);
   }
-  if(info.isYes) return '<span style="width:16px;height:16px;background:var(--green-bg);color:var(--green);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0" title="RSVP: Yes"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>';
-  if(info.isNo)  return '<span style="width:16px;height:16px;background:var(--red-bg);color:var(--red);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0" title="RSVP: No"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>';
+  if(info.isYes) return '<span style="width:16px;height:16px;background:var(--green-bg);color:var(--green);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0" title="RSVP: Yes"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>'+_mTag;
+  if(info.isNo)  return '<span style="width:16px;height:16px;background:var(--red-bg);color:var(--red);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0" title="RSVP: No"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>'+_mTag;
   return '<span style="background:var(--cream2);color:var(--muted);border-radius:100px;padding:2px 8px;font-size:8px;font-weight:700;letter-spacing:.06em;flex-shrink:0">RSVP ?</span>';
 }
 
@@ -7341,145 +7344,11 @@ function showChatNotif(who, text){
   }
 
   // Render drawer content
-  function renderDrawer(data){
-    _lastDrawerData = data;
-    var body = document.getElementById('rsvpDrawerBody');
-    var countEl = document.getElementById('rsvpDrawerCount');
-    if(!body) return;
-    var rows = (data && Array.isArray(data.rsvpRows)) ? data.rsvpRows : [];
-    var count = (data && data.rsvpCount != null) ? data.rsvpCount : rows.length;
-    if(countEl) countEl.textContent = count;
-    updateCountBtn(confirmedSeatsTotal(rows));
-    if(!rows.length){
-      body.innerHTML = '<div class="rsvp-empty">No responses yet.<br>Share your RSVP link to get started.</div>';
-      return;
-    }
-
-    function fmtDate(str){
-      if(!str) return '';
-      var d = new Date(str);
-      if(isNaN(d.getTime())) return str.split('T')[0] || str;
-      return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
-    }
-
-    var entryCounter = 0;
-    function isAttending(r){
-      var ch = (r['Church'] || '').toString().trim().toLowerCase();
-      if(ch === 'yes' || ch === 'true' || ch === '1') return true;
-      if(ch === 'no' || ch === 'false' || ch === '0') return false;
-      var att = (r['Ceremony Attendance'] || r['Party Attending'] || r.attendance || '').toString().toLowerCase();
-      if(att.indexOf('no') !== -1 || att.indexOf('decline') !== -1) return false;
-      if(att === '') return null;
-      return true;
-    }
-    function entryHtml(r){
-      var name = r['Full Name'] || r['First Name'] || r.name || '—';
-      var date = fmtDate(r['Date & Time'] || r.timestamp || '');
-      // Skip empty/zero/header-only fields and render nicely
-      var skipKeys = {'Date & Time': 1, 'First Name': 1, 'Last Name': 1};
-      var yesNoKeys = {'Ceremony Attendance':1,'Evening Attendance':1,'Invited to Party':1,'Join Bring & Share':1};
-      var rawDump = Object.keys(r).filter(function(k){
-        if(skipKeys[k]) return false;
-        var v = (r[k] === null || r[k] === undefined) ? '' : String(r[k]).trim();
-        return v !== '' && v !== '0';
-      }).map(function(k){
-        var v = (r[k] === null || r[k] === undefined) ? '' : String(r[k]).trim();
-        var isYes = /^yes$/i.test(v);
-        var isNo  = /^no$/i.test(v);
-        var valHtml;
-        if(isYes){
-          valHtml = '<span style="background:#d4f5e2;color:#1a7a4a;border-radius:100px;padding:1px 7px;font-size:8px;font-weight:800;letter-spacing:.04em">YES</span>';
-        } else if(isNo){
-          valHtml = '<span style="background:#b91c1c;color:#fff;border-radius:100px;padding:1px 7px;font-size:8px;font-weight:800;letter-spacing:.04em">NO</span>';
-        } else {
-          valHtml = '<span style="color:var(--ink2);font-weight:600;word-break:break-word;white-space:normal;display:block;text-align:right">' + v + '</span>';
-        }
-        return '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;padding:3px 0;border-bottom:1px solid var(--parchment);flex-wrap:wrap">'
-          + '<span style="color:var(--soft);font-size:9px">' + k + '</span>'
-          + valHtml
-          + '</div>';
-      }).join('');
-      var id = 'rdet' + (++entryCounter);
-      var att = isAttending(r);
-      var borderColor = att === true ? '#1a7a4a' : att === false ? '#b91c1c' : 'var(--parchment)';
-      var pillHtml = att === true
-        ? '<span style="background:#d4f5e2;color:#1a7a4a;border-radius:100px;padding:2px 9px;font-size:9px;font-weight:800;letter-spacing:.04em;flex-shrink:0">YES</span>'
-        : att === false
-        ? '<span style="background:#b91c1c;color:#fff;border-radius:100px;padding:2px 9px;font-size:9px;font-weight:800;letter-spacing:.04em;flex-shrink:0">NO</span>'
-        : '';
-      return '<div class="rsvp-entry" data-name="' + name.toLowerCase().replace(/"/g,'') + '" style="border-left:3px solid ' + borderColor + ';padding-left:8px;margin-bottom:4px;border-radius:0 6px 6px 0">'        + '<div class="rsvp-row-top" data-det="' + id + '" style="display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;padding:6px 2px">'        + '<div style="flex:1;min-width:0"><div class="rsvp-entry-name" style="font-weight:600">' + name + '</div>'        + (date ? '<div class="rsvp-entry-meta" style="font-size:10px;color:var(--soft)">' + date + '</div>' : '') + '</div>'        + pillHtml        + '<span class="det-chev" style="font-size:8px;color:var(--soft);transition:transform .2s;flex-shrink:0;margin-left:4px">&#9660;</span>'        + '</div>'        + '<div id="' + id + '" style="display:none;margin-top:6px;padding:6px 4px 8px;border-top:1px solid var(--parchment);font-size:9px;line-height:1.7">' + rawDump + '</div>'        + '</div>';
-    }
-
-    var reversed = rows.slice().reverse();
-    function isTruthy(v){ var s=(v||'').toString().trim().toLowerCase(); return s==='yes'||s==='true'||s==='1'||s===1; }
-
-    var withVenue = reversed.filter(function(r){
-      if(r['Invited to Party'] !== undefined) return isTruthy(r['Invited to Party']);
-      if(r['Church'] !== undefined || r['Party'] !== undefined) return isTruthy(r['Church']) && isTruthy(r['Party']);
-      var att = (r['Ceremony Attendance'] || r['Party Attending'] || r.attendance || '').toString().toLowerCase();
-      return att.indexOf('both') !== -1 || att.indexOf('party') !== -1 || att.indexOf('venue') !== -1;
-    });
-    var churchOnly = reversed.filter(function(r){
-      if(r['Invited to Party'] !== undefined) return !isTruthy(r['Invited to Party']);
-      if(r['Church'] !== undefined || r['Party'] !== undefined) return isTruthy(r['Church']) && !isTruthy(r['Party']);
-      var att = (r['Ceremony Attendance'] || r['Party Attending'] || r.attendance || '').toString().toLowerCase();
-      return att.indexOf('church') !== -1 && att.indexOf('both') === -1;
-    });
-    var categorised = withVenue.concat(churchOnly);
-    var uncategorised = reversed.filter(function(r){ return categorised.indexOf(r) === -1; });
-
-    function getSeats(r){
-      var v = r['Total Seats'] !== undefined ? r['Total Seats'] : r['seats'];
-      var n = parseInt(v, 10);
-      return isNaN(n) ? 0 : n;
-    }
-
-    function countYesNo(arr){
-      var yes = arr.filter(function(r){ return isAttending(r) === true; }).length;
-      var no  = arr.filter(function(r){ return isAttending(r) === false; }).length;
-      var seats = arr.reduce(function(sum, r){ return sum + (isAttending(r) === true ? getSeats(r) : 0); }, 0);
-      return {yes: yes, no: no, seats: seats};
-    }
-
-    // entriesCluster() and seatsBadge() are defined globally (shared with the
-    // guest list's Sent header) — see above.
-
-    function sectionHtml(id, label, items, badgeBg, badgeColor, topPad, showStats){
-      var yn = countYesNo(items);
-      var yesNoHtml = (items.length && showStats)
-        ? entriesCluster(items.length, yn.yes, yn.no) + seatsBadge(yn.seats)
-        : (items.length ? '<span style="font-size:9px;font-weight:700;color:var(--muted)">' + items.length + '</span>' : '');
-      var entriesHtml = items.length
-        ? items.map(entryHtml).join('')
-        : '<div class="rsvp-empty" style="padding:12px 8px;font-size:12px">None yet</div>';
-      return '<div>'
-        + '<div class="rsvp-sec-hdr" data-sec="' + id + '" style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:' + (topPad||'4px') + ' 2px 8px;display:flex;align-items:center;gap:5px;cursor:pointer;user-select:none">'
-        + '<span style="flex-shrink:0">' + label + '</span>'
-        + '<span style="flex:1;height:1px;background:var(--parchment);display:inline-block;min-width:8px"></span>'
-        + '<span style="display:flex;align-items:center;flex-shrink:0">' + yesNoHtml + '</span>'
-        + '<span class="rsvp-chev" style="font-size:8px;color:var(--soft);transition:transform .2s;display:inline-block;line-height:1;flex-shrink:0;margin-left:5px">&#9650;</span>'
-        + '</div>'
-        + '<div class="rsvp-sec-body" id="rsvp-sec-' + id + '">' + entriesHtml + '</div>'
-        + '</div>';
-    }
-
-    var seatsTotal = rows.reduce(function(sum, r){ return sum + (isAttending(r) === true ? getSeats(r) : 0); }, 0);
-    var yn0 = countYesNo(rows);
-    var totalHtml = '<div style="margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--parchment)">'
-      + '<div style="position:relative;margin-bottom:8px">'
-      + '<svg style="position:absolute;left:9px;top:50%;transform:translateY(-50%);pointer-events:none" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--soft)" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>'
-      + '<input id="rsvpSearchInput" type="text" placeholder="Search…" name="rsvpSearchField" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" style="width:100%;font-family:var(--sans);font-size:16px;padding:7px 30px 7px 28px;background:var(--cream2);border:1.5px solid var(--parchment);border-radius:100px;color:var(--ink);outline:none;box-sizing:border-box">'
-      + '<button id="rsvpSearchClear" type="button" title="Clear search" style="display:none;position:absolute;right:6px;top:50%;transform:translateY(-50%);width:20px;height:20px;border:none;border-radius:50%;background:var(--soft);color:#fff;align-items:center;justify-content:center;cursor:pointer;padding:0"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>'
-      + '</div>'
-      + '<div style="display:flex;align-items:center;justify-content:flex-end">'
-      + entriesCluster(rows.length, yn0.yes, yn0.no)
-      + seatsBadge(seatsTotal)
-      + '</div>'
-      + '</div>';
-
-    var populatedCount = [withVenue, churchOnly, uncategorised].filter(function(arr){ return arr.length > 0; }).length;
-    var showSectionStats = populatedCount > 1;
-
+  // ── Analytics (mismatch checks + hand-marked overview) ─────────────────
+  // Lives in the bell / notification panel ("Needs your review"), not in the RSVP
+  // responses drawer. Returns { html, issueCount, bind(container, rerender) }.
+  function rsvpAnalytics(rows){
+    rows = rows || [];
     var mismatches = buildInviteTypeMismatches();
     var mismatchHtml = '';
     if(mismatches.length){
@@ -7619,7 +7488,7 @@ function showChatNotif(who, text){
       + '<div style="height:1px;background:var(--parchment);margin:4px 0"></div>'
       + line('Seats on YES forms', formSeatsAll, true)
       + line('&nbsp;&nbsp;&#8627; guests matched to those forms', bd.formGuests)
-      + '<div style="font-size:9.5px;color:var(--soft);line-height:1.5;margin-top:4px">Seats and matched guests should be close. A gap there means kids/plus-ones on a form who aren\u2019t in your list (or the reverse). Hand-marked guests add on top of the form seats' + (bd.manualCovered.length ? ' — except the ' + bd.manualCovered.length + ' tagged \u201con partner\u2019s form\u201d, whose seat is probably already inside a form' : '') + '.</div>'
+      + '<div style="font-size:9.5px;color:var(--soft);line-height:1.5;margin-top:4px">Seats and matched guests should be close. A gap there means kids/plus-ones on a form who aren\u2019t in your list (or the reverse). Tap Yes / No / Clear on a guest to change their status. Hand-marked guests add on top of the form seats' + (bd.manualCovered.length ? ' — except the ' + bd.manualCovered.length + ' tagged \u201con partner\u2019s form\u201d, whose seat is probably already inside a form' : '') + '.</div>'
       + '</div>';
     var entries = manual.length ? manual.slice().sort(function(a,b){
       if(a.manualRsvp!==b.manualRsvp) return a.manualRsvp==='yes' ? -1 : 1;
@@ -7633,10 +7502,18 @@ function showChatNotif(who, text){
       var tag = !yes ? '' : (coveredNames[g.name]
         ? '<span style="color:var(--muted)">on partner\u2019s form</span>'
         : '<span style="color:var(--amber);font-weight:700">+1 seat, no form</span>');
-      return '<div style="padding:6px 8px;border-left:3px solid ' + (yes?'#1a7a4a':'#b91c1c') + ';border-radius:0 6px 6px 0;margin-bottom:4px;display:flex;align-items:center;justify-content:space-between;gap:8px">'
-        + '<div style="min-width:0"><div style="font-weight:600;font-size:12px">' + g.name + '</div>'
+      var nm = (g.name||'').replace(/"/g,'&quot;');
+      function btn(v,lbl){
+        var on = g.manualRsvp===v;
+        var bg = on ? (v==='no'?'#b91c1c':'#1a7a4a') : '#fff';
+        return '<button class="man-set-btn" data-name="'+nm+'" data-val="'+v+'" style="border:1px solid var(--parchment);border-radius:100px;padding:4px 11px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;background:'+bg+';color:'+(on?'#fff':'var(--ink2)')+'">'+lbl+'</button>';
+      }
+      return '<div style="padding:7px 8px;border-left:3px solid ' + (yes?'#1a7a4a':'#b91c1c') + ';border-radius:0 6px 6px 0;margin-bottom:5px;background:#fff;border-top:1px solid var(--parchment);border-right:1px solid var(--parchment);border-bottom:1px solid var(--parchment)">'
+        + '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><div style="min-width:0"><div style="font-weight:600;font-size:12px">' + g.name + '</div>'
         + '<div style="font-size:9px;color:var(--soft);margin-top:1px">' + venue + (g.group ? ' &middot; ' + g.group : '') + (tag ? ' &middot; ' + tag : '') + '</div></div>'
-        + pill + '</div>';
+        + pill + '</div>'
+        + '<div style="display:flex;gap:5px;margin-top:6px">' + btn('yes','Yes') + btn('no','No') + btn('','Clear') + '</div>'
+        + '</div>';
     }).join('') : '<div class="rsvp-empty" style="padding:12px 8px;font-size:12px">Nobody is marked by hand.</div>';
     var hdrCount = '<span style="font-size:9px;font-weight:700;color:var(--muted)">' + manualYes.length + ' yes' + (manualNo.length ? ' &middot; ' + manualNo.length + ' no' : '') + '</span>';
     return '<div>'
@@ -7652,7 +7529,217 @@ function showChatNotif(who, text){
 
   var orphanKidsHtml = buildOrphanKidsHtml();
   var manualOverviewHtml = buildManualOverviewHtml();
-  var html = totalHtml + mismatchHtml + seatMismatchHtml + manualOverviewHtml + orphanKidsHtml;
+
+    var issueCount = mismatches.length + seatMismatches.length + getOrphanedKids().length;
+    function bind(container, rerender){
+      if(!container) return;
+      rerender = rerender || function(){};
+      container.querySelectorAll('.rsvp-sec-hdr').forEach(function(hdr){
+        hdr.addEventListener('click', function(){
+          var sec = document.getElementById('rsvp-sec-' + hdr.dataset.sec);
+          var chev = hdr.querySelector('.rsvp-chev');
+          if(!sec) return;
+          var open = sec.style.display !== 'none';
+          sec.style.display = open ? 'none' : '';
+          if(chev) chev.style.transform = open ? 'rotate(180deg)' : '';
+        });
+      });
+      container.querySelectorAll('.sm-dismiss-btn').forEach(function(btn){
+        btn.addEventListener('click', function(e){
+          e.stopPropagation();
+          _dismissedSeatMismatches[this.dataset.smKey] = true;
+          _saveDismissedSeatMismatches();
+          rerender();
+        });
+      });
+      container.querySelectorAll('.sm-undismiss-btn').forEach(function(btn){
+        btn.addEventListener('click', function(e){
+          e.stopPropagation();
+          delete _dismissedSeatMismatches[this.dataset.smKey];
+          _saveDismissedSeatMismatches();
+          rerender();
+        });
+      });
+      container.querySelectorAll('.sm-dismissed-toggle').forEach(function(el){
+        el.addEventListener('click', function(e){
+          e.stopPropagation();
+          var target = this.nextElementSibling;
+          if(!target) return;
+          var open = target.style.display !== 'none';
+          target.style.display = open ? 'none' : '';
+          var n = this.textContent.match(/^\d+/);
+          this.textContent = (n ? n[0] : '') + ' marked as explained \u2014 ' + (open ? 'show' : 'hide');
+        });
+      });
+      container.querySelectorAll('.orphan-kid-link-btn').forEach(function(btn){
+        btn.addEventListener('click', function(e){
+          e.stopPropagation();
+          openOrphanKidLinker(this.dataset.kidName);
+        });
+      });
+      // Change a hand-set status: same save/push path as the card's swipe buttons
+      container.querySelectorAll('.man-set-btn').forEach(function(btn){
+        btn.addEventListener('click', function(e){
+          e.stopPropagation();
+          var g = importQueue.find(function(x){ return x.name === btn.dataset.name; });
+          if(!g) return;
+          g.manualRsvp = btn.dataset.val;
+          try{ saveGuestMeta(); }catch(err){}
+          try{ renderGuestList(); }catch(err){}
+          try{ renderDashboard(); }catch(err){}
+          try{ pushMetaToWorker(g); }catch(err){}
+          rerender();
+        });
+      });
+    }
+    return {
+      html: mismatchHtml + seatMismatchHtml + manualOverviewHtml + orphanKidsHtml,
+      issueCount: issueCount,
+      bind: bind
+    };
+  }
+  window.rsvpAnalytics = rsvpAnalytics;
+
+  function renderDrawer(data){
+    _lastDrawerData = data;
+    var body = document.getElementById('rsvpDrawerBody');
+    var countEl = document.getElementById('rsvpDrawerCount');
+    if(!body) return;
+    var rows = (data && Array.isArray(data.rsvpRows)) ? data.rsvpRows : [];
+    var count = (data && data.rsvpCount != null) ? data.rsvpCount : rows.length;
+    if(countEl) countEl.textContent = count;
+    updateCountBtn(confirmedSeatsTotal(rows));
+    if(!rows.length){
+      body.innerHTML = '<div class="rsvp-empty">No responses yet.<br>Share your RSVP link to get started.</div>';
+      return;
+    }
+
+    function fmtDate(str){
+      if(!str) return '';
+      var d = new Date(str);
+      if(isNaN(d.getTime())) return str.split('T')[0] || str;
+      return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+    }
+
+    var entryCounter = 0;
+    function isAttending(r){
+      var ch = (r['Church'] || '').toString().trim().toLowerCase();
+      if(ch === 'yes' || ch === 'true' || ch === '1') return true;
+      if(ch === 'no' || ch === 'false' || ch === '0') return false;
+      var att = (r['Ceremony Attendance'] || r['Party Attending'] || r.attendance || '').toString().toLowerCase();
+      if(att.indexOf('no') !== -1 || att.indexOf('decline') !== -1) return false;
+      if(att === '') return null;
+      return true;
+    }
+    function entryHtml(r){
+      var name = r['Full Name'] || r['First Name'] || r.name || '—';
+      var date = fmtDate(r['Date & Time'] || r.timestamp || '');
+      // Skip empty/zero/header-only fields and render nicely
+      var skipKeys = {'Date & Time': 1, 'First Name': 1, 'Last Name': 1};
+      var yesNoKeys = {'Ceremony Attendance':1,'Evening Attendance':1,'Invited to Party':1,'Join Bring & Share':1};
+      var rawDump = Object.keys(r).filter(function(k){
+        if(skipKeys[k]) return false;
+        var v = (r[k] === null || r[k] === undefined) ? '' : String(r[k]).trim();
+        return v !== '' && v !== '0';
+      }).map(function(k){
+        var v = (r[k] === null || r[k] === undefined) ? '' : String(r[k]).trim();
+        var isYes = /^yes$/i.test(v);
+        var isNo  = /^no$/i.test(v);
+        var valHtml;
+        if(isYes){
+          valHtml = '<span style="background:#d4f5e2;color:#1a7a4a;border-radius:100px;padding:1px 7px;font-size:8px;font-weight:800;letter-spacing:.04em">YES</span>';
+        } else if(isNo){
+          valHtml = '<span style="background:#b91c1c;color:#fff;border-radius:100px;padding:1px 7px;font-size:8px;font-weight:800;letter-spacing:.04em">NO</span>';
+        } else {
+          valHtml = '<span style="color:var(--ink2);font-weight:600;word-break:break-word;white-space:normal;display:block;text-align:right">' + v + '</span>';
+        }
+        return '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;padding:3px 0;border-bottom:1px solid var(--parchment);flex-wrap:wrap">'
+          + '<span style="color:var(--soft);font-size:9px">' + k + '</span>'
+          + valHtml
+          + '</div>';
+      }).join('');
+      var id = 'rdet' + (++entryCounter);
+      var att = isAttending(r);
+      var borderColor = att === true ? '#1a7a4a' : att === false ? '#b91c1c' : 'var(--parchment)';
+      var pillHtml = att === true
+        ? '<span style="background:#d4f5e2;color:#1a7a4a;border-radius:100px;padding:2px 9px;font-size:9px;font-weight:800;letter-spacing:.04em;flex-shrink:0">YES</span>'
+        : att === false
+        ? '<span style="background:#b91c1c;color:#fff;border-radius:100px;padding:2px 9px;font-size:9px;font-weight:800;letter-spacing:.04em;flex-shrink:0">NO</span>'
+        : '';
+      return '<div class="rsvp-entry" data-name="' + name.toLowerCase().replace(/"/g,'') + '" style="border-left:3px solid ' + borderColor + ';padding-left:8px;margin-bottom:4px;border-radius:0 6px 6px 0">'        + '<div class="rsvp-row-top" data-det="' + id + '" style="display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;padding:6px 2px">'        + '<div style="flex:1;min-width:0"><div class="rsvp-entry-name" style="font-weight:600">' + name + '</div>'        + (date ? '<div class="rsvp-entry-meta" style="font-size:10px;color:var(--soft)">' + date + '</div>' : '') + '</div>'        + pillHtml        + '<span class="det-chev" style="font-size:8px;color:var(--soft);transition:transform .2s;flex-shrink:0;margin-left:4px">&#9660;</span>'        + '</div>'        + '<div id="' + id + '" style="display:none;margin-top:6px;padding:6px 4px 8px;border-top:1px solid var(--parchment);font-size:9px;line-height:1.7">' + rawDump + '</div>'        + '</div>';
+    }
+
+    var reversed = rows.slice().reverse();
+    function isTruthy(v){ var s=(v||'').toString().trim().toLowerCase(); return s==='yes'||s==='true'||s==='1'||s===1; }
+
+    var withVenue = reversed.filter(function(r){
+      if(r['Invited to Party'] !== undefined) return isTruthy(r['Invited to Party']);
+      if(r['Church'] !== undefined || r['Party'] !== undefined) return isTruthy(r['Church']) && isTruthy(r['Party']);
+      var att = (r['Ceremony Attendance'] || r['Party Attending'] || r.attendance || '').toString().toLowerCase();
+      return att.indexOf('both') !== -1 || att.indexOf('party') !== -1 || att.indexOf('venue') !== -1;
+    });
+    var churchOnly = reversed.filter(function(r){
+      if(r['Invited to Party'] !== undefined) return !isTruthy(r['Invited to Party']);
+      if(r['Church'] !== undefined || r['Party'] !== undefined) return isTruthy(r['Church']) && !isTruthy(r['Party']);
+      var att = (r['Ceremony Attendance'] || r['Party Attending'] || r.attendance || '').toString().toLowerCase();
+      return att.indexOf('church') !== -1 && att.indexOf('both') === -1;
+    });
+    var categorised = withVenue.concat(churchOnly);
+    var uncategorised = reversed.filter(function(r){ return categorised.indexOf(r) === -1; });
+
+    function getSeats(r){
+      var v = r['Total Seats'] !== undefined ? r['Total Seats'] : r['seats'];
+      var n = parseInt(v, 10);
+      return isNaN(n) ? 0 : n;
+    }
+
+    function countYesNo(arr){
+      var yes = arr.filter(function(r){ return isAttending(r) === true; }).length;
+      var no  = arr.filter(function(r){ return isAttending(r) === false; }).length;
+      var seats = arr.reduce(function(sum, r){ return sum + (isAttending(r) === true ? getSeats(r) : 0); }, 0);
+      return {yes: yes, no: no, seats: seats};
+    }
+
+    // entriesCluster() and seatsBadge() are defined globally (shared with the
+    // guest list's Sent header) — see above.
+
+    function sectionHtml(id, label, items, badgeBg, badgeColor, topPad, showStats){
+      var yn = countYesNo(items);
+      var yesNoHtml = (items.length && showStats)
+        ? entriesCluster(items.length, yn.yes, yn.no) + seatsBadge(yn.seats)
+        : (items.length ? '<span style="font-size:9px;font-weight:700;color:var(--muted)">' + items.length + '</span>' : '');
+      var entriesHtml = items.length
+        ? items.map(entryHtml).join('')
+        : '<div class="rsvp-empty" style="padding:12px 8px;font-size:12px">None yet</div>';
+      return '<div>'
+        + '<div class="rsvp-sec-hdr" data-sec="' + id + '" style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:' + (topPad||'4px') + ' 2px 8px;display:flex;align-items:center;gap:5px;cursor:pointer;user-select:none">'
+        + '<span style="flex-shrink:0">' + label + '</span>'
+        + '<span style="flex:1;height:1px;background:var(--parchment);display:inline-block;min-width:8px"></span>'
+        + '<span style="display:flex;align-items:center;flex-shrink:0">' + yesNoHtml + '</span>'
+        + '<span class="rsvp-chev" style="font-size:8px;color:var(--soft);transition:transform .2s;display:inline-block;line-height:1;flex-shrink:0;margin-left:5px">&#9650;</span>'
+        + '</div>'
+        + '<div class="rsvp-sec-body" id="rsvp-sec-' + id + '">' + entriesHtml + '</div>'
+        + '</div>';
+    }
+
+    var seatsTotal = rows.reduce(function(sum, r){ return sum + (isAttending(r) === true ? getSeats(r) : 0); }, 0);
+    var yn0 = countYesNo(rows);
+    var totalHtml = '<div style="margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--parchment)">'
+      + '<div style="position:relative;margin-bottom:8px">'
+      + '<svg style="position:absolute;left:9px;top:50%;transform:translateY(-50%);pointer-events:none" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--soft)" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>'
+      + '<input id="rsvpSearchInput" type="text" placeholder="Search…" name="rsvpSearchField" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" style="width:100%;font-family:var(--sans);font-size:16px;padding:7px 30px 7px 28px;background:var(--cream2);border:1.5px solid var(--parchment);border-radius:100px;color:var(--ink);outline:none;box-sizing:border-box">'
+      + '<button id="rsvpSearchClear" type="button" title="Clear search" style="display:none;position:absolute;right:6px;top:50%;transform:translateY(-50%);width:20px;height:20px;border:none;border-radius:50%;background:var(--soft);color:#fff;align-items:center;justify-content:center;cursor:pointer;padding:0"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>'
+      + '</div>'
+      + '<div style="display:flex;align-items:center;justify-content:flex-end">'
+      + entriesCluster(rows.length, yn0.yes, yn0.no)
+      + seatsBadge(seatsTotal)
+      + '</div>'
+      + '</div>';
+
+    var populatedCount = [withVenue, churchOnly, uncategorised].filter(function(arr){ return arr.length > 0; }).length;
+    var showSectionStats = populatedCount > 1;
+
+  var html = totalHtml;
     if(withVenue.length)      html += sectionHtml('venue',  'Church &amp; Party', withVenue,      'var(--green-bg)', 'var(--green)', '4px', showSectionStats);
     if(churchOnly.length)     html += sectionHtml('church', 'Church Only',        churchOnly,     'var(--amber-bg)', 'var(--amber)', '12px', showSectionStats);
     if(uncategorised.length){
@@ -7670,41 +7757,6 @@ function showChatNotif(who, text){
         var open = sec.style.display !== 'none';
         sec.style.display = open ? 'none' : '';
         if(chev) chev.style.transform = open ? 'rotate(180deg)' : '';
-      });
-    });
-
-    // Duplicate-matches: mark as explained / undo, and reveal dismissed ones
-    body.querySelectorAll('.sm-dismiss-btn').forEach(function(btn){
-      btn.addEventListener('click', function(e){
-        e.stopPropagation();
-        _dismissedSeatMismatches[this.dataset.smKey] = true;
-        _saveDismissedSeatMismatches();
-        renderDrawer(_lastDrawerData);
-      });
-    });
-    body.querySelectorAll('.sm-undismiss-btn').forEach(function(btn){
-      btn.addEventListener('click', function(e){
-        e.stopPropagation();
-        delete _dismissedSeatMismatches[this.dataset.smKey];
-        _saveDismissedSeatMismatches();
-        renderDrawer(_lastDrawerData);
-      });
-    });
-    body.querySelectorAll('.sm-dismissed-toggle').forEach(function(el){
-      el.addEventListener('click', function(e){
-        e.stopPropagation();
-        var target = this.nextElementSibling;
-        if(!target) return;
-        var open = target.style.display !== 'none';
-        target.style.display = open ? 'none' : '';
-        var n = this.textContent.match(/^\d+/);
-        this.textContent = (n ? n[0] : '') + ' marked as explained — ' + (open ? 'show' : 'hide');
-      });
-    });
-    body.querySelectorAll('.orphan-kid-link-btn').forEach(function(btn){
-      btn.addEventListener('click', function(e){
-        e.stopPropagation();
-        openOrphanKidLinker(this.dataset.kidName);
       });
     });
 
@@ -11905,6 +11957,9 @@ if(_smExportOverlay) _smExportOverlay.addEventListener('click', function(e){ if(
     items=rvBuildItems();
     var h='<div class="rv-sec">Needs your decision ('+items.length+')</div>';
     h+=items.length?items.map(itemHtml).join(''):'<div class="rv-empty">Nothing to review right now.</div>';
+    var _an=null;
+    try{ _an=window.rsvpAnalytics?window.rsvpAnalytics(_rvRows()):null; }catch(e){ _an=null; }
+    if(_an) h+='<div class="rv-sec">Checks &amp; overview'+(_an.issueCount?' ('+_an.issueCount+')':'')+'</div>'+_an.html;
     var hist=_rv.history.slice().reverse().slice(0,60);
     var histInner='';
     if(!hist.length) histInner='<div class="rv-empty">No changes yet.</div>';
@@ -11934,9 +11989,11 @@ if(_smExportOverlay) _smExportOverlay.addEventListener('click', function(e){ if(
     var _histOpen=(function(){ var d0=$('rvBody'); var t=d0&&d0.querySelector('.rv-hist-toggle'); return t?t.open:false; })();
     h+='<details class="rv-hist-toggle"'+(_histOpen?' open':'')+'><summary>History ('+hist.length+(hist.length>=60?'+':'')+')</summary>'+histInner+'</details>';
     body.innerHTML=h;
+    if(_an){ try{ _an.bind(body,render); }catch(e){} }
   }
   window.rvBadge=function(){
     var n=rvBuildItems().length, b=$('rvBellBadge');
+    try{ if(window.rsvpAnalytics) n+=window.rsvpAnalytics(_rvRows()).issueCount; }catch(e){}
     if(b){ b.textContent=n>9?'9+':n; b.style.display=n?'block':'none'; }
   };
   function refreshAll(){
