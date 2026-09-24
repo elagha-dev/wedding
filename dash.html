@@ -242,6 +242,12 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
    toggle. Scoped to #filterRow so the tracker's reused .f-pill filter
    bar elsewhere keeps its original pill look. */
 #filterRow{border-bottom:1.5px solid var(--parchment);margin-bottom:10px;padding-bottom:0;gap:3px;scroll-margin-top:60px}
+/* Wobble fix: the tabs use margin-bottom:-1.5px to overlap the baseline, which made
+   this overflow-x:auto row 1.5px taller inside than outside — so on iOS a swipe on
+   the tabs also scrolled the row up/down. Lock the vertical axis, give the tabs their
+   1.5px back as padding, and draw the baseline as an inset shadow instead of a border
+   (same look: the active tab's bottom border still covers the line). */
+#filterRow{border-bottom:0;padding-bottom:1.5px;box-shadow:inset 0 -1.5px 0 var(--parchment);overflow-y:hidden;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
 #filterRow .f-pill{border-radius:9px 9px 0 0;-webkit-mask-image:none;border:1.5px solid var(--parchment);background:var(--cream2);box-shadow:none;margin-bottom:-1.5px;border-bottom-color:var(--parchment)}
 #filterRow .f-pill:hover{border-color:var(--blush);border-bottom-color:var(--blush)}
 #filterRow .f-pill.on{background:var(--rose);border-color:var(--rose);color:#fff;border-bottom-color:var(--rose);box-shadow:none}
@@ -3358,7 +3364,12 @@ function renderGuestList(){
     });
     var sentBody='';
     if(partyHtml){
-      sentBody+=groupSection('party:'+importFilter, '<span style="margin-right:5px">&#x1F389;</span>Party <span style="opacity:.4">('+partyCount+')</span>', partyHtml, 'party-hdr', 'color:#B0762E;border-color:rgba(176,118,46,.25)', true);
+      var partySeatInfo=confirmedSeatBreakdown(sentGuests.filter(function(g){return !isChurchOnly(g);}));
+      var partySeats=partySeatInfo.formSeats+partySeatInfo.manualExtra.length;
+      var partySeatsHtml=partySeats
+        ? seatsBadge(partySeats)+(partySeatInfo.manualExtra.length?'<span style="font-size:8px;font-weight:600;letter-spacing:0;text-transform:none;opacity:.7;margin-left:5px;white-space:nowrap">incl. '+partySeatInfo.manualExtra.length+' manual</span>':'')
+        : '';
+      sentBody+=groupSection('party:'+importFilter, '<span style="margin-right:5px">&#x1F389;</span>Party <span style="opacity:.4">('+partyCount+')</span>'+partySeatsHtml, partyHtml, 'party-hdr', 'color:#B0762E;border-color:rgba(176,118,46,.25)', true);
     }
     if(churchHtml){
       sentBody+=groupSection('church:'+importFilter, '<span style="margin-right:5px">&#x26EA;</span>Church only <span style="opacity:.4">('+churchCount+')</span>', churchHtml, 'church-only-hdr', 'color:#7C4DBB;border-color:rgba(124,77,187,.2)', true);
@@ -4896,6 +4907,48 @@ function seatsBadge(seats){
   if(!seats) return '';
   return '<span style="display:inline-flex;align-items:center;gap:3px;height:20px;background:var(--amber-bg);color:var(--amber);border-radius:100px;padding:0 8px;font-size:11px;font-weight:800;flex-shrink:0;margin-left:6px">'
     + '<span style="font-size:10px;line-height:1">&#129681;</span>' + seats + '</span>';
+}
+
+// ── Confirmed-seat breakdown ────────────────────────────────────────────
+// Where does each confirmed guest's seat come from?
+//  • form guests    – matched to an RSVP form row; the row's Total Seats is counted
+//                     ONCE per form, however many guests are matched to it
+//  • manual (extra) – confirmed by hand, no form seat anywhere → +1 seat each
+//  • manual (covered) – confirmed by hand but their partner's form is already
+//                     counted, so their seat is most likely inside that form
+function _seatsOfRow(r){
+  var v=r['Total Seats']!==undefined?r['Total Seats']:r['seats'];
+  var n=parseInt(v,10);
+  return isNaN(n)?0:n;
+}
+function _confInfo(g){
+  var isC=g.type==='couple-ceremony'||g.type==='couple-party';
+  return getGuestRsvpInfo(g.name,isC,inferPartnerName(g),g.manualRsvp,g.plannerGuess);
+}
+function confirmedSeatBreakdown(guests){
+  var res={formSeats:0,formGuests:0,manualExtra:[],manualCovered:[]};
+  if(typeof importQueue==='undefined') return res;
+  var rowByName={};
+  importQueue.forEach(function(g){
+    if(g.skipped) return;
+    var i=_confInfo(g);
+    if(i&&i.row&&!i.guess&&i.isYes) rowByName[g.name]=_rvRowId(i.row);
+  });
+  var seen={};
+  (guests||importQueue).forEach(function(g){
+    if(g.skipped) return;
+    var info=_confInfo(g);
+    if(!info||info.guess||!info.isYes) return;
+    if(info.row){
+      res.formGuests++;
+      var id=_rvRowId(info.row);
+      if(!seen[id]){ seen[id]=1; res.formSeats+=_seatsOfRow(info.row); }
+    } else {
+      var p=inferPartnerName(g);
+      if(p&&rowByName[p]) res.manualCovered.push(g); else res.manualExtra.push(g);
+    }
+  });
+  return res;
 }
 
 // Best-known "partner name" for RSVP matching purposes. Prefers the explicit
@@ -7543,8 +7596,63 @@ function showChatNotif(who, text){
       + '</div>';
   }
 
+  // Every guest whose Yes/No was set by hand (no form from them). These count
+  // toward the dashboard's Confirmed number but not toward form seats — the usual
+  // reason the two totals differ.
+  function buildManualOverviewHtml(){
+    var q = typeof importQueue!=='undefined' ? importQueue : [];
+    var manual = q.filter(function(g){ return !g.skipped && (g.manualRsvp==='yes'||g.manualRsvp==='no'); });
+    var all = q.filter(function(g){ return !g.skipped; });
+    var confirmedN = all.filter(function(g){ return getGuestRsvpYesNo(g)===true && !getGuestRsvpIsGuess(g); }).length;
+    var bd = confirmedSeatBreakdown(all);
+    var formSeatsAll = confirmedSeatsTotal(rows);
+    var manualYes = manual.filter(function(g){ return g.manualRsvp==='yes'; });
+    var manualNo  = manual.filter(function(g){ return g.manualRsvp==='no'; });
+    var coveredNames = {}; bd.manualCovered.forEach(function(g){ coveredNames[g.name] = true; });
+    function line(label, val, strong){
+      return '<div style="display:flex;justify-content:space-between;gap:8px;padding:2px 0;font-size:11px;color:' + (strong?'var(--ink)':'var(--ink2)') + ';font-weight:' + (strong?'700':'500') + '"><span>' + label + '</span><span style="font-weight:800">' + val + '</span></div>';
+    }
+    var summary = '<div style="padding:8px 10px;margin-bottom:6px;border-radius:8px;background:var(--cream2);border:1px solid var(--parchment)">'
+      + line('Confirmed guests (dashboard)', confirmedN, true)
+      + line('&nbsp;&nbsp;&#8627; matched to a form', bd.formGuests)
+      + line('&nbsp;&nbsp;&#8627; marked yes by hand', manualYes.length)
+      + '<div style="height:1px;background:var(--parchment);margin:4px 0"></div>'
+      + line('Seats on YES forms', formSeatsAll, true)
+      + line('&nbsp;&nbsp;&#8627; guests matched to those forms', bd.formGuests)
+      + '<div style="font-size:9.5px;color:var(--soft);line-height:1.5;margin-top:4px">Seats and matched guests should be close. A gap there means kids/plus-ones on a form who aren\u2019t in your list (or the reverse). Hand-marked guests add on top of the form seats' + (bd.manualCovered.length ? ' — except the ' + bd.manualCovered.length + ' tagged \u201con partner\u2019s form\u201d, whose seat is probably already inside a form' : '') + '.</div>'
+      + '</div>';
+    var entries = manual.length ? manual.slice().sort(function(a,b){
+      if(a.manualRsvp!==b.manualRsvp) return a.manualRsvp==='yes' ? -1 : 1;
+      return (a.name||'').localeCompare(b.name||'');
+    }).map(function(g){
+      var yes = g.manualRsvp==='yes';
+      var pill = yes
+        ? '<span style="background:#d4f5e2;color:#1a7a4a;border-radius:100px;padding:2px 9px;font-size:9px;font-weight:800;letter-spacing:.04em;flex-shrink:0">YES</span>'
+        : '<span style="background:#b91c1c;color:#fff;border-radius:100px;padding:2px 9px;font-size:9px;font-weight:800;letter-spacing:.04em;flex-shrink:0">NO</span>';
+      var venue = isPartyType(g) ? 'Party' : 'Church only';
+      var tag = !yes ? '' : (coveredNames[g.name]
+        ? '<span style="color:var(--muted)">on partner\u2019s form</span>'
+        : '<span style="color:var(--amber);font-weight:700">+1 seat, no form</span>');
+      return '<div style="padding:6px 8px;border-left:3px solid ' + (yes?'#1a7a4a':'#b91c1c') + ';border-radius:0 6px 6px 0;margin-bottom:4px;display:flex;align-items:center;justify-content:space-between;gap:8px">'
+        + '<div style="min-width:0"><div style="font-weight:600;font-size:12px">' + g.name + '</div>'
+        + '<div style="font-size:9px;color:var(--soft);margin-top:1px">' + venue + (g.group ? ' &middot; ' + g.group : '') + (tag ? ' &middot; ' + tag : '') + '</div></div>'
+        + pill + '</div>';
+    }).join('') : '<div class="rsvp-empty" style="padding:12px 8px;font-size:12px">Nobody is marked by hand.</div>';
+    var hdrCount = '<span style="font-size:9px;font-weight:700;color:var(--muted)">' + manualYes.length + ' yes' + (manualNo.length ? ' &middot; ' + manualNo.length + ' no' : '') + '</span>';
+    return '<div>'
+      + '<div class="rsvp-sec-hdr" data-sec="manualov" style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:4px 2px 8px;display:flex;align-items:center;gap:5px;cursor:pointer;user-select:none">'
+      + '<span style="flex-shrink:0">&#9998; Marked by hand</span>'
+      + '<span style="flex:1;height:1px;background:var(--parchment);display:inline-block;min-width:8px"></span>'
+      + hdrCount
+      + '<span class="rsvp-chev" style="font-size:8px;color:var(--soft);transition:transform .2s;display:inline-block;line-height:1;flex-shrink:0;margin-left:5px">&#9650;</span>'
+      + '</div>'
+      + '<div class="rsvp-sec-body" id="rsvp-sec-manualov">' + summary + entries + '</div>'
+      + '</div>';
+  }
+
   var orphanKidsHtml = buildOrphanKidsHtml();
-  var html = totalHtml + mismatchHtml + seatMismatchHtml + orphanKidsHtml;
+  var manualOverviewHtml = buildManualOverviewHtml();
+  var html = totalHtml + mismatchHtml + seatMismatchHtml + manualOverviewHtml + orphanKidsHtml;
     if(withVenue.length)      html += sectionHtml('venue',  'Church &amp; Party', withVenue,      'var(--green-bg)', 'var(--green)', '4px', showSectionStats);
     if(churchOnly.length)     html += sectionHtml('church', 'Church Only',        churchOnly,     'var(--amber-bg)', 'var(--amber)', '12px', showSectionStats);
     if(uncategorised.length){
