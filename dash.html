@@ -2970,6 +2970,7 @@ function renderFilterRow(){
   var mCls = importFilter==='manual' ? 'on-m' : '';
   var notSent=importQueue.filter(function(g){return!g.skipped&&!g.sent;}).length;
   var allBadge = notSent ? ' <span class="f-pill-badge">'+notSent+'</span>' : '';
+  var pCls = importFilter==='party' ? 'on-f' : '';
   var tCls = importFilter==='thanks' ? 'on-f' : '';
   var thanksN=importQueue.filter(guestNeedsThanks).length;
   var thanksBadge = thanksN ? ' <span class="f-pill-badge">'+thanksN+'</span>' : '';
@@ -2978,11 +2979,14 @@ function renderFilterRow(){
     +'<button class="f-pill '+cCls+'" data-f="confirmed">Confirmed</button>'
     +'<button class="f-pill '+dCls+'" data-f="declined">Declined</button>'
     +'<button class="f-pill '+mCls+'" data-f="manual">Guesses</button>'
+    +'<button class="f-pill '+pCls+'" data-f="party">Party</button>'
     +'<button class="f-pill '+tCls+'" data-f="thanks">Thank you'+thanksBadge+'</button>';
 
   row.querySelectorAll('[data-f]').forEach(function(b){
     b.addEventListener('click',function(){
       importFilter=this.dataset.f;
+      // Party tab already means "party guests only" — clear the Church/Party dropdown so the two can't cancel out
+      if(importFilter==='party'){ typeFilter=''; var ts_=document.getElementById('typeSel'); if(ts_)ts_.value=''; }
       selectedIdxs=[];renderFilterRow();renderGuestList();
     });
   });
@@ -3004,6 +3008,8 @@ function getFiltered(){
     if(importFilter==='manual')return guestHasLiveManualStatus(g);
     // Thank-you = confirmed party guests whose letter hasn't been sent yet
     if(importFilter==='thanks')return guestNeedsThanks(g);
+    // Party = everyone invited to the party (not church-only)
+    if(importFilter==='party')return isPartyType(g);
     return true;
   }).filter(function(g){return!searchQuery||(g.name||'').toLowerCase().includes(searchQuery);})
     .filter(function(g){return!groupFilter||(g.group||'')===groupFilter;})
@@ -3310,7 +3316,7 @@ function renderGuestList(){
   // Sent: always shown individually — one card per guest, no merging — so the
   // yes/no count and each person's color can never be ambiguous.
   if(sentGuests.length){
-    var sentHdrLabel=({confirmed:'Confirmed',declined:'Declined',manual:'Forecast',followup:'Flagged',thanks:'Thank-you letter missing'})[importFilter]||'Church + Party';
+    var sentHdrLabel=({confirmed:'Confirmed',declined:'Declined',manual:'Forecast',followup:'Flagged',thanks:'Thank-you letter missing',party:'Party'})[importFilter]||'Church + Party';
     var sentYes=sentGuests.filter(function(g){return getGuestRsvpYesNo(g)===true;}).length;
     var sentNo=sentGuests.filter(function(g){return getGuestRsvpYesNo(g)===false;}).length;
     var sentInner='<span style="flex-shrink:0">'+sentHdrLabel+' ('+sentGuests.length+')</span>'
