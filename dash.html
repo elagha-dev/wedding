@@ -365,6 +365,13 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .g-swipe-action-right.sw-rsvp .swipe-rsvp-btn svg{width:15px;height:15px}
 .g-swipe-action-right.sw-rsvp .swipe-rsvp-btn.ga-btn-rsvp-yes.active{background:var(--green);color:#fff}
 .g-swipe-action-right.sw-rsvp .swipe-rsvp-btn.ga-btn-rsvp-no.active{background:var(--red);color:#fff}
+/* Hand-set status: three compact buttons (Yes / No / Clear) still fit the 88px panel */
+.g-swipe-action-right.sw-rsvp.sw-manual{gap:4px}
+.g-swipe-action-right.sw-rsvp.sw-manual .swipe-rsvp-btn{width:26px;height:26px}
+.g-swipe-action-right.sw-rsvp.sw-manual .swipe-rsvp-btn svg{width:13px;height:13px}
+.g-swipe-action-right.sw-rsvp .swipe-rsvp-btn.ga-btn-rsvp-clear{background:var(--amber-bg);border-color:rgba(176,120,48,.5);color:var(--amber)}
+.g-manual-tab{display:flex;align-items:center;gap:3px;align-self:center;flex-shrink:0;padding:5px 5px 5px 8px;border-radius:999px 0 0 999px;background:var(--amber-bg);color:var(--amber);border:1px solid rgba(176,120,48,.4);border-right:0;font-size:8px;font-weight:800;letter-spacing:.06em;line-height:1;white-space:nowrap}
+.g-manual-tab i{font-style:normal;font-size:12px;font-weight:400;opacity:.75;margin-left:1px}
 /* Deep-swipe-to-remind: dragging a not-yet-responded sent card's RSVP panel
    past REMINDER_ARM_X (see attachSwipe) adds .sw-reminder-ready to the
    wrap, turning this panel blue and swapping its content for the reminder
@@ -3438,6 +3445,7 @@ function renderGuestList(){
         showUndo('Marked '+g.name+' as sent',function(){g.sent=prevSent;g.sentAt='';g.sentBy=prevSentBy;g.followup=prevFollowup;if(!prevSent){todayCount=Math.max(0,todayCount-1);updateTodayBadge();}pushUnsentToWorker(g.name);saveGuestMeta();renderGuestList();renderDashboard();renderFilterRow();});
       }
       else if(a==='confirm-no'){g.pendingSent=false;saveGuestMeta();renderGuestList();}
+      else if(a==='rsvp-clear'){g.manualRsvp='';var qi2c=this.dataset.qi2;var g2c=(qi2c!==undefined&&qi2c!=='')?importQueue[parseInt(qi2c)]:null;if(g2c)g2c.manualRsvp='';saveGuestMeta();renderGuestList();renderDashboard();pushMetaToWorker(g).then(function(){if(g2c)pushMetaToWorker(g2c);});}
       else if(a==='rsvp-yes'){g.manualRsvp=(g.manualRsvp==='yes')?'':'yes';var qi2y=this.dataset.qi2;var g2y=(qi2y!==undefined&&qi2y!=='')?importQueue[parseInt(qi2y)]:null;if(g2y)g2y.manualRsvp=g.manualRsvp;saveGuestMeta();renderGuestList();renderDashboard();pushMetaToWorker(g).then(function(){if(g2y)pushMetaToWorker(g2y);});}
       else if(a==='rsvp-no'){g.manualRsvp=(g.manualRsvp==='no')?'':'no';var qi2n=this.dataset.qi2;var g2n=(qi2n!==undefined&&qi2n!=='')?importQueue[parseInt(qi2n)]:null;if(g2n)g2n.manualRsvp=g.manualRsvp;saveGuestMeta();renderGuestList();renderDashboard();pushMetaToWorker(g).then(function(){if(g2n)pushMetaToWorker(g2n);});}
       // toggle-questionable/plan-yes/plan-no removed: superseded by the
@@ -3538,9 +3546,11 @@ function buildPairSentCard(g1,g2){
   var debugTagPair=(DEV_MODE&&!rsvpInfoPair)?'<div style="font-size:9px;color:#b91c1c;opacity:.75;margin-top:2px;word-break:break-word">DEBUG: '+debugNoMatch(g1, g2.name)+'</div>':'';
 
   var effStatePair=manualOverridePair==='yes'?'yes':manualOverridePair==='no'?'no':(rsvpClassPair===' rsvp-yes'?'yes':rsvpClassPair===' rsvp-no'?'no':'');
-  var rsvpPanelPair='<div class="g-swipe-action-right sw-rsvp"><div class="g-swipe-action-inner">'
+  var isManualP=(manualOverridePair==='yes'||manualOverridePair==='no');
+  var rsvpPanelPair='<div class="g-swipe-action-right sw-rsvp'+(isManualP?' sw-manual':'')+'"><div class="g-swipe-action-inner">'
     +'<button class="ga-btn ga-btn-rsvp-yes swipe-rsvp-btn'+(effStatePair==='yes'?' active':'')+'" data-qi="'+ri1+'" data-qi2="'+ri2+'" data-action="rsvp-yes" title="Mark RSVP: Yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button>'
     +'<button class="ga-btn ga-btn-rsvp-no swipe-rsvp-btn'+(effStatePair==='no'?' active':'')+'" data-qi="'+ri1+'" data-qi2="'+ri2+'" data-action="rsvp-no" title="Mark RSVP: No"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>'
+    +(isManualP?'<button class="ga-btn swipe-rsvp-btn ga-btn-rsvp-clear" data-qi="'+ri1+'" data-qi2="'+ri2+'" data-action="rsvp-clear" title="Clear manual status">'+CLEAR_MANUAL_ICON+'</button>':'')
     +'</div></div>';
 
   // Sender/time/undo/delete hidden by default — right-swipe reveals them (matches single sent cards).
@@ -3558,6 +3568,7 @@ function buildPairSentCard(g1,g2){
             +debugTagPair
           +'</div>'
         +'</div>'
+        +manualTabHtml(isManualP)
       +'</div>'
     +'</div>'
   +'</div>';
@@ -4853,6 +4864,12 @@ function rvBuildItems(){
   return items.filter(function(it){ if(_seen[it.key]) return false; _seen[it.key]=1; return true; });
 }
 
+/* Hand-set Yes/No marker. Sits at the card's right edge — the side you swipe
+   from — and the swipe panel it leads to has the Clear button. */
+function manualTabHtml(isManual){
+  return isManual ? '<div class="g-manual-tab" title="Set by hand \u2014 swipe left to change or clear">&#9998; MANUAL<i>&#8249;</i></div>' : '';
+}
+var CLEAR_MANUAL_ICON='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8s2-4.5 9.5-4.5a9 9 0 1 1-9 9"/><polyline points="2.5 3 2.5 8 7.5 8"/></svg>';
 function getGuestRsvpPill(name, isCouple, knownPartnerName, manualOverride, plannerGuess){
   var info=getGuestRsvpInfo(name, isCouple, knownPartnerName, manualOverride, plannerGuess);
   if(!info) return '';
@@ -4873,9 +4890,6 @@ function getGuestRsvpPill(name, isCouple, knownPartnerName, manualOverride, plan
      for the same fact. Render nothing for a guess; a real match still gets
      the normal solid pill below. */
   if(info.guess) return '';
-  /* Hand-set answer (no RSVP form behind it): tag it so it can be spotted and changed.
-     Swipe the card left for the Yes/No buttons, or use the bell panel's "Marked by hand" list. */
-  var _mTag=info.manual?'<span title="Set by hand, not from an RSVP form \u2014 swipe left to change" style="background:var(--amber-bg);color:var(--amber);border:1px solid rgba(176,120,48,.35);border-radius:100px;padding:1px 6px;font-size:7.5px;font-weight:800;letter-spacing:.06em;flex-shrink:0;white-space:nowrap">&#9998; MANUAL</span>':'';
   /* Coming to only ONE of the two events: show which, instead of a bare check. */
   if(info.ceremony&&info.evening&&info.ceremony!==info.evening&&(info.isYes||info.isNo)){
     function _evTag(lbl,v){ return v==='yes'
@@ -4883,8 +4897,8 @@ function getGuestRsvpPill(name, isCouple, knownPartnerName, manualOverride, plan
       :'<span style="background:#fde8e8;color:#b91c1c;border-radius:100px;padding:2px 8px;font-size:8px;font-weight:800;letter-spacing:.06em;flex-shrink:0">'+lbl+' \u2715</span>'; }
     return _evTag('CHURCH',info.ceremony)+_evTag('PARTY',info.evening);
   }
-  if(info.isYes) return '<span style="width:16px;height:16px;background:var(--green-bg);color:var(--green);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0" title="RSVP: Yes"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>'+_mTag;
-  if(info.isNo)  return '<span style="width:16px;height:16px;background:var(--red-bg);color:var(--red);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0" title="RSVP: No"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>'+_mTag;
+  if(info.isYes) return '<span style="width:16px;height:16px;background:var(--green-bg);color:var(--green);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0" title="RSVP: Yes"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>';
+  if(info.isNo)  return '<span style="width:16px;height:16px;background:var(--red-bg);color:var(--red);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0" title="RSVP: No"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>';
   return '<span style="background:var(--cream2);color:var(--muted);border-radius:100px;padding:2px 8px;font-size:8px;font-weight:700;letter-spacing:.06em;flex-shrink:0">RSVP ?</span>';
 }
 
@@ -5206,9 +5220,11 @@ function buildGuestCard(g, mergedPairPos){
     var deleteHint='<div class="g-swipe-delete-hint"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg><span>Release to delete</span></div>';
     var infoPanel='<div class="g-swipe-action-left sw-info"><div class="g-swipe-action-inner">'+infoActions+'</div>'+deleteHint+'</div>';
     var reminderHint='<div class="g-swipe-reminder-hint"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>Release to send reminder</span></div>';
-    var rsvpPanel='<div class="g-swipe-action-right sw-rsvp"><div class="g-swipe-action-inner">'
+    var isManualS=(g.manualRsvp==='yes'||g.manualRsvp==='no');
+    var rsvpPanel='<div class="g-swipe-action-right sw-rsvp'+(isManualS?' sw-manual':'')+'"><div class="g-swipe-action-inner">'
       +'<button class="ga-btn ga-btn-rsvp-yes swipe-rsvp-btn'+(effState==='yes'?' active':'')+'" data-qi="'+ri+'" data-action="rsvp-yes" title="Mark RSVP: Yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></button>'
       +'<button class="ga-btn ga-btn-rsvp-no swipe-rsvp-btn'+(effState==='no'?' active':'')+'" data-qi="'+ri+'" data-action="rsvp-no" title="Mark RSVP: No"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>'
+      +(isManualS?'<button class="ga-btn swipe-rsvp-btn ga-btn-rsvp-clear" data-qi="'+ri+'" data-action="rsvp-clear" title="Clear manual status">'+CLEAR_MANUAL_ICON+'</button>':'')
       +'</div>'+reminderHint+'</div>';
 
     // effState exposed on the wrap so attachSwipe can gate the deep-swipe
@@ -5225,6 +5241,7 @@ function buildGuestCard(g, mergedPairPos){
               +debugTag
             +'</div>'
           +'</div>'
+          +manualTabHtml(isManualS)
         +'</div>'
       +'</div>'
     +'</div>';
