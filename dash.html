@@ -3356,7 +3356,7 @@ function renderGuestList(){
       var partnerObj=g.bulkWith?importQueue.find(function(o){return o.name===g.bulkWith;}):null;
       var partnerInSentList=partnerObj&&sentGuests.indexOf(partnerObj)!==-1;
       var pKey=partnerObj?pairKey(g.name,partnerObj.name):null;
-      var isConfirmedPair=partnerInSentList&&pKey&&_confirmedPairs[pKey];
+      var isConfirmedPair=partnerInSentList&&pKey&&isPairConfirmed(g,partnerObj);
       var cardHtml;
       if(isConfirmedPair){
         var partnerRi=importQueue.indexOf(partnerObj);
@@ -3635,6 +3635,30 @@ function _loadConfirmedPairs(){try{return JSON.parse(localStorage.getItem('ww_co
 function _saveConfirmedPairs(){try{localStorage.setItem('ww_confirmed_pairs',JSON.stringify(_confirmedPairs));}catch(e){}}
 var _confirmedPairs=_loadConfirmedPairs();
 function pairKey(n1,n2){return [n1,n2].sort().join('::');}
+/* "Confirmed" used to live only in each device's localStorage, so a second phone
+   (or a fresh browser) started with NO merged couples even though the links
+   themselves sync fine. A link is now treated as confirmed automatically when it
+   is clearly deliberate: both partners point at each other, same surname, same
+   group, and they were sent together. Anything doubtful (different surnames or
+   groups, sent far apart, one-directional) still waits for a manual Confirm in
+   Review Pairs. Different phone numbers alone are ignored — that is the ordinary
+   "real couple, two phones" case people were confirming by hand. */
+function isPairAutoConfirmed(g,partner){
+  if(!g||!partner) return false;
+  if(g.bulkWith!==partner.name||partner.bulkWith!==g.name) return false;
+  var ln1=lastName(g.name),ln2=lastName(partner.name);
+  if(ln1&&ln2&&ln1.toLowerCase()!==ln2.toLowerCase()) return false;
+  if(g.group&&partner.group&&g.group!==partner.group) return false;
+  if(g.sentAt&&partner.sentAt){
+    var t1=new Date(g.sentAt).getTime(),t2=new Date(partner.sentAt).getTime();
+    if(!isNaN(t1)&&!isNaN(t2)&&Math.abs(t1-t2)>5*60*1000) return false;
+  }
+  return true;
+}
+function isPairConfirmed(g,partner){
+  if(!g||!partner) return false;
+  return !!_confirmedPairs[pairKey(g.name,partner.name)]||isPairAutoConfirmed(g,partner);
+}
 // Previously only an in-memory object — every reload (or even just closing
 // and reopening the modal after a sync) wiped it, so "Not a pair" never
 // actually stuck and the same kid/family suggestions kept resurfacing.
@@ -3753,7 +3777,7 @@ function buildFamilyTree(){
   var couples=allPairs.filter(function(p){
     if(!p.partner)return false;
     var partnerName=p.partner.name;
-    return !!_confirmedPairs[pairKey(p.g.name,partnerName)];
+    return isPairConfirmed(p.g,p.partner);
   });
   var claimedKids={};
   var families=couples.map(function(c){
@@ -4731,6 +4755,12 @@ function rvReconcile(){
     if(!g||g.skipped||g.isChild||g.name.indexOf('&')!==-1) return;
     if(g.manualRsvp!=='yes'&&g.manualRsvp!=='no') return;
     var f=_rvFormAnswer(g);
+    if(!f&&g.manualRsvp==='no'){
+      // household form leaves them out of "Guests Attending" -> already declined automatically
+      var _isC=(g.type==='couple-ceremony'||g.type==='couple-party');
+      var _nb=_getGuestRsvpInfoBase(g.name,_isC,inferPartnerName(g),'',g.plannerGuess);
+      if(_nb&&_nb.narrowedOut&&_nb.row&&!_rvOwnCandidates(g,_rvRows()).clear) f={ans:'no',row:_nb.row};
+    }
     if(!f||f.ans!==g.manualRsvp) return;
     var was=g.manualRsvp;
     g.manualRsvp='';
@@ -4792,9 +4822,11 @@ function getGuestRsvpInfo(name,isCouple,knownPartnerName,manualOverride,plannerG
   }
   var c=_rvOwnCandidates(g,rows);
   if(c.clear){ _rvNoteAuto(g,c.clear); return _rvInfoFromOwnRow(c.clear); }
+  /* The household's form says yes but leaves this person out of "Guests Attending":
+     they are declined automatically — no manual mark, no review item. (If they later
+     send their own form, _rvOwnCandidates above picks it up and wins.) */
   if(base&&base.narrowedOut){
-    var _pg=(plannerGuess==='yes')?{isYes:true,isNo:false,guess:true}:(plannerGuess==='no')?{isYes:false,isNo:true,guess:true}:{isYes:false,isNo:false};
-    return {isYes:_pg.isYes,isNo:_pg.isNo,guess:!!_pg.guess,matched:true,needsOwn:true,persons:[],guestsAttending:base.guestsAttending,row:base.row};
+    return {isYes:false,isNo:true,matched:true,autoDeclined:true,persons:[],guestsAttending:base.guestsAttending,row:base.row,narrowedOut:true};
   }
   return base;
 }
@@ -4846,11 +4878,8 @@ function rvBuildItems(){
     if(c.clear) return;
     if(c.doubtful.length){
       c.doubtful.forEach(function(r){ addForm(r,g,(base&&base.narrowedOut)?base:null,''); });
-    } else if(base&&base.narrowedOut){
-      var key2='needs|'+g.name+'|'+_rvRowId(base.row);
-      if(_rv.dismissed[key2]) return;
-      items.push({type:'needs',key:key2,guest:g,base:base,cands:[],sameFirst:[]});
     }
+    /* base.narrowedOut with no other candidate form = automatic decline (see getGuestRsvpInfo) */
   });
   Object.keys(forms).forEach(function(id){
     var f=forms[id];
