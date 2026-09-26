@@ -4981,7 +4981,13 @@ function partyRsvpCounts(guests){
   var adults=0,kids=0,notComing=0;
   (guests||[]).forEach(function(g){
     var yn=getGuestRsvpYesNo(g);
-    if(yn===true&&!getGuestRsvpIsGuess(g)){ if(g.isChild) kids++; else adults++; }
+    if(yn===true&&!getGuestRsvpIsGuess(g)){
+      // isChild only ever comes from the original import file and can't be set from
+      // the dashboard, so a guest sorted into a "Kids" group here (but never flagged
+      // in the import) still needs to count as a kid — same check used elsewhere for
+      // this exact reason (see isKidsGroup above).
+      if(g.isChild||isKidsGroup(g)) kids++; else adults++;
+    }
     else if(yn===false&&!getGuestRsvpIsGuess(g)) notComing++;
   });
   return {adults:adults,kids:kids,notComing:notComing};
