@@ -2413,6 +2413,10 @@ function formatDeployStamp(iso){
 var selType='ceremony-single',selLang='en',selSender='Arina',cur=null;
 var sortMode=(function(){try{return sessionStorage.getItem('ww_sort')||'default';}catch(e){return'default';}})();
 var mem=[],importQueue=[],selectedIdxs=[],importFilter='all',searchQuery='',groupFilter='',typeFilter='';
+// Which of the Party header's four chips (if any) is narrowing the Party tab further —
+// e.g. tapping "15 pending" to see exactly who hasn't answered. Cleared whenever a
+// filter tab is picked normally, so it never silently narrows a filter you didn't ask for.
+var partyChipFilter='';
 var sessionSender='Arina'; // active session
 var todayCount=0; // sent this session
 // Unique per-tab ID so the poller can ignore events this tab generated
@@ -2854,7 +2858,7 @@ document.getElementById('settSessE').addEventListener('click',function(){
 })();
 document.getElementById('ovTotal').addEventListener('click',function(){
   var ga=document.getElementById('guestArea');if(ga.style.display==='none')return;
-  importFilter='unsent';renderFilterRow();renderGuestList();
+  importFilter='unsent';partyChipFilter='';renderFilterRow();renderGuestList();
 });
 (function(){
   var reviewBtn=document.getElementById('reviewPairsBtn');
@@ -2949,7 +2953,7 @@ function renderStatBar(){
     b.addEventListener('click',function(){
       var ga=document.getElementById('guestArea');
       if(ga)ga.style.display='';
-      importFilter=this.dataset.miniGoto;
+      importFilter=this.dataset.miniGoto;partyChipFilter='';
       selectedIdxs=[];renderFilterRow();renderGuestList();
       requestAnimationFrame(function(){
         var target=document.getElementById('filterRow')||document.getElementById('guestListSec');
@@ -2996,7 +3000,7 @@ function renderFilterRow(){
 
   row.querySelectorAll('[data-f]').forEach(function(b){
     b.addEventListener('click',function(){
-      importFilter=this.dataset.f;
+      importFilter=this.dataset.f;partyChipFilter='';
       // Party tab already means "party guests only" — clear the Church/Party dropdown so the two can't cancel out
       if(importFilter==='party'){ typeFilter=''; var ts_=document.getElementById('typeSel'); if(ts_)ts_.value=''; }
       selectedIdxs=[];renderFilterRow();renderGuestList();
@@ -3020,8 +3024,18 @@ function getFiltered(){
     if(importFilter==='manual')return guestHasLiveManualStatus(g);
     // Thank-you = confirmed party guests whose letter hasn't been sent yet
     if(importFilter==='thanks')return guestNeedsThanks(g);
-    // Party = everyone invited to the party (not church-only)
-    if(importFilter==='party')return isPartyType(g);
+    // Party = everyone invited to the party (not church-only) — optionally narrowed
+    // further to whichever header chip was tapped (adults/kids/notcoming/pending).
+    if(importFilter==='party'){
+      if(!isPartyType(g))return false;
+      if(!partyChipFilter)return true;
+      var _yn=getGuestRsvpYesNo(g),_guess=getGuestRsvpIsGuess(g);
+      if(partyChipFilter==='adults')return _yn===true&&!_guess&&!(g.isChild||isKidsGroup(g));
+      if(partyChipFilter==='kids')return _yn===true&&!_guess&&(g.isChild||isKidsGroup(g));
+      if(partyChipFilter==='notcoming')return _yn===false&&!_guess;
+      if(partyChipFilter==='pending')return _yn===null||_guess;
+      return true;
+    }
     return true;
   }).filter(function(g){return!searchQuery||(g.name||'').toLowerCase().includes(searchQuery);})
     .filter(function(g){return!groupFilter||(g.group||'')===groupFilter;})
@@ -3074,7 +3088,7 @@ function attachDashboardOverviewHandlers(){
   var list=document.getElementById('guestList');
   list.querySelectorAll('[data-goto]').forEach(function(cell){
     cell.addEventListener('click',function(){
-      importFilter=this.dataset.goto;
+      importFilter=this.dataset.goto;partyChipFilter='';
       selectedIdxs=[];renderFilterRow();renderGuestList();
     });
   });
@@ -3386,6 +3400,7 @@ function renderGuestList(){
   }
 
   list.innerHTML=html;
+  attachPartyChipHandlers();
 
   // Group section toggles — collapse/expand a section's cards in place
   // (no full re-render) so scroll position and other open sections stay put.
@@ -4990,18 +5005,45 @@ function partyRsvpCounts(guests){
     }
     else if(yn===false&&!getGuestRsvpIsGuess(g)) notComing++;
   });
-  return {adults:adults,kids:kids,notComing:notComing};
+  // Everyone left over hasn't given a real yes/no yet — no response, or only a
+  // planner's guess. Without this the three chips silently fall short of the
+  // "(57)" total next to them, which reads as the numbers not adding up.
+  var pending=(guests||[]).length-adults-kids-notComing;
+  return {adults:adults,kids:kids,notComing:notComing,pending:Math.max(0,pending)};
 }
 function partyCountChips(c){
-  function chip(bg,label){
-    return '<span style="display:inline-flex;align-items:center;background:'+bg+';color:#fff;border-radius:100px;padding:3px 9px;font-size:10.5px;font-weight:800;letter-spacing:.01em;white-space:nowrap;line-height:1">'+label+'</span>';
+  // Every chip is tappable: it narrows the Party tab down to exactly those guests
+  // (see attachPartyChipHandlers), so "who are the 15 pending?" is one tap away.
+  function chip(key,bg,label,dashed){
+    var on=partyChipFilter===key;
+    var border=dashed?'1px dashed var(--soft)':'0';
+    return '<button type="button" class="party-chip" data-party-chip="'+key+'" style="display:inline-flex;align-items:center;background:'+bg+';color:'+(dashed?'var(--ink2)':'#fff')+';border:'+border+';border-radius:100px;padding:'+(dashed?'2.5px 8px':'3px 9px')+';font-size:10.5px;font-weight:'+(dashed?'700':'800')+';letter-spacing:.01em;white-space:nowrap;line-height:1;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent'+(on?';box-shadow:0 0 0 2px var(--ink) inset,0 0 0 1px #fff':'')+'">'+label+'</button>';
   }
   var out='<span style="display:inline-flex;gap:5px;margin-left:7px;vertical-align:middle">';
-  out+=chip('#1FA35C','A '+c.adults); // vivid green — adults confirmed
-  if(c.kids) out+=chip('#2F6FED','K '+c.kids); // vivid blue — kids confirmed, kept apart from adults
-  if(c.notComing) out+=chip('#E0342A',String(c.notComing)+' &#10005;'); // vivid red — declined
+  out+=chip('adults','#1FA35C','A '+c.adults); // vivid green — adults confirmed
+  if(c.kids) out+=chip('kids','#2F6FED','K '+c.kids); // vivid blue — kids confirmed, kept apart from adults
+  if(c.notComing) out+=chip('notcoming','#E0342A',String(c.notComing)+' &#10005;'); // vivid red — declined
+  // Deliberately muted, unlike the three above: this is "no answer yet", not a state,
+  // and it exists so adults+kids+notComing+pending always equals the total next to it.
+  if(c.pending) out+=chip('pending','var(--parchment)',c.pending+' pending',true);
   out+='</span>';
   return out;
+}
+function attachPartyChipHandlers(){
+  document.querySelectorAll('.party-chip').forEach(function(btn){
+    btn.addEventListener('click',function(e){
+      e.stopPropagation(); // sits inside the collapsible group header — don't also toggle it
+      var key=this.dataset.partyChip;
+      partyChipFilter=(partyChipFilter===key)?'':key; // tap again to clear
+      importFilter='party';
+      typeFilter=''; var ts_=document.getElementById('typeSel'); if(ts_)ts_.value='';
+      selectedIdxs=[]; renderFilterRow(); renderGuestList();
+      requestAnimationFrame(function(){
+        var target=document.getElementById('filterRow')||document.getElementById('guestListSec');
+        if(target) target.scrollIntoView({behavior:'smooth',block:'start'});
+      });
+    });
+  });
 }
 function confirmedSeatBreakdown(guests){
   var res={formSeats:0,formGuests:0,manualExtra:[],manualCovered:[]};
