@@ -3387,9 +3387,7 @@ function renderGuestList(){
       var partyGuestsOnly=sentGuests.filter(function(g){return !isChurchOnly(g);});
       var partySeatInfo=confirmedSeatBreakdown(partyGuestsOnly);
       var partySeats=partySeatInfo.formSeats+partySeatInfo.manualExtra.length;
-      var partySeatsHtml=partySeats
-        ? seatsBadge(partySeats)+(partySeatInfo.manualExtra.length?'<span style="font-size:8px;font-weight:600;letter-spacing:0;text-transform:none;opacity:.7;margin-left:5px;white-space:nowrap">incl. '+partySeatInfo.manualExtra.length+' manual</span>':'')
-        : '';
+      var partySeatsHtml=partySeats ? seatsBadge(partySeats) : '';
       var partyRsvpHtml=partyCountChips(partyRsvpCounts(partyGuestsOnly));
       sentBody+=groupSection('party:'+importFilter, '<span style="margin-right:5px">&#x1F389;</span>Party <span style="opacity:.4">('+partyCount+')</span>'+partySeatsHtml+partyRsvpHtml, partyHtml, 'party-hdr', 'color:#B0762E;border-color:rgba(176,118,46,.25)', true);
     }
@@ -5022,10 +5020,10 @@ function partyCountChips(c){
   var out='<span style="display:inline-flex;gap:5px;margin-left:7px;vertical-align:middle">';
   out+=chip('adults','#1FA35C','A '+c.adults); // vivid green — adults confirmed
   if(c.kids) out+=chip('kids','#2F6FED','K '+c.kids); // vivid blue — kids confirmed, kept apart from adults
-  if(c.notComing) out+=chip('notcoming','#E0342A',String(c.notComing)+' &#10005;'); // vivid red — declined
+  if(c.notComing) out+=chip('notcoming','#E0342A','D '+c.notComing); // vivid red — declined
   // Deliberately muted, unlike the three above: this is "no answer yet", not a state,
   // and it exists so adults+kids+notComing+pending always equals the total next to it.
-  if(c.pending) out+=chip('pending','var(--parchment)',c.pending+' pending',true);
+  if(c.pending) out+=chip('pending','var(--parchment)','P '+c.pending,true);
   out+='</span>';
   return out;
 }
