@@ -2574,27 +2574,44 @@ function _flushRetryQueue(){
   return sendNext(0);
 }
 
-// Push followup/note/manualRsvp/bulkWith/sentGroupId changes for a single
-// guest to worker KV. bulkWith/sentGroupId were missing from this payload
-// before — meaning unlink/relink actions updated the screen locally but
-// never told the server, so a background poll a few seconds later would
-// see the server's still-old value and silently restore it. Now every
-// field this function touches gets pushed, including clearing to "".
+// ── Single source of truth for guest "meta" fields synced through Cloudflare. ──
+// Both pushMetaToWorker (below) and the pull merge in pollGuestState build
+// their field list from THIS array, so a field can no longer be pushed
+// without also being pulled (or vice versa) — that mismatch is what caused
+// manualRsvp/questionable/plannerGuess to silently never come back down on
+// another device even after pushing fine. Add a field here once and both
+// directions pick it up automatically.
+var META_FIELDS=[
+  {key:'followup',type:'bool'},
+  {key:'note',type:'str'},
+  {key:'role',type:'str'},
+  {key:'manualRsvp',type:'str'},
+  {key:'bulkWith',type:'str'},
+  {key:'sentGroupId',type:'str'},
+  {key:'parentNames',type:'str'},
+  {key:'questionable',type:'bool'},
+  {key:'plannerGuess',type:'str'},
+  {key:'thanksSent',type:'bool',pairedAt:'thanksSentAt'}
+];
+function _metaFieldValue(g,f){return f.type==='bool'?!!g[f.key]:(g[f.key]||'');}
+// Push followup/note/manualRsvp/bulkWith/sentGroupId/etc changes for a single
+// guest to worker KV — every field listed in META_FIELDS, including clearing
+// to "" (bulkWith/sentGroupId used to be silently skipped when cleared).
 function pushMetaToWorker(g){
   if(!workerUrl||!g||!g.name)return Promise.resolve();
   _localWrites[g.name]=_localWrites[g.name]||{};
-  _localWrites[g.name].followup=!!g.followup;
-  _localWrites[g.name].note=g.note||'';
-  _localWrites[g.name].role=g.role||'';
-  _localWrites[g.name].manualRsvp=g.manualRsvp||'';
-  _localWrites[g.name].bulkWith=g.bulkWith||'';
-  _localWrites[g.name].sentGroupId=g.sentGroupId||'';
-  _localWrites[g.name].parentNames=g.parentNames||'';
-  _localWrites[g.name].questionable=!!g.questionable;
-  _localWrites[g.name].plannerGuess=g.plannerGuess||'';
-  _localWrites[g.name].thanksSent=!!g.thanksSent;
-  _localWrites[g.name].thanksSentAt=g.thanksSentAt||'';
-  return _pushWithRetry('/meta',{name:g.name,followup:!!g.followup,thanksSent:!!g.thanksSent,thanksSentAt:g.thanksSentAt||'',note:g.note||'',role:g.role||'',manualRsvp:g.manualRsvp||'',bulkWith:g.bulkWith||'',sentGroupId:g.sentGroupId||'',parentNames:g.parentNames||'',questionable:!!g.questionable,plannerGuess:g.plannerGuess||''},'meta:'+g.name);
+  var payload={name:g.name};
+  META_FIELDS.forEach(function(f){
+    var v=_metaFieldValue(g,f);
+    _localWrites[g.name][f.key]=v;
+    payload[f.key]=v;
+    if(f.pairedAt){
+      var av=g[f.pairedAt]||'';
+      _localWrites[g.name][f.pairedAt]=av;
+      payload[f.pairedAt]=av;
+    }
+  });
+  return _pushWithRetry('/meta',payload,'meta:'+g.name);
 }
 function pushSentToWorker(name){
   if(!workerUrl||!name)return;
@@ -6533,24 +6550,23 @@ function pollGuestState(){
             dirty=true;
           }
         }
-        if(remote.followup!==undefined&&local.followup===undefined&&remote.followup!==g.followup){
-          g.followup=remote.followup;dirty=true;
-        }
-        if(remote.thanksSent!==undefined&&local.thanksSent===undefined&&remote.thanksSent!==g.thanksSent){
-          g.thanksSent=remote.thanksSent;g.thanksSentAt=remote.thanksSentAt||'';dirty=true;
-        }
-        if(remote.note!==undefined&&local.note===undefined&&remote.note!==g.note){
-          g.note=remote.note;dirty=true;
-        }
-        if(remote.role!==undefined&&local.role===undefined&&remote.role!==g.role){
-          g.role=remote.role;dirty=true;
-        }
+        // Every field in META_FIELDS — the same list pushMetaToWorker sends
+        // from — pulled back generically, so push and pull can never drift
+        // apart again the way manualRsvp/questionable/plannerGuess did.
+        META_FIELDS.forEach(function(f){
+          if(local[f.key]!==undefined)return; // this device has an unconfirmed write in flight — skip, avoid echo
+          if(remote[f.key]===undefined)return;
+          var curVal=_metaFieldValue(g,f);
+          var newVal=f.type==='bool'?!!remote[f.key]:(remote[f.key]||'');
+          if(newVal!==curVal){
+            g[f.key]=newVal;
+            if(f.pairedAt)g[f.pairedAt]=remote[f.pairedAt]||'';
+            dirty=true;
+          }
+        });
         if(remote.claim!==undefined&&remote.claim!==g.claim){
           g.claim=remote.claim;dirty=true;
         }
-        if(remote.bulkWith!==undefined&&local.bulkWith===undefined&&(remote.bulkWith||'')!==(g.bulkWith||'')){g.bulkWith=remote.bulkWith||'';dirty=true;}
-        if(remote.sentGroupId!==undefined&&local.sentGroupId===undefined&&(remote.sentGroupId||'')!==(g.sentGroupId||'')){g.sentGroupId=remote.sentGroupId||'';dirty=true;}
-        if(remote.parentNames!==undefined&&local.parentNames===undefined&&(remote.parentNames||'')!==(g.parentNames||'')){g.parentNames=remote.parentNames||'';dirty=true;}
         if(remote.sentBy!==undefined&&remote.sentBy!==g.sentBy){
           g.sentBy=remote.sentBy;
         }
