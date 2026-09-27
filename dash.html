@@ -1705,6 +1705,15 @@ body.mono-bar #presenceMeGroup .presence-avatar.is-me{box-shadow:0 0 0 2px var(-
   <div class="countdown-date" id="countdownDateEl"></div>
 </div>
 
+<!-- Always-visible sync status: the two pills above only show their last-synced
+     time in a title tooltip, which never shows on a touchscreen. This mirrors
+     that same info in plain text, plus flags when either side has changes
+     you haven't pulled in yet (amber), so this isn't discoverable only by tapping. -->
+<div id="syncStatusLine" style="display:flex;justify-content:center;flex-wrap:wrap;gap:4px 14px;font-size:10.5px;color:var(--soft);padding:0 0 8px">
+  <span id="syncStatusNotion">Notion —</span>
+  <span id="syncStatusDevices">Devices —</span>
+</div>
+
 <div class="stat-bar" id="statBar" style="display:none"></div>
 
 <div class="prog-track" id="progTrack" style="display:none!important"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
@@ -2730,6 +2739,15 @@ function buildReminderMsg(name,lang,url,isPlural,p1,p2){
   return tpl.replace('{n}',displayName).replace('{u}',url);
 }
 function ts(){var d=new Date();var day=String(d.getDate()).padStart(2,'0'),mon=String(d.getMonth()+1).padStart(2,'0');return day+'.'+mon+' '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});}
+// state: 'synced'|'syncing'|'stale' (remote has changes you haven't pulled)|'failed'
+function _setSyncStatusLine(which,state,text){
+  var el=document.getElementById(which==='notion'?'syncStatusNotion':'syncStatusDevices');
+  if(!el)return;
+  var label=which==='notion'?'Notion':'Devices';
+  el.textContent=label+' '+text;
+  el.style.color=(state==='stale'||state==='failed')?'var(--amber)':'var(--soft)';
+  el.style.fontWeight=(state==='stale'||state==='failed')?'700':'400';
+}
 function dt(){return new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short'})+' '+ts();}
 function copyText(text,btn,reset){var done=function(){btn.textContent='✓ Copied';btn.classList.add('ok');setTimeout(function(){btn.textContent=reset;btn.classList.remove('ok');},2000);};if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(done).catch(fb);else fb();function fb(){var t=document.createElement('textarea');t.value=text;t.style.cssText='position:fixed;opacity:0';document.body.appendChild(t);t.focus();t.select();try{document.execCommand('copy');done();}catch(e){}document.body.removeChild(t);}}
 function updateTodayBadge(){var el=document.getElementById('todayN');if(el)el.textContent=todayCount;}
@@ -6178,6 +6196,7 @@ function setTopSynced(timeStr){
   document.getElementById('topSyncLabel').textContent='Sync Notion';
   var dot=document.getElementById('syncDot');dot.classList.remove('live');dot.style.background='';
   setSyncBlur(false);
+  _setSyncStatusLine('notion','synced',timeStr);
 }
 function setTopSyncing(){
   var pill=document.getElementById('topSyncBtn');
@@ -6186,6 +6205,7 @@ function setTopSyncing(){
   document.getElementById('topSyncLabel').textContent='Syncing…';
   var dot=document.getElementById('syncDot');dot.classList.add('live');dot.style.background='';
   setSyncBlur(true);
+  _setSyncStatusLine('notion','syncing','syncing…');
 }
 function setTopSyncFailed(){
   var pill=document.getElementById('topSyncBtn');
@@ -6193,6 +6213,7 @@ function setTopSyncFailed(){
   document.getElementById('topSyncLabel').textContent='Retry';
   var dot=document.getElementById('syncDot');dot.classList.add('live');dot.style.background='var(--amber)';
   setSyncBlur(false);
+  _setSyncStatusLine('notion','failed','sync failed — tap to retry');
 }
 // Track last-known sent fingerprint so we can detect remote changes
 var _lastSyncFingerprint='';
@@ -6349,20 +6370,24 @@ document.getElementById('topSyncBtn').addEventListener('click',doSync);
 function setDevicesSynced(){
   var pill=document.getElementById('syncDevicesBtn');
   pill.classList.add('synced');
+  pill.style.background='';pill.style.boxShadow='';
   var dot=document.getElementById('syncDevicesDot');dot.classList.remove('live');dot.style.background='';
   document.getElementById('syncDevicesLabel').textContent='Sync Devices';
+  _setSyncStatusLine('devices','synced',ts());
 }
 function setDevicesSyncing(){
   var pill=document.getElementById('syncDevicesBtn');
   pill.classList.remove('synced');
   var dot=document.getElementById('syncDevicesDot');dot.classList.add('live');dot.style.background='';
   document.getElementById('syncDevicesLabel').textContent='Syncing…';
+  _setSyncStatusLine('devices','syncing','syncing…');
 }
 function setDevicesSyncFailed(){
   var pill=document.getElementById('syncDevicesBtn');
   pill.classList.remove('synced');
   var dot=document.getElementById('syncDevicesDot');dot.classList.add('live');dot.style.background='var(--amber)';
   document.getElementById('syncDevicesLabel').textContent='Retry';
+  _setSyncStatusLine('devices','failed','sync failed — tap to retry');
 }
 function syncDevices(){
   var url=workerUrl; if(!url) return;
@@ -6430,6 +6455,8 @@ function pollGuestState(){
     .then(function(data){
       if(!data.state)return;
       var _stateHash=JSON.stringify(data.state);
+      _lastDeviceStateHash=_stateHash;
+      try{localStorage.setItem('ww_device_state_hash',_stateHash);}catch(e){}
       if(_stateHash===_pollStateLastHash)return;
       _pollStateLastHash=_stateHash;
       var state=data.state;
@@ -6522,17 +6549,48 @@ function checkForNotionChanges(){
           if(label)label.textContent='Update';
           if(dot){dot.classList.add('live');dot.style.background='rgba(255,255,255,.85)';}
           pill.title='Notion has new changes — tap to sync';
+        _setSyncStatusLine('notion','stale','has changes — tap to pull');
         }
       }
     })
     .catch(function(){});
 }
 
+var _lastDeviceStateHash=(function(){try{return localStorage.getItem('ww_device_state_hash')||'';}catch(e){return'';}})();
+function checkForDeviceChanges(){
+  var url=workerUrl;
+  if(!url||!importQueue.length)return;
+  fetch(url.replace(/\/$/,'')+'/state',{cache:'no-store'})
+    .then(function(r){if(!r.ok)throw new Error();return r.json();})
+    .then(function(data){
+      if(!data||!data.state)return;
+      var hash=JSON.stringify(data.state);
+      if(!_lastDeviceStateHash){ // first check ever on this device — record baseline, don't flag
+        _lastDeviceStateHash=hash;
+        try{localStorage.setItem('ww_device_state_hash',hash);}catch(e){}
+        return;
+      }
+      if(hash!==_lastDeviceStateHash){
+        var pill=document.getElementById('syncDevicesBtn');
+        var label=document.getElementById('syncDevicesLabel');
+        var dot=document.getElementById('syncDevicesDot');
+        if(pill&&!pill.classList.contains('syncing')){
+          pill.style.background='var(--amber)';
+          pill.style.boxShadow='0 2px 12px rgba(176,120,48,.4)';
+          if(label)label.textContent='Update';
+          if(dot){dot.classList.add('live');dot.style.background='rgba(255,255,255,.85)';}
+          pill.title='Another device made changes — tap to pull them in';
+          _setSyncStatusLine('devices','stale','has changes — tap to pull');
+        }
+      }
+    })
+    .catch(function(){});
+}
 function setNotionSyncMode(mode){
   _notionSyncMode = mode;
   try { localStorage.setItem('ww_notion_mode', mode); } catch(e){}
   if(_notionSyncTimer){ clearInterval(_notionSyncTimer); _notionSyncTimer = null; }
-  _notionSyncTimer = setInterval(checkForNotionChanges, _NOTION_MS[mode] || _NOTION_MS.idle);
+  _notionSyncTimer = setInterval(function(){ checkForNotionChanges(); checkForDeviceChanges(); }, _NOTION_MS[mode] || _NOTION_MS.idle);
   updateNotionSyncUI();
 }
 
@@ -6559,6 +6617,7 @@ function updateNotionSyncUI(){
   try { _notionSyncMode = localStorage.getItem('ww_notion_mode') || 'idle'; } catch(e){}
   setTimeout(function(){
     checkForNotionChanges();
+    checkForDeviceChanges();
     setNotionSyncMode(_notionSyncMode);
   }, 30000);
   // Wire toggle switches once DOM ready
