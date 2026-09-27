@@ -81,23 +81,26 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
    pill — revealing the word and, on Cloudflare, the push/pull arrow —
    when there's actually something to report: stale, failed, or never
    synced yet. Once clean, it snaps back to a plain dot in a 32px circle. */
-.sync-pill{position:relative;display:flex;align-items:center;justify-content:center;gap:6px;width:32px;height:32px;padding:0;background:var(--rose);color:#fff;border:none;border-radius:50%;cursor:pointer;transition:background var(--ease),box-shadow var(--ease),color var(--ease);flex-shrink:0;box-sizing:border-box;font-family:var(--sans);font-size:11.5px;font-weight:700;letter-spacing:.01em;white-space:nowrap;overflow:hidden}
+.sync-pill{position:relative;display:flex;align-items:center;justify-content:center;width:32px;height:32px;padding:0;background:var(--rose);color:#fff;border:none;border-radius:50%;cursor:pointer;transition:background var(--ease),box-shadow var(--ease),color var(--ease);flex-shrink:0;box-sizing:border-box}
 .sync-pill:hover{background:var(--rose-deep)}
 .sync-pill.synced{background:var(--cream2);color:var(--green);box-shadow:none;border:none}
 .sync-pill.synced:hover{background:rgba(58,140,92,.24)}
-.sync-pill.expanded{width:auto;padding:0 13px;border-radius:var(--r-pill)}
-.sync-pill .sync-label{pointer-events:none;max-width:0;opacity:0;overflow:hidden;transition:opacity .15s}
-.sync-pill.expanded .sync-label{max-width:none;opacity:1}
+/* Two states only, ever: quiet green dot (nothing to do) or a blinking
+   arrow (something to do). Never both, never a permanently-blinking dot —
+   that ambiguity was the whole problem. Pill never changes size. */
 .sync-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.85);flex-shrink:0;pointer-events:none}
 .sync-pill.synced .sync-dot{background:var(--green)}
-.sync-dot.live{animation:blink 2.2s ease-in-out infinite}
+.sync-dot.live{animation:blink 1s ease-in-out infinite}
+.sync-pill.pending{background:var(--amber)!important;box-shadow:0 2px 12px rgba(176,120,48,.4)!important}
+.sync-pill.pending .sync-dot{display:none}
 @keyframes blink{0%,100%{opacity:1}55%{opacity:.3}}
 /* Direction glyph on the Cloudflare pill — ↑ push needed, ↓ pull needed,
    ↕ both. Only ever shown while .expanded (see above); empty and takes no
    space the rest of the time. Not a word, so it doesn't count against the
    "just the name, nothing else" rule. */
-.sync-arrow{font-size:11px;line-height:1;font-weight:700;pointer-events:none}
-.sync-arrow:empty{display:none}
+.sync-arrow{display:none;font-size:15px;line-height:1;font-weight:800;pointer-events:none;color:#fff}
+.sync-pill.pending .sync-arrow{display:block}
+.sync-arrow.live{animation:blink 1s ease-in-out infinite}
 
 
 /* Keyboard hint */
@@ -1620,13 +1623,12 @@ body.mono-bar #presenceMeGroup .presence-avatar.is-me{box-shadow:0 0 0 2px var(-
        Sync Notion = Notion → Browser only.
        Sync Devices = Browser ↔ Cloudflare ↔ Other Browser only (guest
        meta/claims + seat map). Never mixed — see doSync() / syncDevices(). -->
-  <button class="sync-pill" id="topSyncBtn" title="Pull the guest roster from Notion">
-    <span class="sync-dot live" id="syncDot"></span>
-    <span id="topSyncLabel" class="sync-label">Notion</span>
+  <button class="sync-pill" id="topSyncBtn" title="Notion">
+    <span class="sync-dot" id="syncDot"></span>
+    <span id="topSyncArrow" class="sync-arrow">↓</span>
   </button>
-  <button class="sync-pill" id="syncDevicesBtn" title="Push your changes, pull changes from other devices">
-    <span class="sync-dot live" id="syncDevicesDot"></span>
-    <span id="syncDevicesLabel" class="sync-label">Cloudflare</span>
+  <button class="sync-pill" id="syncDevicesBtn" title="Devices">
+    <span class="sync-dot" id="syncDevicesDot"></span>
     <span id="syncDevicesArrow" class="sync-arrow"></span>
   </button>
   <!-- Stats -->
@@ -6190,28 +6192,30 @@ function setSyncBlur(on){
 function setTopSynced(timeStr){
   var pill=document.getElementById('topSyncBtn');
   pill.classList.add('synced');
-  pill.classList.remove('expanded'); // back to a plain compact dot — nothing to report
-  pill.style.background='';pill.style.boxShadow='';
-  pill.title='Notion last synced '+timeStr; // date lives in the tooltip — the pill itself always just says "Notion"
-  var dot=document.getElementById('syncDot');dot.classList.remove('live');dot.style.background='';
+  pill.classList.remove('pending'); // green dot, nothing to report — arrow hides itself via CSS
+  pill.title='Notion — last synced '+timeStr;
+  var dot=document.getElementById('syncDot');dot.classList.remove('live');
+  var arrow=document.getElementById('topSyncArrow');if(arrow)arrow.classList.remove('live');
   setSyncBlur(false);
   _setSyncStatusLine('notion','synced',timeStr);
 }
 function setTopSyncing(){
   var pill=document.getElementById('topSyncBtn');
   pill.classList.remove('synced');
-  pill.classList.remove('expanded'); // stay compact while the request is in flight — just the dot pulses
-  pill.style.background='';pill.style.boxShadow='';pill.title='Syncing…';
-  var dot=document.getElementById('syncDot');dot.classList.add('live');dot.style.background='';
+  pill.classList.remove('pending'); // stay a plain dot while the request is in flight — it just pulses briefly
+  pill.title='Notion — syncing…';
+  var dot=document.getElementById('syncDot');dot.classList.add('live');
+  var arrow=document.getElementById('topSyncArrow');if(arrow)arrow.classList.remove('live');
   setSyncBlur(true);
   _setSyncStatusLine('notion','syncing','syncing…');
 }
 function setTopSyncFailed(){
   var pill=document.getElementById('topSyncBtn');
   pill.classList.remove('synced');
-  pill.classList.add('expanded'); // something to report — widen to show the word
-  pill.title='Sync failed — tap to retry';
-  var dot=document.getElementById('syncDot');dot.classList.add('live');dot.style.background='var(--amber)';
+  pill.classList.add('pending'); // dot hides, arrow shows and blinks — the only thing moving
+  pill.title='Notion — sync failed, tap to retry';
+  var dot=document.getElementById('syncDot');dot.classList.remove('live');
+  var arrow=document.getElementById('topSyncArrow');if(arrow){arrow.textContent='!';arrow.classList.add('live');}
   setSyncBlur(false);
   _setSyncStatusLine('notion','failed','sync failed — tap to retry');
 }
@@ -6377,27 +6381,32 @@ function _refreshDevicesIndicator(){
   if(!pill)return;
   var localDirty=_retryQueue.length>0;
   var remoteDirty=_remoteDeviceChangesPending;
-  if(!localDirty&&!remoteDirty)return; // nothing pending — leave whatever state is already showing
-  pill.classList.remove('synced');
-  pill.style.background='var(--amber)';
-  pill.style.boxShadow='0 2px 12px rgba(176,120,48,.4)';
-  var dot=document.getElementById('syncDevicesDot');
-  if(dot){dot.classList.add('live');dot.style.background='rgba(255,255,255,.85)';}
   var arrow=document.getElementById('syncDevicesArrow');
+  if(!localDirty&&!remoteDirty){
+    // Nothing pending — force the clean, quiet state rather than leaving
+    // whatever was showing before (this is what makes the pill reliably
+    // go back to a plain green dot once you've dealt with everything).
+    pill.classList.remove('pending');
+    if(arrow)arrow.classList.remove('live');
+    return;
+  }
+  pill.classList.remove('synced');
+  pill.classList.add('pending'); // dot hides, arrow shows and blinks until tapped
   var title,statusText;
   if(localDirty&&remoteDirty){
-    title='You have changes to save, and another device has changes too — tap to sync';
+    title='Devices — changes to save, and another device has changes too';
     statusText='has changes to save and pull';
     if(arrow)arrow.textContent='↕';
   }else if(localDirty){
-    title='You have changes — tap to save them to Cloudflare';
+    title='Devices — you have changes, tap to save them';
     statusText='has changes — tap to save';
     if(arrow)arrow.textContent='↑';
   }else{
-    title='Another device made changes — tap to pull them in';
+    title='Devices — another device made changes, tap to pull them in';
     statusText='has changes — tap to pull';
     if(arrow)arrow.textContent='↓';
   }
+  if(arrow)arrow.classList.add('live');
   pill.title=title;
   _setSyncStatusLine('devices','stale',statusText);
 }
@@ -6406,26 +6415,28 @@ function setDevicesSynced(){
   if(_retryQueue.length){ _refreshDevicesIndicator(); return; } // some queued writes still failed to land — keep flagging, don't claim "all clear"
   var pill=document.getElementById('syncDevicesBtn');
   pill.classList.add('synced');
-  pill.style.background='';pill.style.boxShadow='';
-  pill.title='Cloudflare last synced '+ts();
-  var dot=document.getElementById('syncDevicesDot');dot.classList.remove('live');dot.style.background='';
-  var arrow=document.getElementById('syncDevicesArrow');if(arrow)arrow.textContent='';
+  pill.classList.remove('pending');
+  pill.title='Devices — last synced '+ts();
+  var dot=document.getElementById('syncDevicesDot');dot.classList.remove('live');
+  var arrow=document.getElementById('syncDevicesArrow');if(arrow){arrow.textContent='';arrow.classList.remove('live');}
   _setSyncStatusLine('devices','synced',ts());
 }
 function setDevicesSyncing(){
   var pill=document.getElementById('syncDevicesBtn');
   pill.classList.remove('synced');
-  pill.title='Syncing…';
-  var dot=document.getElementById('syncDevicesDot');dot.classList.add('live');dot.style.background='';
-  var arrow=document.getElementById('syncDevicesArrow');if(arrow)arrow.textContent='';
+  pill.classList.remove('pending'); // stay a plain dot while the request is in flight
+  pill.title='Devices — syncing…';
+  var dot=document.getElementById('syncDevicesDot');dot.classList.add('live');
+  var arrow=document.getElementById('syncDevicesArrow');if(arrow){arrow.textContent='';arrow.classList.remove('live');}
   _setSyncStatusLine('devices','syncing','syncing…');
 }
 function setDevicesSyncFailed(){
   var pill=document.getElementById('syncDevicesBtn');
   pill.classList.remove('synced');
-  var dot=document.getElementById('syncDevicesDot');dot.classList.add('live');dot.style.background='var(--amber)';
-  var arrow=document.getElementById('syncDevicesArrow');if(arrow)arrow.textContent='!';
-  pill.title='Sync failed — tap to retry';
+  pill.classList.add('pending');
+  var dot=document.getElementById('syncDevicesDot');dot.classList.remove('live');
+  var arrow=document.getElementById('syncDevicesArrow');if(arrow){arrow.textContent='!';arrow.classList.add('live');}
+  pill.title='Devices — sync failed, tap to retry';
   _setSyncStatusLine('devices','failed','sync failed — tap to retry');
 }
 function syncDevices(){
@@ -6588,13 +6599,13 @@ function checkForNotionChanges(){
       }).sort().join('||');
       if(remoteFingerprint!==_lastSyncFingerprint){
         var pill=document.getElementById('topSyncBtn');
-        var dot=document.getElementById('syncDot');
-        if(pill&&!pill.classList.contains('syncing')){
-          pill.style.background='var(--amber)';
-          pill.style.boxShadow='0 2px 12px rgba(176,120,48,.4)';
-          if(dot){dot.classList.add('live');dot.style.background='rgba(255,255,255,.85)';}
-          pill.title='Notion has new changes — tap to sync';
-        _setSyncStatusLine('notion','stale','has changes — tap to pull');
+        var arrow=document.getElementById('topSyncArrow');
+        if(pill&&!pill.classList.contains('pending')){
+          pill.classList.remove('synced');
+          pill.classList.add('pending'); // dot hides, ↓ shows and blinks until tapped
+          if(arrow){arrow.textContent='↓';arrow.classList.add('live');}
+          pill.title='Notion — new changes, tap to pull';
+          _setSyncStatusLine('notion','stale','has changes — tap to pull');
         }
       }
     })
