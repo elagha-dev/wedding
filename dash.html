@@ -6239,8 +6239,21 @@ function setTopSyncFailed(){
 // Track last-known sent fingerprint so we can detect remote changes
 var _lastSyncFingerprint='';
 var _localWrites={};
+// Shared fingerprint builder — used by BOTH the local baseline (below) and
+// the live Notion check (checkForNotionChanges) so they're always the same
+// format and can actually be compared. They used to use different
+// delimiters and field sets entirely, so the comparison could never truly
+// match and falsely flagged "Notion changed" on every single background
+// check, no matter what. Also restricted to fields that genuinely come
+// from Notion (name/phone/type/lang) — sentAt/followup/note are
+// Cloudflare-KV fields merged into this same feed, and including them made
+// a Cloudflare-side push (mark sent, add a note) look like a Notion edit
+// and light up this pill instead of the Devices one.
+function _notionFingerprintOf(name,phone,type,lang){
+  return (name||'')+'|'+(phone||'').replace(/\s/g,'')+'|'+(type||'')+'|'+(lang||'');
+}
 function _buildSyncFingerprint(guests){
-  return guests.map(function(g){return g.name+'='+(g.sentAt||'0')+'+'+(g.followup?'1':'0')+'+'+(g.note||'');}).join('|');
+  return guests.map(function(g){return _notionFingerprintOf(g.name,g.phone,g.type,g.lang);}).sort().join('||');
 }
 
 function doSync(){
@@ -6609,9 +6622,7 @@ function checkForNotionChanges(){
       var guests=Array.isArray(data)?data:(data.results||data.guests||[]);
       if(!guests.length)return;
       var remoteFingerprint=guests.map(function(g){
-        var name=g.name||g.Name||'';
-        var phone=(g.phone||g.Phone||'').replace(/\s/g,'');
-        return name+'|'+phone+'|'+(g.sentAt||'0')+'|'+(g.followup?'1':'0')+'|'+(g.note||'')+'|'+(g.type||'')+'|'+(g.lang||'');
+        return _notionFingerprintOf(g.name||g.Name,g.phone||g.Phone,g.type||g.Type,g.lang||g.Lang);
       }).sort().join('||');
       if(remoteFingerprint!==_lastSyncFingerprint){
         var pill=document.getElementById('topSyncBtn');
