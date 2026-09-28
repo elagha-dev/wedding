@@ -1632,8 +1632,8 @@ body.mono-bar #presenceMeGroup .presence-avatar.is-me{box-shadow:0 0 0 2px var(-
     <span id="syncDevicesArrow" class="sync-arrow"></span>
   </button>
   <!-- Stats -->
-  <div class="stat-pill total" id="ovTotal" title="Total guests" style="cursor:pointer;display:none">0</div>
-  <div class="stat-pill forecast" id="ovForecast" title="Forecast (Confirmed + guesses)" style="cursor:pointer;display:none">0</div>
+  <div class="stat-pill total" id="ovTotal" title="Total guests" style="cursor:pointer">0</div>
+  <div class="stat-pill forecast" id="ovForecast" title="Forecast (Confirmed + guesses)" style="cursor:pointer">0</div>
   <button id="reviewPairsBtn" title="Review sent-together pairs" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;border:none;background:var(--amber-bg);color:var(--amber);cursor:pointer;padding:0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></button>
   <div class="stat-pill new-guests" id="ovNew" title="New since last sync" style="display:none"></div>
   <!-- spacer -->
@@ -2980,10 +2980,15 @@ function renderStatBar(){
   var declined=all.filter(function(g){return getGuestRsvpYesNo(g)===false&&!getGuestRsvpIsGuess(g);}).length;
   var expecting=all.filter(function(g){return guestHasLiveManualStatus(g)&&g.plannerGuess==='yes';}).length;
   var forecast=confirmed+expecting;
-  function item(cls,n,label,gotoFilter,extraAttr){
-    return '<div class="stat-bar-item"'+(gotoFilter?' data-mini-goto="'+gotoFilter+'"':'')+(extraAttr||'')+'><div class="stat-bar-n '+cls+'">'+n+'</div><div class="stat-bar-l">'+label+'</div></div>';
+  // Confirmed split by invite type — adds up to the Confirmed number.
+  var confList=all.filter(function(g){return getGuestRsvpYesNo(g)===true&&!getGuestRsvpIsGuess(g);});
+  var confParty=confList.filter(function(g){return (g.type||'').indexOf('party')!==-1;}).length;
+  var confChurch=confList.length-confParty;
+  function item(cls,n,label,gotoFilter,extraAttr,sub){
+    return '<div class="stat-bar-item"'+(gotoFilter?' data-mini-goto="'+gotoFilter+'"':'')+(extraAttr||'')+'><div class="stat-bar-n '+cls+'">'+n+'</div><div class="stat-bar-l">'+label+'</div>'
+      +(sub?'<div style="font-size:10px;font-weight:700;color:var(--ink2);margin-top:3px;letter-spacing:.02em;white-space:nowrap">'+sub+'</div>':'')+'</div>';
   }
-  bar.innerHTML=item('g',confirmed,'Confirmed','confirmed')+'<div class="stat-bar-div"></div>'+item('r',declined,'Declined','declined')+'<div class="stat-bar-div"></div>'+item('p',forecast,'Forecast','',' data-forecast-info="1" style="cursor:pointer"');
+  bar.innerHTML=item('g',confirmed,'Confirmed','confirmed','','Church only '+confChurch+' · Party '+confParty)+'<div class="stat-bar-div"></div>'+item('r',declined,'Declined','declined')+'<div class="stat-bar-div"></div>'+item('p',forecast,'Forecast','',' data-forecast-info="1" style="cursor:pointer"');
   bar.style.display='';
   bar.querySelectorAll('[data-mini-goto]').forEach(function(b){
     b.addEventListener('click',function(){
@@ -3380,7 +3385,8 @@ function renderGuestList(){
   if(sentGuests.length){
     var sentHdrLabel=({confirmed:'Confirmed',declined:'Declined',manual:'Forecast',followup:'Flagged',thanks:'Thank-you letter missing',party:'Party'})[importFilter]||'Church + Party';
     var sentSeatInfo=confirmedSeatBreakdown(sentGuests);
-    var sentSeats=sentSeatInfo.formSeats+sentSeatInfo.manualExtra.length;
+    var sentSeats=seatsConfirmedPlusExpecting(sentGuests.filter(function(g){return (g.type||'').indexOf('party')!==-1;}))
+                 +seatsConfirmedPlusExpecting(sentGuests.filter(function(g){return (g.type||'').indexOf('party')===-1;}));
     var sentInner='<span style="flex-shrink:0">'+sentHdrLabel+' ('+sentGuests.length+')</span>'
       + '<span style="flex:1;height:1px;background:var(--parchment);display:inline-block;min-width:8px"></span>'
       + seatsBadge(sentSeats);
@@ -3421,19 +3427,14 @@ function renderGuestList(){
     var sentBody='';
     if(partyHtml){
       var partyGuestsOnly=sentGuests.filter(function(g){return !isChurchOnly(g);});
-      // Confirmed seats only — same definition as the Church-only badge and the
-      // section total, so Party + Church only adds up to the total. (It used to
-      // include "expecting" guesses here, which made 58 + 51 ≠ 100.) Guesses
-      // are counted in Forecast, under the countdown.
-      var partySeatInfo=confirmedSeatBreakdown(partyGuestsOnly);
-      var partySeatsHtml=seatsBadge(partySeatInfo.formSeats+partySeatInfo.manualExtra.length);
+      var partySeatsHtml=seatsBadge(seatsConfirmedPlusExpecting(partyGuestsOnly)); // confirmed + expecting
       var partyRsvpHtml=partyCountChips(partyRsvpCounts(partyGuestsOnly));
       sentBody+=groupSection('party:'+importFilter, '<span style="margin-right:5px">&#x1F389;</span>Party <span style="opacity:.4">('+partyCount+')</span>'+partySeatsHtml+partyRsvpHtml, partyHtml, 'party-hdr', 'color:#B0762E;border-color:rgba(176,118,46,.25)', true);
     }
     if(churchHtml){
       var churchGuestsOnly=sentGuests.filter(isChurchOnly);
       var churchSeatInfo=confirmedSeatBreakdown(churchGuestsOnly);
-      var churchSeats=churchSeatInfo.formSeats+churchSeatInfo.manualExtra.length;
+      var churchSeats=seatsConfirmedPlusExpecting(churchGuestsOnly);
       var churchSeatsHtml=churchSeats ? seatsBadge(churchSeats) : '';
       sentBody+=groupSection('church:'+importFilter, '<span style="margin-right:5px">&#x26EA;</span>Church only <span style="opacity:.4">('+churchCount+')</span>'+churchSeatsHtml, churchHtml, 'church-only-hdr', 'color:#7C4DBB;border-color:rgba(124,77,187,.2)', true);
     }
@@ -5090,6 +5091,8 @@ function attachPartyChipHandlers(){
    (an "Expecting" status — same definition as the app's own Forecast number,
    confirmed + expecting, just at the seat level instead of a headcount). A
    guess never carries a form seat count of its own, so it adds 1 each. */
+/* Seats = confirmed + expecting, everywhere (section total, Party, Church only). */
+function seatsConfirmedPlusExpecting(guests){ return partyForecastSeats(guests); }
 function partyForecastSeats(guests){
   var info=confirmedSeatBreakdown(guests);
   var expectingSeats=(guests||[]).filter(function(g){return guestHasLiveManualStatus(g)&&g.plannerGuess==='yes';}).length;
@@ -7487,13 +7490,30 @@ function showChatNotif(who, text){
   }
 
   // Show notification banner
-  function showNotification(newCount, diff){
-    var txt = document.getElementById('rsvpBannerText');
-    if(!txt) return;
-    txt.innerHTML = diff > 0
-      ? '<strong>' + diff + ' new RSVP' + (diff > 1 ? 's' : '') + '</strong> just came in — ' + newCount + ' total'
-      : 'RSVP sheet updated — <strong>' + newCount + ' total responses</strong>';
-    banner.style.display = 'flex';
+  // New RSVPs now land in the notification bell (history + unread badge)
+  // instead of a separate banner, so everything lives in one place.
+  function showNotification(newCount, diff, rows){
+    var seenKey='rsvpSeenRowIds', seen={};
+    try{ seen=JSON.parse(localStorage.getItem(seenKey)||'{}'); }catch(e){}
+    var fresh=[];
+    (rows||[]).forEach(function(r){
+      var id=_rvRowId(r);
+      if(id&&!seen[id]){ seen[id]=1; fresh.push(r); }
+    });
+    try{ localStorage.setItem(seenKey,JSON.stringify(seen)); }catch(e){}
+    if(fresh.length){
+      fresh.forEach(function(r){
+        var nm=(r['Full Name']||r.name||'Someone').toString();
+        var att=isAttendingRow(r);
+        _rv.history.push({ts:Date.now(),kind:'rsvp',guest:nm,by:'',rowId:'',unseen:true,
+          text:'New RSVP: '+nm+(att===true?' \u2014 coming':att===false?' \u2014 declined':'')});
+      });
+    } else {
+      _rv.history.push({ts:Date.now(),kind:'rsvp',guest:'',by:'',rowId:'',unseen:true,
+        text:diff>0?diff+' new RSVP'+(diff>1?'s':'')+' \u2014 '+newCount+' total':'RSVP sheet updated \u2014 '+newCount+' total responses'});
+    }
+    _rvSave();
+    try{ if(window.rvBadge) window.rvBadge(); }catch(e){}
   }
 
   // Finds every confirmed guest whose invite-type tag (Party vs Church only
@@ -8107,10 +8127,11 @@ function showChatNotif(who, text){
       var stored = localStorage.getItem(COUNT_KEY);
       if(stored === null){
         localStorage.setItem(COUNT_KEY, count); // first load — set baseline silently
+        try{ var _b={}; (data.rsvpRows||[]).forEach(function(r){ var i=_rvRowId(r); if(i)_b[i]=1; }); localStorage.setItem('rsvpSeenRowIds',JSON.stringify(_b)); }catch(e){}
       } else {
         var prev = parseInt(stored, 10);
         if(count !== prev){
-          showNotification(count, count - prev);
+          showNotification(count, count - prev, data.rsvpRows);
           localStorage.setItem(COUNT_KEY, count);
         }
       }
@@ -12241,7 +12262,11 @@ if(_smExportOverlay) _smExportOverlay.addEventListener('click', function(e){ if(
   function render(){
     var body=$('rvBody'); if(!body) return;
     items=rvBuildItems();
-    var h='<div class="rv-sec">Needs your decision ('+items.length+')</div>';
+    var h='';
+    var _newR=_rv.history.filter(function(e){return e.unseen;}).reverse();
+    if(_newR.length) h+='<div class="rv-sec">New responses ('+_newR.length+')</div>'
+      +_newR.map(function(e){return '<div class="rv-hist">'+esc(e.text)+'<small>'+esc(fmtTs(e.ts))+'</small></div>';}).join('');
+    h+='<div class="rv-sec">Needs your decision ('+items.length+')</div>';
     h+=items.length?items.map(itemHtml).join(''):'<div class="rv-empty">Nothing to review right now.</div>';
     var _an=null;
     try{ _an=window.rsvpAnalytics?window.rsvpAnalytics(_rvRows()):null; }catch(e){ _an=null; }
@@ -12280,6 +12305,7 @@ if(_smExportOverlay) _smExportOverlay.addEventListener('click', function(e){ if(
   window.rvBadge=function(){
     var n=rvBuildItems().length, b=$('rvBellBadge');
     try{ if(window.rsvpAnalytics) n+=window.rsvpAnalytics(_rvRows()).issueCount; }catch(e){}
+    n+=_rv.history.filter(function(e){return e.unseen;}).length;
     if(b){ b.textContent=n>9?'9+':n; b.style.display=n?'block':'none'; }
   };
   function refreshAll(){
@@ -12291,6 +12317,7 @@ if(_smExportOverlay) _smExportOverlay.addEventListener('click', function(e){ if(
     var d=$('rvDrawer'), ov=$('rvOverlay'); if(!d) return;
     d.classList.toggle('open',o); ov.classList.toggle('open',o);
     if(o) render();
+    else { var _ch=false; _rv.history.forEach(function(e){ if(e.unseen){ e.unseen=false; _ch=true; } }); if(_ch){ _rvSave(); window.rvBadge(); } }
   }
   function rejectRow(gname,rid){
     var d=_rv.decisions[gname]=_rv.decisions[gname]||{rejected:[]};
