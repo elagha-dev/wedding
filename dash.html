@@ -2988,7 +2988,11 @@ function renderStatBar(){
     return '<div class="stat-bar-item"'+(gotoFilter?' data-mini-goto="'+gotoFilter+'"':'')+(extraAttr||'')+'><div class="stat-bar-n '+cls+'">'+n+'</div><div class="stat-bar-l">'+label+'</div>'
       +(sub?'<div style="font-size:10px;font-weight:700;color:var(--ink2);margin-top:3px;letter-spacing:.02em;white-space:nowrap">'+sub+'</div>':'')+'</div>';
   }
-  bar.innerHTML=item('g',confirmed,'Confirmed','confirmed','','Church only '+confChurch+' · Party '+confParty)+'<div class="stat-bar-div"></div>'+item('r',declined,'Declined','declined')+'<div class="stat-bar-div"></div>'+item('p',forecast,'Forecast','',' data-forecast-info="1" style="cursor:pointer"');
+  // Forecast split by invite type — same church/party divide as Confirmed above.
+  var expectList=all.filter(function(g){return guestHasLiveManualStatus(g)&&g.plannerGuess==='yes';});
+  var forecastParty=confParty+expectList.filter(function(g){return (g.type||'').indexOf('party')!==-1;}).length;
+  var forecastChurch=forecast-forecastParty;
+  bar.innerHTML=item('g',confirmed,'Confirmed','confirmed','','Church only '+confChurch+' · Party '+confParty)+'<div class="stat-bar-div"></div>'+item('r',declined,'Declined','declined')+'<div class="stat-bar-div"></div>'+item('p',forecast,'Forecast','',' data-forecast-info="1" style="cursor:pointer"','Church only '+forecastChurch+' · Party '+forecastParty);
   bar.style.display='';
   bar.querySelectorAll('[data-mini-goto]').forEach(function(b){
     b.addEventListener('click',function(){
