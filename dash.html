@@ -2532,6 +2532,7 @@ document.getElementById('undoToastBtn').addEventListener('click',function(){if(u
 function save(){try{localStorage.setItem('wt',JSON.stringify(mem));}catch(e){}}
 function load(){try{var d=localStorage.getItem('wt');return d?JSON.parse(d):[];}catch(e){return[];}}
 function saveGuestMeta(){
+  if(typeof _rvClearPerRenderCaches==='function') _rvClearPerRenderCaches(); // guest fields just changed
   try{
     var m={};
     importQueue.forEach(function(g){
@@ -2953,6 +2954,7 @@ function showSessionToast(who){
 
 /* ══ OVERVIEW BAR ════════════════════════════ */
 function renderDashboard(){
+  if(typeof _rvClearPerRenderCaches==='function') _rvClearPerRenderCaches();
   var pt=document.getElementById('progTrack');
   if(!importQueue.length){pt.style.display='none';return;}
   pt.style.display='';
@@ -3252,6 +3254,7 @@ function renderAzRail(){
 }
 
 function renderGuestList(){
+  if(typeof _rvClearPerRenderCaches==='function') _rvClearPerRenderCaches();
   var list=document.getElementById('guestList');
   if(importFilter==='dashboard'){
     list.innerHTML=buildDashboardOverview();
@@ -4733,10 +4736,21 @@ function _rvLog(kind,guest,text,rowId){
   _rv.history.push({ts:Date.now(),kind:kind,guest:guest,text:text,by:_rvWho(),rowId:rowId||''});
   _rvSave();
 }
+// Was a linear scan over the ENTIRE guest list on every single call. This is one
+// of the hottest paths in the app (called from inside getGuestRsvpInfo, which
+// itself runs several times per guest per render) — with ~150 guests that's
+// tens of thousands of name comparisons on every render, just here. Indexed
+// once per render instead (see _rvClearPerRenderCaches, called wherever the
+// guest list or its data can have changed).
+var _rvGuestByNameMap=null;
 function _rvFindGuest(name){
   if(typeof importQueue==='undefined') return null;
-  for(var i=0;i<importQueue.length;i++){ if(importQueue[i].name===name) return importQueue[i]; }
-  return null;
+  if(!_rvGuestByNameMap){
+    _rvGuestByNameMap={};
+    for(var i=0;i<importQueue.length;i++){ _rvGuestByNameMap[importQueue[i].name]=importQueue[i]; }
+  }
+  var hit=_rvGuestByNameMap[name];
+  return hit===undefined?null:hit;
 }
 
 /* Separate first-name-only (or same-surname) forms that could be THIS guest's own
@@ -4865,7 +4879,7 @@ function _rvNoteAuto(g,row){
   _rvLog('auto',g.name,'Matched the separate form from "'+(row['Full Name']||row.name)+'" to '+g.name+' automatically ('+why+').',_rvRowId(row));
 }
 
-function getGuestRsvpInfo(name,isCouple,knownPartnerName,manualOverride,plannerGuess){
+function _getGuestRsvpInfoUncached(name,isCouple,knownPartnerName,manualOverride,plannerGuess){
   var base=_getGuestRsvpInfoBase(name,isCouple,knownPartnerName,manualOverride,plannerGuess);
   if(manualOverride==='yes'||manualOverride==='no') return base;
   /* A form a person has explicitly marked "not this guest" never counts for them. */
@@ -4901,8 +4915,24 @@ function getGuestRsvpInfo(name,isCouple,knownPartnerName,manualOverride,plannerG
   return base;
 }
 
+
+var _rvInfoMemo=Object.create(null);
+// Call this wherever guest data, RSVP decisions, or the underlying RSVP
+// rows can have just changed — it invalidates both the name index above
+// and this memo cache so nothing stale leaks into the next render.
+function _rvClearPerRenderCaches(){ _rvInfoMemo=Object.create(null); _rvGuestByNameMap=null; if(typeof _partnerNameMemo!=='undefined') _partnerNameMemo=Object.create(null); }
+function getGuestRsvpInfo(name,isCouple,knownPartnerName,manualOverride,plannerGuess){
+  var key=name+'\u0001'+isCouple+'\u0001'+knownPartnerName+'\u0001'+manualOverride+'\u0001'+plannerGuess;
+  var hit=_rvInfoMemo[key];
+  if(hit!==undefined) return hit;
+  var result=_getGuestRsvpInfoUncached(name,isCouple,knownPartnerName,manualOverride,plannerGuess);
+  _rvInfoMemo[key]=result;
+  return result;
+}
+
 /* Everything that needs a person's decision right now. */
 function rvBuildItems(){
+  if(typeof _rvClearPerRenderCaches==='function') _rvClearPerRenderCaches();
   var rows=_rvRows(); var items=[];
   if(typeof importQueue==='undefined') return items;
   var forms={};  // rowId -> {row, guests:[{g,base,manual}]}
@@ -5142,7 +5172,7 @@ function confirmedSeatBreakdown(guests){
 // guest belongs to a named group/family with exactly one other (non-child)
 // member, treat that person as the known partner too. Only kicks in when
 // bulkWith is empty, so it can only add matches, never change existing ones.
-function inferPartnerName(g){
+function _inferPartnerNameUncached(g){
   if(g.bulkWith) return g.bulkWith;
   if(g.group){
     var mates=importQueue.filter(function(o){ return o!==g && !o.isChild && (o.group||'')===g.group; });
@@ -5159,6 +5189,21 @@ function inferPartnerName(g){
     if(sameLN.length===1) return sameLN[0].name;
   }
   return '';
+}
+
+// Recomputed 1-2 O(guests) scans EVERY call, and it's called from inside
+// getGuestRsvpYesNo/IsGuess/Pill/confirmedSeatBreakdown etc. — several times
+// per guest per render. With ~150 guests that's the single biggest cost in a
+// render (bigger than the RSVP-matching cache above). A guest's inferred
+// partner can't change mid-render, so cache it per guest name; cleared by
+// _rvClearPerRenderCaches() alongside the other per-render caches.
+var _partnerNameMemo=Object.create(null);
+function inferPartnerName(g){
+  var cached=_partnerNameMemo[g.name];
+  if(cached!==undefined) return cached;
+  var result=_inferPartnerNameUncached(g);
+  _partnerNameMemo[g.name]=result;
+  return result;
 }
 
 // TEMPORARY DIAGNOSTIC — explains why a guest has no RSVP match, purely for
