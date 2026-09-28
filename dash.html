@@ -1632,8 +1632,8 @@ body.mono-bar #presenceMeGroup .presence-avatar.is-me{box-shadow:0 0 0 2px var(-
     <span id="syncDevicesArrow" class="sync-arrow"></span>
   </button>
   <!-- Stats -->
-  <div class="stat-pill total" id="ovTotal" title="Total guests" style="cursor:pointer">0</div>
-  <div class="stat-pill forecast" id="ovForecast" title="Forecast (Confirmed + guesses)" style="cursor:pointer">0</div>
+  <div class="stat-pill total" id="ovTotal" title="Total guests" style="cursor:pointer;display:none">0</div>
+  <div class="stat-pill forecast" id="ovForecast" title="Forecast (Confirmed + guesses)" style="cursor:pointer;display:none">0</div>
   <button id="reviewPairsBtn" title="Review sent-together pairs" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;border:none;background:var(--amber-bg);color:var(--amber);cursor:pointer;padding:0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></button>
   <div class="stat-pill new-guests" id="ovNew" title="New since last sync" style="display:none"></div>
   <!-- spacer -->
@@ -3421,7 +3421,12 @@ function renderGuestList(){
     var sentBody='';
     if(partyHtml){
       var partyGuestsOnly=sentGuests.filter(function(g){return !isChurchOnly(g);});
-      var partySeatsHtml=seatsBadge(partyForecastSeats(partyGuestsOnly)); // confirmed + expecting
+      // Confirmed seats only — same definition as the Church-only badge and the
+      // section total, so Party + Church only adds up to the total. (It used to
+      // include "expecting" guesses here, which made 58 + 51 ≠ 100.) Guesses
+      // are counted in Forecast, under the countdown.
+      var partySeatInfo=confirmedSeatBreakdown(partyGuestsOnly);
+      var partySeatsHtml=seatsBadge(partySeatInfo.formSeats+partySeatInfo.manualExtra.length);
       var partyRsvpHtml=partyCountChips(partyRsvpCounts(partyGuestsOnly));
       sentBody+=groupSection('party:'+importFilter, '<span style="margin-right:5px">&#x1F389;</span>Party <span style="opacity:.4">('+partyCount+')</span>'+partySeatsHtml+partyRsvpHtml, partyHtml, 'party-hdr', 'color:#B0762E;border-color:rgba(176,118,46,.25)', true);
     }
@@ -6371,8 +6376,10 @@ function doSync(){
         newPill.style.display='none';
       }
 
-      // Show toast if another device changed something
-      if(remoteChanged){
+      // Show toast if another device changed something. Gated only on
+      // "not the first sync" — the per-guest diff below is already precise,
+      // and the Notion-only fingerprint would miss sent/followup/note changes.
+      if(prevCount>0){
         var changedGuests=importQueue.filter(function(g){
           var prev=_prevSyncMap[g.name];
           return prev&&(prev.sent!==g.sent||prev.followup!==g.followup||prev.note!==g.note);
