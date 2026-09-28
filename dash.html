@@ -220,7 +220,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .sync-row{display:flex;gap:8px;margin-bottom:10px}.sync-row input{flex:1}
 .btn-sync{padding:0 18px;background:var(--rose);color:#fff;border:none;border-radius:var(--r-sm);font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:all var(--ease)}.btn-sync:hover{background:var(--rose-deep)}
 .sync-status{font-size:11px;color:var(--muted);margin-bottom:12px;min-height:18px}
-.sync-status-bar{display:flex;gap:16px;align-items:center;max-width:640px;margin:0 auto;padding:7px 16px;position:relative;z-index:2}
+.sync-status-bar{display:flex;gap:16px;align-items:center;position:relative;z-index:2;flex-wrap:wrap}
 .sync-status-item{font-size:11px;color:var(--soft);cursor:pointer;line-height:1.3}
 .sync-status-item:empty{display:none}
 .sync-status-item:active{opacity:.6}
@@ -1032,7 +1032,7 @@ body.lite-mode #liteModeTopBtn {
 .stat-bar-item:active{background:var(--rose-soft)}
 .stat-bar-div{width:1px;background:var(--parchment);flex-shrink:0}
 .stat-bar-n{font-family:var(--sans);font-size:17px;font-weight:800;line-height:1;color:var(--ink2)}
-.stat-bar-n.g{color:var(--green)}.stat-bar-n.r{color:var(--red)}.stat-bar-n.p{color:#7c3aed}
+.stat-bar-n.g{color:var(--green)}.stat-bar-n.r{color:var(--red)}.stat-bar-n.p{color:#7c3aed}.stat-bar-n.amber{color:var(--amber)}
 .stat-bar-l{font-size:8.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:3px}
 /* Small count badge on the "All" tab — replaces a separate Sent tab */
 .f-pill-badge{display:inline-flex;align-items:center;justify-content:center;min-width:15px;height:15px;padding:0 4px;border-radius:8px;background:rgba(0,0,0,.14);font-size:9px;font-weight:800;line-height:15px;vertical-align:middle;margin-left:2px}
@@ -1715,21 +1715,23 @@ body.mono-bar #presenceMeGroup .presence-avatar.is-me{box-shadow:0 0 0 2px var(-
 })();
 </script>
 
-<!-- SYNC STATUS STRIP — plain-text version of what the two sync pill dots
-     mean. Tap either line to trigger that sync directly. Elements are
-     wired up by the existing _setSyncStatusLine() calls throughout the
-     sync code below; nothing here needed a JS change, only these ids. -->
-<div class="sync-status-bar">
-  <span id="syncStatusNotion" class="sync-status-item"></span>
-  <span id="syncStatusDevices" class="sync-status-item"></span>
-</div>
-
 <div class="wrap">
 
+<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
 <div class="countdown-card" id="countdownCard">
   <div class="countdown-num" id="countdownNum">--</div>
   <div class="countdown-label" id="countdownLabel">days to go</div>
   <div class="countdown-date" id="countdownDateEl"></div>
+</div>
+<!-- SYNC STATUS STRIP — plain-text version of what the two sync pill dots
+     mean, now sitting right next to the countdown. Tap either line to
+     trigger that sync directly. Elements are wired up by the existing
+     _setSyncStatusLine() calls throughout the sync code below; nothing
+     here needed a JS change, only these ids. -->
+<div class="sync-status-bar">
+  <span id="syncStatusNotion" class="sync-status-item"></span>
+  <span id="syncStatusDevices" class="sync-status-item"></span>
+</div>
 </div>
 
 <div class="stat-bar" id="statBar" style="display:none"></div>
@@ -2761,7 +2763,7 @@ function ts(){var d=new Date();var day=String(d.getDate()).padStart(2,'0'),mon=S
 function _setSyncStatusLine(which,state,text){
   var el=document.getElementById(which==='notion'?'syncStatusNotion':'syncStatusDevices');
   if(!el)return;
-  var label=which==='notion'?'Notion':'Devices';
+  var label=which==='notion'?'Notion':'Cloudflare';
   el.textContent=label+' '+text;
   el.style.color=(state==='stale'||state==='failed')?'var(--amber)':'var(--soft)';
   el.style.fontWeight=(state==='stale'||state==='failed')?'700':'400';
@@ -2976,23 +2978,28 @@ function renderStatBar(){
   if(!bar)return;
   var all=importQueue.filter(function(g){return!g.skipped;});
   if(!all.length){bar.style.display='none';return;}
-  var confirmed=all.filter(function(g){return getGuestRsvpYesNo(g)===true&&!getGuestRsvpIsGuess(g);}).length;
-  var declined=all.filter(function(g){return getGuestRsvpYesNo(g)===false&&!getGuestRsvpIsGuess(g);}).length;
-  var expecting=all.filter(function(g){return guestHasLiveManualStatus(g)&&g.plannerGuess==='yes';}).length;
-  var forecast=confirmed+expecting;
-  // Confirmed split by invite type — adds up to the Confirmed number.
-  var confList=all.filter(function(g){return getGuestRsvpYesNo(g)===true&&!getGuestRsvpIsGuess(g);});
-  var confParty=confList.filter(function(g){return (g.type||'').indexOf('party')!==-1;}).length;
-  var confChurch=confList.length-confParty;
+  var partyAll=all.filter(function(g){return (g.type||'').indexOf('party')!==-1;});
+  var churchAll=all.filter(function(g){return (g.type||'').indexOf('party')===-1;});
+  // Seats, not headcount — same basis as the guest-list badges below, so the
+  // top bar and the list finally agree. Declined dropped from this bar
+  // entirely (no seat number on a decline, and it's not part of planning).
+  var confSeatInfo=confirmedSeatBreakdown(all);
+  var confirmed=confSeatInfo.formSeats+confSeatInfo.manualExtra.length;
+  var confChurch=(function(){var i=confirmedSeatBreakdown(churchAll);return i.formSeats+i.manualExtra.length;})();
+  var confParty=confirmed-confChurch;
+  var forecast=seatsConfirmedPlusExpecting(all);
+  var forecastChurch=seatsConfirmedPlusExpecting(churchAll);
+  var forecastParty=forecast-forecastChurch;
+  // Expecting = forecast minus confirmed — the guessed-yes seats on their own,
+  // so Confirmed and Expecting are two separate numbers that add up to Forecast.
+  var expecting=forecast-confirmed;
+  var expectChurch=forecastChurch-confChurch;
+  var expectParty=forecastParty-confParty;
   function item(cls,n,label,gotoFilter,extraAttr,sub){
     return '<div class="stat-bar-item"'+(gotoFilter?' data-mini-goto="'+gotoFilter+'"':'')+(extraAttr||'')+'><div class="stat-bar-n '+cls+'">'+n+'</div><div class="stat-bar-l">'+label+'</div>'
       +(sub?'<div style="font-size:10px;font-weight:700;color:var(--ink2);margin-top:3px;letter-spacing:.02em;white-space:nowrap">'+sub+'</div>':'')+'</div>';
   }
-  // Forecast split by invite type — same church/party divide as Confirmed above.
-  var expectList=all.filter(function(g){return guestHasLiveManualStatus(g)&&g.plannerGuess==='yes';});
-  var forecastParty=confParty+expectList.filter(function(g){return (g.type||'').indexOf('party')!==-1;}).length;
-  var forecastChurch=forecast-forecastParty;
-  bar.innerHTML=item('g',confirmed,'Confirmed','confirmed','','Church only '+confChurch+' · Party '+confParty)+'<div class="stat-bar-div"></div>'+item('r',declined,'Declined','declined')+'<div class="stat-bar-div"></div>'+item('p',forecast,'Forecast','',' data-forecast-info="1" style="cursor:pointer"','Church only '+forecastChurch+' · Party '+forecastParty);
+  bar.innerHTML=item('g',confirmed,'Confirmed seats','','','Church only '+confChurch+' · Party '+confParty)+'<div class="stat-bar-div"></div>'+item('amber',expecting,'Expecting seats','','','Church only '+expectChurch+' · Party '+expectParty)+'<div class="stat-bar-div"></div>'+item('p',forecast,'Forecast seats','',' data-forecast-info="1" style="cursor:pointer"','Confirmed + expecting');
   bar.style.display='';
   bar.querySelectorAll('[data-mini-goto]').forEach(function(b){
     b.addEventListener('click',function(){
@@ -3008,7 +3015,7 @@ function renderStatBar(){
   });
   var fInfo=bar.querySelector('[data-forecast-info]');
   if(fInfo)fInfo.addEventListener('click',function(){
-    showToastWarn('Forecast = Confirmed ('+confirmed+') + guests we\'re guessing "yes" for ('+expecting+').');
+    showToastWarn('Forecast seats = Confirmed seats ('+confirmed+') + Expecting seats ('+expecting+').');
   });
 }
 
