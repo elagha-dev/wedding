@@ -2228,6 +2228,26 @@ body.mono-bar #presenceMeGroup .presence-avatar.is-me{box-shadow:0 0 0 2px var(-
   </div>
 </div>
 
+<!-- Map an RSVP submission to guest(s) whose name on the form doesn't match anyone
+     on the list (nicknames, "Dad & Mom", a typo, etc.) -->
+<div class="modal-bg" id="rsvpMapModal" style="display:none;z-index:10000">
+  <div class="modal" style="max-width:420px;width:92vw;max-height:80vh;display:flex;flex-direction:column;padding:0;overflow:hidden;background:#fff">
+    <div style="padding:16px 16px 10px;border-bottom:1px solid var(--parchment)">
+      <div style="font-size:15px;font-weight:700;color:var(--ink)">Map this RSVP to a guest</div>
+      <div id="rsvpMapSubmittedAs" style="font-size:11px;color:var(--soft);margin-top:2px"></div>
+    </div>
+    <div style="padding:10px 16px">
+      <input id="rsvpMapSearch" type="text" placeholder="Search guests…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="width:100%;font-size:15px;padding:9px 12px;border:1px solid var(--parchment);border-radius:8px;font-family:var(--sans)">
+      <div style="font-size:9.5px;color:var(--soft);margin-top:6px">Pick everyone this submission covers — e.g. both halves of a couple.</div>
+    </div>
+    <div id="rsvpMapList" style="flex:1;overflow-y:auto;padding:0 12px 8px"></div>
+    <div style="display:flex;gap:8px;padding:10px 16px;border-top:1px solid var(--parchment)">
+      <button id="rsvpMapCancel" type="button" style="flex:1;border:1px solid var(--parchment);background:#fff;color:var(--ink2);border-radius:8px;padding:9px;font-size:13px;font-weight:700;font-family:inherit">Cancel</button>
+      <button id="rsvpMapConfirm" type="button" style="flex:1;border:0;background:var(--ink);color:#fff;border-radius:8px;padding:9px;font-size:13px;font-weight:700;font-family:inherit" disabled>Map (0)</button>
+    </div>
+  </div>
+</div>
+
 <!-- UNDO TOAST -->
 <div class="modal-bg" id="pairsReviewModal" style="display:none;z-index:9999">
   <div class="modal" style="max-width:520px;width:94vw;max-height:82vh;display:flex;flex-direction:column;padding:0;overflow:hidden;background:#fff">
@@ -8028,7 +8048,11 @@ function showChatNotif(who, text){
         : att === false
         ? '<span style="background:#b91c1c;color:#fff;border-radius:100px;padding:2px 9px;font-size:9px;font-weight:800;letter-spacing:.04em;flex-shrink:0">NO</span>'
         : '';
-      return '<div class="rsvp-entry" data-name="' + name.toLowerCase().replace(/"/g,'') + '" style="border-left:3px solid ' + borderColor + ';padding-left:8px;margin-bottom:4px;border-radius:0 6px 6px 0">'        + '<div class="rsvp-row-top" data-det="' + id + '" style="display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;padding:6px 2px">'        + '<div style="flex:1;min-width:0"><div class="rsvp-entry-name" style="font-weight:600">' + name + '</div>'        + (date ? '<div class="rsvp-entry-meta" style="font-size:10px;color:var(--soft)">' + date + '</div>' : '') + '</div>'        + pillHtml        + '<span class="det-chev" style="font-size:8px;color:var(--soft);transition:transform .2s;flex-shrink:0;margin-left:4px">&#9660;</span>'        + '</div>'        + '<div id="' + id + '" style="display:none;margin-top:6px;padding:6px 4px 8px;border-top:1px solid var(--parchment);font-size:9px;line-height:1.7">' + rawDump + '</div>'        + '</div>';
+      var rid = _rvRowId(r);
+      var mappedTo = (typeof importQueue!=='undefined') ? importQueue.filter(function(g){ return _rv.decisions[g.name] && _rv.decisions[g.name].link===rid; }).map(function(g){return g.name;}) : [];
+      var mapBtnHtml = '<button class="rsvp-map-btn" data-row-id="' + rid.replace(/"/g,'&quot;') + '" data-row-name="' + name.replace(/"/g,'&quot;') + '" style="flex-shrink:0;border:1px solid var(--parchment);background:#fff;color:' + (mappedTo.length?'var(--ink2)':'var(--muted)') + ';border-radius:100px;padding:2px 8px;font-size:8.5px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap">'
+        + (mappedTo.length ? '&#128279; ' + mappedTo.join(' & ') : '&#128279; Map to guest') + '</button>';
+      return '<div class="rsvp-entry" data-name="' + name.toLowerCase().replace(/"/g,'') + '" style="border-left:3px solid ' + borderColor + ';padding-left:8px;margin-bottom:4px;border-radius:0 6px 6px 0">'        + '<div class="rsvp-row-top" data-det="' + id + '" style="display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;padding:6px 2px">'        + '<div style="flex:1;min-width:0"><div class="rsvp-entry-name" style="font-weight:600">' + name + '</div>'        + (date ? '<div class="rsvp-entry-meta" style="font-size:10px;color:var(--soft)">' + date + '</div>' : '') + '</div>'        + pillHtml        + '<span class="det-chev" style="font-size:8px;color:var(--soft);transition:transform .2s;flex-shrink:0;margin-left:4px">&#9660;</span>'        + '</div>'        + '<div style="padding:0 2px 6px" onclick="event.stopPropagation()">' + mapBtnHtml + '</div>'        + '<div id="' + id + '" style="display:none;margin-top:6px;padding:6px 4px 8px;border-top:1px solid var(--parchment);font-size:9px;line-height:1.7">' + rawDump + '</div>'        + '</div>';
     }
 
     var reversed = rows.slice().reverse();
@@ -8122,6 +8146,16 @@ function showChatNotif(who, text){
       });
     });
 
+    // "Map to guest" — for a submission whose name doesn't resemble anyone on
+    // the list (a nickname, "Dad & Mom", a typo), so the automatic matcher
+    // never had a candidate to suggest in the first place.
+    body.querySelectorAll('.rsvp-map-btn').forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        openRsvpMapModal(this.dataset.rowId, this.dataset.rowName);
+      });
+    });
+
     // Entry detail toggles
     body.querySelectorAll('.rsvp-row-top').forEach(function(row){
       row.addEventListener('click', function(e){
@@ -8161,6 +8195,88 @@ function showChatNotif(who, text){
       });
     }
   }
+
+  // ── Map to guest modal ──────────────────────────────────────────────────
+  var _rsvpMapRowId = null, _rsvpMapSelected = [];
+  function openRsvpMapModal(rowId, rowName){
+    _rsvpMapRowId = rowId;
+    _rsvpMapSelected = (typeof importQueue!=='undefined')
+      ? importQueue.filter(function(g){ return _rv.decisions[g.name] && _rv.decisions[g.name].link===rowId; }).map(function(g){return g.name;})
+      : [];
+    var sub = document.getElementById('rsvpMapSubmittedAs');
+    if(sub) sub.textContent = 'Submitted as "' + rowName + '"';
+    var search = document.getElementById('rsvpMapSearch');
+    if(search) search.value = '';
+    _renderRsvpMapList('');
+    var modal = document.getElementById('rsvpMapModal');
+    if(modal) modal.style.display = 'flex';
+    if(search) setTimeout(function(){ search.focus(); }, 50);
+  }
+  function _renderRsvpMapList(q){
+    var list = document.getElementById('rsvpMapList');
+    if(!list || typeof importQueue==='undefined') return;
+    q = (q||'').toLowerCase().trim();
+    var guests = importQueue.filter(function(g){ return !g.skipped; });
+    if(q) guests = guests.filter(function(g){ return (g.name||'').toLowerCase().indexOf(q)!==-1; });
+    guests.sort(function(a,b){ return (a.name||'').localeCompare(b.name||''); });
+    if(!guests.length){ list.innerHTML = '<div class="rsvp-empty" style="padding:12px 8px;font-size:12px">No guests match.</div>'; return; }
+    list.innerHTML = guests.map(function(g){
+      var on = _rsvpMapSelected.indexOf(g.name)!==-1;
+      return '<button type="button" class="rsvp-map-pick" data-name="' + g.name.replace(/"/g,'&quot;') + '" style="display:flex;align-items:center;justify-content:space-between;width:100%;text-align:left;border:1px solid ' + (on?'var(--ink)':'var(--parchment)') + ';background:' + (on?'var(--cream2)':'#fff') + ';border-radius:8px;padding:9px 11px;margin-bottom:5px;font-size:13px;font-weight:600;color:var(--ink);cursor:pointer;font-family:inherit">'
+        + '<span>' + g.name + '</span>'
+        + (on ? '<span style="color:var(--ink);font-weight:800">&#10003;</span>' : '')
+        + '</button>';
+    }).join('');
+    list.querySelectorAll('.rsvp-map-pick').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var nm = this.dataset.name;
+        var idx = _rsvpMapSelected.indexOf(nm);
+        if(idx===-1) _rsvpMapSelected.push(nm); else _rsvpMapSelected.splice(idx,1);
+        _renderRsvpMapList(document.getElementById('rsvpMapSearch').value);
+        _updateRsvpMapConfirmBtn();
+      });
+    });
+  }
+  function _updateRsvpMapConfirmBtn(){
+    var btn = document.getElementById('rsvpMapConfirm');
+    if(!btn) return;
+    btn.textContent = 'Map (' + _rsvpMapSelected.length + ')';
+    btn.disabled = !_rsvpMapSelected.length;
+  }
+  (function(){
+    var search = document.getElementById('rsvpMapSearch');
+    if(search) search.addEventListener('input', function(){ _renderRsvpMapList(this.value); });
+    var cancel = document.getElementById('rsvpMapCancel');
+    if(cancel) cancel.addEventListener('click', function(){ document.getElementById('rsvpMapModal').style.display='none'; });
+    var confirmBtn = document.getElementById('rsvpMapConfirm');
+    if(confirmBtn) confirmBtn.addEventListener('click', function(){
+      if(!_rsvpMapSelected.length || !_rsvpMapRowId) return;
+      var rid = _rsvpMapRowId;
+      // Same mechanism the automatic candidate-confirm flow already writes to
+      // (_rv.decisions[name].link) — getGuestRsvpInfo already knows how to read
+      // it, so this just gives you a way to set it when the name on the form
+      // didn't resemble anyone closely enough for that flow to ever suggest it.
+      _rsvpMapSelected.forEach(function(name){
+        var g = (typeof _rvFindGuest==='function') ? _rvFindGuest(name) : null;
+        var prevRejected = (_rv.decisions[name]||{}).rejected || [];
+        _rv.decisions[name] = { link: rid, rejected: prevRejected };
+        if(g && g.manualRsvp){
+          g.manualRsvp = ''; // the form's answer now takes over
+          try{ saveGuestMeta(); }catch(err){}
+          try{ pushMetaToWorker(g); }catch(err){}
+        }
+        _rvLog('link', name, 'Manually mapped this submission to ' + name + '.', rid);
+      });
+      _rvSave();
+      document.getElementById('rsvpMapModal').style.display = 'none';
+      if(typeof _rvClearPerRenderCaches==='function') _rvClearPerRenderCaches();
+      try{ renderGuestList(); }catch(err){}
+      try{ renderDashboard(); }catch(err){}
+      try{ render(); }catch(err){}
+      try{ window.rvBadge(); }catch(err){}
+      if(_lastDrawerData) renderDrawer(_lastDrawerData);
+    });
+  })();
 
   // Poll for changes
   function poll(){
