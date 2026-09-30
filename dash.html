@@ -8124,8 +8124,9 @@ function showChatNotif(who, text){
 
     function sectionHtml(id, label, items, badgeBg, badgeColor, topPad, showStats){
       var yn = countYesNo(items);
+      var _sectionManual = (id==='venue') ? _manualParty : (id==='church') ? _manualChurch : 0;
       var yesNoHtml = (items.length && showStats)
-        ? entriesCluster(items.length, yn.yes, yn.no) + seatsBadge(yn.seats)
+        ? entriesCluster(items.length, yn.yes, yn.no) + seatsBadge(yn.seats) + (_sectionManual ? '<span style="font-size:8px;font-weight:700;color:var(--soft);margin-left:4px;white-space:nowrap">+' + _sectionManual + ' manual</span>' : '')
         : (items.length ? '<span style="font-size:9px;font-weight:700;color:var(--muted)">' + items.length + '</span>' : '');
       var entriesHtml = items.length
         ? items.map(entryHtml).join('')
@@ -8143,6 +8144,14 @@ function showChatNotif(who, text){
 
     var seatsTotal = rows.reduce(function(sum, r){ return sum + (isAttending(r) === true ? getSeats(r) : 0); }, 0);
     var yn0 = countYesNo(rows);
+    // The gap between this forms-only total and the dashboard's Confirmed Seats
+    // is exactly the guests confirmed by hand with no form behind them — shown
+    // here too now, rather than leaving it to be discovered on another screen.
+    var _manualChurch = (typeof confirmedSeatBreakdown === 'function' && typeof importQueue !== 'undefined')
+      ? confirmedSeatBreakdown(importQueue.filter(function(g){ return !g.skipped && !isPartyType(g); })).manualExtra.length : 0;
+    var _manualParty = (typeof confirmedSeatBreakdown === 'function' && typeof importQueue !== 'undefined')
+      ? confirmedSeatBreakdown(importQueue.filter(function(g){ return !g.skipped && isPartyType(g); })).manualExtra.length : 0;
+    var _manualTotal = _manualChurch + _manualParty;
     var totalHtml = '<div style="margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--parchment)">'
       + '<div style="position:relative;margin-bottom:8px">'
       + '<svg style="position:absolute;left:9px;top:50%;transform:translateY(-50%);pointer-events:none" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--soft)" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>'
@@ -8153,7 +8162,7 @@ function showChatNotif(who, text){
       + entriesCluster(rows.length, yn0.yes, yn0.no)
       + seatsBadge(seatsTotal)
       + '</div>'
-      + '<div style="font-size:9.5px;color:var(--soft);text-align:right;margin-top:4px;line-height:1.4">Seats reported on submitted forms only — not the same total as the dashboard\'s Confirmed Seats, which also counts guests marked yes by hand.</div>'
+      + '<div style="font-size:9.5px;color:var(--soft);text-align:right;margin-top:4px;line-height:1.4">Seats reported on submitted forms only.' + (_manualTotal ? ' Plus <b style="color:var(--ink2)">' + _manualTotal + '</b> confirmed by hand with no form — the dashboard\'s Confirmed Seats (' + (seatsTotal+_manualTotal) + ') includes those too.' : '') + '</div>'
       + '</div>';
 
     var populatedCount = [withVenue, churchOnly, uncategorised].filter(function(arr){ return arr.length > 0; }).length;
