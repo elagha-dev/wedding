@@ -8003,6 +8003,23 @@ function showChatNotif(who, text){
       return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
     }
 
+    var _resolvedRowIds = (function(){
+      var resolved = {};
+      if(typeof importQueue === 'undefined') return resolved;
+      importQueue.forEach(function(g){
+        if(!g || g.skipped || g.isChild || (typeof isKidsGroup==='function' && isKidsGroup(g))) return;
+        if(g.name.indexOf('&') !== -1) return;
+        var dec = _rv.decisions[g.name] || {};
+        if(dec.link) resolved[dec.link] = true;
+        var partner = inferPartnerName(g);
+        var isC = (g.type === 'couple-ceremony' || g.type === 'couple-party');
+        var base = _getGuestRsvpInfoBase(g.name, isC, partner, g.manualRsvp || '', g.plannerGuess);
+        if(base && base.row && !base.guess && !_rvAmbig(g, base.row)) resolved[_rvRowId(base.row)] = true;
+        var cm = _rvOwnCandidates(g, rows);
+        if(cm && cm.clear) resolved[_rvRowId(cm.clear)] = true;
+      });
+      return resolved;
+    })();
     var entryCounter = 0;
     function isAttending(r){
       var ch = (r['Church'] || '').toString().trim().toLowerCase();
@@ -8054,10 +8071,19 @@ function showChatNotif(who, text){
       // the bordered pill-with-label version doubled the height of every
       // entry and was the loudest thing on the page. This is just a small
       // ✓/link glyph next to the date, silent until you actually need it.
-      var _mapIcon = mappedTo.length
+      // Resolved (a manual link, or the automatic matcher already landed on this
+      // row confidently for someone) → green check, nothing to do. Otherwise the
+      // matcher genuinely has no confident guess → amber question mark asking
+      // for a link. Both open the same picker either way — the green state is
+      // informational (and lets you re-map if it's actually wrong), not locked.
+      var _resolved = mappedTo.length || _resolvedRowIds[rid];
+      var _mapIcon = _resolved
         ? '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" width="10" height="10"><polyline points="20 6 9 17 4 12"/></svg>'
-        : '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" width="10" height="10"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>';
-      var mapBtnHtml = '<button class="rsvp-map-btn" data-row-id="' + rid.replace(/"/g,'&quot;') + '" data-row-name="' + name.replace(/"/g,'&quot;') + '" title="' + (mappedTo.length ? 'Mapped to ' + mappedTo.join(' & ').replace(/"/g,'&quot;') + ' — tap to change' : 'Map this submission to a guest') + '" style="width:17px;height:17px;border-radius:50%;border:0;background:#F5B942;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;padding:0;margin-right:6px;box-shadow:0 1px 2px rgba(176,120,48,.35)">'
+        : '<span style="color:#fff;font-size:10px;font-weight:800;line-height:1;font-family:inherit">?</span>';
+      var _mapTitle = mappedTo.length
+        ? 'Mapped to ' + mappedTo.join(' & ').replace(/"/g,'&quot;') + ' — tap to change'
+        : (_resolvedRowIds[rid] ? 'Matched automatically — tap to change' : 'No confident match — tap to link this to a guest');
+      var mapBtnHtml = '<button class="rsvp-map-btn" data-row-id="' + rid.replace(/"/g,'&quot;') + '" data-row-name="' + name.replace(/"/g,'&quot;') + '" title="' + _mapTitle + '" style="width:17px;height:17px;border-radius:50%;border:0;background:' + (_resolved ? '#2FA35C' : '#F5B942') + ';display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;padding:0;margin-right:6px;box-shadow:0 1px 2px rgba(0,0,0,.2)">'
         + _mapIcon + '</button>';
       return '<div class="rsvp-entry" data-name="' + name.toLowerCase().replace(/"/g,'') + '" style="border-left:3px solid ' + borderColor + ';padding-left:8px;margin-bottom:4px;border-radius:0 6px 6px 0">'        + '<div class="rsvp-row-top" data-det="' + id + '" style="display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;padding:6px 2px">'        + '<div style="flex:1;min-width:0"><div class="rsvp-entry-name" style="font-weight:600">' + name + '</div>'        + (date ? '<div class="rsvp-entry-meta" style="font-size:10px;color:var(--soft)">' + date + '</div>' : '') + '</div>'        + mapBtnHtml        + pillHtml        + '<span class="det-chev" style="font-size:8px;color:var(--soft);transition:transform .2s;flex-shrink:0;margin-left:4px">&#9660;</span>'        + '</div>'        + '<div id="' + id + '" style="display:none;margin-top:6px;padding:6px 4px 8px;border-top:1px solid var(--parchment);font-size:9px;line-height:1.7">' + rawDump + '</div>'        + '</div>';
     }
