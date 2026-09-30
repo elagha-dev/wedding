@@ -8153,6 +8153,7 @@ function showChatNotif(who, text){
       + entriesCluster(rows.length, yn0.yes, yn0.no)
       + seatsBadge(seatsTotal)
       + '</div>'
+      + '<div style="font-size:9.5px;color:var(--soft);text-align:right;margin-top:4px;line-height:1.4">Seats reported on submitted forms only — not the same total as the dashboard\'s Confirmed Seats, which also counts guests marked yes by hand.</div>'
       + '</div>';
 
     var populatedCount = [withVenue, churchOnly, uncategorised].filter(function(arr){ return arr.length > 0; }).length;
