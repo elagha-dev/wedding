@@ -3021,7 +3021,7 @@ function renderStatBar(){
     return '<div class="stat-bar-item"'+(gotoFilter?' data-mini-goto="'+gotoFilter+'"':'')+(extraAttr||'')+'><div class="stat-bar-n '+cls+'">'+n+'</div><div class="stat-bar-l">'+label+'</div>'
       +(sub?'<div style="font-size:10px;font-weight:700;color:var(--ink2);margin-top:3px;letter-spacing:.02em;white-space:nowrap">'+sub+'</div>':'')+'</div>';
   }
-  bar.innerHTML=item('g',confirmed,'Confirmed seats')+'<div class="stat-bar-div"></div>'+item('amber',expecting,'Expecting seats')+'<div class="stat-bar-div"></div>'+item('p',forecast,'Forecast seats','',' data-forecast-info="1" style="cursor:pointer"','Confirmed + expecting');
+  bar.innerHTML=item('g',confirmed,'Confirmed seats','','','Church only '+confChurch+' · Party '+confParty)+'<div class="stat-bar-div"></div>'+item('amber',expecting,'Expecting seats','','','Church only '+expectChurch+' · Party '+expectParty)+'<div class="stat-bar-div"></div>'+item('p',forecast,'Forecast seats','',' data-forecast-info="1" style="cursor:pointer"','Confirmed + expecting');
   bar.style.display='';
   bar.querySelectorAll('[data-mini-goto]').forEach(function(b){
     b.addEventListener('click',function(){
@@ -7546,7 +7546,9 @@ function showChatNotif(who, text){
   }
 
   // Orange circle shows CONFIRMED SEATS (attending, not declined) — not raw
-  // submission count. Mirrors the isAttending/getSeats logic used in the drawer.
+  // submission count. Same definition as the dashboard's "Confirmed seats"
+  // card (forms + guests confirmed by hand with no form), not just the raw
+  // form total, so the two numbers actually agree with each other.
   function isAttendingRow(r){
     var ch = (r['Church'] || '').toString().trim().toLowerCase();
     if(ch === 'yes' || ch === 'true' || ch === '1') return true;
@@ -7990,7 +7992,7 @@ function showChatNotif(who, text){
     var rows = (data && Array.isArray(data.rsvpRows)) ? data.rsvpRows : [];
     var count = (data && data.rsvpCount != null) ? data.rsvpCount : rows.length;
     if(countEl) countEl.textContent = count;
-    updateCountBtn(confirmedSeatsTotal(rows));
+    updateCountBtn((typeof confirmedSeatBreakdown==='function'&&typeof importQueue!=='undefined'&&importQueue.length) ? (function(i){return i.formSeats+i.manualExtra.length;})(confirmedSeatBreakdown(importQueue.filter(function(g){return !g.skipped;}))) : confirmedSeatsTotal(rows));
     if(!rows.length){
       body.innerHTML = '<div class="rsvp-empty">No responses yet.<br>Share your RSVP link to get started.</div>';
       return;
@@ -8326,7 +8328,9 @@ function showChatNotif(who, text){
     fetchStats().then(function(data){
       if(!data) return;
       var count = (data.rsvpCount !== undefined) ? parseInt(data.rsvpCount, 10) : null;
-      var seats = confirmedSeatsTotal(data.rsvpRows);
+      var seats = (typeof confirmedSeatBreakdown==='function'&&typeof importQueue!=='undefined'&&importQueue.length)
+        ? (function(i){return i.formSeats+i.manualExtra.length;})(confirmedSeatBreakdown(importQueue.filter(function(g){return !g.skipped;})))
+        : confirmedSeatsTotal(data.rsvpRows);
 
       // Always update button — shows confirmed seats, not raw submission count
       updateCountBtn(seats);
