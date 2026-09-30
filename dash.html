@@ -3021,7 +3021,7 @@ function renderStatBar(){
     return '<div class="stat-bar-item"'+(gotoFilter?' data-mini-goto="'+gotoFilter+'"':'')+(extraAttr||'')+'><div class="stat-bar-n '+cls+'">'+n+'</div><div class="stat-bar-l">'+label+'</div>'
       +(sub?'<div style="font-size:10px;font-weight:700;color:var(--ink2);margin-top:3px;letter-spacing:.02em;white-space:nowrap">'+sub+'</div>':'')+'</div>';
   }
-  bar.innerHTML=item('g',confirmed,'Confirmed seats','','','Church only '+confChurch+' · Party '+confParty)+'<div class="stat-bar-div"></div>'+item('amber',expecting,'Expecting seats','','','Church only '+expectChurch+' · Party '+expectParty)+'<div class="stat-bar-div"></div>'+item('p',forecast,'Forecast seats','',' data-forecast-info="1" style="cursor:pointer"','Confirmed + expecting');
+  bar.innerHTML=item('g',confirmed,'Confirmed seats')+'<div class="stat-bar-div"></div>'+item('amber',expecting,'Expecting seats')+'<div class="stat-bar-div"></div>'+item('p',forecast,'Forecast seats','',' data-forecast-info="1" style="cursor:pointer"','Confirmed + expecting');
   bar.style.display='';
   bar.querySelectorAll('[data-mini-goto]').forEach(function(b){
     b.addEventListener('click',function(){
@@ -8126,7 +8126,7 @@ function showChatNotif(who, text){
       var yn = countYesNo(items);
       var _sectionManual = (id==='venue') ? _manualParty : (id==='church') ? _manualChurch : 0;
       var yesNoHtml = (items.length && showStats)
-        ? entriesCluster(items.length, yn.yes, yn.no) + seatsBadge(yn.seats) + (_sectionManual ? '<span style="font-size:8px;font-weight:700;color:var(--soft);margin-left:4px;white-space:nowrap">+' + _sectionManual + ' manual</span>' : '')
+        ? entriesCluster(items.length, yn.yes, yn.no) + seatsBadge(yn.seats) + (_sectionManual ? '<span style="font-size:8px;font-weight:700;color:var(--soft);margin-left:4px;white-space:nowrap">+' + _sectionManual + '</span>' : '')
         : (items.length ? '<span style="font-size:9px;font-weight:700;color:var(--muted)">' + items.length + '</span>' : '');
       var entriesHtml = items.length
         ? items.map(entryHtml).join('')
@@ -8162,7 +8162,7 @@ function showChatNotif(who, text){
       + entriesCluster(rows.length, yn0.yes, yn0.no)
       + seatsBadge(seatsTotal)
       + '</div>'
-      + '<div style="font-size:9.5px;color:var(--soft);text-align:right;margin-top:4px;line-height:1.4">Seats reported on submitted forms only.' + (_manualTotal ? ' Plus <b style="color:var(--ink2)">' + _manualTotal + '</b> confirmed by hand with no form — the dashboard\'s Confirmed Seats (' + (seatsTotal+_manualTotal) + ') includes those too.' : '') + '</div>'
+      + (_manualTotal ? '<div style="font-size:9.5px;color:var(--soft);text-align:right;margin-top:4px">+' + _manualTotal + ' more confirmed by hand, not on any form</div>' : '')
       + '</div>';
 
     var populatedCount = [withVenue, churchOnly, uncategorised].filter(function(arr){ return arr.length > 0; }).length;
