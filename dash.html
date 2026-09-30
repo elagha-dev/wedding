@@ -1736,6 +1736,12 @@ body.mono-bar #presenceMeGroup .presence-avatar.is-me{box-shadow:0 0 0 2px var(-
 
 <div class="stat-bar" id="statBar" style="display:none"></div>
 
+<!-- Church vs Party, each split into what's confirmed by a submitted form vs
+     confirmed by hand with no form — same seat-card style as the RSVP drawer's
+     "Seats only" view, so the two look like one consistent picture rather than
+     two different designs answering a similar-looking question. -->
+<div id="statBreakdown" style="display:none;gap:8px;padding:0 0 12px"></div>
+
 <div class="prog-track" id="progTrack" style="display:none!important"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
 
   <!-- GUEST LIST -->
@@ -2999,7 +3005,7 @@ function renderStatBar(){
   var bar=document.getElementById('statBar');
   if(!bar)return;
   var all=importQueue.filter(function(g){return!g.skipped;});
-  if(!all.length){bar.style.display='none';return;}
+  if(!all.length){bar.style.display='none';var brk0=document.getElementById('statBreakdown');if(brk0)brk0.style.display='none';return;}
   var partyAll=all.filter(function(g){return (g.type||'').indexOf('party')!==-1;});
   var churchAll=all.filter(function(g){return (g.type||'').indexOf('party')===-1;});
   // Seats, not headcount — same basis as the guest-list badges below, so the
@@ -3023,6 +3029,29 @@ function renderStatBar(){
   }
   bar.innerHTML=item('g',confirmed,'Confirmed seats','','','Church only '+confChurch+' · Party '+confParty)+'<div class="stat-bar-div"></div>'+item('amber',expecting,'Expecting seats','','','Church only '+expectChurch+' · Party '+expectParty)+'<div class="stat-bar-div"></div>'+item('p',forecast,'Forecast seats','',' data-forecast-info="1" style="cursor:pointer"','Confirmed + expecting');
   bar.style.display='';
+
+  // Same question the drawer's "Seats only" view answers, restated for the
+  // dashboard: of what's confirmed, how much came from an actual form vs was
+  // confirmed by hand, broken down by Church and Party — always on here
+  // rather than needing a tap, since this is the first screen you see.
+  var brk = document.getElementById('statBreakdown');
+  if(brk){
+    var _churchSI = confirmedSeatBreakdown(churchAll);
+    var _churchForms = _churchSI.formSeats, _churchManual = _churchSI.manualExtra.length;
+    var _partySI = confirmedSeatBreakdown(partyAll);
+    var _partyForms = _partySI.formSeats, _partyManual = _partySI.manualExtra.length;
+    function _brkCard(n, label, accent, forms, manual){
+      return '<div style="flex:1;background:#fff;border:1.5px solid ' + accent + ';border-radius:12px;padding:12px 10px;text-align:center;min-width:0">'
+        + '<div style="font-size:22px;font-weight:800;color:var(--ink);line-height:1">' + n + '</div>'
+        + '<div style="font-size:9.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--soft);margin-top:3px">' + label + '</div>'
+        + (manual ? '<div style="font-size:9px;color:var(--muted);margin-top:4px">' + forms + ' forms &middot; ' + manual + ' by hand</div>' : '<div style="font-size:9px;color:var(--muted);margin-top:4px">all from forms</div>')
+        + '</div>';
+    }
+    brk.innerHTML = _brkCard(confParty, 'Party confirmed', 'rgba(58,140,92,.3)', _partyForms, _partyManual)
+      + _brkCard(confChurch, 'Church confirmed', 'rgba(176,120,48,.3)', _churchForms, _churchManual);
+    brk.style.display = 'flex';
+  }
+
   bar.querySelectorAll('[data-mini-goto]').forEach(function(b){
     b.addEventListener('click',function(){
       var ga=document.getElementById('guestArea');
@@ -7545,10 +7574,12 @@ function showChatNotif(who, text){
     if(el) el.textContent = (n !== null && n !== undefined) ? n : '—';
   }
 
-  // Orange circle shows CONFIRMED SEATS (attending, not declined) — not raw
-  // submission count. Same definition as the dashboard's "Confirmed seats"
-  // card (forms + guests confirmed by hand with no form), not just the raw
-  // form total, so the two numbers actually agree with each other.
+  // Orange circle shows CONFIRMED SEATS FROM ACTUAL RSVP RESPONSES — seats
+  // reported on submitted forms only. Deliberately NOT the same number as the
+  // dashboard's "Confirmed seats" card, which also includes guests confirmed
+  // by hand with no form — this badge answers "how many seats have people
+  // actually told us about", the dashboard answers "how many seats do we
+  // currently expect in total". Two different questions on purpose.
   function isAttendingRow(r){
     var ch = (r['Church'] || '').toString().trim().toLowerCase();
     if(ch === 'yes' || ch === 'true' || ch === '1') return true;
@@ -7984,6 +8015,15 @@ function showChatNotif(who, text){
   }
   window.rsvpAnalytics = rsvpAnalytics;
 
+  var _rsvpViewMode = (function(){ try{ return localStorage.getItem('ww_rsvp_view_mode') || 'detailed'; }catch(e){ return 'detailed'; } })();
+  function _setRsvpViewMode(mode){
+    _rsvpViewMode = mode;
+    try{ localStorage.setItem('ww_rsvp_view_mode', mode); }catch(e){}
+    var s = document.getElementById('rsvpViewSimple'), d = document.getElementById('rsvpViewDetailed');
+    if(s) { s.style.background = mode==='simple' ? 'var(--ink)' : '#fff'; s.style.color = mode==='simple' ? '#fff' : 'var(--ink2)'; }
+    if(d) { d.style.background = mode==='detailed' ? 'var(--ink)' : '#fff'; d.style.color = mode==='detailed' ? '#fff' : 'var(--ink2)'; }
+    if(_lastDrawerData) renderDrawer(_lastDrawerData);
+  }
   function renderDrawer(data){
     _lastDrawerData = data;
     var body = document.getElementById('rsvpDrawerBody');
@@ -7992,7 +8032,7 @@ function showChatNotif(who, text){
     var rows = (data && Array.isArray(data.rsvpRows)) ? data.rsvpRows : [];
     var count = (data && data.rsvpCount != null) ? data.rsvpCount : rows.length;
     if(countEl) countEl.textContent = count;
-    updateCountBtn((typeof confirmedSeatBreakdown==='function'&&typeof importQueue!=='undefined'&&importQueue.length) ? (function(i){return i.formSeats+i.manualExtra.length;})(confirmedSeatBreakdown(importQueue.filter(function(g){return !g.skipped;}))) : confirmedSeatsTotal(rows));
+    updateCountBtn(confirmedSeatsTotal(rows));
     if(!rows.length){
       body.innerHTML = '<div class="rsvp-empty">No responses yet.<br>Share your RSVP link to get started.</div>';
       return;
@@ -8154,6 +8194,36 @@ function showChatNotif(who, text){
     var _manualParty = (typeof confirmedSeatBreakdown === 'function' && typeof importQueue !== 'undefined')
       ? confirmedSeatBreakdown(importQueue.filter(function(g){ return !g.skipped && isPartyType(g); })).manualExtra.length : 0;
     var _manualTotal = _manualChurch + _manualParty;
+
+    // "Seats only": the number that actually matters day-of — how many seats
+    // will be booked — with nothing to tap, search, or map. Forms + manual,
+    // since a manually-confirmed guest is still a seat that gets booked.
+    if(_rsvpViewMode === 'simple'){
+      var _partyFormSeats = countYesNo(withVenue).seats;
+      var _churchFormSeats = countYesNo(churchOnly).seats;
+      var _partyGrand = _partyFormSeats + _manualParty;
+      var _churchGrand = _churchFormSeats + _manualChurch;
+      var _grandTotal = _partyGrand + _churchGrand;
+      function _seatCard(n, label, accent, forms, manual){
+        return '<div style="flex:1;background:#fff;border:1.5px solid ' + accent + ';border-radius:12px;padding:14px 10px;text-align:center;min-width:0">'
+          + '<div style="font-size:26px;font-weight:800;color:var(--ink);line-height:1">' + n + '</div>'
+          + '<div style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--soft);margin-top:4px">' + label + '</div>'
+          + (manual ? '<div style="font-size:9.5px;color:var(--muted);margin-top:5px">' + forms + ' from forms &middot; ' + manual + ' by hand</div>' : '<div style="font-size:9.5px;color:var(--muted);margin-top:5px">all from forms</div>')
+          + '</div>';
+      }
+      body.innerHTML = '<div style="padding:2px 2px 4px">'
+        + '<div style="text-align:center;padding:18px 8px 20px">'
+        + '<div style="font-size:38px;font-weight:800;color:var(--ink);line-height:1">' + _grandTotal + '</div>'
+        + '<div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--soft);margin-top:5px">Total seats booked</div>'
+        + '</div>'
+        + '<div style="display:flex;gap:8px">'
+        + _seatCard(_partyGrand, 'Church & Party', 'rgba(58,140,92,.3)', _partyFormSeats, _manualParty)
+        + _seatCard(_churchGrand, 'Church Only', 'rgba(176,120,48,.3)', _churchFormSeats, _manualChurch)
+        + '</div>'
+        + '</div>';
+      return;
+    }
+
     var totalHtml = '<div style="margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--parchment)">'
       + '<div style="position:relative;margin-bottom:8px">'
       + '<svg style="position:absolute;left:9px;top:50%;transform:translateY(-50%);pointer-events:none" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--soft)" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>'
@@ -8328,9 +8398,7 @@ function showChatNotif(who, text){
     fetchStats().then(function(data){
       if(!data) return;
       var count = (data.rsvpCount !== undefined) ? parseInt(data.rsvpCount, 10) : null;
-      var seats = (typeof confirmedSeatBreakdown==='function'&&typeof importQueue!=='undefined'&&importQueue.length)
-        ? (function(i){return i.formSeats+i.manualExtra.length;})(confirmedSeatBreakdown(importQueue.filter(function(g){return !g.skipped;})))
-        : confirmedSeatsTotal(data.rsvpRows);
+      var seats = confirmedSeatsTotal(data.rsvpRows);
 
       // Always update button — shows confirmed seats, not raw submission count
       updateCountBtn(seats);
@@ -8388,6 +8456,14 @@ function showChatNotif(who, text){
     if(btn)     btn.addEventListener('click', openDrawer);
     if(closeBtn)closeBtn.addEventListener('click', closeDrawer);
     if(overlay) overlay.addEventListener('click', closeDrawer);
+    var simpleBtn = document.getElementById('rsvpViewSimple');
+    var detailedBtn = document.getElementById('rsvpViewDetailed');
+    if(simpleBtn) simpleBtn.addEventListener('click', function(){ _setRsvpViewMode('simple'); });
+    if(detailedBtn) detailedBtn.addEventListener('click', function(){ _setRsvpViewMode('detailed'); });
+    // paint initial toggle state from the persisted mode, without re-rendering
+    var s = document.getElementById('rsvpViewSimple'), d = document.getElementById('rsvpViewDetailed');
+    if(s) { s.style.background = _rsvpViewMode==='simple' ? 'var(--ink)' : '#fff'; s.style.color = _rsvpViewMode==='simple' ? '#fff' : 'var(--ink2)'; }
+    if(d) { d.style.background = _rsvpViewMode==='detailed' ? 'var(--ink)' : '#fff'; d.style.color = _rsvpViewMode==='detailed' ? '#fff' : 'var(--ink2)'; }
   }
 
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wireButtons);
@@ -8428,6 +8504,10 @@ function showChatNotif(who, text){
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#FF6B00" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
     </a>
     <button class="rsvp-drawer-close" id="rsvpDrawerClose">&times;</button>
+  </div>
+  <div style="display:flex;align-items:center;justify-content:flex-end;gap:2px;padding:8px 14px 0">
+    <button type="button" id="rsvpViewSimple" class="rsvp-view-toggle" style="border:1px solid var(--parchment);background:#fff;color:var(--ink2);padding:4px 10px;font-size:10.5px;font-weight:700;font-family:inherit;cursor:pointer;border-radius:100px 0 0 100px">Seats only</button>
+    <button type="button" id="rsvpViewDetailed" class="rsvp-view-toggle" style="border:1px solid var(--parchment);border-left:0;background:#fff;color:var(--ink2);padding:4px 10px;font-size:10.5px;font-weight:700;font-family:inherit;cursor:pointer;border-radius:0 100px 100px 0">Detailed</button>
   </div>
   <div class="rsvp-drawer-body" id="rsvpDrawerBody">
     <div class="rsvp-empty">Tap to load responses&hellip;</div>
