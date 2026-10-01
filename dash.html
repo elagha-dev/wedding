@@ -720,6 +720,7 @@ textarea.msgbox:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,135
 .rsvp-drawer-overlay.open{opacity:1;pointer-events:all}
 .stat-pill{display:flex;align-items:center;justify-content:center;width:32px;height:32px;padding:0;border-radius:50%;border:none;background:var(--cream2);font-family:var(--sans);font-size:10.5px;font-weight:700;color:var(--muted);flex-shrink:0;transition:all var(--ease);line-height:1}
 .stat-pill.total{color:var(--ink2)}
+body.numbers-hidden .num-breakdown{display:none!important}
 .stat-pill.sent{color:var(--green);background:var(--green-bg);cursor:pointer}
 .stat-pill.sent:hover{background:rgba(58,140,92,.18)}
 .stat-pill.forecast{color:#7c3aed;background:rgba(124,58,237,.08);cursor:pointer}
@@ -1632,8 +1633,12 @@ body.mono-bar #presenceMeGroup .presence-avatar.is-me{box-shadow:0 0 0 2px var(-
     <span id="syncDevicesArrow" class="sync-arrow"></span>
   </button>
   <!-- Stats -->
-  <div class="stat-pill total" id="ovTotal" title="Total guests" style="cursor:pointer">0</div>
-  <div class="stat-pill forecast" id="ovForecast" title="Forecast (Confirmed + guesses)" style="cursor:pointer">0</div>
+  <div class="stat-pill total num-breakdown" id="ovTotal" title="Total guests" style="cursor:pointer">0</div>
+  <div class="stat-pill forecast num-breakdown" id="ovForecast" title="Forecast (Confirmed + guesses)" style="cursor:pointer">0</div>
+  <button id="numbersEyeBtn" title="Hide guest-count numbers" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;border:none;background:var(--cream2);color:var(--ink2);cursor:pointer;padding:0">
+    <svg class="eye-open" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+    <svg class="eye-closed" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M3 3l18 18"/><path d="M10.6 10.6a3 3 0 0 0 4.24 4.24"/><path d="M6.6 6.6C3.5 8.3 1 12 1 12s4 7 11 7c1.8 0 3.4-.42 4.8-1.08M17.9 17.9C20.6 16 23 12 23 12s-1.2-2.1-3.3-4"/><path d="M14.12 9.88A3 3 0 0 0 12 9"/></svg>
+  </button>
   <button id="reviewPairsBtn" title="Review sent-together pairs" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;border:none;background:var(--amber-bg);color:var(--amber);cursor:pointer;padding:0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></button>
   <div class="stat-pill new-guests" id="ovNew" title="New since last sync" style="display:none"></div>
   <!-- spacer -->
@@ -2799,6 +2804,36 @@ function dt(){return new Date().toLocaleDateString('en-GB',{day:'numeric',month:
 function copyText(text,btn,reset){var done=function(){btn.textContent='✓ Copied';btn.classList.add('ok');setTimeout(function(){btn.textContent=reset;btn.classList.remove('ok');},2000);};if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(done).catch(fb);else fb();function fb(){var t=document.createElement('textarea');t.value=text;t.style.cssText='position:fixed;opacity:0';document.body.appendChild(t);t.focus();t.select();try{document.execCommand('copy');done();}catch(e){}document.body.removeChild(t);}}
 function updateTodayBadge(){var el=document.getElementById('todayN');if(el)el.textContent=todayCount;}
 
+/* Hide/show the guest-count numbers (toolbar total/forecast pills, and the
+   seat/adult/kid/declined/pending breakdown on the Party, Church and combined
+   headers) — e.g. for showing the screen to someone without the numbers
+   attached. A single class on <body> plus a CSS rule, rather than re-rendering
+   anything, so it works instantly and survives every future render untouched. */
+(function(){
+  var KEY='ww_numbers_hidden';
+  function apply(hidden){
+    document.body.classList.toggle('numbers-hidden', hidden);
+    var btn=document.getElementById('numbersEyeBtn');
+    if(!btn) return;
+    var open=btn.querySelector('.eye-open'), closed=btn.querySelector('.eye-closed');
+    if(open) open.style.display=hidden?'none':'';
+    if(closed) closed.style.display=hidden?'':'none';
+    btn.title=hidden?'Show guest-count numbers':'Hide guest-count numbers';
+  }
+  function init(){
+    var hidden=false; try{ hidden=localStorage.getItem(KEY)==='1'; }catch(e){}
+    apply(hidden);
+    var btn=document.getElementById('numbersEyeBtn');
+    if(btn) btn.addEventListener('click', function(){
+      var next=!document.body.classList.contains('numbers-hidden');
+      try{ localStorage.setItem(KEY, next?'1':'0'); }catch(e){}
+      apply(next);
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+
 /* ══ SESSION TOGGLE ══════════════════════════ */
 function setSession(who){
   sessionSender=who;selSender=who;
@@ -3506,7 +3541,7 @@ function renderGuestList(){
       var partyGuestsOnly=sentGuests.filter(function(g){return !isChurchOnly(g);});
       var partySeatsHtml=seatsBadge(seatsConfirmedPlusExpecting(partyGuestsOnly)); // confirmed + expecting
       var partyRsvpHtml=partyCountChips(partyRsvpCounts(partyGuestsOnly));
-      sentBody+=groupSection('party:'+importFilter, '<span style="margin-right:5px">&#x1F389;</span>Party <span style="opacity:.4">('+partyCount+')</span>'+partySeatsHtml+partyRsvpHtml, partyHtml, 'party-hdr', 'color:#B0762E;border-color:rgba(176,118,46,.25)', true);
+      sentBody+=groupSection('party:'+importFilter, '<span style="margin-right:5px">&#x1F389;</span>Party <span style="opacity:.4">('+partyCount+')</span><span class="num-breakdown">'+partySeatsHtml+partyRsvpHtml+'</span>', partyHtml, 'party-hdr', 'color:#B0762E;border-color:rgba(176,118,46,.25)', true);
     }
     if(churchHtml){
       var churchGuestsOnly=sentGuests.filter(isChurchOnly);
