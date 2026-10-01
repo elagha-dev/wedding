@@ -8235,7 +8235,15 @@ function showChatNotif(who, text){
         + '</div>';
     }
 
-    var seatsTotal = rows.reduce(function(sum, r){ return sum + (isAttending(r) === true ? getSeats(r) : 0); }, 0);
+    // This used to sum every submitted form's seats directly — including forms
+    // that don't match anyone on the guest list (unmapped submissions like
+    // "Dad & Mom" before they're linked). The dashboard's Confirmed Seats only
+    // ever counts a form once it's matched to a guest, so the two could drift
+    // apart by however many seats sat on unmatched forms. Now both numbers
+    // come from the exact same calculation, so they can't disagree.
+    var _allSeatInfo = (typeof confirmedSeatBreakdown === 'function' && typeof importQueue !== 'undefined')
+      ? confirmedSeatBreakdown(importQueue.filter(function(g){ return !g.skipped; })) : null;
+    var seatsTotal = _allSeatInfo ? _allSeatInfo.formSeats : rows.reduce(function(sum, r){ return sum + (isAttending(r) === true ? getSeats(r) : 0); }, 0);
     var yn0 = countYesNo(rows);
     // The gap between this forms-only total and the dashboard's Confirmed Seats
     // is exactly the guests confirmed by hand with no form behind them — shown
@@ -8244,7 +8252,7 @@ function showChatNotif(who, text){
       ? confirmedSeatBreakdown(importQueue.filter(function(g){ return !g.skipped && !isPartyType(g); })).manualExtra.length : 0;
     var _manualParty = (typeof confirmedSeatBreakdown === 'function' && typeof importQueue !== 'undefined')
       ? confirmedSeatBreakdown(importQueue.filter(function(g){ return !g.skipped && isPartyType(g); })).manualExtra.length : 0;
-    var _manualTotal = _manualChurch + _manualParty;
+    var _manualTotal = _allSeatInfo ? _allSeatInfo.manualExtra.length : (_manualChurch + _manualParty);
 
     // "Seats only": the number that actually matters day-of — how many seats
     // will be booked — with nothing to tap, search, or map. Forms + manual,
@@ -8254,7 +8262,14 @@ function showChatNotif(who, text){
       var _churchFormSeats = countYesNo(churchOnly).seats;
       var _partyGrand = _partyFormSeats + _manualParty;
       var _churchGrand = _churchFormSeats + _manualChurch;
-      var _grandTotal = _partyGrand + _churchGrand;
+      // The headline number here must equal the detailed view's total and the
+      // dashboard's Confirmed Seats — forced equal rather than just summed
+      // from the two cards below, which use a per-category split that can't
+      // always be made to add up to the exact same guest-matched total (a
+      // row's party/church category and a guest's own type don't always
+      // agree). The two cards still show their own best-effort split; only
+      // the headline is guaranteed consistent.
+      var _grandTotal = seatsTotal + _manualTotal;
       function _seatCard(n, label, accent, forms, manual){
         return '<div style="flex:1;background:#fff;border:1.5px solid ' + accent + ';border-radius:12px;padding:14px 10px;text-align:center;min-width:0">'
           + '<div style="font-size:26px;font-weight:800;color:var(--ink);line-height:1">' + n + '</div>'
