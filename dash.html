@@ -1740,6 +1740,7 @@ body.mono-bar #presenceMeGroup .presence-avatar.is-me{box-shadow:0 0 0 2px var(-
 </div>
 
 <div class="stat-bar" id="statBar" style="display:none"></div>
+<div id="headcountBar" style="display:none;margin:-6px 0 12px"></div>
 
 <!-- Church vs Party, each split into what's confirmed by a submitted form vs
      confirmed by hand with no form — same seat-card style as the RSVP drawer's
@@ -3041,7 +3042,7 @@ function renderStatBar(){
   var bar=document.getElementById('statBar');
   if(!bar)return;
   var all=importQueue.filter(function(g){return!g.skipped;});
-  if(!all.length){bar.style.display='none';var brk0=document.getElementById('statBreakdown');if(brk0)brk0.style.display='none';return;}
+  if(!all.length){bar.style.display='none';var _hb0=document.getElementById('headcountBar');if(_hb0)_hb0.style.display='none';var brk0=document.getElementById('statBreakdown');if(brk0)brk0.style.display='none';return;}
   var partyAll=all.filter(function(g){return (g.type||'').indexOf('party')!==-1;});
   var churchAll=all.filter(function(g){return (g.type||'').indexOf('party')===-1;});
   // Seats, not headcount — same basis as the guest-list badges below, so the
@@ -3115,6 +3116,29 @@ function renderStatBar(){
       });
     });
   });
+  // Adults vs kids, confirmed + expecting. Counted per guest card (same kid rule as the Party chips).
+  (function(){
+    var hb=document.getElementById('headcountBar'); if(!hb) return;
+    var cA=0,cK=0,eA=0,eK=0;
+    all.forEach(function(g){
+      var kid=!!(g.isChild||(typeof isKidsGroup==='function'&&isKidsGroup(g)));
+      var yn=getGuestRsvpYesNo(g), guess=getGuestRsvpIsGuess(g);
+      if(yn===true&&!guess){ if(kid)cK++; else cA++; }
+      else if(guestHasLiveManualStatus(g)&&g.plannerGuess==='yes'){ if(kid)eK++; else eA++; }
+    });
+    function box(n,l,sub,col,bg){
+      return '<div style="flex:1;background:'+bg+';border-radius:10px;padding:9px 4px;text-align:center;min-width:0">'
+        +'<div style="font-size:19px;font-weight:800;color:'+col+';line-height:1">'+n+'</div>'
+        +'<div style="font-size:9.5px;font-weight:700;color:'+col+';margin-top:3px;text-transform:uppercase;letter-spacing:.05em">'+l+'</div>'
+        +'<div style="font-size:9px;color:'+col+';opacity:.8;margin-top:3px">'+sub+'</div></div>';
+    }
+    hb.innerHTML='<div style="display:flex;gap:8px">'
+      +box(cA+eA,'Adults','✓ '+cA+' confirmed + '+eA+' expected','var(--green)','var(--green-bg)')
+      +box(cK+eK,'Kids','✓ '+cK+' confirmed + '+eK+' expected','var(--sky)','var(--sky-bg)')
+      +box(cA+eA+cK+eK,'Total','confirmed + expected','var(--ink2)','var(--cream2)')
+      +'</div>';
+    hb.style.display='';
+  })();
   var fInfo=bar.querySelector('[data-forecast-info]');
   if(fInfo)fInfo.addEventListener('click',function(){
     showToastWarn('Forecast seats = Confirmed seats ('+confirmed+') + Expecting seats ('+expecting+').');
